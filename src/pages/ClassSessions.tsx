@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./ClassSessions.css";
 
 // Define our data types
 type Course = { id: number; name: string };
@@ -12,7 +13,6 @@ type ClassSession = {
   group: ClassGroup;
   instructor: Instructor;
   classroom: Classroom;
-  period: string;
 };
 
 // Preset data
@@ -41,17 +41,16 @@ const instructors: Instructor[] = [
 ];
 
 // App Component
-const App: React.FC = () => {
+const ClassSession: React.FC = () => {
   const [classSessions, setClassSessions] = useState<ClassSession[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
   const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
-  const [period, setPeriod] = useState<string>("");
 
   // Function to create a new class session
   const createClassSession = () => {
-    if (!selectedCourse || !selectedGroup || !selectedInstructor || !selectedClassroom || !period) {
+    if (!selectedCourse || !selectedGroup || !selectedInstructor || !selectedClassroom) {
       alert("Please fill out all fields before creating a class session.");
       return;
     }
@@ -62,7 +61,6 @@ const App: React.FC = () => {
       group: classGroups.find(group => group.id === selectedGroup)!,
       instructor: instructors.find(instructor => instructor.id === selectedInstructor)!,
       classroom: classrooms.find(classroom => classroom.id === selectedClassroom)!,
-      period,
     };
 
     setClassSessions((prevSessions) => [...prevSessions, newSession]);
@@ -83,22 +81,24 @@ const App: React.FC = () => {
       setSelectedGroup(session.group.id);
       setSelectedInstructor(session.instructor.id);
       setSelectedClassroom(session.classroom.id);
-      setPeriod(session.period);
       removeClassSession(id); // Remove the session first, we will add the edited one
     }
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>Class Session Management</h1>
 
       {/* Create Class Session Form */}
       <div className="create-session-form">
         <h2>Create Class Session</h2>
 
-        <div>
+        <div className="form-group">
           <label>Course: </label>
-          <select value={selectedCourse ?? ""} onChange={(e) => setSelectedCourse(Number(e.target.value))}>
+          <select
+            value={selectedCourse ?? ""}
+            onChange={(e) => setSelectedCourse(Number(e.target.value))}
+          >
             <option value="">Select Course</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
@@ -108,9 +108,12 @@ const App: React.FC = () => {
           </select>
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Class Group: </label>
-          <select value={selectedGroup ?? ""} onChange={(e) => setSelectedGroup(Number(e.target.value))}>
+          <select
+            value={selectedGroup ?? ""}
+            onChange={(e) => setSelectedGroup(Number(e.target.value))}
+          >
             <option value="">Select Group</option>
             {classGroups.map((group) => (
               <option key={group.id} value={group.id}>
@@ -120,9 +123,12 @@ const App: React.FC = () => {
           </select>
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Instructor: </label>
-          <select value={selectedInstructor ?? ""} onChange={(e) => setSelectedInstructor(Number(e.target.value))}>
+          <select
+            value={selectedInstructor ?? ""}
+            onChange={(e) => setSelectedInstructor(Number(e.target.value))}
+          >
             <option value="">Select Instructor</option>
             {instructors.map((instructor) => (
               <option key={instructor.id} value={instructor.id}>
@@ -132,9 +138,12 @@ const App: React.FC = () => {
           </select>
         </div>
 
-        <div>
+        <div className="form-group">
           <label>Classroom: </label>
-          <select value={selectedClassroom ?? ""} onChange={(e) => setSelectedClassroom(Number(e.target.value))}>
+          <select
+            value={selectedClassroom ?? ""}
+            onChange={(e) => setSelectedClassroom(Number(e.target.value))}
+          >
             <option value="">Select Classroom</option>
             {classrooms.map((classroom) => (
               <option key={classroom.id} value={classroom.id}>
@@ -144,12 +153,9 @@ const App: React.FC = () => {
           </select>
         </div>
 
-        <div>
-          <label>Period: </label>
-          <input type="text" value={period} onChange={(e) => setPeriod(e.target.value)} placeholder="e.g., P1-P2" />
-        </div>
-
-        <button onClick={createClassSession}>Create Class Session</button>
+        <button className="create-button" onClick={createClassSession}>
+          Create Class Session
+        </button>
       </div>
 
       {/* List of class sessions */}
@@ -160,12 +166,15 @@ const App: React.FC = () => {
         ) : (
           classSessions.map((session) => (
             <div key={session.id} className="class-session">
-              <h3>{session.course.name} - {session.group.name}</h3>
+              <h3>
+                {session.course.name} - {session.group.name}
+              </h3>
               <p>Instructor: {session.instructor.name}</p>
               <p>Classroom: {session.classroom.name}</p>
-              <p>Period: {session.period}</p>
-              <button onClick={() => removeClassSession(session.id)}>Remove</button>
-              <button onClick={() => editClassSession(session.id)}>Edit</button>
+              <div className="buttons">
+                <button onClick={() => removeClassSession(session.id)}>Remove</button>
+                <button onClick={() => editClassSession(session.id)}>Edit</button>
+              </div>
             </div>
           ))
         )}
@@ -174,4 +183,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default ClassSession;
