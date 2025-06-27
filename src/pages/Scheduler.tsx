@@ -21,15 +21,14 @@ const Drawer: React.FC<{ classes: string[]; onDragStart: (e: React.DragEvent, cl
 };
 
 // Timetable Component
-const Timetable: React.FC<{ groups: string[]; onDrop: (e: React.DragEvent, group: string) => void }> = ({ groups, onDrop }) => {
-  const timetableData = Array.from({ length: groups.length }, (_, i) => ({
-    group: groups[i],
-    slots: Array(16).fill(null), // 2 days * 8 periods
-  }));
-
-  const handleDrop = (e: React.DragEvent, group: string, index: number) => {
+const Timetable: React.FC<{
+  groups: string[];
+  timetable: string[][];
+  onDrop: (e: React.DragEvent, groupIndex: number, period: number) => void;
+}> = ({ groups, timetable, onDrop }) => {
+  const handleDrop = (e: React.DragEvent, groupIndex: number, period: number) => {
     e.preventDefault();
-    onDrop(e, group);
+    onDrop(e, groupIndex, period);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -42,24 +41,29 @@ const Timetable: React.FC<{ groups: string[]; onDrop: (e: React.DragEvent, group
       <table>
         <thead>
           <tr>
-            <th>Class Groups</th>
-            {[...Array(2)].map((_, dayIndex) => (
-              <th key={dayIndex}>Day {dayIndex + 1}</th>
+            <th>Group</th>
+            <th colSpan={8}>Day 1 (Periods 1–8)</th>
+            <th colSpan={8}>Day 2 (Periods 9–16)</th>
+          </tr>
+          <tr>
+            <th></th>
+            {Array.from({ length: 16 }, (_, i) => (
+              <th key={i}>P{i + 1}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {timetableData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td>{row.group}</td>
-              {row.slots.map((_, colIndex) => (
+          {groups.map((group, groupIndex) => (
+            <tr key={groupIndex}>
+              <td>{group}</td>
+              {timetable[groupIndex].map((cell, period) => (
                 <td
-                  key={colIndex}
-                  className="empty"
-                  onDrop={(e) => handleDrop(e, row.group, colIndex)}
+                  key={period}
+                  className={cell ? 'assigned' : 'empty'}
+                  onDrop={(e) => handleDrop(e, groupIndex, period)}
                   onDragOver={handleDragOver}
                 >
-                  {row.slots[colIndex] || 'Empty'}
+                  {cell || '—'}
                 </td>
               ))}
             </tr>
@@ -70,42 +74,43 @@ const Timetable: React.FC<{ groups: string[]; onDrop: (e: React.DragEvent, group
   );
 };
 
-// Main App Component
+// App Component
 const App: React.FC = () => {
   const [classes] = useState([
     'Math 101',
     'Physics 101',
     'Chemistry 101',
     'Biology 101',
-    'Computer Science 101',
+    'Comp Sci 101',
   ]);
-  const [groups] = useState(['Group 1', 'Group 2', 'Group 3', 'Group 4']);
-  const [timetable, setTimetable] = useState<any>([]);
+  const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
-  // Handle the drag start
+  // Timetable state: each group has 16 periods initialized to empty string
+  const [timetable, setTimetable] = useState<string[][]>(
+    Array.from({ length: groups.length }, () => Array(16).fill(''))
+  );
+
+  // Drag start sets the dataTransfer
   const handleDragStart = (e: React.DragEvent, classItem: string) => {
-    e.dataTransfer.setData('classItem', classItem);
+    e.dataTransfer.setData('text/plain', classItem);
   };
 
-  // Handle drop event
-  const handleDrop = (e: React.DragEvent, group: string) => {
-    const classItem = e.dataTransfer.getData('classItem');
-    const updatedTimetable = [...timetable];
-    const groupIndex = groups.indexOf(group);
-
-    if (groupIndex !== -1) {
-      updatedTimetable[groupIndex] = {
-        ...updatedTimetable[groupIndex],
-        classItem,
-      };
-      setTimetable(updatedTimetable);
-    }
+  // On drop: assign class to the target cell
+  const handleDrop = (e: React.DragEvent, groupIndex: number, period: number) => {
+    const classItem = e.dataTransfer.getData('text/plain');
+    setTimetable((prev) => {
+      const updated = [...prev];
+      if (!updated[groupIndex][period]) {
+        updated[groupIndex][period] = classItem;
+      }
+      return updated;
+    });
   };
 
   return (
     <div className="container">
       <Drawer classes={classes} onDragStart={handleDragStart} />
-      <Timetable groups={groups} onDrop={handleDrop} />
+      <Timetable groups={groups} timetable={timetable} onDrop={handleDrop} />
     </div>
   );
 };

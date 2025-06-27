@@ -1,4 +1,4 @@
-/* General reset */
+/* Basic reset */
 * {
   margin: 0;
   padding: 0;
@@ -7,84 +7,75 @@
 
 body {
   font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   background-color: #f4f4f4;
+  padding: 20px;
 }
 
 .container {
   display: flex;
   justify-content: space-between;
-  width: 80%;
+  gap: 20px;
 }
 
 .drawer {
-  width: 30%;
+  width: 25%;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
-.timetable {
-  width: 65%;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h3 {
-  margin-bottom: 15px;
+.drawer h3 {
+  margin-bottom: 10px;
   text-align: center;
 }
 
-ul {
-  list-style-type: none;
+.drawer ul {
+  list-style: none;
   padding: 0;
 }
 
-li {
+.drawer li {
   padding: 10px;
-  margin: 10px 0;
   background-color: #eee;
-  cursor: pointer;
   border-radius: 5px;
+  margin-bottom: 10px;
+  cursor: grab;
   text-align: center;
-  transition: background-color 0.3s;
 }
 
-li:hover {
+.drawer li:hover {
   background-color: #ddd;
 }
 
-table {
+.timetable {
+  width: 70%;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.timetable table {
   width: 100%;
   border-collapse: collapse;
 }
 
-th, td {
-  padding: 15px;
+.timetable th,
+.timetable td {
+  padding: 10px;
   text-align: center;
-  border: 1px solid #ddd;
-}
-
-td {
-  min-width: 120px;
-  cursor: pointer;
+  border: 1px solid #ccc;
+  min-width: 80px;
 }
 
 td.empty {
-  background-color: #f9f9f9;
+  background-color: #fafafa;
 }
 
 td.assigned {
   background-color: #8bc34a;
   color: white;
-}
-
-td.assigned.dragging {
-  background-color: #ff9800;
+  font-weight: bold;
 }
