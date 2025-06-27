@@ -1,10 +1,12 @@
-import Scheduler from './pages/Scheduler'
+import Scheduler from './pages/Scheduler';
+import ClassSessions from './pages/ClassSessions';
 
 function App() {
 
   return (
     <>
-      <Scheduler/>
+      <ClassSessions/>
+      {/* <Scheduler/> */}
     </>
   )
 }
