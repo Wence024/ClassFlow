@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Scheduler.css';
+import { useClassSessions } from '../context/ClassSessionsContext';
 
 type DragSource = {
   from: 'drawer' | 'timetable';
@@ -98,19 +99,16 @@ const Timetable: React.FC<{
 
 // App component
 const App: React.FC = () => {
-  const [drawerClasses, setDrawerClasses] = useState([
-    'Math 101',
-    'Physics 101',
-    'Chemistry 101',
-    'Biology 101',
-    'Comp Sci 101',
-  ]);
+  const { classSessions, setClassSessions } = useClassSessions();
   const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
   const [timetable, setTimetable] = useState<string[][]>(
     Array.from({ length: groups.length }, () => Array(16).fill(''))
   );
 
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
+
+  // Instead of local drawerClasses, use classSessions for available classes
+  const drawerClasses = classSessions.map(cs => cs.course.name + ' - ' + cs.group.name);
 
   // Drag started from drawer or timetable
   const handleDragStart = (e: React.DragEvent, source: DragSource) => {
@@ -142,8 +140,8 @@ const App: React.FC = () => {
     });
 
     if (dragSource.from === 'drawer') {
-      setDrawerClasses((prev) =>
-        prev.filter((c) => c !== dragSource.className)
+      setClassSessions((prev) =>
+        prev.filter((cs) => cs.course.name + ' - ' + cs.group.name !== dragSource.className)
       );
     }
   };
@@ -154,7 +152,7 @@ const App: React.FC = () => {
     if (!dragSource) return;
 
     // Add class back to drawer
-    setDrawerClasses((prev) =>
+    setClassSessions((prev) =>
       prev.includes(dragSource.className)
         ? prev
         : [...prev, dragSource.className]

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./ClassSessions.css";
+import { useClassSessions, courses, classGroups, classrooms, instructors, ClassSession } from '../context/ClassSessionsContext';
 
 // Define our data types
 type Course = { id: number; name: string };
@@ -7,42 +8,9 @@ type ClassGroup = { id: number; name: string };
 type Classroom = { id: number; name: string };
 type Instructor = { id: number; name: string };
 
-type ClassSession = {
-  id: number;
-  course: Course;
-  group: ClassGroup;
-  instructor: Instructor;
-  classroom: Classroom;
-};
-
-// Preset data
-const courses: Course[] = [
-  { id: 1, name: "Math 101" },
-  { id: 2, name: "Physics 101" },
-  { id: 3, name: "Chemistry 101" },
-];
-
-const classGroups: ClassGroup[] = [
-  { id: 1, name: "Group 1" },
-  { id: 2, name: "Group 2" },
-  { id: 3, name: "Group 3" },
-];
-
-const classrooms: Classroom[] = [
-  { id: 1, name: "Room A" },
-  { id: 2, name: "Room B" },
-  { id: 3, name: "Room C" },
-];
-
-const instructors: Instructor[] = [
-  { id: 1, name: "Prof. A" },
-  { id: 2, name: "Prof. B" },
-  { id: 3, name: "Prof. C" },
-];
-
 // App Component
 const ClassSession: React.FC = () => {
-  const [classSessions, setClassSessions] = useState<ClassSession[]>([]);
+  const { classSessions, setClassSessions } = useClassSessions();
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
