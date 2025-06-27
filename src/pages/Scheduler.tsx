@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import './Scheduler.css';
 import { useClassSessions } from '../context/ClassSessionsContext';
-import type { ClassSession } from '../context/ClassSessionsContext';
+import type { ClassSession } from '../context/ClassSessionsData';
+import { TimetableProvider, useTimetable } from '../context/TimetableContext';
 
 type DragSource = {
   from: 'drawer' | 'timetable';
@@ -99,20 +100,18 @@ const Timetable: React.FC<{
 };
 
 // App component
-const App: React.FC = () => {
-  const { classSessions, setClassSessions } = useClassSessions();
+const SchedulerApp: React.FC = () => {
+  const { classSessions } = useClassSessions();
+  const { timetable, setTimetable } = useTimetable();
   const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
-  const [timetable, setTimetable] = useState<(ClassSession | null)[][]>(
-    Array.from({ length: groups.length }, () => Array(16).fill(null))
-  );
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
 
   // Helper: get all class session IDs currently in the timetable
   const assignedSessionIds = new Set(
-    timetable.flat().filter(Boolean).map(cs => (cs as ClassSession).id)
+    timetable.flat().filter(Boolean).map((cs: ClassSession) => cs.id)
   );
   // Drawer shows only unassigned sessions
-  const drawerSessions = classSessions.filter(cs => !assignedSessionIds.has(cs.id));
+  const drawerSessions = classSessions.filter((cs: ClassSession) => !assignedSessionIds.has(cs.id));
   const drawerClasses = drawerSessions.map(cs => cs.course.name + ' - ' + cs.group.name);
 
   // Drag started from drawer or timetable
@@ -134,8 +133,8 @@ const App: React.FC = () => {
       cs => cs.course.name + ' - ' + cs.group.name === dragSource.className
     ) || timetable[dragSource.groupIndex ?? 0]?.[dragSource.periodIndex ?? 0];
     if (!session) return;
-    setTimetable((prev) => {
-      const updated = prev.map((row) => [...row]);
+    setTimetable((prev: (ClassSession | null)[][]) => {
+      const updated = prev.map((row: (ClassSession | null)[]) => [...row]);
       // Do not overwrite if destination already filled
       if (updated[groupIndex][periodIndex]) return prev;
       updated[groupIndex][periodIndex] = session;
@@ -153,8 +152,8 @@ const App: React.FC = () => {
     if (!dragSource) return;
     // Remove from timetable if that's the source
     if (dragSource.from === 'timetable' && dragSource.groupIndex !== undefined) {
-      setTimetable((prev) => {
-        const updated = prev.map((row) => [...row]);
+      setTimetable((prev: (ClassSession | null)[][]) => {
+        const updated = prev.map((row: (ClassSession | null)[]) => [...row]);
         updated[dragSource.groupIndex!][dragSource.periodIndex!] = null;
         return updated;
       });
@@ -178,4 +177,10 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+const Scheduler: React.FC = () => (
+  <TimetableProvider>
+    <SchedulerApp />
+  </TimetableProvider>
+);
+
+export default Scheduler;

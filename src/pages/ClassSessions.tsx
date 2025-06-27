@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import "./ClassSessions.css";
-import { useClassSessions, courses, classGroups, classrooms, instructors, ClassSession } from '../context/ClassSessionsContext';
-
-// Define our data types
-type Course = { id: number; name: string };
-type ClassGroup = { id: number; name: string };
-type Classroom = { id: number; name: string };
-type Instructor = { id: number; name: string };
+import { useClassSessions } from '../context/ClassSessionsContext';
+import { courses, classGroups, classrooms, instructors } from '../context/ClassSessionsData';
+import type { ClassSession } from '../context/ClassSessionsData';
 
 // App Component
 const ClassSession: React.FC = () => {

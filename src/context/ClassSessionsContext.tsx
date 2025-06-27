@@ -1,18 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import { courses, classGroups, classrooms, instructors, ClassSession } from './ClassSessionsData';
 
 // Types
 export type Course = { id: number; name: string };
 export type ClassGroup = { id: number; name: string };
 export type Classroom = { id: number; name: string };
 export type Instructor = { id: number; name: string };
-
-export type ClassSession = {
-  id: number;
-  course: Course;
-  group: ClassGroup;
-  instructor: Instructor;
-  classroom: Classroom;
-};
 
 // Preset data
 export const courses: Course[] = [
@@ -37,15 +31,16 @@ export const instructors: Instructor[] = [
 ];
 
 // Context type
-type ClassSessionsContextType = {
-  classSessions: ClassSession[];
-  setClassSessions: React.Dispatch<React.SetStateAction<ClassSession[]>>;
-};
-
-const ClassSessionsContext = createContext<ClassSessionsContextType | undefined>(undefined);
+const ClassSessionsContext = createContext<{ classSessions: ClassSession[]; setClassSessions: React.Dispatch<React.SetStateAction<ClassSession[]>> } | undefined>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
-  const [classSessions, setClassSessions] = useState<ClassSession[]>([]);
+  const [classSessions, setClassSessions] = useState<ClassSession[]>(() => {
+    const stored = localStorage.getItem('classSessions');
+    return stored ? JSON.parse(stored) : [];
+  });
+  useEffect(() => {
+    localStorage.setItem('classSessions', JSON.stringify(classSessions));
+  }, [classSessions]);
   return (
     <ClassSessionsContext.Provider value={{ classSessions, setClassSessions }}>
       {children}

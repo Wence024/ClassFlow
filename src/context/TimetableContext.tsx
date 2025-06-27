@@ -1,0 +1,35 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ClassSession } from './ClassSessionsContext';
+
+const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
+const TIMETABLE_KEY = 'timetable';
+
+const defaultTimetable: (ClassSession | null)[][] = Array.from({ length: groups.length }, () => Array(16).fill(null));
+
+type TimetableContextType = {
+  timetable: (ClassSession | null)[][];
+  setTimetable: React.Dispatch<React.SetStateAction<(ClassSession | null)[][]>>;
+};
+
+const TimetableContext = createContext<TimetableContextType | undefined>(undefined);
+
+export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [timetable, setTimetable] = useState<(ClassSession | null)[][]>(() => {
+    const stored = localStorage.getItem(TIMETABLE_KEY);
+    return stored ? JSON.parse(stored) : defaultTimetable;
+  });
+  useEffect(() => {
+    localStorage.setItem(TIMETABLE_KEY, JSON.stringify(timetable));
+  }, [timetable]);
+  return (
+    <TimetableContext.Provider value={{ timetable, setTimetable }}>
+      {children}
+    </TimetableContext.Provider>
+  );
+};
+
+export function useTimetable() {
+  const ctx = useContext(TimetableContext);
+  if (!ctx) throw new Error('useTimetable must be used within a TimetableProvider');
+  return ctx;
+} 
