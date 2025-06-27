@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-  max-width: 900px;
+  max-width: 90%;
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
@@ -113,4 +113,35 @@ button:hover {
 
 .buttons button:nth-child(2):hover {
   background-color: #218838;
+}
+
+.main-flex {
+  display: flex;
+  gap: 32px;
+  justify-content: space-between;
+}
+
+.sessions-list-container {
+  flex: 2;
+  min-width: 0;
+}
+
+.form-container {
+  flex: 1;
+  min-width: 300px;
+  max-width: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .main-flex {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .form-container {
+    max-width: 100%;
+    min-width: 0;
+  }
 }
