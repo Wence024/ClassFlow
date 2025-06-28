@@ -63,7 +63,7 @@ const ComponentManagement: React.FC = () => {
     if (editId) {
       setList((prev: any[]) => prev.map(i => i.id === editId ? { ...i, ...form } : i));
     } else {
-      setList((prev: any[]) => [...prev, { ...form, id: Math.max(...prev.map(i => i.id)) + 1 }]);
+      setList((prev: any[]) => [...prev, { ...form, id: Math.max(...[...getList()].map(i => i.id), 0) + 1 }]);
     }
     resetForm();
   };
@@ -89,17 +89,21 @@ const ComponentManagement: React.FC = () => {
           {getList().length === 0 ? (
             <p>No {TABS[activeTab].toLowerCase()} created yet.</p>
           ) : (
-            getList().map((item: any) => (
-              <div key={item.id} className="class-session">
-                <h3>{item.name}{item.code ? ` (${item.code})` : ""}</h3>
-                {item.location && <p>Location: {item.location}</p>}
-                {item.email && <p>Email: {item.email}</p>}
-                <div className="buttons">
-                  <button onClick={() => handleDelete(item.id)}>Remove</button>
-                  <button onClick={() => handleEdit(item)}>Edit</button>
+            getList().map((item: any) => {
+              // Ensure each item has a unique key, fall back to a different identifier if needed
+              const key = item.id ? `${TABS[activeTab]}-${item.id}` : `${TABS[activeTab]}-${Math.random()}`;
+              return (
+                <div key={key} className="class-session">
+                  <h3>{item.name}{item.code ? ` (${item.code})` : ""}</h3>
+                  {item.location && <p>Location: {item.location}</p>}
+                  {item.email && <p>Email: {item.email}</p>}
+                  <div className="buttons">
+                    <button onClick={() => handleDelete(item.id)}>Remove</button>
+                    <button onClick={() => handleEdit(item)}>Edit</button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
