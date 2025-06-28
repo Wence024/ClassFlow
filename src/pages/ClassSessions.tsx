@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import "./ClassSessions.css";
 import { useClassSessions } from '../context/ClassSessionsContext';
+import { useComponents } from '../context/ComponentsContext';
 import type { ClassSession } from '../types/classSessions';
 
 // App Component
 const ClassSession: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
+  const { courses, classGroups, classrooms, instructors } = useComponents();
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
