@@ -1,28 +1,25 @@
 import React, { useState } from "react";
 import "./ClassSessions.css";
-import { courses, classGroups, classrooms, instructors } from '../context/ClassSessionsData';
-
-// Utility to get next ID (for demo purposes, not persistent)
-const getNextId = (arr: { id: number }[]) => arr.length ? Math.max(...arr.map(i => i.id)) + 1 : 1;
+import { useComponents } from '../context/ComponentsContext';
 
 const TABS = ["Courses", "Class Groups", "Classrooms", "Instructors"];
 
 const ComponentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
-
-  // State for each component
-  const [courseList, setCourseList] = useState([...courses]);
-  const [groupList, setGroupList] = useState([...classGroups]);
-  const [classroomList, setClassroomList] = useState([...classrooms]);
-  const [instructorList, setInstructorList] = useState([...instructors]);
+  const {
+    courses, setCourses,
+    classGroups, setClassGroups,
+    classrooms, setClassrooms,
+    instructors, setInstructors
+  } = useComponents();
 
   // Form states
   const [form, setForm] = useState<any>({});
   const [editId, setEditId] = useState<number | null>(null);
 
   // Handlers for each tab
-  const getList = () => [courseList, groupList, classroomList, instructorList][activeTab];
-  const setList = (fn: any) => [setCourseList, setGroupList, setClassroomList, setInstructorList][activeTab](fn);
+  const getList = () => [courses, classGroups, classrooms, instructors][activeTab];
+  const setList = (fn: any) => [setCourses, setClassGroups, setClassrooms, setInstructors][activeTab](fn);
   const getFields = () => {
     switch (activeTab) {
       case 0: return [
@@ -66,7 +63,7 @@ const ComponentManagement: React.FC = () => {
     if (editId) {
       setList((prev: any[]) => prev.map(i => i.id === editId ? { ...i, ...form } : i));
     } else {
-      setList((prev: any[]) => [...prev, { ...form, id: getNextId(prev) }]);
+      setList((prev: any[]) => [...prev, { ...form, id: Math.max(...prev.map(i => i.id)) + 1 }]);
     }
     resetForm();
   };
