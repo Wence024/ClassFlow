@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./ClassSessions.css";
 import { useClassSessions } from '../context/ClassSessionsContext';
-import { courses, classGroups, classrooms, instructors } from '../context/ClassSessionsData';
 import type { ClassSession } from '../types/classSessions';
 
 // App Component
