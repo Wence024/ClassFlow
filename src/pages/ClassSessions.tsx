@@ -7,10 +7,13 @@ import type { ClassSession } from '../types/classSessions';
 const ClassSession: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
+  
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
   const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
   const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
+  const [editingSession, setEditingSession] = useState<boolean>(false);
+  const [sessionIdToEdit, setSessionIdToEdit] = useState<number | null>(null); // Store the session ID being edited
 
   // Function to create a new class session
   const createClassSession = () => {
@@ -28,6 +31,7 @@ const ClassSession: React.FC = () => {
     };
 
     setClassSessions((prevSessions) => [...prevSessions, newSession]);
+    resetForm(); // Reset form after creating a session
   };
 
   // Function to remove a class session
@@ -45,8 +49,43 @@ const ClassSession: React.FC = () => {
       setSelectedGroup(session.group.id);
       setSelectedInstructor(session.instructor.id);
       setSelectedClassroom(session.classroom.id);
-      removeClassSession(id); // Remove the session first, we will add the edited one
+      setEditingSession(true); // Switch to edit mode
+      setSessionIdToEdit(id); // Store the ID of the session being edited
     }
+  };
+
+  // Reset the form to "Create" mode
+  const resetForm = () => {
+    setSelectedCourse(null);
+    setSelectedGroup(null);
+    setSelectedInstructor(null);
+    setSelectedClassroom(null);
+    setEditingSession(false); // Reset edit mode
+    setSessionIdToEdit(null); // Reset the session ID to edit
+  };
+
+  // Handle save changes (either create or update)
+  const saveClassSession = () => {
+    if (editingSession && sessionIdToEdit !== null) {
+      // Update the class session
+      const updatedSession: ClassSession = {
+        id: sessionIdToEdit, // Use the ID of the session being edited
+        course: courses.find(course => course.id === selectedCourse)!,
+        group: classGroups.find(group => group.id === selectedGroup)!,
+        instructor: instructors.find(instructor => instructor.id === selectedInstructor)!,
+        classroom: classrooms.find(classroom => classroom.id === selectedClassroom)!,
+      };
+
+      setClassSessions((prevSessions) =>
+        prevSessions.map((session) =>
+          session.id === updatedSession.id ? updatedSession : session
+        )
+      );
+    } else {
+      createClassSession(); // Call create session function if in "create" mode
+    }
+
+    resetForm(); // Reset after saving changes (create or edit)
   };
 
   return (
@@ -81,9 +120,9 @@ const ClassSession: React.FC = () => {
 
       {/* Create/Edit Form Container */}
       <div className="form-container">
-        <h2>{selectedCourse ? 'Edit Class Session' : 'Create Class Session'}</h2>
+        <h2>{editingSession ? 'Edit Class Session' : 'Create Class Session'}</h2>
         <div className="create-session-form">
-          {[
+          {[ 
             { label: "Course", value: selectedCourse, setValue: setSelectedCourse, options: courses },
             { label: "Class Group", value: selectedGroup, setValue: setSelectedGroup, options: classGroups },
             { label: "Instructor", value: selectedInstructor, setValue: setSelectedInstructor, options: instructors },
@@ -108,8 +147,8 @@ const ClassSession: React.FC = () => {
               </select>
             </div>
           ))}
-          <button className="create-button" onClick={createClassSession}>
-            {selectedCourse ? 'Save Changes' : 'Create Class Session'}
+          <button className="create-button" onClick={saveClassSession}>
+            {editingSession ? 'Save Changes' : 'Create Class Session'}
           </button>
         </div>
       </div>
