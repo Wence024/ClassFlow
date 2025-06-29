@@ -4,7 +4,6 @@ import { useClassSessions } from '../context/ClassSessionsContext';
 import { useComponents } from '../context/ComponentsContext';
 import type { ClassSession } from '../types/classSessions';
 
-// App Component
 const ClassSession: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
@@ -54,25 +53,28 @@ const ClassSession: React.FC = () => {
     <div className="container main-flex">
       {/* Class Sessions List Container */}
       <div className="sessions-list-container">
-      <h1>Class Session Management</h1>
+        <h1>Class Session Management</h1>
         <div className="class-sessions">
           <h2>Class Sessions</h2>
           {classSessions.length === 0 ? (
             <p>No class sessions created yet.</p>
           ) : (
-            classSessions.map((session) => (
-              <div key={session.id} className="class-session">
-                <h3>
-                  {session.course.name} - {session.group.name}
-                </h3>
-                <p>Instructor: {session.instructor.name}</p>
-                <p>Classroom: {session.classroom.name}</p>
-                <div className="buttons">
-                  <button onClick={() => removeClassSession(session.id)}>Remove</button>
-                  <button onClick={() => editClassSession(session.id)}>Edit</button>
+            classSessions.map((session, idx) => {
+              const sessionKey = `session-${session.id}`; // Use session id as unique key
+              return (
+                <div key={sessionKey} className="class-session">
+                  <h3>
+                    {session.course.name} - {session.group.name}
+                  </h3>
+                  <p>Instructor: {session.instructor.name}</p>
+                  <p>Classroom: {session.classroom.name}</p>
+                  <div className="buttons">
+                    <button onClick={() => removeClassSession(session.id)}>Remove</button>
+                    <button onClick={() => editClassSession(session.id)}>Edit</button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
@@ -80,67 +82,35 @@ const ClassSession: React.FC = () => {
       {/* Create/Edit Form Container */}
       <div className="form-container">
         <h2>{selectedCourse ? 'Edit Class Session' : 'Create Class Session'}</h2>
-      <div className="create-session-form">
-        <div className="form-group">
-          <label>Course: </label>
-          <select
-            value={selectedCourse ?? ""}
-            onChange={(e) => setSelectedCourse(Number(e.target.value))}
-          >
-            <option value="">Select Course</option>
-            {courses.map((course) => (
-              <option key={course.id} value={course.id}>
-                {course.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Class Group: </label>
-          <select
-            value={selectedGroup ?? ""}
-            onChange={(e) => setSelectedGroup(Number(e.target.value))}
-          >
-            <option value="">Select Group</option>
-            {classGroups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Instructor: </label>
-          <select
-            value={selectedInstructor ?? ""}
-            onChange={(e) => setSelectedInstructor(Number(e.target.value))}
-          >
-            <option value="">Select Instructor</option>
-            {instructors.map((instructor) => (
-              <option key={instructor.id} value={instructor.id}>
-                {instructor.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Classroom: </label>
-          <select
-            value={selectedClassroom ?? ""}
-            onChange={(e) => setSelectedClassroom(Number(e.target.value))}
-          >
-            <option value="">Select Classroom</option>
-            {classrooms.map((classroom) => (
-              <option key={classroom.id} value={classroom.id}>
-                {classroom.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button className="create-button" onClick={createClassSession}>
+        <div className="create-session-form">
+          {[
+            { label: "Course", value: selectedCourse, setValue: setSelectedCourse, options: courses },
+            { label: "Class Group", value: selectedGroup, setValue: setSelectedGroup, options: classGroups },
+            { label: "Instructor", value: selectedInstructor, setValue: setSelectedInstructor, options: instructors },
+            { label: "Classroom", value: selectedClassroom, setValue: setSelectedClassroom, options: classrooms }
+          ].map((field, index) => (
+            <div key={field.label || index} className="form-group">
+              <label>{field.label}: </label>
+              <select
+                value={field.value ?? ""} // Ensure value is never NaN, use empty string if null/undefined
+                onChange={(e) => field.setValue(Number(e.target.value) || null)} // Handle conversion
+              >
+                <option value="">Select {field.label}</option>
+                {field.options.map((option) => {
+                  const optionKey = `${field.label.toLowerCase()}-${option.id}`; // Concatenate type and id
+                  return (
+                    <option key={optionKey} value={option.id}>
+                      {option.name}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          ))}
+          <button className="create-button" onClick={createClassSession}>
             {selectedCourse ? 'Save Changes' : 'Create Class Session'}
-        </button>
-      </div>
+          </button>
+        </div>
       </div>
     </div>
   );
