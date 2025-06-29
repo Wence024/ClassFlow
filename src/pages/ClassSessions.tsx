@@ -60,7 +60,7 @@ const ClassSession: React.FC = () => {
             <p>No class sessions created yet.</p>
           ) : (
             classSessions.map((session, idx) => {
-              const sessionKey = `session-${session.id}`; // Use session id as unique key
+              const sessionKey = `session-${session.id}`; // Unique key for each session
               return (
                 <div key={sessionKey} className="class-session">
                   <h3>
@@ -96,8 +96,9 @@ const ClassSession: React.FC = () => {
                 onChange={(e) => field.setValue(Number(e.target.value) || null)} // Handle conversion
               >
                 <option value="">Select {field.label}</option>
-                {field.options.map((option) => {
-                  const optionKey = `${field.label.toLowerCase()}-${option.id}`; // Concatenate type and id
+                {field.options.map((option, optionIndex) => {
+                  // Combine component type (`field.label`), option `id`, and index to create a unique key
+                  const optionKey = `${field.label.toLowerCase()}-${option.id}-${optionIndex}`;
                   return (
                     <option key={optionKey} value={option.id}>
                       {option.name}
