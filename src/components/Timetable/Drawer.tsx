@@ -2,6 +2,7 @@ import React from 'react';
 import './Timetable.css'; // We'll reuse the same CSS
 import type { DrawerProps } from '../../types/timetable';
 
+
 export const Drawer: React.FC<DrawerProps> = ({ 
   drawerClasses, 
   onDragStart, 
