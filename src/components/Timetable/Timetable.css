@@ -5,18 +5,6 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  padding: 20px;
-}
-
-.container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-}
-
 .drawer {
   width: 25%;
   background: #fff;
@@ -78,4 +66,10 @@ td.assigned {
   background-color: #8bc34a;
   color: white;
   font-weight: bold;
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
 }
