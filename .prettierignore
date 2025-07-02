@@ -1,0 +1,9 @@
+node_modules
+dist
+*.svg
+*.md
+*.ejs
+*.html
+*.yml
+*.yaml
+*.json
