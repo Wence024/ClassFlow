@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-type FormValues = Record<string, any>;
+type FormFieldValue = string | number | null;
 
-export function useForm<T extends FormValues>(initialValues: T) {
+export function useForm<T extends Record<string, FormFieldValue>>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);

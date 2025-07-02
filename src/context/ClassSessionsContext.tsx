@@ -1,13 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassSession } from '../types/classSessions';
 import { usePersistentState } from '../hooks/usePersistentState';
+import { type ClassSessionsContextType } from './types';
 
 // Context type
-const ClassSessionsContext = createContext<{ 
-  classSessions: ClassSession[]; 
-  setClassSessions: React.Dispatch<React.SetStateAction<ClassSession[]>> 
-} | undefined>(undefined);
+const ClassSessionsContext = createContext<ClassSessionsContextType>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
   const [classSessions, setClassSessions] = usePersistentState<ClassSession[]>('classSessions', []);

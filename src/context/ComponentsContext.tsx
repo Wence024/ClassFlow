@@ -1,19 +1,9 @@
 import React, { createContext, useContext } from "react";
 import type { Course, ClassGroup, Classroom, Instructor } from "../types/classSessions";
 import { usePersistentState } from "../hooks/usePersistentState";
+import type { ComponentsContextType } from "./types"
 
-interface ComponentsContextType {
-  courses: Course[];
-  setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
-  classGroups: ClassGroup[];
-  setClassGroups: React.Dispatch<React.SetStateAction<ClassGroup[]>>;
-  classrooms: Classroom[];
-  setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>;
-  instructors: Instructor[];
-  setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>>;
-}
-
-const ComponentsContext = createContext<ComponentsContextType | undefined>(undefined);
+const ComponentsContext = createContext<ComponentsContextType>(undefined);
 
 export const useComponents = () => {
   const ctx = useContext(ComponentsContext);
