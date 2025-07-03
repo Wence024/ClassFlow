@@ -3,22 +3,22 @@ import type { Course } from '../types/classSessions';
 
 export const apiCourses = {
   async list(): Promise<Course[]> {
-    const res = await api.get<Course[]>('/courses');
+    const res = await api.get<Course[]>('/schedule/courses');
     return res.data;
   },
   async get(id: string): Promise<Course> {
-    const res = await api.get<Course>(`/courses/${id}`);
+    const res = await api.get<Course>(`/schedule/courses/${id}`);
     return res.data;
   },
   async create(data: Omit<Course, 'id'>): Promise<Course> {
-    const res = await api.post<Course>('/courses', data);
+    const res = await api.post<Course>('/schedule/courses', data);
     return res.data;
   },
   async update(id: string, data: Partial<Course>): Promise<Course> {
-    const res = await api.put<Course>(`/courses/${id}`, data);
+    const res = await api.put<Course>(`/schedule/courses/${id}`, data);
     return res.data;
   },
   async delete(id: string): Promise<void> {
-    await api.delete(`/courses/${id}`);
+    await api.delete(`/schedule/courses/${id}`);
   },
 };

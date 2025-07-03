@@ -3,22 +3,22 @@ import type { ClassGroup } from '../types/classSessions';
 
 export const apiClassGroups = {
   async list(): Promise<ClassGroup[]> {
-    const res = await api.get<ClassGroup[]>('/class-groups');
+    const res = await api.get<ClassGroup[]>('/schedule/class-groups');
     return res.data;
   },
   async get(id: string): Promise<ClassGroup> {
-    const res = await api.get<ClassGroup>(`/class-groups/${id}`);
+    const res = await api.get<ClassGroup>(`/schedule/class-groups/${id}`);
     return res.data;
   },
   async create(data: Omit<ClassGroup, 'id'>): Promise<ClassGroup> {
-    const res = await api.post<ClassGroup>('/class-groups', data);
+    const res = await api.post<ClassGroup>('/schedule/class-groups', data);
     return res.data;
   },
   async update(id: string, data: Partial<ClassGroup>): Promise<ClassGroup> {
-    const res = await api.put<ClassGroup>(`/class-groups/${id}`, data);
+    const res = await api.put<ClassGroup>(`/schedule/class-groups/${id}`, data);
     return res.data;
   },
   async delete(id: string): Promise<void> {
-    await api.delete(`/class-groups/${id}`);
+    await api.delete(`/schedule/class-groups/${id}`);
   },
 };
