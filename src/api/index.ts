@@ -1,5 +1,12 @@
 // NOTE: Make sure to install axios: npm install axios
 import axios, { type AxiosResponse } from 'axios';
+import type {
+  Course,
+  ClassGroup,
+  Classroom,
+  Instructor,
+  ClassSession,
+} from '../types/classSessions';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
@@ -10,46 +17,95 @@ const api = axios.create({
 
 // --- Courses ---
 export const apiCourses = {
-  list: () => api.get('/courses').then((res: AxiosResponse) => res.data),
-  create: (data: any) => api.post('/courses', data).then((res: AxiosResponse) => res.data),
-  update: (id: string, data: any) =>
-    api.put(`/courses/${id}`, data).then((res: AxiosResponse) => res.data),
-  delete: (id: string) => api.delete(`/courses/${id}`).then((res: AxiosResponse) => res.data),
+  async list(): Promise<Course[]> {
+    const res: AxiosResponse<Course[]> = await api.get('/courses');
+    return res.data;
+  },
+  async create(data: Omit<Course, 'id'>): Promise<Course> {
+    const res: AxiosResponse<Course> = await api.post('/courses', data);
+    return res.data;
+  },
+  async update(id: string, data: Partial<Course>): Promise<Course> {
+    const res: AxiosResponse<Course> = await api.put(`/courses/${id}`, data);
+    return res.data;
+  },
+  async delete(id: string): Promise<void> {
+    await api.delete(`/courses/${id}`);
+  },
 };
 
 // --- Class Groups ---
 export const apiClassGroups = {
-  list: () => api.get('/class-groups').then((res: AxiosResponse) => res.data),
-  create: (data: any) => api.post('/class-groups', data).then((res: AxiosResponse) => res.data),
-  update: (id: string, data: any) =>
-    api.put(`/class-groups/${id}`, data).then((res: AxiosResponse) => res.data),
-  delete: (id: string) => api.delete(`/class-groups/${id}`).then((res: AxiosResponse) => res.data),
+  async list(): Promise<ClassGroup[]> {
+    const res: AxiosResponse<ClassGroup[]> = await api.get('/class-groups');
+    return res.data;
+  },
+  async create(data: Omit<ClassGroup, 'id'>): Promise<ClassGroup> {
+    const res: AxiosResponse<ClassGroup> = await api.post('/class-groups', data);
+    return res.data;
+  },
+  async update(id: string, data: Partial<ClassGroup>): Promise<ClassGroup> {
+    const res: AxiosResponse<ClassGroup> = await api.put(`/class-groups/${id}`, data);
+    return res.data;
+  },
+  async delete(id: string): Promise<void> {
+    await api.delete(`/class-groups/${id}`);
+  },
 };
 
 // --- Classrooms ---
 export const apiClassrooms = {
-  list: () => api.get('/classrooms').then((res: AxiosResponse) => res.data),
-  create: (data: any) => api.post('/classrooms', data).then((res: AxiosResponse) => res.data),
-  update: (id: string, data: any) =>
-    api.put(`/classrooms/${id}`, data).then((res: AxiosResponse) => res.data),
-  delete: (id: string) => api.delete(`/classrooms/${id}`).then((res: AxiosResponse) => res.data),
+  async list(): Promise<Classroom[]> {
+    const res: AxiosResponse<Classroom[]> = await api.get('/classrooms');
+    return res.data;
+  },
+  async create(data: Omit<Classroom, 'id'>): Promise<Classroom> {
+    const res: AxiosResponse<Classroom> = await api.post('/classrooms', data);
+    return res.data;
+  },
+  async update(id: string, data: Partial<Classroom>): Promise<Classroom> {
+    const res: AxiosResponse<Classroom> = await api.put(`/classrooms/${id}`, data);
+    return res.data;
+  },
+  async delete(id: string): Promise<void> {
+    await api.delete(`/classrooms/${id}`);
+  },
 };
 
 // --- Instructors ---
 export const apiInstructors = {
-  list: () => api.get('/instructors').then((res: AxiosResponse) => res.data),
-  create: (data: any) => api.post('/instructors', data).then((res: AxiosResponse) => res.data),
-  update: (id: string, data: any) =>
-    api.put(`/instructors/${id}`, data).then((res: AxiosResponse) => res.data),
-  delete: (id: string) => api.delete(`/instructors/${id}`).then((res: AxiosResponse) => res.data),
+  async list(): Promise<Instructor[]> {
+    const res: AxiosResponse<Instructor[]> = await api.get('/instructors');
+    return res.data;
+  },
+  async create(data: Omit<Instructor, 'id'>): Promise<Instructor> {
+    const res: AxiosResponse<Instructor> = await api.post('/instructors', data);
+    return res.data;
+  },
+  async update(id: string, data: Partial<Instructor>): Promise<Instructor> {
+    const res: AxiosResponse<Instructor> = await api.put(`/instructors/${id}`, data);
+    return res.data;
+  },
+  async delete(id: string): Promise<void> {
+    await api.delete(`/instructors/${id}`);
+  },
 };
 
 // --- Class Sessions ---
 export const apiClassSessions = {
-  list: () => api.get('/class-sessions').then((res: AxiosResponse) => res.data),
-  create: (data: any) => api.post('/class-sessions', data).then((res: AxiosResponse) => res.data),
-  update: (id: string, data: any) =>
-    api.put(`/class-sessions/${id}`, data).then((res: AxiosResponse) => res.data),
-  delete: (id: string) =>
-    api.delete(`/class-sessions/${id}`).then((res: AxiosResponse) => res.data),
+  async list(): Promise<ClassSession[]> {
+    const res: AxiosResponse<ClassSession[]> = await api.get('/class-sessions');
+    return res.data;
+  },
+  async create(data: Omit<ClassSession, 'id'>): Promise<ClassSession> {
+    const res: AxiosResponse<ClassSession> = await api.post('/class-sessions', data);
+    return res.data;
+  },
+  async update(id: string, data: Partial<ClassSession>): Promise<ClassSession> {
+    const res: AxiosResponse<ClassSession> = await api.put(`/class-sessions/${id}`, data);
+    return res.data;
+  },
+  async delete(id: string): Promise<void> {
+    await api.delete(`/class-sessions/${id}`);
+  },
 };
