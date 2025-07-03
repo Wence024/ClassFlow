@@ -30,6 +30,11 @@ type ApiModule = {
   delete: (id: string) => Promise<void>;
 };
 
+const normalize = <T extends { id?: string; _id?: string }>(item: T): T & { id: string } => ({
+  ...item,
+  id: item.id ?? item._id ?? '',
+});
+
 const ComponentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>(TABS[0]);
   const {
@@ -113,6 +118,10 @@ const ComponentManagement: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!id) {
+      setError('Invalid ID for deletion');
+      return;
+    }
     setLoading(true);
     setError(null);
     const setter = getCurrentSetter();
@@ -142,10 +151,10 @@ const ComponentManagement: React.FC = () => {
     try {
       if (isEditing && editId) {
         const updated = await api.update(editId, values);
-        setter((prev) => prev.map((i) => (i.id === editId ? updated : i)));
+        setter((prev) => prev.map((i) => (i.id === editId ? normalize(updated) : i)));
       } else {
         const created = await api.create(values as Omit<Entity, 'id'>);
-        setter((prev) => [...prev, created]);
+        setter((prev) => [...prev, normalize(created)]);
       }
       resetForm();
     } catch (err: any) {

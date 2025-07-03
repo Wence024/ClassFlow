@@ -33,10 +33,30 @@ export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           apiClassrooms.list(),
           apiInstructors.list(),
         ]);
-        setCourses(coursesData);
-        setClassGroups(classGroupsData);
-        setClassrooms(classroomsData);
-        setInstructors(instructorsData);
+        setCourses(
+          coursesData.map((item) => ({
+            ...item,
+            id: item.id ?? item._id,
+          }))
+        );
+        setClassGroups(
+          classGroupsData.map((item) => ({
+            ...item,
+            id: item.id ?? item._id,
+          }))
+        );
+        setClassrooms(
+          classroomsData.map((item) => ({
+            ...item,
+            id: item.id ?? item._id,
+          }))
+        );
+        setInstructors(
+          instructorsData.map((item) => ({
+            ...item,
+            id: item.id ?? item._id,
+          }))
+        );
       } catch (err: any) {
         setError(err.message || 'Failed to fetch components');
       } finally {
