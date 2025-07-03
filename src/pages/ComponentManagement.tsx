@@ -2,7 +2,6 @@ import React from 'react';
 import './ClassSessions.css';
 import { useComponents } from '../context/ComponentsContext';
 import { useForm } from '../hooks/useForm';
-import type { Course, ClassGroup, Classroom, Instructor } from '../types/classSessions';
 
 const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'] as const;
 
@@ -16,6 +15,9 @@ type FormValues = {
   capacity?: number;
   program?: string;
 };
+
+type Entity = FormValues & { id: string };
+type Setter = React.Dispatch<React.SetStateAction<Entity[]>>;
 
 const ComponentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<Tab>(TABS[0]);
@@ -41,37 +43,37 @@ const ComponentManagement: React.FC = () => {
     }
   );
 
-  const getCurrentList = () => {
+  const getCurrentList = (): Entity[] => {
     switch (activeTab) {
       case 'Courses':
-        return courses;
+        return courses as Entity[];
       case 'Class Groups':
-        return classGroups;
+        return classGroups as Entity[];
       case 'Classrooms':
-        return classrooms;
+        return classrooms as Entity[];
       case 'Instructors':
-        return instructors;
+        return instructors as Entity[];
       default:
         return [];
     }
   };
 
-  const getCurrentSetter = () => {
+  const getCurrentSetter = (): Setter => {
     switch (activeTab) {
       case 'Courses':
-        return setCourses;
+        return setCourses as Setter;
       case 'Class Groups':
-        return setClassGroups;
+        return setClassGroups as Setter;
       case 'Classrooms':
-        return setClassrooms;
+        return setClassrooms as Setter;
       case 'Instructors':
-        return setInstructors;
+        return setInstructors as Setter;
       default:
         return () => {};
     }
   };
 
-  const handleEdit = (item: any) => {
+  const handleEdit = (item: Entity) => {
     setEditValues({
       ...item,
       name: item.name,
@@ -83,9 +85,9 @@ const ComponentManagement: React.FC = () => {
     });
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     const setter = getCurrentSetter();
-    setter((prev: any[]) => prev.filter((i) => i.id !== id));
+    setter((prev) => prev.filter((i) => i.id !== id));
     if (editId === id) resetForm();
   };
 
@@ -99,13 +101,13 @@ const ComponentManagement: React.FC = () => {
     const setter = getCurrentSetter();
 
     if (isEditing && editId) {
-      setter((prev: any[]) => prev.map((i) => (i.id === editId ? { ...i, ...values } : i)));
+      setter((prev) => prev.map((i) => (i.id === editId ? { ...i, ...values } : i)));
     } else {
-      const newItem = {
+      const newItem: Entity = {
         ...values,
         id: crypto.randomUUID(),
       };
-      setter((prev: any[]) => [...prev, newItem]);
+      setter((prev) => [...prev, newItem]);
     }
 
     resetForm();
@@ -160,7 +162,7 @@ const ComponentManagement: React.FC = () => {
           {getCurrentList().length === 0 ? (
             <p>No {activeTab.toLowerCase()} created yet.</p>
           ) : (
-            getCurrentList().map((item: any) => (
+            getCurrentList().map((item) => (
               <div key={`${activeTab}-${item.id}`} className="class-session">
                 <h3>
                   {item.name}
