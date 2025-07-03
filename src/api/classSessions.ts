@@ -1,6 +1,14 @@
 import { api } from './axios';
 import type { ClassSession } from '../types/classSessions';
 
+export type ClassSessionCreatePayload = {
+  course: string;
+  classGroup: string;
+  instructor: string;
+  classroom: string;
+};
+export type ClassSessionUpdatePayload = Partial<ClassSessionCreatePayload>;
+
 export const apiClassSessions = {
   async list(): Promise<ClassSession[]> {
     const res = await api.get<ClassSession[]>('/schedule/class-sessions');
@@ -10,11 +18,11 @@ export const apiClassSessions = {
     const res = await api.get<ClassSession>(`/schedule/class-sessions/${id}`);
     return res.data;
   },
-  async create(data: Omit<ClassSession, 'id'>): Promise<ClassSession> {
+  async create(data: ClassSessionCreatePayload): Promise<ClassSession> {
     const res = await api.post<ClassSession>('/schedule/class-sessions', data);
     return res.data;
   },
-  async update(id: string, data: Partial<ClassSession>): Promise<ClassSession> {
+  async update(id: string, data: ClassSessionUpdatePayload): Promise<ClassSession> {
     const res = await api.put<ClassSession>(`/schedule/class-sessions/${id}`, data);
     return res.data;
   },
