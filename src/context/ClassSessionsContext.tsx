@@ -1,20 +1,37 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassSession } from '../types/classSessions';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { apiClassSessions } from '../api/classSessions';
 import { type ClassSessionsContextType } from './types';
 
 // Context type
 const ClassSessionsContext = createContext<ClassSessionsContextType>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
-  const [classSessions, setClassSessions] = useLocalStorage<ClassSession[]>('classSessions', []);
+  const [classSessions, setClassSessions] = useState<ClassSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    localStorage.setItem('classSessions', JSON.stringify(classSessions));
-  }, [classSessions]);
+    async function fetchSessions() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await apiClassSessions.list();
+        setClassSessions(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch class sessions');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSessions();
+  }, []);
+
+  // Optionally, you can wrap setClassSessions to also call the API for CRUD
 
   return (
-    <ClassSessionsContext.Provider value={{ classSessions, setClassSessions }}>
+    <ClassSessionsContext.Provider value={{ classSessions, setClassSessions, loading, error }}>
       {children}
     </ClassSessionsContext.Provider>
   );
