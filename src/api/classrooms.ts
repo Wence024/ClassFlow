@@ -6,6 +6,10 @@ export const apiClassrooms = {
     const res = await api.get<Classroom[]>('/classrooms');
     return res.data;
   },
+  async get(id: string): Promise<Classroom> {
+    const res = await api.get<Classroom>(`/classrooms/${id}`);
+    return res.data;
+  },
   async create(data: Omit<Classroom, 'id'>): Promise<Classroom> {
     const res = await api.post<Classroom>('/classrooms', data);
     return res.data;

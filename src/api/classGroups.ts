@@ -6,6 +6,10 @@ export const apiClassGroups = {
     const res = await api.get<ClassGroup[]>('/class-groups');
     return res.data;
   },
+  async get(id: string): Promise<ClassGroup> {
+    const res = await api.get<ClassGroup>(`/class-groups/${id}`);
+    return res.data;
+  },
   async create(data: Omit<ClassGroup, 'id'>): Promise<ClassGroup> {
     const res = await api.post<ClassGroup>('/class-groups', data);
     return res.data;

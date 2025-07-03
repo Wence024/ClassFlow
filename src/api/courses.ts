@@ -6,6 +6,10 @@ export const apiCourses = {
     const res = await api.get<Course[]>('/courses');
     return res.data;
   },
+  async get(id: string): Promise<Course> {
+    const res = await api.get<Course>(`/courses/${id}`);
+    return res.data;
+  },
   async create(data: Omit<Course, 'id'>): Promise<Course> {
     const res = await api.post<Course>('/courses', data);
     return res.data;

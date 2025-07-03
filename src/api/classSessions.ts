@@ -6,6 +6,10 @@ export const apiClassSessions = {
     const res = await api.get<ClassSession[]>('/class-sessions');
     return res.data;
   },
+  async get(id: string): Promise<ClassSession> {
+    const res = await api.get<ClassSession>(`/class-sessions/${id}`);
+    return res.data;
+  },
   async create(data: Omit<ClassSession, 'id'>): Promise<ClassSession> {
     const res = await api.post<ClassSession>('/class-sessions', data);
     return res.data;
