@@ -5,7 +5,7 @@ type FormFieldValue = string | number | null;
 export function useForm<T extends Record<string, FormFieldValue>>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -15,7 +15,7 @@ export function useForm<T extends Record<string, FormFieldValue>>(initialValues:
     }));
   };
 
-  const handleSelectChange = (name: string, value: number | null) => {
+  const handleSelectChange = (name: string, value: string | null) => {
     setValues((prev) => ({
       ...prev,
       [name]: value,
@@ -28,10 +28,10 @@ export function useForm<T extends Record<string, FormFieldValue>>(initialValues:
     setEditId(null);
   };
 
-  const setEditValues = (item: T & { id: number }) => {
+  const setEditValues = (item: T & { id?: string }) => {
     setValues(item);
     setIsEditing(true);
-    setEditId(item.id);
+    setEditId(item.id ?? null);
   };
 
   return {

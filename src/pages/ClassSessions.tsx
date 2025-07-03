@@ -10,10 +10,10 @@ const ClassSession: React.FC = () => {
   const { courses, classGroups, classrooms, instructors } = useComponents();
 
   const { values, isEditing, editId, handleSelectChange, resetForm, setEditValues } = useForm({
-    courseId: null as number | null,
+    courseId: null as string | null,
     classGroupId: null as string | null,
-    instructorId: null as number | null,
-    classroomId: null as number | null,
+    instructorId: null as string | null,
+    classroomId: null as string | null,
   });
 
   const createClassSession = () => {
@@ -23,7 +23,7 @@ const ClassSession: React.FC = () => {
     }
 
     const newSession: ClassSession = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       course: courses.find((course) => course.id === values.courseId)!,
       classGroup: classGroups.find((classGroup) => classGroup.id === values.classGroupId)!,
       instructor: instructors.find((instructor) => instructor.id === values.instructorId)!,
@@ -60,16 +60,15 @@ const ClassSession: React.FC = () => {
     resetForm();
   };
 
-  const removeClassSession = (id: number) => {
+  const removeClassSession = (id: string) => {
     setClassSessions((prevSessions) => prevSessions.filter((session) => session.id !== id));
     if (editId === id) resetForm();
   };
 
-  const editClassSession = (id: number) => {
+  const editClassSession = (id: string) => {
     const session = classSessions.find((s) => s.id === id);
     if (session) {
       setEditValues({
-        ...session,
         courseId: session.course.id,
         classGroupId: session.classGroup.id,
         instructorId: session.instructor.id,
@@ -111,7 +110,7 @@ const ClassSession: React.FC = () => {
             {
               label: 'Course',
               value: values.courseId,
-              setValue: (val: number | null) => handleSelectChange('courseId', val),
+              setValue: (val: string | null) => handleSelectChange('courseId', val),
               options: courses,
             },
             {
@@ -123,13 +122,13 @@ const ClassSession: React.FC = () => {
             {
               label: 'Instructor',
               value: values.instructorId,
-              setValue: (val: number | null) => handleSelectChange('instructorId', val),
+              setValue: (val: string | null) => handleSelectChange('instructorId', val),
               options: instructors,
             },
             {
               label: 'Classroom',
               value: values.classroomId,
-              setValue: (val: number | null) => handleSelectChange('classroomId', val),
+              setValue: (val: string | null) => handleSelectChange('classroomId', val),
               options: classrooms,
             },
           ].map((field) => (
@@ -137,7 +136,7 @@ const ClassSession: React.FC = () => {
               <label>{field.label}: </label>
               <select
                 value={field.value ?? ''}
-                onChange={(e) => field.setValue(Number(e.target.value) || null)}
+                onChange={(e) => field.setValue(e.target.value || null)}
               >
                 <option value="">Select {field.label}</option>
                 {field.options.map((option) => (
