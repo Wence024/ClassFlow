@@ -13,6 +13,8 @@ type FormValues = {
   code?: string;
   location?: string;
   email?: string;
+  capacity?: number;
+  program?: string;
 };
 
 const ComponentManagement: React.FC = () => {
@@ -34,6 +36,8 @@ const ComponentManagement: React.FC = () => {
       code: '',
       location: '',
       email: '',
+      capacity: undefined,
+      program: undefined,
     }
   );
 
@@ -74,6 +78,8 @@ const ComponentManagement: React.FC = () => {
       ...(item.code && { code: item.code }),
       ...(item.location && { location: item.location }),
       ...(item.email && { email: item.email }),
+      ...(item.capacity && { capacity: item.capacity }),
+      ...(item.program && { program: item.program }),
     });
   };
 
@@ -119,11 +125,13 @@ const ComponentManagement: React.FC = () => {
         return [
           { label: 'Name', name: 'name' },
           { label: 'Location', name: 'location' },
+          { label: 'Capacity', name: 'capacity', type: 'number' },
         ];
       case 'Instructors':
         return [
           { label: 'Name', name: 'name' },
           { label: 'Email', name: 'email' },
+          { label: 'Program', name: 'program' },
         ];
       default:
         return [];
@@ -160,7 +168,9 @@ const ComponentManagement: React.FC = () => {
                   {item.code ? ` (${item.code})` : ''}
                 </h3>
                 {item.location && <p>Location: {item.location}</p>}
+                {item.capacity !== undefined && <p>Capacity: {item.capacity}</p>}
                 {item.email && <p>Email: {item.email}</p>}
+                {item.program && <p>Program: {item.program}</p>}
                 <div className="buttons">
                   <button onClick={() => handleDelete(item.id)}>Remove</button>
                   <button onClick={() => handleEdit(item)}>Edit</button>
@@ -178,7 +188,7 @@ const ComponentManagement: React.FC = () => {
             <div className="form-group" key={field.name}>
               <label>{field.label}: </label>
               <input
-                type="text"
+                type={field.type || 'text'}
                 name={field.name}
                 value={values[field.name as keyof FormValues] || ''}
                 onChange={handleChange}

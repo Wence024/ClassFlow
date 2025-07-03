@@ -3,10 +3,10 @@ import type { ClassSession } from '../types/classSessions';
 import { usePersistentState } from '../hooks/usePersistentState';
 import { type TimetableContextType } from './types';
 
-const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
+const classGroups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 const TIMETABLE_KEY = 'timetable';
 
-const defaultTimetable: (ClassSession | null)[][] = Array.from({ length: groups.length }, () =>
+const defaultTimetable: (ClassSession | null)[][] = Array.from({ length: classGroups.length }, () =>
   Array(16).fill(null)
 );
 

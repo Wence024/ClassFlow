@@ -8,7 +8,7 @@ import { useTimetableDnD } from '../hooks/useTimetableDnD';
 const SchedulerApp: React.FC = () => {
   const { classSessions } = useClassSessions();
   const { timetable, setTimetable } = useTimetable();
-  const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
+  const classGroups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
   const { drawerClasses, handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnD(
     classSessions,
@@ -24,7 +24,7 @@ const SchedulerApp: React.FC = () => {
         onDropToDrawer={handleDropToDrawer}
       />
       <TimetableGrid
-        groups={groups}
+        classGroups={classGroups}
         timetable={timetable}
         onDragStart={handleDragStart}
         onDropToGrid={handleDropToGrid}

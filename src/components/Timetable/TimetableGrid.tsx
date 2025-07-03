@@ -3,7 +3,7 @@ import './Timetable.css';
 import type { TimetableProps } from '../../types/timetable';
 
 export const TimetableGrid: React.FC<TimetableProps> = ({
-  groups,
+  classGroups,
   timetable,
   onDragStart,
   onDropToGrid,
@@ -16,7 +16,7 @@ export const TimetableGrid: React.FC<TimetableProps> = ({
       <table>
         <thead>
           <tr>
-            <th>Group</th>
+            <th>Class Group</th>
             <th colSpan={8}>Day 1</th>
             <th colSpan={8}>Day 2</th>
           </tr>
@@ -28,14 +28,14 @@ export const TimetableGrid: React.FC<TimetableProps> = ({
           </tr>
         </thead>
         <tbody>
-          {groups.map((group, groupIndex) => (
-            <tr key={groupIndex}>
-              <td>{group}</td>
-              {timetable[groupIndex].map((item, periodIndex) => (
+          {classGroups.map((classGroup, classGroupIndex) => (
+            <tr key={classGroupIndex}>
+              <td>{classGroup}</td>
+              {timetable[classGroupIndex].map((item, periodIndex) => (
                 <td
                   key={periodIndex}
                   className={item ? 'assigned' : 'empty'}
-                  onDrop={(e) => onDropToGrid(e, groupIndex, periodIndex)}
+                  onDrop={(e) => onDropToGrid(e, classGroupIndex, periodIndex)}
                   onDragOver={handleDragOver}
                   draggable={!!item}
                   onDragStart={
@@ -43,14 +43,14 @@ export const TimetableGrid: React.FC<TimetableProps> = ({
                       ? (e) =>
                           onDragStart(e, {
                             from: 'timetable',
-                            className: `${item.course.name} - ${item.group.name}`,
-                            groupIndex,
+                            className: `${item.course.name} - ${item.classGroup.name}`,
+                            classGroupIndex,
                             periodIndex,
                           })
                       : undefined
                   }
                 >
-                  {item ? `${item.course.name} - ${item.group.name}` : '—'}
+                  {item ? `${item.course.name} - ${item.classGroup.name}` : '—'}
                 </td>
               ))}
             </tr>

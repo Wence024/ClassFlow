@@ -4,7 +4,7 @@ import type { ClassSession } from '../types/classSessions';
 export type DragSource = {
   from: 'drawer' | 'timetable';
   className: string;
-  groupIndex?: number;
+  classGroupIndex?: number;
   periodIndex?: number;
 };
 
@@ -27,24 +27,24 @@ export const useTimetableDnD = (
   const drawerSessions = classSessions.filter((cs) => !assignedSessionIds.has(cs.id));
 
   // Format drawer class names
-  const drawerClasses = drawerSessions.map((cs) => `${cs.course.name} - ${cs.group.name}`);
+  const drawerClasses = drawerSessions.map((cs) => `${cs.course.name} - ${cs.classGroup.name}`);
 
   const handleDragStart = (e: React.DragEvent, source: DragSource) => {
     setDragSource(source);
     e.dataTransfer.setData('text/plain', source.className);
   };
 
-  const handleDropToGrid = (e: React.DragEvent, groupIndex: number, periodIndex: number) => {
+  const handleDropToGrid = (e: React.DragEvent, classGroupIndex: number, periodIndex: number) => {
     e.preventDefault();
     if (!dragSource) return;
 
     // Find the session being dragged
     const session =
       drawerSessions.find(
-        (cs) => `${cs.course.name} - ${cs.group.name}` === dragSource.className
+        (cs) => `${cs.course.name} - ${cs.classGroup.name}` === dragSource.className
       ) ||
-      (dragSource.groupIndex !== undefined && dragSource.periodIndex !== undefined
-        ? timetable[dragSource.groupIndex][dragSource.periodIndex]
+      (dragSource.classGroupIndex !== undefined && dragSource.periodIndex !== undefined
+        ? timetable[dragSource.classGroupIndex][dragSource.periodIndex]
         : null);
 
     if (!session) return;
@@ -53,18 +53,18 @@ export const useTimetableDnD = (
       const updated = prev.map((row) => [...row]);
 
       // Don't overwrite if destination is already occupied
-      if (updated[groupIndex][periodIndex]) return prev;
+      if (updated[classGroupIndex][periodIndex]) return prev;
 
       // Place in new location
-      updated[groupIndex][periodIndex] = session;
+      updated[classGroupIndex][periodIndex] = session;
 
       // Clear original location if moving from timetable
       if (
         dragSource.from === 'timetable' &&
-        dragSource.groupIndex !== undefined &&
+        dragSource.classGroupIndex !== undefined &&
         dragSource.periodIndex !== undefined
       ) {
-        updated[dragSource.groupIndex][dragSource.periodIndex] = null;
+        updated[dragSource.classGroupIndex][dragSource.periodIndex] = null;
       }
 
       return updated;
@@ -75,12 +75,12 @@ export const useTimetableDnD = (
     e.preventDefault();
     if (
       dragSource?.from === 'timetable' &&
-      dragSource.groupIndex !== undefined &&
+      dragSource.classGroupIndex !== undefined &&
       dragSource.periodIndex !== undefined
     ) {
       setTimetable((prev) => {
         const updated = prev.map((row) => [...row]);
-        updated[dragSource.groupIndex!][dragSource.periodIndex!] = null;
+        updated[dragSource.classGroupIndex!][dragSource.periodIndex!] = null;
         return updated;
       });
     }

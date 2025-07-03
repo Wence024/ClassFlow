@@ -11,13 +11,13 @@ const ClassSession: React.FC = () => {
 
   const { values, isEditing, editId, handleSelectChange, resetForm, setEditValues } = useForm({
     courseId: null as number | null,
-    groupId: null as number | null,
+    classGroupId: null as string | null,
     instructorId: null as number | null,
     classroomId: null as number | null,
   });
 
   const createClassSession = () => {
-    if (!values.courseId || !values.groupId || !values.instructorId || !values.classroomId) {
+    if (!values.courseId || !values.classGroupId || !values.instructorId || !values.classroomId) {
       alert('Please fill out all fields before creating a class session.');
       return;
     }
@@ -25,7 +25,7 @@ const ClassSession: React.FC = () => {
     const newSession: ClassSession = {
       id: Date.now(),
       course: courses.find((course) => course.id === values.courseId)!,
-      group: classGroups.find((group) => group.id === values.groupId)!,
+      classGroup: classGroups.find((classGroup) => classGroup.id === values.classGroupId)!,
       instructor: instructors.find((instructor) => instructor.id === values.instructorId)!,
       classroom: classrooms.find((classroom) => classroom.id === values.classroomId)!,
     };
@@ -38,7 +38,7 @@ const ClassSession: React.FC = () => {
     if (
       !editId ||
       !values.courseId ||
-      !values.groupId ||
+      !values.classGroupId ||
       !values.instructorId ||
       !values.classroomId
     ) {
@@ -49,7 +49,7 @@ const ClassSession: React.FC = () => {
     const updatedSession: ClassSession = {
       id: editId,
       course: courses.find((course) => course.id === values.courseId)!,
-      group: classGroups.find((group) => group.id === values.groupId)!,
+      classGroup: classGroups.find((classGroup) => classGroup.id === values.classGroupId)!,
       instructor: instructors.find((instructor) => instructor.id === values.instructorId)!,
       classroom: classrooms.find((classroom) => classroom.id === values.classroomId)!,
     };
@@ -71,7 +71,7 @@ const ClassSession: React.FC = () => {
       setEditValues({
         ...session,
         courseId: session.course.id,
-        groupId: session.group.id,
+        classGroupId: session.classGroup.id,
         instructorId: session.instructor.id,
         classroomId: session.classroom.id,
       });
@@ -90,7 +90,7 @@ const ClassSession: React.FC = () => {
             classSessions.map((session) => (
               <div key={`session-${session.id}`} className="class-session">
                 <h3>
-                  {session.course.name} - {session.group.name}
+                  {session.course.name} - {session.classGroup.name}
                 </h3>
                 <p>Instructor: {session.instructor.name}</p>
                 <p>Classroom: {session.classroom.name}</p>
@@ -116,8 +116,8 @@ const ClassSession: React.FC = () => {
             },
             {
               label: 'Class Group',
-              value: values.groupId,
-              setValue: (val: number | null) => handleSelectChange('groupId', val),
+              value: values.classGroupId,
+              setValue: (val: string | null) => handleSelectChange('classGroupId', val),
               options: classGroups,
             },
             {
