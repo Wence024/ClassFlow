@@ -28,11 +28,20 @@ export function useForm<T extends Record<string, FormFieldValue>>(initialValues:
     setEditId(null);
   };
 
-  const setEditValues = (item: T & { id?: string }) => {
-    setValues(item);
+  const setEditValues = (item: T & { id?: string; _id?: string }) => {
+    const id = item.id ?? item._id ?? '';
+    setValues({
+      ...item,
+      id,
+    });
     setIsEditing(true);
-    setEditId(item.id ?? null);
+    setEditId(id || null);
   };
+
+  const normalize = (item: any) => ({
+    ...item,
+    id: item.id ?? item._id,
+  });
 
   return {
     values,

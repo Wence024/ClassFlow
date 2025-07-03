@@ -101,6 +101,7 @@ const ComponentManagement: React.FC = () => {
   };
 
   const handleEdit = (item: Entity) => {
+    // console.log('Editing item:', item);
     setEditValues({
       ...item,
       name: item.name,
@@ -129,6 +130,7 @@ const ComponentManagement: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // console.log('handleSubmit', { isEditing, editId, values });
     if (!values.name) {
       alert('Please fill out all required fields.');
       return;
