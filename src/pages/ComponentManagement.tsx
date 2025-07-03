@@ -97,14 +97,13 @@ const ComponentManagement: React.FC = () => {
     }
 
     const setter = getCurrentSetter();
-    const currentList = getCurrentList();
 
     if (isEditing && editId) {
       setter((prev: any[]) => prev.map((i) => (i.id === editId ? { ...i, ...values } : i)));
     } else {
       const newItem = {
         ...values,
-        id: Math.max(0, ...currentList.map((i) => i.id)) + 1,
+        id: crypto.randomUUID(),
       };
       setter((prev: any[]) => [...prev, newItem]);
     }
@@ -210,3 +209,5 @@ const ComponentManagement: React.FC = () => {
 };
 
 export default ComponentManagement;
+// TODO: check validation issue for classrooms: Is Capacity not required?
+// TODO: remove program from instructors as unimportant for now

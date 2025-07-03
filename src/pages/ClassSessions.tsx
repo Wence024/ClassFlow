@@ -89,9 +89,10 @@ const ClassSession: React.FC = () => {
             classSessions.map((session) => (
               <div key={`session-${session.id}`} className="class-session">
                 <h3>
-                  {session.course.name} - {session.classGroup.name}
+                  {session.course?.name ?? 'Unknown Course'} -{' '}
+                  {session.classGroup?.name ?? 'Unknown Group'}
                 </h3>
-                <p>Instructor: {session.instructor.name}</p>
+                <p>Instructor: {session.instructor.name ?? 'Unknown Instructor'}</p>
                 <p>Classroom: {session.classroom.name}</p>
                 <div className="buttons">
                   <button onClick={() => removeClassSession(session.id)}>Remove</button>
