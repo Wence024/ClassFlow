@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassSession } from '../types/classSessions';
-import { usePersistentState } from '../hooks/usePersistentState';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { type ClassSessionsContextType } from './types';
 
 // Context type
 const ClassSessionsContext = createContext<ClassSessionsContextType>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
-  const [classSessions, setClassSessions] = usePersistentState<ClassSession[]>('classSessions', []);
+  const [classSessions, setClassSessions] = useLocalStorage<ClassSession[]>('classSessions', []);
   useEffect(() => {
     localStorage.setItem('classSessions', JSON.stringify(classSessions));
   }, [classSessions]);

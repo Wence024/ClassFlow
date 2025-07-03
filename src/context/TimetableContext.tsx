@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import type { ClassSession } from '../types/classSessions';
-import { usePersistentState } from '../hooks/usePersistentState';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { type TimetableContextType } from './types';
 
 const classGroups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
@@ -13,7 +13,7 @@ const defaultTimetable: (ClassSession | null)[][] = Array.from({ length: classGr
 const TimetableContext = createContext<TimetableContextType | undefined>(undefined);
 
 export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [timetable, setTimetable] = usePersistentState<(ClassSession | null)[][]>(
+  const [timetable, setTimetable] = useLocalStorage<(ClassSession | null)[][]>(
     TIMETABLE_KEY,
     defaultTimetable
   );
