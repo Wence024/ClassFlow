@@ -10,7 +10,14 @@ function App() {
     <ClassSessionsProvider>
       <ComponentsProvider>
         <BrowserRouter>
-          <nav style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center' }}>
+          <nav
+            style={{
+              display: 'flex',
+              gap: '1rem',
+              marginBottom: '2rem',
+              justifyContent: 'center',
+            }}
+          >
             <Link to="/class-sessions">Class Sessions</Link>
             <Link to="/scheduler">Scheduler</Link>
             <Link to="/component-management">Component Management</Link>

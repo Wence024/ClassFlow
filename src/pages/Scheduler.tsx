@@ -10,12 +10,11 @@ const SchedulerApp: React.FC = () => {
   const { timetable, setTimetable } = useTimetable();
   const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
-  const {
-    drawerClasses,
-    handleDragStart,
-    handleDropToGrid,
-    handleDropToDrawer,
-  } = useTimetableDnD(classSessions, timetable, setTimetable);
+  const { drawerClasses, handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnD(
+    classSessions,
+    timetable,
+    setTimetable
+  );
 
   return (
     <div className="container">

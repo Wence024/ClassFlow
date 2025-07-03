@@ -9,16 +9,16 @@ export function useForm<T extends Record<string, FormFieldValue>>(initialValues:
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [name]: isNaN(Number(value)) ? value : Number(value)
+      [name]: isNaN(Number(value)) ? value : Number(value),
     }));
   };
 
   const handleSelectChange = (name: string, value: number | null) => {
-    setValues(prev => ({
+    setValues((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -42,6 +42,6 @@ export function useForm<T extends Record<string, FormFieldValue>>(initialValues:
     handleSelectChange,
     resetForm,
     setEditValues,
-    setValues
+    setValues,
   };
 }

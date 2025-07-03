@@ -12,7 +12,7 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
   useEffect(() => {
     localStorage.setItem('classSessions', JSON.stringify(classSessions));
   }, [classSessions]);
-  
+
   return (
     <ClassSessionsContext.Provider value={{ classSessions, setClassSessions }}>
       {children}
@@ -24,6 +24,6 @@ export function useClassSessions() {
   const ctx = useContext(ClassSessionsContext);
   if (!ctx) throw new Error('useClassSessions must be used within a ClassSessionsProvider');
   return ctx;
-} 
+}
 
-// TODO: bug: Changes in the components of class session are not immediately reflected in the class session page. 
+// TODO: bug: Changes in the components of class session are not immediately reflected in the class session page.

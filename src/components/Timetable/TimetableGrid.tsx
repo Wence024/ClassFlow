@@ -2,11 +2,11 @@ import React from 'react';
 import './Timetable.css';
 import type { TimetableProps } from '../../types/timetable';
 
-export const TimetableGrid: React.FC<TimetableProps> = ({ 
-  groups, 
-  timetable, 
-  onDragStart, 
-  onDropToGrid 
+export const TimetableGrid: React.FC<TimetableProps> = ({
+  groups,
+  timetable,
+  onDragStart,
+  onDropToGrid,
 }) => {
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 

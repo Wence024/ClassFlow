@@ -17,29 +17,24 @@ export const useTimetableDnD = (
 
   // Get all assigned session IDs in the timetable
   const assignedSessionIds = new Set(
-    timetable.flat().filter(Boolean).map((cs) => cs?.id)
+    timetable
+      .flat()
+      .filter(Boolean)
+      .map((cs) => cs?.id)
   );
 
   // Get unassigned sessions for the drawer
-  const drawerSessions = classSessions.filter(
-    (cs) => !assignedSessionIds.has(cs.id)
-  );
+  const drawerSessions = classSessions.filter((cs) => !assignedSessionIds.has(cs.id));
 
   // Format drawer class names
-  const drawerClasses = drawerSessions.map(
-    (cs) => `${cs.course.name} - ${cs.group.name}`
-  );
+  const drawerClasses = drawerSessions.map((cs) => `${cs.course.name} - ${cs.group.name}`);
 
   const handleDragStart = (e: React.DragEvent, source: DragSource) => {
     setDragSource(source);
     e.dataTransfer.setData('text/plain', source.className);
   };
 
-  const handleDropToGrid = (
-    e: React.DragEvent,
-    groupIndex: number,
-    periodIndex: number
-  ) => {
+  const handleDropToGrid = (e: React.DragEvent, groupIndex: number, periodIndex: number) => {
     e.preventDefault();
     if (!dragSource) return;
 
@@ -48,8 +43,7 @@ export const useTimetableDnD = (
       drawerSessions.find(
         (cs) => `${cs.course.name} - ${cs.group.name}` === dragSource.className
       ) ||
-      (dragSource.groupIndex !== undefined &&
-       dragSource.periodIndex !== undefined
+      (dragSource.groupIndex !== undefined && dragSource.periodIndex !== undefined
         ? timetable[dragSource.groupIndex][dragSource.periodIndex]
         : null);
 
@@ -65,9 +59,11 @@ export const useTimetableDnD = (
       updated[groupIndex][periodIndex] = session;
 
       // Clear original location if moving from timetable
-      if (dragSource.from === 'timetable' &&
-          dragSource.groupIndex !== undefined &&
-          dragSource.periodIndex !== undefined) {
+      if (
+        dragSource.from === 'timetable' &&
+        dragSource.groupIndex !== undefined &&
+        dragSource.periodIndex !== undefined
+      ) {
         updated[dragSource.groupIndex][dragSource.periodIndex] = null;
       }
 
@@ -77,9 +73,11 @@ export const useTimetableDnD = (
 
   const handleDropToDrawer = (e: React.DragEvent) => {
     e.preventDefault();
-    if (dragSource?.from === 'timetable' &&
-        dragSource.groupIndex !== undefined &&
-        dragSource.periodIndex !== undefined) {
+    if (
+      dragSource?.from === 'timetable' &&
+      dragSource.groupIndex !== undefined &&
+      dragSource.periodIndex !== undefined
+    ) {
       setTimetable((prev) => {
         const updated = prev.map((row) => [...row]);
         updated[dragSource.groupIndex!][dragSource.periodIndex!] = null;

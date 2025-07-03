@@ -1,12 +1,12 @@
-import React from "react";
-import "./ClassSessions.css";
+import React from 'react';
+import './ClassSessions.css';
 import { useComponents } from '../context/ComponentsContext';
 import { useForm } from '../hooks/useForm';
 import type { Course, ClassGroup, Classroom, Instructor } from '../types/classSessions';
 
-const TABS = ["Courses", "Class Groups", "Classrooms", "Instructors"] as const;
+const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'] as const;
 
-type Tab = typeof TABS[number];
+type Tab = (typeof TABS)[number];
 
 type FormValues = {
   name: string;
@@ -18,66 +18,75 @@ type FormValues = {
 const ComponentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<Tab>(TABS[0]);
   const {
-    courses, setCourses,
-    classGroups, setClassGroups,
-    classrooms, setClassrooms,
-    instructors, setInstructors
+    courses,
+    setCourses,
+    classGroups,
+    setClassGroups,
+    classrooms,
+    setClassrooms,
+    instructors,
+    setInstructors,
   } = useComponents();
 
-  const { 
-    values, 
-    isEditing, 
-    editId, 
-    handleChange, 
-    resetForm, 
-    setEditValues 
-  } = useForm<FormValues>({ 
-    name: '',
-    code: '',
-    location: '',
-    email: ''
-  });
+  const { values, isEditing, editId, handleChange, resetForm, setEditValues } = useForm<FormValues>(
+    {
+      name: '',
+      code: '',
+      location: '',
+      email: '',
+    }
+  );
 
   const getCurrentList = () => {
     switch (activeTab) {
-      case 'Courses': return courses;
-      case 'Class Groups': return classGroups;
-      case 'Classrooms': return classrooms;
-      case 'Instructors': return instructors;
-      default: return [];
+      case 'Courses':
+        return courses;
+      case 'Class Groups':
+        return classGroups;
+      case 'Classrooms':
+        return classrooms;
+      case 'Instructors':
+        return instructors;
+      default:
+        return [];
     }
   };
 
   const getCurrentSetter = () => {
     switch (activeTab) {
-      case 'Courses': return setCourses;
-      case 'Class Groups': return setClassGroups;
-      case 'Classrooms': return setClassrooms;
-      case 'Instructors': return setInstructors;
-      default: return () => {};
+      case 'Courses':
+        return setCourses;
+      case 'Class Groups':
+        return setClassGroups;
+      case 'Classrooms':
+        return setClassrooms;
+      case 'Instructors':
+        return setInstructors;
+      default:
+        return () => {};
     }
   };
 
   const handleEdit = (item: any) => {
-    setEditValues({ 
+    setEditValues({
       ...item,
       name: item.name,
       ...(item.code && { code: item.code }),
       ...(item.location && { location: item.location }),
-      ...(item.email && { email: item.email })
+      ...(item.email && { email: item.email }),
     });
   };
 
   const handleDelete = (id: number) => {
     const setter = getCurrentSetter();
-    setter((prev: any[]) => prev.filter(i => i.id !== id));
+    setter((prev: any[]) => prev.filter((i) => i.id !== id));
     if (editId === id) resetForm();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!values.name) {
-      alert("Please fill out all required fields.");
+      alert('Please fill out all required fields.');
       return;
     }
 
@@ -85,13 +94,11 @@ const ComponentManagement: React.FC = () => {
     const currentList = getCurrentList();
 
     if (isEditing && editId) {
-      setter((prev: any[]) => 
-        prev.map(i => i.id === editId ? { ...i, ...values } : i)
-      );
+      setter((prev: any[]) => prev.map((i) => (i.id === editId ? { ...i, ...values } : i)));
     } else {
       const newItem = {
         ...values,
-        id: Math.max(0, ...currentList.map(i => i.id)) + 1
+        id: Math.max(0, ...currentList.map((i) => i.id)) + 1,
       };
       setter((prev: any[]) => [...prev, newItem]);
     }
@@ -101,22 +108,25 @@ const ComponentManagement: React.FC = () => {
 
   const getFields = () => {
     switch (activeTab) {
-      case 'Courses': return [
-        { label: "Name", name: "name" },
-        { label: "Code", name: "code" }
-      ];
-      case 'Class Groups': return [
-        { label: "Name", name: "name" }
-      ];
-      case 'Classrooms': return [
-        { label: "Name", name: "name" },
-        { label: "Location", name: "location" }
-      ];
-      case 'Instructors': return [
-        { label: "Name", name: "name" },
-        { label: "Email", name: "email" }
-      ];
-      default: return [];
+      case 'Courses':
+        return [
+          { label: 'Name', name: 'name' },
+          { label: 'Code', name: 'code' },
+        ];
+      case 'Class Groups':
+        return [{ label: 'Name', name: 'name' }];
+      case 'Classrooms':
+        return [
+          { label: 'Name', name: 'name' },
+          { label: 'Location', name: 'location' },
+        ];
+      case 'Instructors':
+        return [
+          { label: 'Name', name: 'name' },
+          { label: 'Email', name: 'email' },
+        ];
+      default:
+        return [];
     }
   };
 
@@ -128,10 +138,10 @@ const ComponentManagement: React.FC = () => {
           {TABS.map((tab) => (
             <button
               key={tab}
-              className={activeTab === tab ? "tab active" : "tab"}
-              onClick={() => { 
-                setActiveTab(tab); 
-                resetForm(); 
+              className={activeTab === tab ? 'tab active' : 'tab'}
+              onClick={() => {
+                setActiveTab(tab);
+                resetForm();
               }}
             >
               {tab}
@@ -145,7 +155,10 @@ const ComponentManagement: React.FC = () => {
           ) : (
             getCurrentList().map((item: any) => (
               <div key={`${activeTab}-${item.id}`} className="class-session">
-                <h3>{item.name}{item.code ? ` (${item.code})` : ""}</h3>
+                <h3>
+                  {item.name}
+                  {item.code ? ` (${item.code})` : ''}
+                </h3>
                 {item.location && <p>Location: {item.location}</p>}
                 {item.email && <p>Email: {item.email}</p>}
                 <div className="buttons">
@@ -161,7 +174,7 @@ const ComponentManagement: React.FC = () => {
       <div className="form-container">
         <h2>{isEditing ? `Edit ${activeTab.slice(0, -1)}` : `Create ${activeTab.slice(0, -1)}`}</h2>
         <form className="create-session-form" onSubmit={handleSubmit}>
-          {getFields().map(field => (
+          {getFields().map((field) => (
             <div className="form-group" key={field.name}>
               <label>{field.label}: </label>
               <input
@@ -173,7 +186,7 @@ const ComponentManagement: React.FC = () => {
             </div>
           ))}
           <button className="create-button" type="submit">
-            {isEditing ? "Save Changes" : `Create ${activeTab.slice(0, -1)}`}
+            {isEditing ? 'Save Changes' : `Create ${activeTab.slice(0, -1)}`}
           </button>
           {isEditing && (
             <button type="button" onClick={resetForm} style={{ marginLeft: 8 }}>

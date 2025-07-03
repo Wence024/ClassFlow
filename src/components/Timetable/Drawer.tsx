@@ -2,12 +2,7 @@ import React from 'react';
 import './Timetable.css'; // We'll reuse the same CSS
 import type { DrawerProps } from '../../types/timetable';
 
-
-export const Drawer: React.FC<DrawerProps> = ({ 
-  drawerClasses, 
-  onDragStart, 
-  onDropToDrawer 
-}) => {
+export const Drawer: React.FC<DrawerProps> = ({ drawerClasses, onDragStart, onDropToDrawer }) => {
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
   return (
@@ -18,9 +13,7 @@ export const Drawer: React.FC<DrawerProps> = ({
           <li
             key={index}
             draggable
-            onDragStart={(e) =>
-              onDragStart(e, { from: 'drawer', className: classItem })
-            }
+            onDragStart={(e) => onDragStart(e, { from: 'drawer', className: classItem })}
           >
             {classItem}
           </li>

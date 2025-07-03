@@ -1,5 +1,5 @@
-import React from "react";
-import "./ClassSessions.css";
+import React from 'react';
+import './ClassSessions.css';
 import { useClassSessions } from '../context/ClassSessionsContext';
 import { useComponents } from '../context/ComponentsContext';
 import type { ClassSession } from '../types/classSessions';
@@ -8,33 +8,26 @@ import { useForm } from '../hooks/useForm';
 const ClassSession: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
-  
-  const {
-    values,
-    isEditing,
-    editId,
-    handleSelectChange,
-    resetForm,
-    setEditValues
-  } = useForm({
+
+  const { values, isEditing, editId, handleSelectChange, resetForm, setEditValues } = useForm({
     courseId: null as number | null,
     groupId: null as number | null,
     instructorId: null as number | null,
-    classroomId: null as number | null
+    classroomId: null as number | null,
   });
 
   const createClassSession = () => {
     if (!values.courseId || !values.groupId || !values.instructorId || !values.classroomId) {
-      alert("Please fill out all fields before creating a class session.");
+      alert('Please fill out all fields before creating a class session.');
       return;
     }
 
     const newSession: ClassSession = {
       id: Date.now(),
-      course: courses.find(course => course.id === values.courseId)!,
-      group: classGroups.find(group => group.id === values.groupId)!,
-      instructor: instructors.find(instructor => instructor.id === values.instructorId)!,
-      classroom: classrooms.find(classroom => classroom.id === values.classroomId)!,
+      course: courses.find((course) => course.id === values.courseId)!,
+      group: classGroups.find((group) => group.id === values.groupId)!,
+      instructor: instructors.find((instructor) => instructor.id === values.instructorId)!,
+      classroom: classrooms.find((classroom) => classroom.id === values.classroomId)!,
     };
 
     setClassSessions((prevSessions) => [...prevSessions, newSession]);
@@ -42,31 +35,33 @@ const ClassSession: React.FC = () => {
   };
 
   const updateClassSession = () => {
-    if (!editId || !values.courseId || !values.groupId || !values.instructorId || !values.classroomId) {
-      alert("Please fill out all fields before saving changes.");
+    if (
+      !editId ||
+      !values.courseId ||
+      !values.groupId ||
+      !values.instructorId ||
+      !values.classroomId
+    ) {
+      alert('Please fill out all fields before saving changes.');
       return;
     }
 
     const updatedSession: ClassSession = {
       id: editId,
-      course: courses.find(course => course.id === values.courseId)!,
-      group: classGroups.find(group => group.id === values.groupId)!,
-      instructor: instructors.find(instructor => instructor.id === values.instructorId)!,
-      classroom: classrooms.find(classroom => classroom.id === values.classroomId)!,
+      course: courses.find((course) => course.id === values.courseId)!,
+      group: classGroups.find((group) => group.id === values.groupId)!,
+      instructor: instructors.find((instructor) => instructor.id === values.instructorId)!,
+      classroom: classrooms.find((classroom) => classroom.id === values.classroomId)!,
     };
 
     setClassSessions((prevSessions) =>
-      prevSessions.map((session) =>
-        session.id === updatedSession.id ? updatedSession : session
-      )
+      prevSessions.map((session) => (session.id === updatedSession.id ? updatedSession : session))
     );
     resetForm();
   };
 
   const removeClassSession = (id: number) => {
-    setClassSessions((prevSessions) =>
-      prevSessions.filter((session) => session.id !== id)
-    );
+    setClassSessions((prevSessions) => prevSessions.filter((session) => session.id !== id));
     if (editId === id) resetForm();
   };
 
@@ -78,7 +73,7 @@ const ClassSession: React.FC = () => {
         courseId: session.course.id,
         groupId: session.group.id,
         instructorId: session.instructor.id,
-        classroomId: session.classroom.id
+        classroomId: session.classroom.id,
       });
     }
   };
@@ -94,7 +89,9 @@ const ClassSession: React.FC = () => {
           ) : (
             classSessions.map((session) => (
               <div key={`session-${session.id}`} className="class-session">
-                <h3>{session.course.name} - {session.group.name}</h3>
+                <h3>
+                  {session.course.name} - {session.group.name}
+                </h3>
                 <p>Instructor: {session.instructor.name}</p>
                 <p>Classroom: {session.classroom.name}</p>
                 <div className="buttons">
@@ -110,16 +107,36 @@ const ClassSession: React.FC = () => {
       <div className="form-container">
         <h2>{isEditing ? 'Edit Class Session' : 'Create Class Session'}</h2>
         <div className="create-session-form">
-          {[ 
-            { label: "Course", value: values.courseId, setValue: (val: number | null) => handleSelectChange('courseId', val), options: courses },
-            { label: "Class Group", value: values.groupId, setValue: (val: number | null) => handleSelectChange('groupId', val), options: classGroups },
-            { label: "Instructor", value: values.instructorId, setValue: (val: number | null) => handleSelectChange('instructorId', val), options: instructors },
-            { label: "Classroom", value: values.classroomId, setValue: (val: number | null) => handleSelectChange('classroomId', val), options: classrooms }
+          {[
+            {
+              label: 'Course',
+              value: values.courseId,
+              setValue: (val: number | null) => handleSelectChange('courseId', val),
+              options: courses,
+            },
+            {
+              label: 'Class Group',
+              value: values.groupId,
+              setValue: (val: number | null) => handleSelectChange('groupId', val),
+              options: classGroups,
+            },
+            {
+              label: 'Instructor',
+              value: values.instructorId,
+              setValue: (val: number | null) => handleSelectChange('instructorId', val),
+              options: instructors,
+            },
+            {
+              label: 'Classroom',
+              value: values.classroomId,
+              setValue: (val: number | null) => handleSelectChange('classroomId', val),
+              options: classrooms,
+            },
           ].map((field) => (
             <div key={field.label} className="form-group">
               <label>{field.label}: </label>
               <select
-                value={field.value ?? ""}
+                value={field.value ?? ''}
                 onChange={(e) => field.setValue(Number(e.target.value) || null)}
               >
                 <option value="">Select {field.label}</option>
@@ -131,18 +148,14 @@ const ClassSession: React.FC = () => {
               </select>
             </div>
           ))}
-          <button 
-            className="create-button" 
+          <button
+            className="create-button"
             onClick={isEditing ? updateClassSession : createClassSession}
           >
             {isEditing ? 'Save Changes' : 'Create Class Session'}
           </button>
           {isEditing && (
-            <button 
-              type="button" 
-              onClick={resetForm}
-              style={{ marginLeft: '8px' }}
-            >
+            <button type="button" onClick={resetForm} style={{ marginLeft: '8px' }}>
               Cancel
             </button>
           )}
