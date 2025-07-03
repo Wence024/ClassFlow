@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ClassSessions.css';
 import { useComponents } from '../context/ComponentsContext';
 import { useForm } from '../hooks/useForm';
+import { apiCourses } from '../api/courses';
+import { apiClassGroups } from '../api/classGroups';
+import { apiClassrooms } from '../api/classrooms';
+import { apiInstructors } from '../api/instructors';
 
 const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'] as const;
 
@@ -18,8 +22,16 @@ type FormValues = {
 type Entity = FormValues & { id: string };
 type Setter = React.Dispatch<React.SetStateAction<Entity[]>>;
 
+type ApiModule = {
+  list: () => Promise<Entity[]>;
+  get: (id: string) => Promise<Entity>;
+  create: (data: Omit<Entity, 'id'>) => Promise<Entity>;
+  update: (id: string, data: Partial<Entity>) => Promise<Entity>;
+  delete: (id: string) => Promise<void>;
+};
+
 const ComponentManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = React.useState<Tab>(TABS[0]);
+  const [activeTab, setActiveTab] = useState<Tab>(TABS[0]);
   const {
     courses,
     setCourses,
@@ -30,6 +42,8 @@ const ComponentManagement: React.FC = () => {
     instructors,
     setInstructors,
   } = useComponents();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { values, isEditing, editId, handleChange, resetForm, setEditValues } = useForm<FormValues>(
     {
@@ -71,6 +85,21 @@ const ComponentManagement: React.FC = () => {
     }
   };
 
+  const getApiModule = (): ApiModule => {
+    switch (activeTab) {
+      case 'Courses':
+        return apiCourses as ApiModule;
+      case 'Class Groups':
+        return apiClassGroups as ApiModule;
+      case 'Classrooms':
+        return apiClassrooms as ApiModule;
+      case 'Instructors':
+        return apiInstructors as ApiModule;
+      default:
+        throw new Error('Invalid tab');
+    }
+  };
+
   const handleEdit = (item: Entity) => {
     setEditValues({
       ...item,
@@ -82,32 +111,46 @@ const ComponentManagement: React.FC = () => {
     });
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    setLoading(true);
+    setError(null);
     const setter = getCurrentSetter();
-    setter((prev) => prev.filter((i) => i.id !== id));
-    if (editId === id) resetForm();
+    const api = getApiModule();
+    try {
+      await api.delete(id);
+      setter((prev) => prev.filter((i) => i.id !== id));
+      if (editId === id) resetForm();
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!values.name) {
       alert('Please fill out all required fields.');
       return;
     }
-
+    setLoading(true);
+    setError(null);
     const setter = getCurrentSetter();
-
-    if (isEditing && editId) {
-      setter((prev) => prev.map((i) => (i.id === editId ? { ...i, ...values } : i)));
-    } else {
-      const newItem: Entity = {
-        ...values,
-        id: crypto.randomUUID(),
-      };
-      setter((prev) => [...prev, newItem]);
+    const api = getApiModule();
+    try {
+      if (isEditing && editId) {
+        const updated = await api.update(editId, values);
+        setter((prev) => prev.map((i) => (i.id === editId ? updated : i)));
+      } else {
+        const created = await api.create(values as Omit<Entity, 'id'>);
+        setter((prev) => [...prev, created]);
+      }
+      resetForm();
+    } catch (err: any) {
+      setError(err.message || 'Failed to save');
+    } finally {
+      setLoading(false);
     }
-
-    resetForm();
   };
 
   const getFields = () => {
@@ -155,7 +198,10 @@ const ComponentManagement: React.FC = () => {
         </div>
         <div className="class-sessions">
           <h2>{activeTab} List</h2>
-          {getCurrentList().length === 0 ? (
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {loading ? (
+            <p>Loading...</p>
+          ) : getCurrentList().length === 0 ? (
             <p>No {activeTab.toLowerCase()} created yet.</p>
           ) : (
             getCurrentList().map((item) => (
@@ -167,10 +213,13 @@ const ComponentManagement: React.FC = () => {
                 {item.location && <p>Location: {item.location}</p>}
                 {item.capacity !== undefined && <p>Capacity: {item.capacity}</p>}
                 {item.email && <p>Email: {item.email}</p>}
-
                 <div className="buttons">
-                  <button onClick={() => handleDelete(item.id)}>Remove</button>
-                  <button onClick={() => handleEdit(item)}>Edit</button>
+                  <button onClick={() => handleDelete(item.id)} disabled={loading}>
+                    Remove
+                  </button>
+                  <button onClick={() => handleEdit(item)} disabled={loading}>
+                    Edit
+                  </button>
                 </div>
               </div>
             ))
@@ -189,14 +238,15 @@ const ComponentManagement: React.FC = () => {
                 name={field.name}
                 value={values[field.name as keyof FormValues] || ''}
                 onChange={handleChange}
+                disabled={loading}
               />
             </div>
           ))}
-          <button className="create-button" type="submit">
+          <button className="create-button" type="submit" disabled={loading}>
             {isEditing ? 'Save Changes' : `Create ${activeTab.slice(0, -1)}`}
           </button>
           {isEditing && (
-            <button type="button" onClick={resetForm} style={{ marginLeft: 8 }}>
+            <button type="button" onClick={resetForm} style={{ marginLeft: 8 }} disabled={loading}>
               Cancel
             </button>
           )}
