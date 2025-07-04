@@ -180,7 +180,9 @@ const ClassSessions: React.FC = () => {
                 <option value="">Select {field.label}</option>
                 {field.options.map((option, optionIndex) => {
                   // Combine component type (`field.label`), option `id`, and index to create a unique key
-                  const optionKey = `${field.label.toLowerCase()}-${option.id}-${optionIndex}`;
+                  const optionKey = `${field.label.toLowerCase()}-${
+                    option.id
+                  }-${optionIndex}`;
                   return (
                     <option key={optionKey} value={option.id}>
                       {option.name}

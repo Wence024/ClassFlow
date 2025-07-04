@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import './Scheduler.css';
-import { useClassSessions } from '../context/ClassSessionsContext';
-import { TimetableProvider, useTimetable } from '../context/TimetableContext';
-import type { ClassSession } from '../types/classSessions';
+import React, { useState } from "react";
+import "./Scheduler.css";
+import { useClassSessions } from "../context/ClassSessionsContext";
+import { TimetableProvider, useTimetable } from "../context/TimetableContext";
+import type { ClassSession } from "../types/classSessions";
 
 type DragSource = {
-  from: 'drawer' | 'timetable';
+  from: "drawer" | "timetable";
   className: string;
   groupIndex?: number;
   periodIndex?: number;
@@ -28,7 +28,7 @@ const Drawer: React.FC<{
             key={index}
             draggable
             onDragStart={(e) =>
-              onDragStart(e, { from: 'drawer', className: classItem })
+              onDragStart(e, { from: "drawer", className: classItem })
             }
           >
             {classItem}
@@ -44,7 +44,11 @@ const Timetable: React.FC<{
   groups: string[];
   timetable: (ClassSession | null)[][];
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
-  onDropToGrid: (e: React.DragEvent, groupIndex: number, periodIndex: number) => void;
+  onDropToGrid: (
+    e: React.DragEvent,
+    groupIndex: number,
+    periodIndex: number
+  ) => void;
 }> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
@@ -72,7 +76,7 @@ const Timetable: React.FC<{
               {timetable[groupIndex].map((item, periodIndex) => (
                 <td
                   key={periodIndex}
-                  className={item ? 'assigned' : 'empty'}
+                  className={item ? "assigned" : "empty"}
                   onDrop={(e) => onDropToGrid(e, groupIndex, periodIndex)}
                   onDragOver={handleDragOver}
                   draggable={!!item}
@@ -80,15 +84,16 @@ const Timetable: React.FC<{
                     item
                       ? (e) =>
                           onDragStart(e, {
-                            from: 'timetable',
-                            className: item.course.name + ' - ' + item.group.name,
+                            from: "timetable",
+                            className:
+                              item.course.name + " - " + item.group.name,
                             groupIndex,
                             periodIndex,
                           })
                       : undefined
                   }
                 >
-                  {item ? item.course.name + ' - ' + item.group.name : '—'}
+                  {item ? item.course.name + " - " + item.group.name : "—"}
                 </td>
               ))}
             </tr>
@@ -103,21 +108,28 @@ const Timetable: React.FC<{
 const SchedulerApp: React.FC = () => {
   const { classSessions } = useClassSessions();
   const { timetable, setTimetable } = useTimetable();
-  const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
+  const groups = ["Group 1", "Group 2", "Group 3", "Group 4"];
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
 
   // Helper: get all class session IDs currently in the timetable
   const assignedSessionIds = new Set(
-    timetable.flat().filter(Boolean).map((cs) => cs!.id)
+    timetable
+      .flat()
+      .filter(Boolean)
+      .map((cs) => cs!.id)
   );
   // Drawer shows only unassigned sessions
-  const drawerSessions = classSessions.filter((cs: ClassSession) => !assignedSessionIds.has(cs.id));
-  const drawerClasses = drawerSessions.map(cs => cs.course.name + ' - ' + cs.group.name);
+  const drawerSessions = classSessions.filter(
+    (cs: ClassSession) => !assignedSessionIds.has(cs.id)
+  );
+  const drawerClasses = drawerSessions.map(
+    (cs) => cs.course.name + " - " + cs.group.name
+  );
 
   // Drag started from drawer or timetable
   const handleDragStart = (e: React.DragEvent, source: DragSource) => {
     setDragSource(source);
-    e.dataTransfer.setData('text/plain', source.className);
+    e.dataTransfer.setData("text/plain", source.className);
   };
 
   // Drop into a timetable cell
@@ -129,9 +141,10 @@ const SchedulerApp: React.FC = () => {
     e.preventDefault();
     if (!dragSource) return;
     // Find the ClassSession object by name
-    const session = drawerSessions.find(
-      cs => cs.course.name + ' - ' + cs.group.name === dragSource.className
-    ) || timetable[dragSource.groupIndex ?? 0]?.[dragSource.periodIndex ?? 0];
+    const session =
+      drawerSessions.find(
+        (cs) => cs.course.name + " - " + cs.group.name === dragSource.className
+      ) || timetable[dragSource.groupIndex ?? 0]?.[dragSource.periodIndex ?? 0];
     if (!session) return;
     setTimetable((prev: (ClassSession | null)[][]) => {
       const updated = prev.map((row: (ClassSession | null)[]) => [...row]);
@@ -139,7 +152,10 @@ const SchedulerApp: React.FC = () => {
       if (updated[groupIndex][periodIndex]) return prev;
       updated[groupIndex][periodIndex] = session;
       // Remove from original location
-      if (dragSource.from === 'timetable' && dragSource.groupIndex !== undefined) {
+      if (
+        dragSource.from === "timetable" &&
+        dragSource.groupIndex !== undefined
+      ) {
         updated[dragSource.groupIndex][dragSource.periodIndex!] = null;
       }
       return updated;
@@ -151,7 +167,10 @@ const SchedulerApp: React.FC = () => {
     e.preventDefault();
     if (!dragSource) return;
     // Remove from timetable if that's the source
-    if (dragSource.from === 'timetable' && dragSource.groupIndex !== undefined) {
+    if (
+      dragSource.from === "timetable" &&
+      dragSource.groupIndex !== undefined
+    ) {
       setTimetable((prev: (ClassSession | null)[][]) => {
         const updated = prev.map((row: (ClassSession | null)[]) => [...row]);
         updated[dragSource.groupIndex!][dragSource.periodIndex!] = null;

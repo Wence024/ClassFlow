@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Scheduler from './pages/Scheduler';
-import ClassSessions from './pages/ClassSessions';
-import ComponentManagement from './pages/ComponentManagement';
-import { ClassSessionsProvider } from './context/ClassSessionsContext';
-import { ComponentsProvider } from './context/ComponentsContext';
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { ClassSessionsProvider } from "./features/scheduleLessons/context/ClassSessionsContext";
+import { ComponentsProvider } from "./features/scheduleLessons/context/ComponentsContext";
+import ClassSessions from "./features/scheduleLessons/pages/ClassSessions";
+import Scheduler from "./features/scheduleLessons/pages/Scheduler";
+import ComponentManagement from "./features/scheduleLessons/pages/ComponentManagement";
 
 function App() {
   return (
@@ -18,7 +18,10 @@ function App() {
           <Routes>
             <Route path="/class-sessions" element={<ClassSessions />} />
             <Route path="/scheduler" element={<Scheduler />} />
-            <Route path="/component-management" element={<ComponentManagement />} />
+            <Route
+              path="/component-management"
+              element={<ComponentManagement />}
+            />
           </Routes>
         </BrowserRouter>
       </ComponentsProvider>
