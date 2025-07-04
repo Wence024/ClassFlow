@@ -4,17 +4,29 @@ import { ComponentsProvider } from "./features/scheduleLessons/context/Component
 import ClassSessions from "./features/scheduleLessons/pages/ClassSessions";
 import Scheduler from "./features/scheduleLessons/pages/Scheduler";
 import ComponentManagement from "./features/scheduleLessons/pages/ComponentManagement";
+import AuthRoutes from "./features/auth/AuthRoutes";
+import { AuthProvider } from "./features/auth/context/AuthContext";
 
 function App() {
   return (
-    <ClassSessionsProvider>
+    <AuthProvider>
+      <ClassSessionsProvider>
       <ComponentsProvider>
         <BrowserRouter>
-          <nav style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center' }}>
+          <nav
+            style={{
+              display: "flex",
+              gap: "1rem",
+              marginBottom: "2rem",
+              justifyContent: "center",
+            }}
+          >
+            <Link to="/login">Login</Link>
             <Link to="/class-sessions">Class Sessions</Link>
             <Link to="/scheduler">Scheduler</Link>
             <Link to="/component-management">Component Management</Link>
           </nav>
+          <AuthRoutes />
           <Routes>
             <Route path="/class-sessions" element={<ClassSessions />} />
             <Route path="/scheduler" element={<Scheduler />} />
@@ -26,6 +38,7 @@ function App() {
         </BrowserRouter>
       </ComponentsProvider>
     </ClassSessionsProvider>
+    </AuthProvider>
   );
 }
 
