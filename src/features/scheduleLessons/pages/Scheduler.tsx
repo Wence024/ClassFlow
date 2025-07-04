@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Scheduler.css';
-import { useClassSessions } from '../context/ClassSessionsContext';
-import { TimetableProvider, useTimetable } from '../context/TimetableContext';
+import { useClassSessions } from '../contexts/ClassSessionsContext';
+import { TimetableProvider, useTimetable } from '../contexts/TimetableContext';
 import type { ClassSession } from '../types/classSessions';
 
 type DragSource = {

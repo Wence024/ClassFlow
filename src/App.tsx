@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { ClassSessionsProvider } from './features/scheduleLessons/context/ClassSessionsContext';
-import { ComponentsProvider } from './features/scheduleLessons/context/ComponentsContext';
+import { ClassSessionsProvider } from './features/scheduleLessons/contexts/ClassSessionsContext';
+import { ComponentsProvider } from './features/scheduleLessons/contexts/ComponentsContext';
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
 import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
 import { authRoutes } from './features/auth/routes/AuthRoutes';
-import { AuthProvider } from './features/auth/context/AuthContext';
+import { AuthProvider } from './features/auth/contexts/AuthContext';
 
 function App() {
   return (

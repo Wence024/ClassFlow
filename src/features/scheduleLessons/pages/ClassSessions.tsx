@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './ClassSessions.css';
-import { useClassSessions } from '../context/ClassSessionsContext';
-import { useComponents } from '../context/ComponentsContext';
+import { useClassSessions } from '../contexts/ClassSessionsContext';
+import { useComponents } from '../contexts/ComponentsContext';
 import type { ClassSession } from '../types/classSessions';
 
 const ClassSessions: React.FC = () => {

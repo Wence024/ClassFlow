@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './ClassSessions.css';
-import { useComponents } from '../context/ComponentsContext';
+import { useComponents } from '../contexts/ComponentsContext';
 
 const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'];
 
