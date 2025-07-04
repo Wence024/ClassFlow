@@ -4,7 +4,7 @@ import { ComponentsProvider } from './features/scheduleLessons/context/Component
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
 import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
-import { authRoutes } from './features/auth/AuthRoutes';
+import { authRoutes } from './features/auth/routes/AuthRoutes';
 import { AuthProvider } from './features/auth/context/AuthContext';
 
 function App() {

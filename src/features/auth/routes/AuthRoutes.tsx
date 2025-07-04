@@ -1,7 +1,7 @@
 import { Route } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
+import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 
 const authRoutes = [
   <Route path="/login" element={<LoginPage />} key="login" />,

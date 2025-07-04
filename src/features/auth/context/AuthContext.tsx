@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { User, AuthContextType } from '../types/auth';
-import { loginApi, registerApi } from '../api/authApi';
+import * as authService from '../services/authService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -10,25 +10,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load user from localStorage on mount
+  // Load user from service on mount
   useEffect(() => {
-    const stored = localStorage.getItem('authUser');
-    if (stored) setUser(JSON.parse(stored));
+    setUser(authService.getStoredUser());
   }, []);
-
-  // Save user to localStorage
-  useEffect(() => {
-    if (user) localStorage.setItem('authUser', JSON.stringify(user));
-    else localStorage.removeItem('authUser');
-  }, [user]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
-      const { user, token } = await loginApi(email, password);
+      const { user } = await authService.login(email, password);
       setUser(user);
-      localStorage.setItem('authToken', token);
     } catch (err: any) {
       setError(err.message || 'Login failed');
       setUser(null);
@@ -41,9 +33,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const { user, token } = await registerApi(name, email, password);
+      const { user } = await authService.register(name, email, password);
       setUser(user);
-      localStorage.setItem('authToken', token);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
       setUser(null);
@@ -53,9 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    authService.logout();
     setUser(null);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('authUser');
   };
 
   return (
