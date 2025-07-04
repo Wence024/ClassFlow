@@ -6,19 +6,18 @@ const LoginPage: React.FC = () => {
   const { login, loading, error, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user || success) {
+    if (user) {
       navigate('/class-sessions');
     }
-  }, [user, success, navigate]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(email, password);
-    if (!error) setSuccess(true);
+    // No redirect or success state here; handled by useEffect when user is set
   };
 
   return (
