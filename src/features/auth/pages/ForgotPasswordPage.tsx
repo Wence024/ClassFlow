@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -32,7 +33,8 @@ const ForgotPasswordPage: React.FC = () => {
           boxShadow: "0 2px 8px #0001",
         }}
       >
-        A password reset link has been sent to {email}.
+        A password reset link has been sent to {email}.<br />
+        <Link to="/login">Back to Login</Link>
       </div>
     );
   }
@@ -69,6 +71,9 @@ const ForgotPasswordPage: React.FC = () => {
         </button>
         {error && <div style={{ color: "red", marginTop: 10 }}>{error}</div>}
       </form>
+      <div style={{ marginTop: 16, textAlign: "center" }}>
+        <Link to="/login">Back to Login</Link>
+      </div>
     </div>
   );
 };

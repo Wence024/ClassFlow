@@ -1,21 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage: React.FC = () => {
   const { login, loading, error, user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user || success) {
+      navigate("/class-sessions");
+    }
+  }, [user, success, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await login(email, password);
     if (!error) setSuccess(true);
   };
-
-  if (user || success) {
-    return <div>Login successful! Welcome, {user?.name || email}.</div>;
-  }
 
   return (
     <div
@@ -59,6 +63,11 @@ const LoginPage: React.FC = () => {
         </button>
         {error && <div style={{ color: "red", marginTop: 10 }}>{error}</div>}
       </form>
+      <div style={{ marginTop: 16, textAlign: "center" }}>
+        <Link to="/register">Don't have an account? Register</Link>
+        <br />
+        <Link to="/forgot-password">Forgot Password?</Link>
+      </div>
     </div>
   );
 };

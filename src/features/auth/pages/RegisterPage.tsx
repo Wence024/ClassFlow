@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 
 const RegisterPage: React.FC = () => {
   const { register, loading, error, user } = useAuth();
@@ -7,16 +8,19 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user || success) {
+      navigate("/class-sessions");
+    }
+  }, [user, success, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await register(name, email, password);
     if (!error) setSuccess(true);
   };
-
-  if (user || success) {
-    return <div>Registration successful! Welcome, {user?.name || name}.</div>;
-  }
 
   return (
     <div
@@ -70,6 +74,9 @@ const RegisterPage: React.FC = () => {
         </button>
         {error && <div style={{ color: "red", marginTop: 10 }}>{error}</div>}
       </form>
+      <div style={{ marginTop: 16, textAlign: "center" }}>
+        <Link to="/login">Already have an account? Login</Link>
+      </div>
     </div>
   );
 };
