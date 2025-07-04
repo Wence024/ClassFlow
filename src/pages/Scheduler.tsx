@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './Scheduler.css';
 import { useClassSessions } from '../context/ClassSessionsContext';
 import { TimetableProvider, useTimetable } from '../context/TimetableContext';
+import type { ClassSession } from '../types/classSessions';
 
 type DragSource = {
   from: 'drawer' | 'timetable';
@@ -107,7 +108,7 @@ const SchedulerApp: React.FC = () => {
 
   // Helper: get all class session IDs currently in the timetable
   const assignedSessionIds = new Set(
-    timetable.flat().filter(Boolean).map((cs: ClassSession) => cs.id)
+    timetable.flat().filter(Boolean).map((cs) => cs!.id)
   );
   // Drawer shows only unassigned sessions
   const drawerSessions = classSessions.filter((cs: ClassSession) => !assignedSessionIds.has(cs.id));
