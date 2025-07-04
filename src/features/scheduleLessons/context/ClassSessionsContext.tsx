@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassSession } from '../types/classSessions';
+import * as classSessionsService from '../services/classSessionsService';
 
 // Context type
 const ClassSessionsContext = createContext<
@@ -12,12 +13,11 @@ const ClassSessionsContext = createContext<
 >(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
-  const [classSessions, setClassSessions] = useState<ClassSession[]>(() => {
-    const stored = localStorage.getItem('classSessions');
-    return stored ? JSON.parse(stored) : [];
-  });
+  const [classSessions, setClassSessions] = useState<ClassSession[]>(() =>
+    classSessionsService.getClassSessions()
+  );
   useEffect(() => {
-    localStorage.setItem('classSessions', JSON.stringify(classSessions));
+    classSessionsService.setClassSessions(classSessions);
   }, [classSessions]);
   return (
     <ClassSessionsContext.Provider value={{ classSessions, setClassSessions }}>
