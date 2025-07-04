@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import "./ClassSessions.css";
-import { useComponents } from "../context/ComponentsContext";
+import React, { useState } from 'react';
+import './ClassSessions.css';
+import { useComponents } from '../context/ComponentsContext';
 
-const TABS = ["Courses", "Class Groups", "Classrooms", "Instructors"];
+const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'];
 
 const ComponentManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -22,28 +22,27 @@ const ComponentManagement: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
 
   // Handlers for each tab
-  const getList = () =>
-    [courses, classGroups, classrooms, instructors][activeTab];
+  const getList = () => [courses, classGroups, classrooms, instructors][activeTab];
   const setList = (fn: any) =>
     [setCourses, setClassGroups, setClassrooms, setInstructors][activeTab](fn);
   const getFields = () => {
     switch (activeTab) {
       case 0:
         return [
-          { label: "Course Name", key: "name" },
-          { label: "Course Code", key: "code" },
+          { label: 'Course Name', key: 'name' },
+          { label: 'Course Code', key: 'code' },
         ];
       case 1:
-        return [{ label: "Group Name", key: "name" }];
+        return [{ label: 'Group Name', key: 'name' }];
       case 2:
         return [
-          { label: "Classroom Name", key: "name" },
-          { label: "Location", key: "location" },
+          { label: 'Classroom Name', key: 'name' },
+          { label: 'Location', key: 'location' },
         ];
       case 3:
         return [
-          { label: "Instructor Name", key: "name" },
-          { label: "Email", key: "email" },
+          { label: 'Instructor Name', key: 'name' },
+          { label: 'Email', key: 'email' },
         ];
       default:
         return [];
@@ -69,13 +68,11 @@ const ComponentManagement: React.FC = () => {
     e.preventDefault();
     const fields = getFields();
     if (fields.some((f) => !form[f.key])) {
-      alert("Please fill out all fields.");
+      alert('Please fill out all fields.');
       return;
     }
     if (editId) {
-      setList((prev: any[]) =>
-        prev.map((i) => (i.id === editId ? { ...i, ...form } : i))
-      );
+      setList((prev: any[]) => prev.map((i) => (i.id === editId ? { ...i, ...form } : i)));
     } else {
       setList((prev: any[]) => [
         ...prev,
@@ -94,7 +91,7 @@ const ComponentManagement: React.FC = () => {
           {TABS.map((tab, idx) => (
             <button
               key={tab}
-              className={activeTab === idx ? "tab active" : "tab"}
+              className={activeTab === idx ? 'tab active' : 'tab'}
               onClick={() => {
                 setActiveTab(idx);
                 resetForm();
@@ -118,14 +115,12 @@ const ComponentManagement: React.FC = () => {
                 <div key={key} className="class-session">
                   <h3>
                     {item.name}
-                    {item.code ? ` (${item.code})` : ""}
+                    {item.code ? ` (${item.code})` : ''}
                   </h3>
                   {item.location && <p>Location: {item.location}</p>}
                   {item.email && <p>Email: {item.email}</p>}
                   <div className="buttons">
-                    <button onClick={() => handleDelete(item.id)}>
-                      Remove
-                    </button>
+                    <button onClick={() => handleDelete(item.id)}>Remove</button>
                     <button onClick={() => handleEdit(item)}>Edit</button>
                   </div>
                 </div>
@@ -147,13 +142,13 @@ const ComponentManagement: React.FC = () => {
               <label>{f.label}: </label>
               <input
                 type="text"
-                value={form[f.key] ?? ""}
+                value={form[f.key] ?? ''}
                 onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
               />
             </div>
           ))}
           <button className="create-button" type="submit">
-            {editId ? "Save Changes" : `Create ${TABS[activeTab].slice(0, -1)}`}
+            {editId ? 'Save Changes' : `Create ${TABS[activeTab].slice(0, -1)}`}
           </button>
           {editId && (
             <button type="button" onClick={resetForm} style={{ marginLeft: 8 }}>

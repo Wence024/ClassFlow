@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const ForgotPasswordPage: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -13,10 +13,10 @@ const ForgotPasswordPage: React.FC = () => {
     setError(null);
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 800));
-    if (email.includes("@")) {
+    if (email.includes('@')) {
       setSent(true);
     } else {
-      setError("Please enter a valid email address.");
+      setError('Please enter a valid email address.');
     }
     setLoading(false);
   };
@@ -26,11 +26,11 @@ const ForgotPasswordPage: React.FC = () => {
       <div
         style={{
           maxWidth: 400,
-          margin: "40px auto",
+          margin: '40px auto',
           padding: 24,
-          background: "#fff",
+          background: '#fff',
           borderRadius: 8,
-          boxShadow: "0 2px 8px #0001",
+          boxShadow: '0 2px 8px #0001',
         }}
       >
         A password reset link has been sent to {email}.<br />
@@ -43,11 +43,11 @@ const ForgotPasswordPage: React.FC = () => {
     <div
       style={{
         maxWidth: 400,
-        margin: "40px auto",
+        margin: '40px auto',
         padding: 24,
-        background: "#fff",
+        background: '#fff',
         borderRadius: 8,
-        boxShadow: "0 2px 8px #0001",
+        boxShadow: '0 2px 8px #0001',
       }}
     >
       <h2>Forgot Password</h2>
@@ -59,19 +59,15 @@ const ForgotPasswordPage: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{ width: "100%", padding: 8, marginTop: 4 }}
+            style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          style={{ width: "100%", padding: 10 }}
-        >
-          {loading ? "Sending..." : "Send Reset Link"}
+        <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
+          {loading ? 'Sending...' : 'Send Reset Link'}
         </button>
-        {error && <div style={{ color: "red", marginTop: 10 }}>{error}</div>}
+        {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
       </form>
-      <div style={{ marginTop: 16, textAlign: "center" }}>
+      <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Link to="/login">Back to Login</Link>
       </div>
     </div>

@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import type { ReactNode } from "react";
-import type { ClassSession } from "../types/classSessions";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
+import type { ClassSession } from '../types/classSessions';
 
 // Context type
 const ClassSessionsContext = createContext<
@@ -11,17 +11,13 @@ const ClassSessionsContext = createContext<
   | undefined
 >(undefined);
 
-export const ClassSessionsProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
   const [classSessions, setClassSessions] = useState<ClassSession[]>(() => {
-    const stored = localStorage.getItem("classSessions");
+    const stored = localStorage.getItem('classSessions');
     return stored ? JSON.parse(stored) : [];
   });
   useEffect(() => {
-    localStorage.setItem("classSessions", JSON.stringify(classSessions));
+    localStorage.setItem('classSessions', JSON.stringify(classSessions));
   }, [classSessions]);
   return (
     <ClassSessionsContext.Provider value={{ classSessions, setClassSessions }}>
@@ -32,9 +28,6 @@ export const ClassSessionsProvider = ({
 
 export function useClassSessions() {
   const ctx = useContext(ClassSessionsContext);
-  if (!ctx)
-    throw new Error(
-      "useClassSessions must be used within a ClassSessionsProvider"
-    );
+  if (!ctx) throw new Error('useClassSessions must be used within a ClassSessionsProvider');
   return ctx;
 }

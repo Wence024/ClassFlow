@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import "./ClassSessions.css";
-import { useClassSessions } from "../context/ClassSessionsContext";
-import { useComponents } from "../context/ComponentsContext";
-import type { ClassSession } from "../types/classSessions";
+import React, { useState } from 'react';
+import './ClassSessions.css';
+import { useClassSessions } from '../context/ClassSessionsContext';
+import { useComponents } from '../context/ComponentsContext';
+import type { ClassSession } from '../types/classSessions';
 
 const ClassSessions: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
@@ -10,24 +10,15 @@ const ClassSessions: React.FC = () => {
 
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
-  const [selectedInstructor, setSelectedInstructor] = useState<number | null>(
-    null
-  );
-  const [selectedClassroom, setSelectedClassroom] = useState<number | null>(
-    null
-  );
+  const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
+  const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
   const [editingSession, setEditingSession] = useState<boolean>(false);
   const [sessionIdToEdit, setSessionIdToEdit] = useState<number | null>(null); // Store the session ID being edited
 
   // Function to create a new class session
   const createClassSession = () => {
-    if (
-      !selectedCourse ||
-      !selectedGroup ||
-      !selectedInstructor ||
-      !selectedClassroom
-    ) {
-      alert("Please fill out all fields before creating a class session.");
+    if (!selectedCourse || !selectedGroup || !selectedInstructor || !selectedClassroom) {
+      alert('Please fill out all fields before creating a class session.');
       return;
     }
 
@@ -35,12 +26,8 @@ const ClassSessions: React.FC = () => {
       id: Date.now(),
       course: courses.find((course) => course.id === selectedCourse)!,
       group: classGroups.find((group) => group.id === selectedGroup)!,
-      instructor: instructors.find(
-        (instructor) => instructor.id === selectedInstructor
-      )!,
-      classroom: classrooms.find(
-        (classroom) => classroom.id === selectedClassroom
-      )!,
+      instructor: instructors.find((instructor) => instructor.id === selectedInstructor)!,
+      classroom: classrooms.find((classroom) => classroom.id === selectedClassroom)!,
     };
 
     setClassSessions((prevSessions) => [...prevSessions, newSession]);
@@ -49,9 +36,7 @@ const ClassSessions: React.FC = () => {
 
   // Function to remove a class session
   const removeClassSession = (id: number) => {
-    setClassSessions((prevSessions) =>
-      prevSessions.filter((session) => session.id !== id)
-    );
+    setClassSessions((prevSessions) => prevSessions.filter((session) => session.id !== id));
   };
 
   // Function to edit a class session
@@ -85,18 +70,12 @@ const ClassSessions: React.FC = () => {
         id: sessionIdToEdit, // Use the ID of the session being edited
         course: courses.find((course) => course.id === selectedCourse)!,
         group: classGroups.find((group) => group.id === selectedGroup)!,
-        instructor: instructors.find(
-          (instructor) => instructor.id === selectedInstructor
-        )!,
-        classroom: classrooms.find(
-          (classroom) => classroom.id === selectedClassroom
-        )!,
+        instructor: instructors.find((instructor) => instructor.id === selectedInstructor)!,
+        classroom: classrooms.find((classroom) => classroom.id === selectedClassroom)!,
       };
 
       setClassSessions((prevSessions) =>
-        prevSessions.map((session) =>
-          session.id === updatedSession.id ? updatedSession : session
-        )
+        prevSessions.map((session) => (session.id === updatedSession.id ? updatedSession : session))
       );
     } else {
       createClassSession(); // Call create session function if in "create" mode
@@ -125,12 +104,8 @@ const ClassSessions: React.FC = () => {
                   <p>Instructor: {session.instructor.name}</p>
                   <p>Classroom: {session.classroom.name}</p>
                   <div className="buttons">
-                    <button onClick={() => removeClassSession(session.id)}>
-                      Remove
-                    </button>
-                    <button onClick={() => editClassSession(session.id)}>
-                      Edit
-                    </button>
+                    <button onClick={() => removeClassSession(session.id)}>Remove</button>
+                    <button onClick={() => editClassSession(session.id)}>Edit</button>
                   </div>
                 </div>
               );
@@ -141,31 +116,29 @@ const ClassSessions: React.FC = () => {
 
       {/* Create/Edit Form Container */}
       <div className="form-container">
-        <h2>
-          {editingSession ? "Edit Class Session" : "Create Class Session"}
-        </h2>
+        <h2>{editingSession ? 'Edit Class Session' : 'Create Class Session'}</h2>
         <div className="create-session-form">
           {[
             {
-              label: "Course",
+              label: 'Course',
               value: selectedCourse,
               setValue: setSelectedCourse,
               options: courses,
             },
             {
-              label: "Class Group",
+              label: 'Class Group',
               value: selectedGroup,
               setValue: setSelectedGroup,
               options: classGroups,
             },
             {
-              label: "Instructor",
+              label: 'Instructor',
               value: selectedInstructor,
               setValue: setSelectedInstructor,
               options: instructors,
             },
             {
-              label: "Classroom",
+              label: 'Classroom',
               value: selectedClassroom,
               setValue: setSelectedClassroom,
               options: classrooms,
@@ -174,15 +147,13 @@ const ClassSessions: React.FC = () => {
             <div key={field.label || index} className="form-group">
               <label>{field.label}: </label>
               <select
-                value={field.value ?? ""} // Ensure value is never NaN, use empty string if null/undefined
+                value={field.value ?? ''} // Ensure value is never NaN, use empty string if null/undefined
                 onChange={(e) => field.setValue(Number(e.target.value) || null)} // Handle conversion
               >
                 <option value="">Select {field.label}</option>
                 {field.options.map((option, optionIndex) => {
                   // Combine component type (`field.label`), option `id`, and index to create a unique key
-                  const optionKey = `${field.label.toLowerCase()}-${
-                    option.id
-                  }-${optionIndex}`;
+                  const optionKey = `${field.label.toLowerCase()}-${option.id}-${optionIndex}`;
                   return (
                     <option key={optionKey} value={option.id}>
                       {option.name}
@@ -193,7 +164,7 @@ const ClassSessions: React.FC = () => {
             </div>
           ))}
           <button className="create-button" onClick={saveClassSession}>
-            {editingSession ? "Save Changes" : "Create Class Session"}
+            {editingSession ? 'Save Changes' : 'Create Class Session'}
           </button>
         </div>
       </div>

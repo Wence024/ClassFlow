@@ -1,10 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import type {
-  Course,
-  ClassGroup,
-  Classroom,
-  Instructor,
-} from "../types/classSessions";
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { Course, ClassGroup, Classroom, Instructor } from '../types/classSessions';
 
 // Utility to load from localStorage or fallback to empty array
 function loadOrDefault<T>(key: string): T {
@@ -26,44 +21,37 @@ interface ComponentsContextType {
   setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>>;
 }
 
-const ComponentsContext = createContext<ComponentsContextType | undefined>(
-  undefined
-);
+const ComponentsContext = createContext<ComponentsContextType | undefined>(undefined);
 
 export const useComponents = () => {
   const ctx = useContext(ComponentsContext);
-  if (!ctx)
-    throw new Error("useComponents must be used within a ComponentsProvider");
+  if (!ctx) throw new Error('useComponents must be used within a ComponentsProvider');
   return ctx;
 };
 
-export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [courses, setCourses] = useState<Course[]>(() =>
-    loadOrDefault<Course[]>("courses")
-  );
+export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [courses, setCourses] = useState<Course[]>(() => loadOrDefault<Course[]>('courses'));
   const [classGroups, setClassGroups] = useState<ClassGroup[]>(() =>
-    loadOrDefault<ClassGroup[]>("classGroups")
+    loadOrDefault<ClassGroup[]>('classGroups')
   );
   const [classrooms, setClassrooms] = useState<Classroom[]>(() =>
-    loadOrDefault<Classroom[]>("classrooms")
+    loadOrDefault<Classroom[]>('classrooms')
   );
   const [instructors, setInstructors] = useState<Instructor[]>(() =>
-    loadOrDefault<Instructor[]>("instructors")
+    loadOrDefault<Instructor[]>('instructors')
   );
 
   useEffect(() => {
-    localStorage.setItem("courses", JSON.stringify(courses));
+    localStorage.setItem('courses', JSON.stringify(courses));
   }, [courses]);
   useEffect(() => {
-    localStorage.setItem("classGroups", JSON.stringify(classGroups));
+    localStorage.setItem('classGroups', JSON.stringify(classGroups));
   }, [classGroups]);
   useEffect(() => {
-    localStorage.setItem("classrooms", JSON.stringify(classrooms));
+    localStorage.setItem('classrooms', JSON.stringify(classrooms));
   }, [classrooms]);
   useEffect(() => {
-    localStorage.setItem("instructors", JSON.stringify(instructors));
+    localStorage.setItem('instructors', JSON.stringify(instructors));
   }, [instructors]);
 
   return (
