@@ -7,6 +7,8 @@ const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
@@ -16,10 +18,30 @@ const RegisterPage: React.FC = () => {
     }
   }, [user, success, navigate]);
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!name) errors.name = 'Name is required';
+    if (!email) errors.email = 'Email is required';
+    else if (!/^\S+@\S+\.\S+$/.test(email)) errors.email = 'Email is invalid';
+    if (!password) errors.password = 'Password is required';
+    if (password !== confirmPassword) errors.confirmPassword = 'Passwords do not match';
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await register(name, email, password);
-    if (!error) setSuccess(true);
+
+    if (!validateForm()) return;
+
+    try {
+      await register(name, email, password);
+      setSuccess(true);
+    } catch (err) {
+      // Error handling is done in the AuthContext
+    }
   };
 
   return (
@@ -44,6 +66,9 @@ const RegisterPage: React.FC = () => {
             required
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
+          {formErrors.name && (
+            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.name}</div>
+          )}
         </div>
         <div style={{ marginBottom: 12 }}>
           <label>Email:</label>
@@ -54,6 +79,9 @@ const RegisterPage: React.FC = () => {
             required
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
+          {formErrors.email && (
+            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.email}</div>
+          )}
         </div>
         <div style={{ marginBottom: 12 }}>
           <label>Password:</label>
@@ -64,6 +92,22 @@ const RegisterPage: React.FC = () => {
             required
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
+          {formErrors.password && (
+            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.password}</div>
+          )}
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label>Confirm Password:</label>
+          <input
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            style={{ width: '100%', padding: 8, marginTop: 4 }}
+          />
+          {formErrors.confirmPassword && (
+            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.confirmPassword}</div>
+          )}
         </div>
         <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
           {loading ? 'Registering...' : 'Register'}
