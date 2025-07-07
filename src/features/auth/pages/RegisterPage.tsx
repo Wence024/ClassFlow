@@ -39,7 +39,7 @@ const RegisterPage: React.FC = () => {
     try {
       await register(name, email, password);
       setSuccess(true);
-    } catch (err) {
+    } catch {
       // Error handling is done in the AuthContext
     }
   };
