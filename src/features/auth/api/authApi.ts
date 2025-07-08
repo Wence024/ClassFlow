@@ -1,45 +1,117 @@
 /**
- * Simulated API for authentication. Replace with real API calls for production.
+ * Supabase authentication API implementation.
  */
+import { supabase } from '../../../lib/supabase';
 import type { AuthResponse } from '../types/auth';
 
 /**
- * Simulate a login API call.
+ * Log in a user using Supabase authentication.
  * @param email - User's email
  * @param password - User's password
- * @returns AuthResponse if credentials are correct, otherwise throws error
+ * @returns AuthResponse with user and session
  */
 export async function loginApi(email: string, password: string): Promise<AuthResponse> {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  if (email === 'test@example.com' && password === 'password') {
-    return {
-      user: { id: '1', name: 'Test User', email },
-      token: 'fake-jwt-token',
-    };
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    throw new Error(error.message);
   }
-  throw new Error('Invalid email or password');
+
+  if (!data.user || !data.session) {
+    throw new Error('Login failed');
+  }
+
+  return {
+    user: {
+      id: data.user.id,
+      name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
+      email: data.user.email!,
+    },
+    token: data.session.access_token,
+  };
 }
 
 /**
- * Simulate a registration API call.
+ * Register a new user using Supabase authentication.
  * @param name - User's name
  * @param email - User's email
  * @param password - User's password
- * @returns AuthResponse if registration is successful, otherwise throws error
+ * @returns AuthResponse with user and session
  */
 export async function registerApi(
   name: string,
   email: string,
   password: string
 ): Promise<AuthResponse> {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  if (email && password && name) {
-    return {
-      user: { id: Date.now().toString(), name, email },
-      token: 'fake-jwt-token',
-    };
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name: name,
+      },
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
   }
-  throw new Error('Registration failed');
+
+  if (!data.user || !data.session) {
+    throw new Error('Registration failed');
+  }
+
+  return {
+    user: {
+      id: data.user.id,
+      name: data.user.user_metadata?.name || name,
+      email: data.user.email!,
+    },
+    token: data.session.access_token,
+  };
+}
+
+/**
+ * Get the current user session from Supabase.
+ * @returns AuthResponse if user is authenticated, null otherwise
+ */
+export async function getCurrentUser(): Promise<AuthResponse | null> {
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    return null;
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    return null;
+  }
+
+  return {
+    user: {
+      id: user.id,
+      name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+      email: user.email!,
+    },
+    token: session.access_token,
+  };
+}
+
+/**
+ * Sign out the current user from Supabase.
+ */
+export async function logoutApi(): Promise<void> {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    throw new Error(error.message);
+  }
 }
