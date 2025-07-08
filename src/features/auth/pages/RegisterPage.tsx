@@ -56,63 +56,75 @@ const RegisterPage: React.FC = () => {
       }}
     >
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} role="form" aria-label="Register form">
         <div style={{ marginBottom: 12 }}>
-          <label>Name:</label>
+          <label htmlFor="register-name">Name:</label>
           <input
+            id="register-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            autoComplete="name"
+            aria-label="Name"
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.name && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.name}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.name}</div>
           )}
         </div>
         <div style={{ marginBottom: 12 }}>
-          <label>Email:</label>
+          <label htmlFor="register-email">Email:</label>
           <input
+            id="register-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="email"
+            aria-label="Email address"
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.email && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.email}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.email}</div>
           )}
         </div>
         <div style={{ marginBottom: 12 }}>
-          <label>Password:</label>
+          <label htmlFor="register-password">Password:</label>
           <input
+            id="register-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="new-password"
+            aria-label="Password"
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.password && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.password}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.password}</div>
           )}
         </div>
         <div style={{ marginBottom: 12 }}>
-          <label>Confirm Password:</label>
+          <label htmlFor="register-confirm-password">Confirm Password:</label>
           <input
+            id="register-confirm-password"
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            autoComplete="new-password"
+            aria-label="Confirm password"
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.confirmPassword && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }}>{formErrors.confirmPassword}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.confirmPassword}</div>
           )}
         </div>
         <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
           {loading ? 'Registering...' : 'Register'}
         </button>
-        {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
+        {error && <div style={{ color: 'red', marginTop: 10 }} role="alert" aria-live="assertive">{error}</div>}
       </form>
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Link to="/login">Already have an account? Login</Link>
