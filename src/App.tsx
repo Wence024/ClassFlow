@@ -8,6 +8,7 @@ import ComponentManagement from './features/scheduleLessons/pages/ComponentManag
 import { authRoutes } from './features/auth/routes/AuthRoutes';
 import { AuthProvider } from './features/auth/contexts/AuthContext';
 import { useAuth } from './features/auth/hooks/useAuth';
+import PrivateRoute from './features/auth/components/PrivateRoute';
 
 function NavBar({ onLogout }: { onLogout?: () => void }) {
   const { user, logout } = useAuth();
@@ -77,9 +78,9 @@ function App() {
             )}
             <Routes>
               {authRoutes}
-              <Route path="/class-sessions" element={<ClassSessions />} />
-              <Route path="/scheduler" element={<Scheduler />} />
-              <Route path="/component-management" element={<ComponentManagement />} />
+              <Route path="/class-sessions" element={<PrivateRoute><ClassSessions /></PrivateRoute>} />
+              <Route path="/scheduler" element={<PrivateRoute><Scheduler /></PrivateRoute>} />
+              <Route path="/component-management" element={<PrivateRoute><ComponentManagement /></PrivateRoute>} />
             </Routes>
           </BrowserRouter>
         </ComponentsProvider>
