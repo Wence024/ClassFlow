@@ -69,25 +69,31 @@ const LoginPage: React.FC = () => {
       }}
     >
       <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} role="form" aria-label="Login form">
         <div style={{ marginBottom: 12 }}>
-          <label>Email:</label>
+          <label htmlFor="login-email">Email:</label>
           <input
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="username"
+            aria-label="Email address"
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
         </div>
         <div style={{ marginBottom: 12 }}>
-          <label>Password:</label>
+          <label htmlFor="login-password">Password:</label>
           <div style={{ position: 'relative' }}>
             <input
+              id="login-password"
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
+              aria-label="Password"
               style={{ width: '100%', padding: 8, marginTop: 4, paddingRight: 36 }}
             />
             <button
@@ -106,6 +112,7 @@ const LoginPage: React.FC = () => {
                 lineHeight: 1,
               }}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
+              tabIndex={0}
             >
               <EyeIcon open={showPassword} />
             </button>
@@ -114,7 +121,11 @@ const LoginPage: React.FC = () => {
         <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
-        {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
+        {error && (
+          <div style={{ color: 'red', marginTop: 10 }} role="alert" aria-live="assertive">
+            {error}
+          </div>
+        )}
       </form>
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Link to="/register">Don't have an account? Register</Link>
