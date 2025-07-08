@@ -27,12 +27,17 @@ function NavBar({ onLogout }: { onLogout?: () => void }) {
       <Link to="/scheduler">Scheduler</Link>
       <Link to="/component-management">Component Management</Link>
       {user && (
+        <span style={{ marginLeft: '2rem', fontWeight: 500, color: '#007bff' }}>
+          Welcome, {user.name}
+        </span>
+      )}
+      {user && (
         <button
           onClick={() => {
             logout();
             if (onLogout) onLogout();
           }}
-          style={{ marginLeft: '2rem', padding: '6px 16px', fontSize: '1rem', cursor: 'pointer' }}
+          style={{ marginLeft: '1rem', padding: '6px 16px', fontSize: '1rem', cursor: 'pointer' }}
         >
           Logout
         </button>
