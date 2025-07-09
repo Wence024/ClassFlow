@@ -23,6 +23,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
 
 /**
  * Register a new user using Supabase authentication.
+ * If Supabase returns no token, the user must verify their email before logging in.
  * @param name - User's name
  * @param email - User's email
  * @param password - User's password
@@ -34,7 +35,7 @@ export async function register(
   password: string
 ): Promise<{ user: User; token: string; needsVerification: boolean }> {
   const response = await registerApi(name, email, password);
-  // If no token is returned, user needs to verify email
+  // If token is empty, user needs to verify email
   const needsVerification = !response.token;
   localStorage.setItem('authUser', JSON.stringify(response.user));
   return { ...response, needsVerification };

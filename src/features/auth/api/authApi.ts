@@ -60,7 +60,7 @@ export async function registerApi(
     throw new Error(error.message);
   }
 
-  if (!data.user || !data.session) {
+  if (!data.user) {
     throw new Error('Registration failed');
   }
 
@@ -70,7 +70,7 @@ export async function registerApi(
       name: data.user.user_metadata?.name || name,
       email: data.user.email!,
     },
-    token: data.session.access_token,
+    token: data.session ? data.session.access_token : '', // empty string if not verified yet
   };
 }
 

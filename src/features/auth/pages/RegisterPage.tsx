@@ -1,22 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {
-  const { register, loading, error, user } = useAuth();
+  const { register, loading, error } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user || success) {
-      navigate('/class-sessions');
-    }
-  }, [user, success, navigate]);
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
@@ -33,12 +25,9 @@ const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     try {
       await register(name, email, password);
-      setSuccess(true);
     } catch {
       // Error handling is done in the AuthContext
     }
