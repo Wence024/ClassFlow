@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../../../lib/supabase';
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,12 +12,15 @@ const ForgotPasswordPage: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    if (email.includes('@')) {
-      setSent(true);
+    // Use Supabase to send password reset link
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/login',
+    });
+    if (error) {
+      setError(error.message);
+      setSent(false);
     } else {
-      setError('Please enter a valid email address.');
+      setSent(true);
     }
     setLoading(false);
   };

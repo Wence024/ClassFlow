@@ -13,7 +13,10 @@ import type { AuthResponse, User } from '../types/auth';
  */
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const response = await loginApi(email, password);
-  // Store user info in localStorage for persistence across page reloads
+  // If the user is not confirmed (email not verified), throw a specific error
+  if (response.user && response.user.email && !response.token) {
+    throw new Error('Email not verified. Please check your inbox.');
+  }
   localStorage.setItem('authUser', JSON.stringify(response.user));
   return response;
 }
@@ -23,17 +26,18 @@ export async function login(email: string, password: string): Promise<AuthRespon
  * @param name - User's name
  * @param email - User's email
  * @param password - User's password
- * @returns AuthResponse with user and token
+ * @returns { user, token, needsVerification } - needsVerification is true if email verification is required
  */
 export async function register(
   name: string,
   email: string,
   password: string
-): Promise<AuthResponse> {
+): Promise<{ user: User; token: string; needsVerification: boolean }> {
   const response = await registerApi(name, email, password);
-  // Store user info in localStorage for persistence across page reloads
+  // If no token is returned, user needs to verify email
+  const needsVerification = !response.token;
   localStorage.setItem('authUser', JSON.stringify(response.user));
-  return response;
+  return { ...response, needsVerification };
 }
 
 /**

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { User, AuthContextType } from '../types/auth';
 import * as authService from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -9,6 +10,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true); // Start with loading true
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // Load user from service on mount
   useEffect(() => {
@@ -38,6 +40,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
       setUser(null);
+      if (errorMessage.includes('Email not verified')) {
+        navigate('/verify-email');
+      }
     } finally {
       setLoading(false);
     }
@@ -47,8 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const { user } = await authService.register(name, email, password);
-      setUser(user);
+      const { user, needsVerification } = await authService.register(name, email, password);
+      if (needsVerification) {
+        setUser(null);
+        navigate('/verify-email');
+      } else {
+        setUser(user);
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
       setError(errorMessage);

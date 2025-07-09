@@ -70,7 +70,9 @@ const RegisterPage: React.FC = () => {
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.name && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.name}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+              {formErrors.name}
+            </div>
           )}
         </div>
         <div style={{ marginBottom: 12 }}>
@@ -86,7 +88,9 @@ const RegisterPage: React.FC = () => {
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.email && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.email}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+              {formErrors.email}
+            </div>
           )}
         </div>
         <div style={{ marginBottom: 12 }}>
@@ -102,7 +106,9 @@ const RegisterPage: React.FC = () => {
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.password && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.password}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+              {formErrors.password}
+            </div>
           )}
         </div>
         <div style={{ marginBottom: 12 }}>
@@ -118,13 +124,19 @@ const RegisterPage: React.FC = () => {
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
           {formErrors.confirmPassword && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">{formErrors.confirmPassword}</div>
+            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+              {formErrors.confirmPassword}
+            </div>
           )}
         </div>
         <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
           {loading ? 'Registering...' : 'Register'}
         </button>
-        {error && <div style={{ color: 'red', marginTop: 10 }} role="alert" aria-live="assertive">{error}</div>}
+        {error && (
+          <div style={{ color: 'red', marginTop: 10 }} role="alert" aria-live="assertive">
+            {error}
+          </div>
+        )}
       </form>
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Link to="/login">Already have an account? Login</Link>

@@ -55,10 +55,10 @@ function App() {
   };
 
   return (
-    <AuthProvider>
-      <ClassSessionsProvider>
-        <ComponentsProvider>
-          <BrowserRouter>
+    <ClassSessionsProvider>
+      <ComponentsProvider>
+        <BrowserRouter>
+          <AuthProvider>
             <NavBar onLogout={handleLogout} />
             {toast && (
               <div
@@ -83,14 +83,35 @@ function App() {
             )}
             <Routes>
               {authRoutes}
-              <Route path="/class-sessions" element={<PrivateRoute><ClassSessions /></PrivateRoute>} />
-              <Route path="/scheduler" element={<PrivateRoute><Scheduler /></PrivateRoute>} />
-              <Route path="/component-management" element={<PrivateRoute><ComponentManagement /></PrivateRoute>} />
+              <Route
+                path="/class-sessions"
+                element={
+                  <PrivateRoute>
+                    <ClassSessions />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/scheduler"
+                element={
+                  <PrivateRoute>
+                    <Scheduler />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/component-management"
+                element={
+                  <PrivateRoute>
+                    <ComponentManagement />
+                  </PrivateRoute>
+                }
+              />
             </Routes>
-          </BrowserRouter>
-        </ComponentsProvider>
-      </ClassSessionsProvider>
-    </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </ComponentsProvider>
+    </ClassSessionsProvider>
   );
 }
 
