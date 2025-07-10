@@ -39,7 +39,7 @@ const EyeIcon = ({ open }: { open: boolean }) =>
   );
 
 const LoginPage: React.FC = () => {
-  const { login, loading, error, user } = useAuth();
+  const { login, loading, error, user, clearError } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -50,6 +50,13 @@ const LoginPage: React.FC = () => {
       navigate('/class-sessions');
     }
   }, [user, navigate]);
+
+  // Clear error when component unmounts
+  useEffect(() => {
+    return () => {
+      clearError();
+    };
+  }, [clearError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

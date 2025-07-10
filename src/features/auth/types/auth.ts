@@ -18,6 +18,7 @@ export type AuthContextType = {
   resendVerificationEmail: (email: string) => Promise<void>;
   loading: boolean;
   error: string | null;
+  clearError: () => void;
 };
 
 /**
