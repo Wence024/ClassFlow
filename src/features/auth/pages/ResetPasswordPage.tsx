@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 
+// Helper to parse tokens and errors from hash
+function parseHash(hash: string) {
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  return {
+    accessToken: params.get('access_token'),
+    refreshToken: params.get('refresh_token'),
+    error: params.get('error'),
+    errorDescription: params.get('error_description'),
+  };
+}
+
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -11,12 +22,28 @@ const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Check if we have the necessary parameters for password reset
-  useEffect(() => {
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
+  // Store tokens and errors from hash or query
+  const [tokens, setTokens] = useState<{
+    accessToken: string | null;
+    refreshToken: string | null;
+    error: string | null;
+    errorDescription: string | null;
+  }>({ accessToken: null, refreshToken: null, error: null, errorDescription: null });
 
-    if (!accessToken || !refreshToken) {
+  useEffect(() => {
+    // Parse tokens/errors from hash and query string
+    const hash = window.location.hash;
+    const hashTokens = parseHash(hash);
+    const accessToken = hashTokens.accessToken || searchParams.get('access_token');
+    const refreshToken = hashTokens.refreshToken || searchParams.get('refresh_token');
+    const error = hashTokens.error;
+    const errorDescription = hashTokens.errorDescription;
+    setTokens({ accessToken, refreshToken, error, errorDescription });
+
+    // Show error if present in hash
+    if (errorDescription) {
+      setError(decodeURIComponent(errorDescription));
+    } else if (!accessToken || !refreshToken) {
       setError(
         'Invalid or missing reset link parameters. Please request a new password reset link.'
       );
@@ -40,9 +67,7 @@ const ResetPasswordPage: React.FC = () => {
     setError(null);
 
     try {
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
-
+      const { accessToken, refreshToken } = tokens;
       if (!accessToken || !refreshToken) {
         throw new Error('Invalid reset link');
       }
@@ -93,14 +118,15 @@ const ResetPasswordPage: React.FC = () => {
       >
         <h2>Password Reset Successful</h2>
         <p>
-          Your password has been successfully reset. You will be redirected to the login page
-          shortly.
+          Your password has been successfully reset. You are now logged in.
+          <br />
+          You can continue to your dashboard.
         </p>
         <button
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/class-sessions')}
           style={{ width: '100%', padding: 10, marginTop: 16 }}
         >
-          Go to Login
+          Go to Dashboard
         </button>
       </div>
     );
@@ -145,7 +171,11 @@ const ResetPasswordPage: React.FC = () => {
             style={{ width: '100%', padding: 8, marginTop: 4 }}
           />
         </div>
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
+        <button
+          type="submit"
+          disabled={loading || !!tokens.error}
+          style={{ width: '100%', padding: 10 }}
+        >
           {loading ? 'Resetting...' : 'Reset Password'}
         </button>
         {error && (
