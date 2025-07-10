@@ -30,31 +30,27 @@ const HomePage = () => {
 function NavBar({ onLogout }: { onLogout?: () => void }) {
   const { user, logout } = useAuth();
   return (
-    <nav
-      style={{
-        display: 'flex',
-        gap: '1rem',
-        marginBottom: '2rem',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
-      <Link to="/login">Login</Link>
-      <Link to="/class-sessions">Class Sessions</Link>
-      <Link to="/scheduler">Scheduler</Link>
-      <Link to="/component-management">Component Management</Link>
-      {user && (
-        <span style={{ marginLeft: '2rem', fontWeight: 500, color: '#007bff' }}>
-          Welcome, {user.name}
-        </span>
-      )}
+    <nav className="flex gap-4 mb-8 justify-center items-center bg-white py-4 shadow">
+      <Link to="/login" className="text-blue-600 hover:underline">
+        Login
+      </Link>
+      <Link to="/class-sessions" className="text-blue-600 hover:underline">
+        Class Sessions
+      </Link>
+      <Link to="/scheduler" className="text-blue-600 hover:underline">
+        Scheduler
+      </Link>
+      <Link to="/component-management" className="text-blue-600 hover:underline">
+        Component Management
+      </Link>
+      {user && <span className="ml-8 font-semibold text-blue-700">Welcome, {user.name}</span>}
       {user && (
         <button
           onClick={() => {
             logout();
             if (onLogout) onLogout();
           }}
-          style={{ marginLeft: '1rem', padding: '6px 16px', fontSize: '1rem', cursor: 'pointer' }}
+          className="ml-4 px-4 py-2 text-base rounded bg-gray-200 hover:bg-gray-300 transition-colors font-medium"
         >
           Logout
         </button>
@@ -79,19 +75,7 @@ function App() {
             <NavBar onLogout={handleLogout} />
             {toast && (
               <div
-                style={{
-                  position: 'fixed',
-                  top: 70,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  background: '#333',
-                  color: '#fff',
-                  padding: '10px 24px',
-                  borderRadius: 6,
-                  zIndex: 1000,
-                  fontSize: 16,
-                  boxShadow: '0 2px 8px #0003',
-                }}
+                className="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-lg z-50 text-base shadow-lg"
                 role="status"
                 aria-live="polite"
               >

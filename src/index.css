@@ -16,3 +16,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Force all text fields to have white text and dark background globally */
+input,
+select,
+textarea {
+  color: #fff;
+  background-color: #222;
+  caret-color: #fff;
+}
