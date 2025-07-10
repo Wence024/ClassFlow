@@ -1,266 +1,130 @@
-import React, { useState } from 'react';
-import './ClassSessions.css';
+import React, { useState } from "react";
+import "./ClassSessions.css";
 import { useComponents } from '../context/ComponentsContext';
-import { useForm } from '../hooks/useForm';
-import { apiCourses } from '../api/courses';
-import { apiClassGroups } from '../api/classGroups';
-import { apiClassrooms } from '../api/classrooms';
-import { apiInstructors } from '../api/instructors';
 
-const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'] as const;
-
-type Tab = (typeof TABS)[number];
-
-type FormValues = {
-  name: string;
-  code?: string;
-  location?: string;
-  email?: string;
-  capacity?: number;
-};
-
-type Entity = FormValues & { id: string };
-type Setter = React.Dispatch<React.SetStateAction<Entity[]>>;
-
-type ApiModule = {
-  list: () => Promise<Entity[]>;
-  get: (id: string) => Promise<Entity>;
-  create: (data: Omit<Entity, 'id'>) => Promise<Entity>;
-  update: (id: string, data: Partial<Entity>) => Promise<Entity>;
-  delete: (id: string) => Promise<void>;
-};
-
-const normalize = <T extends { id?: string; _id?: string }>(item: T): T & { id: string } => ({
-  ...item,
-  id: item.id ?? item._id ?? '',
-});
+const TABS = ["Courses", "Class Groups", "Classrooms", "Instructors"];
 
 const ComponentManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>(TABS[0]);
+  const [activeTab, setActiveTab] = useState(0);
   const {
-    courses,
-    setCourses,
-    classGroups,
-    setClassGroups,
-    classrooms,
-    setClassrooms,
-    instructors,
-    setInstructors,
+    courses, setCourses,
+    classGroups, setClassGroups,
+    classrooms, setClassrooms,
+    instructors, setInstructors
   } = useComponents();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const { values, isEditing, editId, handleChange, resetForm, setEditValues } = useForm<FormValues>(
-    {
-      name: '',
-      code: '',
-      location: '',
-      email: '',
-      capacity: 0,
-    }
-  );
+  // Form states
+  const [form, setForm] = useState<any>({});
+  const [editId, setEditId] = useState<number | null>(null);
 
-  const getCurrentList = (): Entity[] => {
-    switch (activeTab) {
-      case 'Courses':
-        return courses as Entity[];
-      case 'Class Groups':
-        return classGroups as Entity[];
-      case 'Classrooms':
-        return classrooms as Entity[];
-      case 'Instructors':
-        return instructors as Entity[];
-      default:
-        return [];
-    }
-  };
-
-  const getCurrentSetter = (): Setter => {
-    switch (activeTab) {
-      case 'Courses':
-        return setCourses as Setter;
-      case 'Class Groups':
-        return setClassGroups as Setter;
-      case 'Classrooms':
-        return setClassrooms as Setter;
-      case 'Instructors':
-        return setInstructors as Setter;
-      default:
-        return () => {};
-    }
-  };
-
-  const getApiModule = (): ApiModule => {
-    switch (activeTab) {
-      case 'Courses':
-        return apiCourses as ApiModule;
-      case 'Class Groups':
-        return apiClassGroups as ApiModule;
-      case 'Classrooms':
-        return apiClassrooms as ApiModule;
-      case 'Instructors':
-        return apiInstructors as ApiModule;
-      default:
-        throw new Error('Invalid tab');
-    }
-  };
-
-  const handleEdit = (item: Entity) => {
-    // console.log('Editing item:', item);
-    setEditValues({
-      ...item,
-      name: item.name,
-      ...(item.code && { code: item.code }),
-      ...(item.location && { location: item.location }),
-      ...(item.email && { email: item.email }),
-      ...(item.capacity && { capacity: item.capacity }),
-    });
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!id) {
-      setError('Invalid ID for deletion');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    const setter = getCurrentSetter();
-    const api = getApiModule();
-    try {
-      await api.delete(id);
-      setter((prev) => prev.filter((i) => i.id !== id));
-      if (editId === id) resetForm();
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // console.log('handleSubmit', { isEditing, editId, values });
-    if (!values.name) {
-      alert('Please fill out all required fields.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    const setter = getCurrentSetter();
-    const api = getApiModule();
-    try {
-      if (isEditing && editId) {
-        const updated = await api.update(editId, values);
-        setter((prev) => prev.map((i) => (i.id === editId ? normalize(updated) : i)));
-      } else {
-        const created = await api.create(values as Omit<Entity, 'id'>);
-        setter((prev) => [...prev, normalize(created)]);
-      }
-      resetForm();
-    } catch (err: any) {
-      setError(err.message || 'Failed to save');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Handlers for each tab
+  const getList = () => [courses, classGroups, classrooms, instructors][activeTab];
+  const setList = (fn: any) => [setCourses, setClassGroups, setClassrooms, setInstructors][activeTab](fn);
   const getFields = () => {
     switch (activeTab) {
-      case 'Courses':
-        return [
-          { label: 'Name', name: 'name' },
-          { label: 'Code', name: 'code' },
-        ];
-      case 'Class Groups':
-        return [{ label: 'Name', name: 'name' }];
-      case 'Classrooms':
-        return [
-          { label: 'Name', name: 'name' },
-          { label: 'Location', name: 'location' },
-          { label: 'Capacity', name: 'capacity', type: 'number' },
-        ];
-      case 'Instructors':
-        return [
-          { label: 'Name', name: 'name' },
-          { label: 'Email', name: 'email' },
-        ];
-      default:
-        return [];
+      case 0: return [
+        { label: "Course Name", key: "name" },
+        { label: "Course Code", key: "code" }
+      ];
+      case 1: return [
+        { label: "Group Name", key: "name" }
+      ];
+      case 2: return [
+        { label: "Classroom Name", key: "name" },
+        { label: "Location", key: "location" }
+      ];
+      case 3: return [
+        { label: "Instructor Name", key: "name" },
+        { label: "Email", key: "email" }
+      ];
+      default: return [];
     }
+  };
+
+  const resetForm = () => { setForm({}); setEditId(null); };
+
+  const handleEdit = (item: any) => {
+    setForm(item);
+    setEditId(item.id);
+  };
+
+  const handleDelete = (id: number) => {
+    setList((prev: any[]) => prev.filter(i => i.id !== id));
+    if (editId === id) resetForm();
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const fields = getFields();
+    if (fields.some(f => !form[f.key])) {
+      alert("Please fill out all fields.");
+      return;
+    }
+    if (editId) {
+      setList((prev: any[]) => prev.map(i => i.id === editId ? { ...i, ...form } : i));
+    } else {
+      setList((prev: any[]) => [...prev, { ...form, id: Math.max(...[...getList()].map(i => i.id), 0) + 1 }]);
+    }
+    resetForm();
   };
 
   return (
     <div className="container main-flex">
+      {/* Tabs */}
       <div className="sessions-list-container">
         <h1>Component Management</h1>
         <div className="tabs">
-          {TABS.map((tab) => (
+          {TABS.map((tab, idx) => (
             <button
               key={tab}
-              className={activeTab === tab ? 'tab active' : 'tab'}
-              onClick={() => {
-                setActiveTab(tab);
-                resetForm();
-              }}
+              className={activeTab === idx ? "tab active" : "tab"}
+              onClick={() => { setActiveTab(idx); resetForm(); }}
             >
               {tab}
             </button>
           ))}
         </div>
         <div className="class-sessions">
-          <h2>{activeTab} List</h2>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          {loading ? (
-            <p>Loading...</p>
-          ) : getCurrentList().length === 0 ? (
-            <p>No {activeTab.toLowerCase()} created yet.</p>
+          <h2>{TABS[activeTab]} List</h2>
+          {getList().length === 0 ? (
+            <p>No {TABS[activeTab].toLowerCase()} created yet.</p>
           ) : (
-            getCurrentList().map((item) => (
-              <div key={`${activeTab}-${item.id}`} className="class-session">
-                <h3>
-                  {item.name}
-                  {item.code ? ` (${item.code})` : ''}
-                </h3>
-                {item.location && <p>Location: {item.location}</p>}
-                {item.capacity !== undefined && <p>Capacity: {item.capacity}</p>}
-                {item.email && <p>Email: {item.email}</p>}
-                <div className="buttons">
-                  <button onClick={() => handleDelete(item.id)} disabled={loading}>
-                    Remove
-                  </button>
-                  <button onClick={() => handleEdit(item)} disabled={loading}>
-                    Edit
-                  </button>
+            getList().map((item: any) => {
+              // Ensure each item has a unique key, fall back to a different identifier if needed
+              const key = item.id ? `${TABS[activeTab]}-${item.id}` : `${TABS[activeTab]}-${Math.random()}`;
+              return (
+                <div key={key} className="class-session">
+                  <h3>{item.name}{item.code ? ` (${item.code})` : ""}</h3>
+                  {item.location && <p>Location: {item.location}</p>}
+                  {item.email && <p>Email: {item.email}</p>}
+                  <div className="buttons">
+                    <button onClick={() => handleDelete(item.id)}>Remove</button>
+                    <button onClick={() => handleEdit(item)}>Edit</button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
-
+      {/* Form */}
       <div className="form-container">
-        <h2>{isEditing ? `Edit ${activeTab.slice(0, -1)}` : `Create ${activeTab.slice(0, -1)}`}</h2>
+        <h2>{editId ? `Edit ${TABS[activeTab].slice(0, -1)}` : `Create ${TABS[activeTab].slice(0, -1)}`}</h2>
         <form className="create-session-form" onSubmit={handleSubmit}>
-          {getFields().map((field) => (
-            <div className="form-group" key={field.name}>
-              <label>{field.label}: </label>
+          {getFields().map(f => (
+            <div className="form-group" key={f.key}>
+              <label>{f.label}: </label>
               <input
-                type={field.type || 'text'}
-                name={field.name}
-                value={values[field.name as keyof FormValues] || ''}
-                onChange={handleChange}
-                disabled={loading}
+                type="text"
+                value={form[f.key] ?? ""}
+                onChange={e => setForm({ ...form, [f.key]: e.target.value })}
               />
             </div>
           ))}
-          <button className="create-button" type="submit" disabled={loading}>
-            {isEditing ? 'Save Changes' : `Create ${activeTab.slice(0, -1)}`}
+          <button className="create-button" type="submit">
+            {editId ? "Save Changes" : `Create ${TABS[activeTab].slice(0, -1)}`}
           </button>
-          {isEditing && (
-            <button type="button" onClick={resetForm} style={{ marginLeft: 8 }} disabled={loading}>
-              Cancel
-            </button>
-          )}
+          {editId && <button type="button" onClick={resetForm} style={{ marginLeft: 8 }}>Cancel</button>}
         </form>
       </div>
     </div>
@@ -268,4 +132,3 @@ const ComponentManagement: React.FC = () => {
 };
 
 export default ComponentManagement;
-// TODO: check validation issue for classrooms: Is Capacity not required?

@@ -1,239 +1,159 @@
-import React, { useState } from 'react';
-import './ClassSessions.css';
+import React, { useState } from "react";
+import "./ClassSessions.css";
 import { useClassSessions } from '../context/ClassSessionsContext';
 import { useComponents } from '../context/ComponentsContext';
-import { apiClassSessions } from '../api/classSessions';
-import { useForm } from '../hooks/useForm';
 import type { ClassSession } from '../types/classSessions';
 
-const ClassSessions: React.FC = () => {
+const ClassSession: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
+  const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
+  const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
+  const [editingSession, setEditingSession] = useState<boolean>(false);
+  const [sessionIdToEdit, setSessionIdToEdit] = useState<number | null>(null); // Store the session ID being edited
 
-  // Form state uses IDs for selects
-  const { values, isEditing, editId, handleSelectChange, resetForm, setEditValues } = useForm({
-    id: '',
-    courseId: null as string | null,
-    classGroupId: null as string | null,
-    instructorId: null as string | null,
-    classroomId: null as string | null,
-  });
-
-  // Normalize backend session to frontend shape
-  const normalizeSession = (session: any): ClassSession => ({
-    id: session.id ?? session._id ?? '',
-    course:
-      typeof session.course === 'string'
-        ? courses.find((c) => c.id === session.course) || { id: session.course, name: '', code: '' }
-        : session.course,
-    classGroup:
-      typeof session.classGroup === 'string'
-        ? classGroups.find((g) => g.id === session.classGroup) || {
-            id: session.classGroup,
-            name: '',
-          }
-        : session.classGroup,
-    instructor:
-      typeof session.instructor === 'string'
-        ? instructors.find((i) => i.id === session.instructor) || {
-            id: session.instructor,
-            name: '',
-            email: '',
-          }
-        : session.instructor,
-    classroom:
-      typeof session.classroom === 'string'
-        ? classrooms.find((r) => r.id === session.classroom) || {
-            id: session.classroom,
-            name: '',
-            location: '',
-          }
-        : session.classroom,
-  });
-
-  const createClassSession = async () => {
-    if (!values.courseId || !values.classGroupId || !values.instructorId || !values.classroomId) {
-      alert('Please fill out all fields before creating a class session.');
+  // Function to create a new class session
+  const createClassSession = () => {
+    if (!selectedCourse || !selectedGroup || !selectedInstructor || !selectedClassroom) {
+      alert("Please fill out all fields before creating a class session.");
       return;
     }
-    setLoading(true);
-    setError(null);
-    try {
-      const created = await apiClassSessions.create({
-        course: values.courseId,
-        classGroup: values.classGroupId,
-        instructor: values.instructorId,
-        classroom: values.classroomId,
-      });
-      setClassSessions((prev) => [...prev, normalizeSession(created)]);
-      resetForm();
-    } catch {
-      setError('Failed to create class session');
-    } finally {
-      setLoading(false);
-    }
+
+    const newSession: ClassSession = {
+      id: Date.now(),
+      course: courses.find(course => course.id === selectedCourse)!,
+      group: classGroups.find(group => group.id === selectedGroup)!,
+      instructor: instructors.find(instructor => instructor.id === selectedInstructor)!,
+      classroom: classrooms.find(classroom => classroom.id === selectedClassroom)!,
+    };
+
+    setClassSessions((prevSessions) => [...prevSessions, newSession]);
+    resetForm(); // Reset form after creating a session
   };
 
-  const updateClassSession = async () => {
-    if (
-      !editId ||
-      !values.courseId ||
-      !values.classGroupId ||
-      !values.instructorId ||
-      !values.classroomId
-    ) {
-      alert('Please fill out all fields before saving changes.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    try {
-      const updated = await apiClassSessions.update(editId, {
-        course: values.courseId,
-        classGroup: values.classGroupId,
-        instructor: values.instructorId,
-        classroom: values.classroomId,
-      });
-      setClassSessions((prev) =>
-        prev.map((session) => (session.id === editId ? normalizeSession(updated) : session))
-      );
-      resetForm();
-    } catch {
-      setError('Failed to update class session');
-    } finally {
-      setLoading(false);
-    }
+  // Function to remove a class session
+  const removeClassSession = (id: number) => {
+    setClassSessions((prevSessions) =>
+      prevSessions.filter((session) => session.id !== id)
+    );
   };
 
-  const removeClassSession = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await apiClassSessions.delete(id);
-      setClassSessions((prev) => prev.filter((session) => session.id !== id));
-      if (editId === id) resetForm();
-    } catch {
-      setError('Failed to delete class session');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const editClassSession = (id: string) => {
+  // Function to edit a class session
+  const editClassSession = (id: number) => {
     const session = classSessions.find((s) => s.id === id);
     if (session) {
-      setEditValues({
-        id: session.id,
-        courseId: session.course.id,
-        classGroupId: session.classGroup.id,
-        instructorId: session.instructor.id,
-        classroomId: session.classroom.id,
-      });
+      setSelectedCourse(session.course.id);
+      setSelectedGroup(session.group.id);
+      setSelectedInstructor(session.instructor.id);
+      setSelectedClassroom(session.classroom.id);
+      setEditingSession(true); // Switch to edit mode
+      setSessionIdToEdit(id); // Store the ID of the session being edited
     }
+  };
+
+  // Reset the form to "Create" mode
+  const resetForm = () => {
+    setSelectedCourse(null);
+    setSelectedGroup(null);
+    setSelectedInstructor(null);
+    setSelectedClassroom(null);
+    setEditingSession(false); // Reset edit mode
+    setSessionIdToEdit(null); // Reset the session ID to edit
+  };
+
+  // Handle save changes (either create or update)
+  const saveClassSession = () => {
+    if (editingSession && sessionIdToEdit !== null) {
+      // Update the class session
+      const updatedSession: ClassSession = {
+        id: sessionIdToEdit, // Use the ID of the session being edited
+        course: courses.find(course => course.id === selectedCourse)!,
+        group: classGroups.find(group => group.id === selectedGroup)!,
+        instructor: instructors.find(instructor => instructor.id === selectedInstructor)!,
+        classroom: classrooms.find(classroom => classroom.id === selectedClassroom)!,
+      };
+
+      setClassSessions((prevSessions) =>
+        prevSessions.map((session) =>
+          session.id === updatedSession.id ? updatedSession : session
+        )
+      );
+    } else {
+      createClassSession(); // Call create session function if in "create" mode
+    }
+
+    resetForm(); // Reset after saving changes (create or edit)
   };
 
   return (
     <div className="container main-flex">
+      {/* Class Sessions List Container */}
       <div className="sessions-list-container">
         <h1>Class Session Management</h1>
         <div className="class-sessions">
           <h2>Class Sessions</h2>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-          {loading ? (
-            <p>Loading...</p>
-          ) : classSessions.length === 0 ? (
+          {classSessions.length === 0 ? (
             <p>No class sessions created yet.</p>
           ) : (
-            classSessions.map((session) => (
-              <div key={`session-${session.id}`} className="class-session">
-                <h3>
-                  {session.course?.name ?? 'Unknown Course'} -{' '}
-                  {session.classGroup?.name ?? 'Unknown Group'}
-                </h3>
-                <p>Instructor: {session.instructor?.name ?? 'Unknown Instructor'}</p>
-                <p>Classroom: {session.classroom?.name ?? 'Unknown Classroom'}</p>
-                <div className="buttons">
-                  <button onClick={() => removeClassSession(session.id)} disabled={loading}>
-                    Remove
-                  </button>
-                  <button onClick={() => editClassSession(session.id)} disabled={loading}>
-                    Edit
-                  </button>
+            classSessions.map((session, idx) => {
+              const sessionKey = `session-${session.id}`; // Unique key for each session
+              return (
+                <div key={sessionKey} className="class-session">
+                  <h3>
+                    {session.course.name} - {session.group.name}
+                  </h3>
+                  <p>Instructor: {session.instructor.name}</p>
+                  <p>Classroom: {session.classroom.name}</p>
+                  <div className="buttons">
+                    <button onClick={() => removeClassSession(session.id)}>Remove</button>
+                    <button onClick={() => editClassSession(session.id)}>Edit</button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
 
+      {/* Create/Edit Form Container */}
       <div className="form-container">
-        <h2>{isEditing ? 'Edit Class Session' : 'Create Class Session'}</h2>
+        <h2>{editingSession ? 'Edit Class Session' : 'Create Class Session'}</h2>
         <div className="create-session-form">
-          {[
-            {
-              label: 'Course',
-              value: values.courseId,
-              setValue: (val: string | null) => handleSelectChange('courseId', val),
-              options: courses,
-            },
-            {
-              label: 'Class Group',
-              value: values.classGroupId,
-              setValue: (val: string | null) => handleSelectChange('classGroupId', val),
-              options: classGroups,
-            },
-            {
-              label: 'Instructor',
-              value: values.instructorId,
-              setValue: (val: string | null) => handleSelectChange('instructorId', val),
-              options: instructors,
-            },
-            {
-              label: 'Classroom',
-              value: values.classroomId,
-              setValue: (val: string | null) => handleSelectChange('classroomId', val),
-              options: classrooms,
-            },
-          ].map((field) => (
-            <div key={field.label} className="form-group">
+          {[ 
+            { label: "Course", value: selectedCourse, setValue: setSelectedCourse, options: courses },
+            { label: "Class Group", value: selectedGroup, setValue: setSelectedGroup, options: classGroups },
+            { label: "Instructor", value: selectedInstructor, setValue: setSelectedInstructor, options: instructors },
+            { label: "Classroom", value: selectedClassroom, setValue: setSelectedClassroom, options: classrooms }
+          ].map((field, index) => (
+            <div key={field.label || index} className="form-group">
               <label>{field.label}: </label>
               <select
-                value={field.value ?? ''}
-                onChange={(e) => field.setValue(e.target.value || null)}
-                disabled={loading}
+                value={field.value ?? ""} // Ensure value is never NaN, use empty string if null/undefined
+                onChange={(e) => field.setValue(Number(e.target.value) || null)} // Handle conversion
               >
                 <option value="">Select {field.label}</option>
-                {field.options.map((option) => (
-                  <option key={`${field.label}-${option.id}`} value={option.id}>
-                    {option.name}
-                  </option>
-                ))}
+                {field.options.map((option, optionIndex) => {
+                  // Combine component type (`field.label`), option `id`, and index to create a unique key
+                  const optionKey = `${field.label.toLowerCase()}-${option.id}-${optionIndex}`;
+                  return (
+                    <option key={optionKey} value={option.id}>
+                      {option.name}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           ))}
-          <button
-            className="create-button"
-            onClick={isEditing ? updateClassSession : createClassSession}
-            disabled={loading}
-          >
-            {isEditing ? 'Save Changes' : 'Create Class Session'}
+          <button className="create-button" onClick={saveClassSession}>
+            {editingSession ? 'Save Changes' : 'Create Class Session'}
           </button>
-          {isEditing && (
-            <button
-              type="button"
-              onClick={resetForm}
-              style={{ marginLeft: '8px' }}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default ClassSessions;
+export default ClassSession;

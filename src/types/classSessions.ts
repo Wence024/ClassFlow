@@ -1,12 +1,12 @@
-export type Course = { id: string; name: string; code: string };
-export type ClassGroup = { id: string; name: string };
-export type Classroom = { id: string; name: string; location: string; capacity?: number };
-export type Instructor = { id: string; name: string; email: string };
+export type Course = { id: number; name: string; code: string };
+export type ClassGroup = { id: number; name: string };
+export type Classroom = { id: number; name: string; location: string };
+export type Instructor = { id: number; name: string; email: string };
 
 export type ClassSession = {
-  id: string;
+  id: number;
   course: Course;
-  classGroup: ClassGroup;
+  group: ClassGroup;
   instructor: Instructor;
   classroom: Classroom;
 };

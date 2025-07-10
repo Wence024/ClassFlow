@@ -1,88 +1,47 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { Course, ClassGroup, Classroom, Instructor } from '../types/classSessions';
-import type { ComponentsContextType } from './types';
-import { apiCourses } from '../api/courses';
-import { apiClassGroups } from '../api/classGroups';
-import { apiClassrooms } from '../api/classrooms';
-import { apiInstructors } from '../api/instructors';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import type { Course, ClassGroup, Classroom, Instructor } from "../types/classSessions";
 
-const ComponentsContext = createContext<ComponentsContextType>(undefined);
+// Utility to load from localStorage or fallback to empty array
+function loadOrDefault<T>(key: string): T {
+  try {
+    const data = localStorage.getItem(key);
+    if (data) return JSON.parse(data);
+  } catch {}
+  return [] as unknown as T;
+}
+
+interface ComponentsContextType {
+  courses: Course[];
+  setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
+  classGroups: ClassGroup[];
+  setClassGroups: React.Dispatch<React.SetStateAction<ClassGroup[]>>;
+  classrooms: Classroom[];
+  setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>;
+  instructors: Instructor[];
+  setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>>;
+}
+
+const ComponentsContext = createContext<ComponentsContextType | undefined>(undefined);
 
 export const useComponents = () => {
   const ctx = useContext(ComponentsContext);
-  if (!ctx) throw new Error('useComponents must be used within a ComponentsProvider');
+  if (!ctx) throw new Error("useComponents must be used within a ComponentsProvider");
   return ctx;
 };
 
 export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [classGroups, setClassGroups] = useState<ClassGroup[]>([]);
-  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
-  const [instructors, setInstructors] = useState<Instructor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>(() => loadOrDefault<Course[]>("courses"));
+  const [classGroups, setClassGroups] = useState<ClassGroup[]>(() => loadOrDefault<ClassGroup[]>("classGroups"));
+  const [classrooms, setClassrooms] = useState<Classroom[]>(() => loadOrDefault<Classroom[]>("classrooms"));
+  const [instructors, setInstructors] = useState<Instructor[]>(() => loadOrDefault<Instructor[]>("instructors"));
 
-  useEffect(() => {
-    async function fetchAll() {
-      setLoading(true);
-      setError(null);
-      try {
-        const [coursesData, classGroupsData, classroomsData, instructorsData] = await Promise.all([
-          apiCourses.list(),
-          apiClassGroups.list(),
-          apiClassrooms.list(),
-          apiInstructors.list(),
-        ]);
-        setCourses(
-          coursesData.map((item) => ({
-            ...item,
-            id: item.id ?? item._id,
-          }))
-        );
-        setClassGroups(
-          classGroupsData.map((item) => ({
-            ...item,
-            id: item.id ?? item._id,
-          }))
-        );
-        setClassrooms(
-          classroomsData.map((item) => ({
-            ...item,
-            id: item.id ?? item._id,
-          }))
-        );
-        setInstructors(
-          instructorsData.map((item) => ({
-            ...item,
-            id: item.id ?? item._id,
-          }))
-        );
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch components');
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchAll();
-  }, []);
-
-  // Optionally, you can wrap set* functions to also call the API for CRUD
+  useEffect(() => { localStorage.setItem('courses', JSON.stringify(courses)); }, [courses]);
+  useEffect(() => { localStorage.setItem('classGroups', JSON.stringify(classGroups)); }, [classGroups]);
+  useEffect(() => { localStorage.setItem('classrooms', JSON.stringify(classrooms)); }, [classrooms]);
+  useEffect(() => { localStorage.setItem('instructors', JSON.stringify(instructors)); }, [instructors]);
 
   return (
-    <ComponentsContext.Provider
-      value={{
-        courses,
-        setCourses,
-        classGroups,
-        setClassGroups,
-        classrooms,
-        setClassrooms,
-        instructors,
-        setInstructors,
-        loading,
-        error,
-      }}
-    >
+    <ComponentsContext.Provider value={{ courses, setCourses, classGroups, setClassGroups, classrooms, setClassrooms, instructors, setInstructors }}>
       {children}
     </ComponentsContext.Provider>
   );
