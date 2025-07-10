@@ -47,20 +47,13 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: '40px auto',
-        padding: 24,
-        background: '#fff',
-        borderRadius: 8,
-        boxShadow: '0 2px 8px #0001',
-      }}
-    >
-      <h2>Register</h2>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
       <form onSubmit={handleSubmit} role="form" aria-label="Register form">
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="register-name">Name:</label>
+        <div className="mb-4">
+          <label htmlFor="register-name" className="block font-semibold mb-1">
+            Name:
+          </label>
           <input
             id="register-name"
             type="text"
@@ -69,16 +62,18 @@ const RegisterPage: React.FC = () => {
             required
             autoComplete="name"
             aria-label="Name"
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           {formErrors.name && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
               {formErrors.name}
             </div>
           )}
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="register-email">Email:</label>
+        <div className="mb-4">
+          <label htmlFor="register-email" className="block font-semibold mb-1">
+            Email:
+          </label>
           <input
             id="register-email"
             type="email"
@@ -87,16 +82,18 @@ const RegisterPage: React.FC = () => {
             required
             autoComplete="email"
             aria-label="Email address"
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           {formErrors.email && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
               {formErrors.email}
             </div>
           )}
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="register-password">Password:</label>
+        <div className="mb-4">
+          <label htmlFor="register-password" className="block font-semibold mb-1">
+            Password:
+          </label>
           <input
             id="register-password"
             type="password"
@@ -105,16 +102,18 @@ const RegisterPage: React.FC = () => {
             required
             autoComplete="new-password"
             aria-label="Password"
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           {formErrors.password && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
               {formErrors.password}
             </div>
           )}
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="register-confirm-password">Confirm Password:</label>
+        <div className="mb-4">
+          <label htmlFor="register-confirm-password" className="block font-semibold mb-1">
+            Confirm Password:
+          </label>
           <input
             id="register-confirm-password"
             type="password"
@@ -123,25 +122,31 @@ const RegisterPage: React.FC = () => {
             required
             autoComplete="new-password"
             aria-label="Confirm password"
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           {formErrors.confirmPassword && (
-            <div style={{ color: 'red', fontSize: '0.8rem' }} role="alert" aria-live="assertive">
+            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
               {formErrors.confirmPassword}
             </div>
           )}
         </div>
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
+        >
           {loading ? 'Registering...' : 'Register'}
         </button>
         {error && (
-          <div style={{ color: 'red', marginTop: 10 }} role="alert" aria-live="assertive">
+          <div className="text-red-600 mt-3 text-center" role="alert" aria-live="assertive">
             {error}
           </div>
         )}
       </form>
-      <div style={{ marginTop: 16, textAlign: 'center' }}>
-        <Link to="/login">Already have an account? Login</Link>
+      <div className="mt-6 text-center">
+        <Link to="/login" className="text-blue-600 hover:underline block">
+          Already have an account? Login
+        </Link>
       </div>
     </div>
   );

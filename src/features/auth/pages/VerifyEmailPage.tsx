@@ -30,25 +30,16 @@ const VerifyEmailPage: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: '40px auto',
-        padding: 24,
-        background: '#fff',
-        borderRadius: 8,
-        boxShadow: '0 2px 8px #0001',
-      }}
-    >
-      <h2>Verify Your Email</h2>
-      <p>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Verify Your Email</h2>
+      <p className="mb-4 text-center">
         A verification link has been sent to <b>{user?.email}</b>.<br />
         Please check your inbox and click the link to activate your account.
       </p>
       <button
         onClick={handleResend}
         disabled={loading || resent}
-        style={{ width: '100%', padding: 10 }}
+        className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
       >
         {resent
           ? 'Verification Email Sent!'
@@ -57,7 +48,7 @@ const VerifyEmailPage: React.FC = () => {
             : 'Resend Verification Email'}
       </button>
       {(error || localError) && (
-        <div style={{ color: 'red', marginTop: 10 }}>{error || localError}</div>
+        <div className="text-red-600 mt-3 text-center">{error || localError}</div>
       )}
     </div>
   );

@@ -106,25 +106,16 @@ const ResetPasswordPage: React.FC = () => {
 
   if (success) {
     return (
-      <div
-        style={{
-          maxWidth: 400,
-          margin: '40px auto',
-          padding: 24,
-          background: '#fff',
-          borderRadius: 8,
-          boxShadow: '0 2px 8px #0001',
-        }}
-      >
-        <h2>Password Reset Successful</h2>
-        <p>
+      <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-center">
+        <h2 className="text-2xl font-bold mb-6">Password Reset Successful</h2>
+        <p className="mb-4">
           Your password has been successfully reset. You are now logged in.
           <br />
           You can continue to your dashboard.
         </p>
         <button
           onClick={() => navigate('/class-sessions')}
-          style={{ width: '100%', padding: 10, marginTop: 16 }}
+          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mt-2"
         >
           Go to Dashboard
         </button>
@@ -133,20 +124,13 @@ const ResetPasswordPage: React.FC = () => {
   }
 
   return (
-    <div
-      style={{
-        maxWidth: 400,
-        margin: '40px auto',
-        padding: 24,
-        background: '#fff',
-        borderRadius: 8,
-        boxShadow: '0 2px 8px #0001',
-      }}
-    >
-      <h2>Reset Password</h2>
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
       <form onSubmit={handleSubmit} role="form" aria-label="Reset password form">
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="reset-password">New Password:</label>
+        <div className="mb-4">
+          <label htmlFor="reset-password" className="block font-semibold mb-1">
+            New Password:
+          </label>
           <input
             id="reset-password"
             type="password"
@@ -155,11 +139,13 @@ const ResetPasswordPage: React.FC = () => {
             required
             autoComplete="new-password"
             aria-label="New password"
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
-        <div style={{ marginBottom: 12 }}>
-          <label htmlFor="reset-confirm-password">Confirm New Password:</label>
+        <div className="mb-4">
+          <label htmlFor="reset-confirm-password" className="block font-semibold mb-1">
+            Confirm New Password:
+          </label>
           <input
             id="reset-confirm-password"
             type="password"
@@ -168,26 +154,26 @@ const ResetPasswordPage: React.FC = () => {
             required
             autoComplete="new-password"
             aria-label="Confirm new password"
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
         <button
           type="submit"
           disabled={loading || !!tokens.error}
-          style={{ width: '100%', padding: 10 }}
+          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
         >
           {loading ? 'Resetting...' : 'Reset Password'}
         </button>
         {error && (
-          <div style={{ color: 'red', marginTop: 10 }} role="alert" aria-live="assertive">
+          <div className="text-red-600 mt-3 text-center" role="alert" aria-live="assertive">
             {error}
           </div>
         )}
       </form>
-      <div style={{ marginTop: 16, textAlign: 'center' }}>
+      <div className="mt-6 text-center">
         <button
           onClick={() => navigate('/login')}
-          style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer' }}
+          className="bg-transparent border-none text-blue-600 hover:underline cursor-pointer"
         >
           Back to Login
         </button>
