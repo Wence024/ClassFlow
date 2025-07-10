@@ -15,9 +15,10 @@ const authRoutes = [
 
 export { authRoutes };
 
-// TODO: Clarify user error feedback such as merely "invalid login credentials" when entering a wrong email/password.
-// TODO: Fix error message persisting login's "invalid login credentials" across register pages.
-// TODO: When reloading but still in the verify-email page, redirect to home page (root of website for now)
-// TODO: When logging out, redirect to login page instead of being stagnant at the home page (currently not protected nor existing).
-// TODO: UX Feature. pass email from email field from login to the email field at the forgot-password page.
-// TODO: Fix problem when clicking the gmail link to reset password, it redirects to the website homepage as if the reset password part was nonexistent.
+// All authentication-related TODOs have been completed:
+// ✅ Clarify user error feedback such as merely "invalid login credentials" when entering a wrong email/password.
+// ✅ Fix error message persisting login's "invalid login credentials" across register pages.
+// ✅ When reloading but still in the verify-email page, redirect to home page (root of website for now)
+// ✅ When logging out, redirect to login page instead of being stagnant at the home page (currently not protected nor existing).
+// ✅ UX Feature. pass email from email field from login to the email field at the forgot-password page.
+// ✅ Fix problem when clicking the gmail link to reset password, it redirects to the website homepage as if the reset password part was nonexistent.

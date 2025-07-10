@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ClassSessionsProvider } from './features/scheduleLessons/contexts/ClassSessionsContext';
 import { ComponentsProvider } from './features/scheduleLessons/contexts/ComponentsContext';
@@ -9,6 +9,23 @@ import { authRoutes } from './features/auth/routes/AuthRoutes';
 import { AuthProvider } from './features/auth/contexts/AuthContext';
 import { useAuth } from './features/auth/hooks/useAuth';
 import PrivateRoute from './features/auth/components/PrivateRoute';
+
+// Home page component that redirects based on auth status
+const HomePage = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div
+        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
+        Loading...
+      </div>
+    );
+  }
+
+  return user ? <Navigate to="/class-sessions" replace /> : <Navigate to="/login" replace />;
+};
 
 function NavBar({ onLogout }: { onLogout?: () => void }) {
   const { user, logout } = useAuth();
@@ -83,6 +100,7 @@ function App() {
             )}
             <Routes>
               {authRoutes}
+              <Route path="/" element={<HomePage />} />
               <Route
                 path="/class-sessions"
                 element={
