@@ -11,15 +11,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-          fontSize: '18px',
-        }}
-      >
+      <div className="flex justify-center items-center h-screen text-lg text-gray-200 bg-gray-900">
         Loading...
       </div>
     );

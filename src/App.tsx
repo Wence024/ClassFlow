@@ -16,9 +16,7 @@ const HomePage = () => {
 
   if (loading) {
     return (
-      <div
-        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
-      >
+      <div className="flex justify-center items-center h-screen text-lg text-gray-200 bg-gray-900">
         Loading...
       </div>
     );
@@ -30,27 +28,31 @@ const HomePage = () => {
 function NavBar({ onLogout }: { onLogout?: () => void }) {
   const { user, logout } = useAuth();
   return (
-    <nav className="flex gap-4 mb-8 justify-center items-center bg-white py-4 shadow">
-      <Link to="/login" className="text-blue-600 hover:underline">
+    <nav className="flex flex-wrap gap-4 mb-8 justify-center items-center bg-white dark:bg-gray-900 py-4 shadow">
+      <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:underline">
         Login
       </Link>
-      <Link to="/class-sessions" className="text-blue-600 hover:underline">
+      <Link to="/class-sessions" className="text-blue-600 dark:text-blue-400 hover:underline">
         Class Sessions
       </Link>
-      <Link to="/scheduler" className="text-blue-600 hover:underline">
+      <Link to="/scheduler" className="text-blue-600 dark:text-blue-400 hover:underline">
         Scheduler
       </Link>
-      <Link to="/component-management" className="text-blue-600 hover:underline">
+      <Link to="/component-management" className="text-blue-600 dark:text-blue-400 hover:underline">
         Component Management
       </Link>
-      {user && <span className="ml-8 font-semibold text-blue-700">Welcome, {user.name}</span>}
+      {user && (
+        <span className="ml-8 font-semibold text-blue-700 dark:text-blue-300">
+          Welcome, {user.name}
+        </span>
+      )}
       {user && (
         <button
           onClick={() => {
             logout();
             if (onLogout) onLogout();
           }}
-          className="ml-4 px-4 py-2 text-base rounded bg-gray-200 hover:bg-gray-300 transition-colors font-medium"
+          className="ml-4 px-4 py-2 text-base rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors font-medium text-gray-900 dark:text-gray-100"
         >
           Logout
         </button>
