@@ -1,10 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const VerifyEmailPage: React.FC = () => {
   const { user, resendVerificationEmail, loading, error } = useAuth();
   const [resent, setResent] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Redirect if user is already verified (has a valid session)
+  useEffect(() => {
+    if (user) {
+      // If user exists, they are likely already verified
+      // Redirect to the main application
+      navigate('/class-sessions');
+    }
+  }, [user, navigate]);
 
   const handleResend = async () => {
     if (!user) return;

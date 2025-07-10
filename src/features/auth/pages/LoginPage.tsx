@@ -137,7 +137,9 @@ const LoginPage: React.FC = () => {
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Link to="/register">Don't have an account? Register</Link>
         <br />
-        <Link to="/forgot-password">Forgot Password?</Link>
+        <Link to={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ''}`}>
+          Forgot Password?
+        </Link>
       </div>
     </div>
   );

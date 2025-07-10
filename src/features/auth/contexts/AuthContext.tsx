@@ -78,10 +78,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await authService.logout();
       setUser(null);
+      // Redirect to login page after logout
+      navigate('/login');
     } catch (err: unknown) {
       console.error('Logout error:', err);
       // Still clear user even if logout fails
       setUser(null);
+      // Still redirect to login page
+      navigate('/login');
     } finally {
       setLoading(false);
     }
