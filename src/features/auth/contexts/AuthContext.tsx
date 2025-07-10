@@ -40,7 +40,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
       setUser(null);
-      if (errorMessage.includes('Email not verified')) {
+      // Check for email verification errors
+      if (
+        errorMessage.includes('Email not confirmed') ||
+        errorMessage.includes('Email not verified')
+      ) {
         navigate('/verify-email');
       }
     } finally {
@@ -83,8 +87,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const resendVerificationEmail = async (email: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await authService.resendVerificationEmail(email);
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to resend verification email';
+      setError(errorMessage);
+      throw err; // Re-throw so the component can handle it
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, error }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, resendVerificationEmail, loading, error }}
+    >
       {children}
     </AuthContext.Provider>
   );

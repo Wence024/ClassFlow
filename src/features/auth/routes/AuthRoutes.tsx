@@ -12,5 +12,3 @@ const authRoutes = [
 ];
 
 export { authRoutes };
-
-// TODO: Assess incorrect feedback when registering.

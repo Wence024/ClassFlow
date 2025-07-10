@@ -75,6 +75,17 @@ export async function registerApi(
 }
 
 /**
+ * Resend verification email to the specified email address.
+ * @param email - Email address to send verification to
+ */
+export async function resendVerificationEmailApi(email: string): Promise<void> {
+  const { error } = await supabase.auth.resend({ type: 'signup', email });
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+/**
  * Get the current user session from Supabase.
  * @returns AuthResponse if user is authenticated, null otherwise
  */

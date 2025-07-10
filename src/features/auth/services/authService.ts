@@ -2,7 +2,13 @@
  * AuthService handles authentication logic with Supabase backend.
  * All functions are async and integrate with Supabase auth.
  */
-import { loginApi, registerApi, getCurrentUser, logoutApi } from '../api/authApi';
+import {
+  loginApi,
+  registerApi,
+  getCurrentUser,
+  logoutApi,
+  resendVerificationEmailApi,
+} from '../api/authApi';
 import type { AuthResponse, User } from '../types/auth';
 
 /**
@@ -13,10 +19,6 @@ import type { AuthResponse, User } from '../types/auth';
  */
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const response = await loginApi(email, password);
-  // If the user is not confirmed (email not verified), throw a specific error
-  if (response.user && response.user.email && !response.token) {
-    throw new Error('Email not verified. Please check your inbox.');
-  }
   localStorage.setItem('authUser', JSON.stringify(response.user));
   return response;
 }
@@ -65,4 +67,12 @@ export async function getStoredUser(): Promise<User | null> {
   // Fallback to localStorage if no active session
   const stored = localStorage.getItem('authUser');
   return stored ? JSON.parse(stored) : null;
+}
+
+/**
+ * Resend verification email to the specified email address.
+ * @param email - Email address to send verification to
+ */
+export async function resendVerificationEmail(email: string): Promise<void> {
+  await resendVerificationEmailApi(email);
 }

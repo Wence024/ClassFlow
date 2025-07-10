@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../../../lib/supabase';
 
 const VerifyEmailPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, resendVerificationEmail, loading, error } = useAuth();
   const [resent, setResent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleResend = async () => {
-    setLoading(true);
-    setError(null);
     if (!user) return;
-    // Supabase does not have a direct resend verification API, but you can trigger it by updating the email
-    const { error } = await supabase.auth.resend({ type: 'signup', email: user.email });
-    if (error) setError(error.message);
-    else setResent(true);
-    setLoading(false);
+
+    try {
+      await resendVerificationEmail(user.email);
+      setResent(true);
+      setLocalError(null);
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : 'Failed to resend verification email');
+    }
   };
 
   return (
@@ -46,7 +45,9 @@ const VerifyEmailPage: React.FC = () => {
             ? 'Resending...'
             : 'Resend Verification Email'}
       </button>
-      {error && <div style={{ color: 'red', marginTop: 10 }}>{error}</div>}
+      {(error || localError) && (
+        <div style={{ color: 'red', marginTop: 10 }}>{error || localError}</div>
+      )}
     </div>
   );
 };
