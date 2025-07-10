@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -44,6 +44,12 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const clearErrorRef = useRef(clearError);
+
+  // Update ref when clearError changes
+  useEffect(() => {
+    clearErrorRef.current = clearError;
+  }, [clearError]);
 
   useEffect(() => {
     if (user) {
@@ -54,9 +60,9 @@ const LoginPage: React.FC = () => {
   // Clear error when component unmounts
   useEffect(() => {
     return () => {
-      clearError();
+      clearErrorRef.current();
     };
-  }, [clearError]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

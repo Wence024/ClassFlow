@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
 
@@ -9,13 +9,19 @@ const RegisterPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const clearErrorRef = useRef(clearError);
+
+  // Update ref when clearError changes
+  useEffect(() => {
+    clearErrorRef.current = clearError;
+  }, [clearError]);
 
   // Clear error when component unmounts
   useEffect(() => {
     return () => {
-      clearError();
+      clearErrorRef.current();
     };
-  }, [clearError]);
+  }, []);
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
