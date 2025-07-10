@@ -17,7 +17,26 @@ export async function loginApi(email: string, password: string): Promise<AuthRes
   });
 
   if (error) {
-    throw new Error(error.message);
+    // Provide user-friendly error messages
+    let userFriendlyMessage = 'Login failed';
+
+    if (error.message.includes('Invalid login credentials')) {
+      userFriendlyMessage =
+        'Invalid email or password. Please check your credentials and try again.';
+    } else if (
+      error.message.includes('Email not confirmed') ||
+      error.message.includes('Email not verified')
+    ) {
+      userFriendlyMessage =
+        'Please verify your email address before logging in. Check your inbox for a verification link.';
+    } else if (error.message.includes('Too many requests')) {
+      userFriendlyMessage = 'Too many login attempts. Please wait a moment before trying again.';
+    } else if (error.message.includes('User not found')) {
+      userFriendlyMessage =
+        'No account found with this email address. Please check your email or register a new account.';
+    }
+
+    throw new Error(userFriendlyMessage);
   }
 
   if (!data.user || !data.session) {
