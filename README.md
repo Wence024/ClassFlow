@@ -1,69 +1,124 @@
-# React + TypeScript + Vite
+# ClassFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern class scheduling and authentication web app built with **Vite**, **React**, **TypeScript**, **Supabase**, and **Tailwind CSS v3**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- 🔒 **Authentication**: Register, login, email verification, password reset (Supabase Auth)
+- 📅 **Class Session Management**: Create, edit, and remove class sessions
+- 🗂️ **Component Management**: Manage courses, groups, classrooms, instructors
+- 🗓️ **Timetable Scheduler**: Drag-and-drop timetable for class sessions
+- 🎨 **Modern UI**: Fully styled with Tailwind CSS and accessible forms
+- 🛡️ **Protected Routes**: PrivateRoute and smart redirects based on auth status
+- 💾 **Local Storage**: Persists schedule and component data locally
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Getting Started
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### 1. Clone & Install
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone <your-repo-url>
+cd ClassFlow
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Copy `.env.example` to `.env` and fill in your [Supabase](https://supabase.com/) project credentials:
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```txt
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+### 3. Run the App
+
+```bash
+npm run dev
+```
+
+The app will be available at [http://localhost:5173](http://localhost:5173) (or as shown in your terminal).
+
+---
+
+## Scripts
+
+- `npm run dev` — Start development server
+- `npm run build` — Build for production
+- `npm run preview` — Preview production build
+- `npm run lint` — Lint code with ESLint
+- `npm run lint:fix` — Auto-fix lint issues
+- `npm run format` — Format code with Prettier
+- `npm run format:check` — Check formatting
+
+---
+
+## Tech Stack
+
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS v3, dark mode, global input styles
+- **Auth**: Supabase Auth (email/password, email verification, password reset)
+- **State**: React Context, localStorage for schedule/component data
+- **Routing**: React Router v7, protected routes
+
+---
+
+## Tailwind CSS Usage
+
+- All UI is styled with Tailwind utility classes for consistency and maintainability.
+- Global input, select, and textarea fields use white text on a dark background (see `src/index.css`).
+- You can add or customize Tailwind classes in your components as needed.
+- Tailwind config: see `tailwind.config.cjs` and `postcss.config.cjs`.
+
+---
+
+## Accessibility & Best Practices
+
+- All forms and buttons are accessible and keyboard-friendly.
+- Loading and error states are clearly indicated.
+- Responsive layout for desktop and mobile.
+- Code is organized by feature (`features/auth`, `features/scheduleLessons`).
+
+---
+
+## Project Structure
+
+```txt
+ClassFlow/
+  src/
+    features/
+      auth/           # Authentication (API, context, pages, routes)
+      scheduleLessons/ # Class/session/timetable management
+    App.tsx           # App shell, routing, layout
+    index.css         # Tailwind and global styles
+    main.tsx          # App entry point
+  tailwind.config.cjs # Tailwind config
+  postcss.config.cjs  # PostCSS config
+  package.json        # Scripts and dependencies
+```
+
+---
+
+## Deployment
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview the production build:
+
+```bash
+npm run preview
+```
+
+---
+
+## License
+
+MIT
