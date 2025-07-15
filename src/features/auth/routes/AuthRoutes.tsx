@@ -14,3 +14,6 @@ const authRoutes = [
 ];
 
 export { authRoutes };
+
+// TODO: Centralize api access to the AuthContext, service and apis instead of direct call. Involves resetPassword and verifyEmail components. Apply to loading setStates as well.
+// TODO: Do major refactoring between auth service, context and apis for separation of concerns. See saved reference in Deepseek

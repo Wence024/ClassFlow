@@ -124,3 +124,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
   return ctx;
 }
+// TODO: Assess if hooks need to be separated to a single folder
