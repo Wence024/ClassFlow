@@ -1,7 +1,7 @@
 /**
  * Service for managing the timetable in localStorage.
  */
-import type { ClassSession } from '../types/scheduleLessons';
+import type { ClassSession } from '../types/classSessions';
 
 const TIMETABLE_KEY = 'timetable';
 const GROUPS = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];

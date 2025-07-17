@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Course, ClassGroup, Classroom, Instructor } from '../types/classSessions';
-import * as componentsService from '../services/componentsService';
+import * as componentsService from '../oldServices/componentsService';
 
 interface ComponentsContextType {
   courses: Course[];

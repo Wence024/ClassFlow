@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassSession } from '../types/classSessions';
-import * as classSessionsService from '../services/classSessionsService';
+import * as classSessionsService from '../oldServices/classSessionsService';
 
 // Context type
 const ClassSessionsContext = createContext<
