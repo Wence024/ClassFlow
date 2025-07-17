@@ -6,6 +6,8 @@ const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
 type TimetableContextType = {
   timetable: (ClassSession | null)[][];
+  assignSession: (groupIndex: number, periodIndex: number, session: ClassSession) => void;
+  removeSession: (groupIndex: number, periodIndex: number) => void;
   setTimetable: React.Dispatch<React.SetStateAction<(ClassSession | null)[][]>>;
 };
 
@@ -15,11 +17,32 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [timetable, setTimetable] = useState<(ClassSession | null)[][]>(() =>
     timetableService.getTimetable()
   );
+
   useEffect(() => {
     timetableService.setTimetable(timetable);
   }, [timetable]);
+
+  // Assign a session to a cell
+  const assignSession = (groupIndex: number, periodIndex: number, session: ClassSession) => {
+    setTimetable((prev) => {
+      const updated = prev.map((row) => [...row]);
+      if (updated[groupIndex][periodIndex]) return prev;
+      updated[groupIndex][periodIndex] = session;
+      return updated;
+    });
+  };
+
+  // Remove a session from a cell
+  const removeSession = (groupIndex: number, periodIndex: number) => {
+    setTimetable((prev) => {
+      const updated = prev.map((row) => [...row]);
+      updated[groupIndex][periodIndex] = null;
+      return updated;
+    });
+  };
+
   return (
-    <TimetableContext.Provider value={{ timetable, setTimetable }}>
+    <TimetableContext.Provider value={{ timetable, assignSession, removeSession, setTimetable }}>
       {children}
     </TimetableContext.Provider>
   );

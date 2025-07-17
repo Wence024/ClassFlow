@@ -18,19 +18,27 @@ type ComponentItem = Course | ClassGroup | Classroom | Instructor;
 const ComponentManagement: React.FC = () => {
   const {
     courses,
-    setCourses,
     classGroups,
-    setClassGroups,
     classrooms,
-    setClassrooms,
     instructors,
-    setInstructors,
+    addCourse,
+    updateCourse,
+    removeCourse,
+    addClassGroup,
+    updateClassGroup,
+    removeClassGroup,
+    addClassroom,
+    updateClassroom,
+    removeClassroom,
+    addInstructor,
+    updateInstructor,
+    removeInstructor,
   } = useComponents();
 
   const [activeTab, setActiveTab] = useState<ComponentType>('course');
   const [editingItem, setEditingItem] = useState<ComponentItem | null>(null);
 
-  // Get current list and setter
+  // Get current list and CRUD handlers
   const getList = (): ComponentItem[] => {
     switch (activeTab) {
       case 'course':
@@ -46,16 +54,46 @@ const ComponentManagement: React.FC = () => {
     }
   };
 
-  const getSetter = () => {
+  const getAdd = () => {
     switch (activeTab) {
       case 'course':
-        return setCourses;
+        return addCourse;
       case 'classGroup':
-        return setClassGroups;
+        return addClassGroup;
       case 'classroom':
-        return setClassrooms;
+        return addClassroom;
       case 'instructor':
-        return setInstructors;
+        return addInstructor;
+      default:
+        return () => {};
+    }
+  };
+
+  const getUpdate = () => {
+    switch (activeTab) {
+      case 'course':
+        return updateCourse;
+      case 'classGroup':
+        return updateClassGroup;
+      case 'classroom':
+        return updateClassroom;
+      case 'instructor':
+        return updateInstructor;
+      default:
+        return () => {};
+    }
+  };
+
+  const getRemove = () => {
+    switch (activeTab) {
+      case 'course':
+        return removeCourse;
+      case 'classGroup':
+        return removeClassGroup;
+      case 'classroom':
+        return removeClassroom;
+      case 'instructor':
+        return removeInstructor;
       default:
         return () => {};
     }
@@ -63,11 +101,7 @@ const ComponentManagement: React.FC = () => {
 
   // Add new item
   const handleAddItem = (itemData: Omit<ComponentItem, 'id'>) => {
-    const newItem = {
-      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
-      ...itemData,
-    } as ComponentItem;
-    getSetter()((prev: ComponentItem[]) => [...prev, newItem]);
+    getAdd()(itemData);
     setEditingItem(null);
   };
 
@@ -79,19 +113,13 @@ const ComponentManagement: React.FC = () => {
   // Save changes to item
   const handleSaveItem = (itemData: Omit<ComponentItem, 'id'>) => {
     if (!editingItem) return;
-    const updatedItem = {
-      id: editingItem.id,
-      ...itemData,
-    } as ComponentItem;
-    getSetter()((prev: ComponentItem[]) =>
-      prev.map((item) => (item.id === editingItem.id ? updatedItem : item))
-    );
+    getUpdate()(editingItem.id, itemData);
     setEditingItem(null);
   };
 
   // Remove item
   const handleRemoveItem = (id: string) => {
-    getSetter()((prev: ComponentItem[]) => prev.filter((item) => item.id !== id));
+    getRemove()(id);
     setEditingItem(null);
   };
 

@@ -3,24 +3,52 @@ import type { ReactNode } from 'react';
 import type { ClassSession } from '../types/scheduleLessons';
 import * as classSessionsService from '../services/classSessionsService';
 
-// Context type
-const ClassSessionsContext = createContext<
-  | {
-      classSessions: ClassSession[];
-      setClassSessions: React.Dispatch<React.SetStateAction<ClassSession[]>>;
-    }
-  | undefined
->(undefined);
+interface ClassSessionsContextType {
+  classSessions: ClassSession[];
+  addClassSession: (sessionData: Omit<ClassSession, 'id'>) => void;
+  updateClassSession: (id: string, sessionData: Omit<ClassSession, 'id'>) => void;
+  removeClassSession: (id: string) => void;
+}
+
+const ClassSessionsContext = createContext<ClassSessionsContextType | undefined>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
   const [classSessions, setClassSessions] = useState<ClassSession[]>(() =>
     classSessionsService.getClassSessions()
   );
+
   useEffect(() => {
     classSessionsService.setClassSessions(classSessions);
   }, [classSessions]);
+
+  // Add session
+  const addClassSession = (sessionData: Omit<ClassSession, 'id'>) => {
+    const newSession = classSessionsService.addClassSession(sessionData);
+    setClassSessions((prev) => [...prev, newSession]);
+  };
+
+  // Update session
+  const updateClassSession = (id: string, sessionData: Omit<ClassSession, 'id'>) => {
+    const updatedSession: ClassSession = { id, ...sessionData };
+    const updatedList = classSessionsService.updateClassSession(updatedSession);
+    setClassSessions(updatedList);
+  };
+
+  // Remove session
+  const removeClassSession = (id: string) => {
+    const updatedList = classSessionsService.removeClassSession(id);
+    setClassSessions(updatedList);
+  };
+
   return (
-    <ClassSessionsContext.Provider value={{ classSessions, setClassSessions }}>
+    <ClassSessionsContext.Provider
+      value={{
+        classSessions,
+        addClassSession,
+        updateClassSession,
+        removeClassSession,
+      }}
+    >
       {children}
     </ClassSessionsContext.Provider>
   );

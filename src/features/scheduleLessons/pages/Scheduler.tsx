@@ -113,7 +113,7 @@ const Timetable: React.FC<{
 // App component
 const SchedulerApp: React.FC = () => {
   const { classSessions } = useClassSessions();
-  const { timetable, setTimetable } = useTimetable();
+  const { timetable, assignSession, removeSession } = useTimetable();
   const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
 
@@ -144,17 +144,14 @@ const SchedulerApp: React.FC = () => {
         (cs) => cs.course.name + ' - ' + cs.group.name === dragSource.className
       ) || timetable[dragSource.groupIndex ?? 0]?.[dragSource.periodIndex ?? 0];
     if (!session) return;
-    setTimetable((prev: (ClassSession | null)[][]) => {
-      const updated = prev.map((row: (ClassSession | null)[]) => [...row]);
-      // Do not overwrite if destination already filled
-      if (updated[groupIndex][periodIndex]) return prev;
-      updated[groupIndex][periodIndex] = session;
+    // Delegate to context
+    if (!timetable[groupIndex][periodIndex]) {
+      assignSession(groupIndex, periodIndex, session);
       // Remove from original location
       if (dragSource.from === 'timetable' && dragSource.groupIndex !== undefined) {
-        updated[dragSource.groupIndex][dragSource.periodIndex!] = null;
+        removeSession(dragSource.groupIndex, dragSource.periodIndex!);
       }
-      return updated;
-    });
+    }
   };
 
   // Drop into the drawer
@@ -163,11 +160,7 @@ const SchedulerApp: React.FC = () => {
     if (!dragSource) return;
     // Remove from timetable if that's the source
     if (dragSource.from === 'timetable' && dragSource.groupIndex !== undefined) {
-      setTimetable((prev: (ClassSession | null)[][]) => {
-        const updated = prev.map((row: (ClassSession | null)[]) => [...row]);
-        updated[dragSource.groupIndex!][dragSource.periodIndex!] = null;
-        return updated;
-      });
+      removeSession(dragSource.groupIndex!, dragSource.periodIndex!);
     }
   };
 

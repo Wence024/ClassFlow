@@ -6,18 +6,19 @@ import ClassSessionForm from '../components/classSessions/ClassSessionForm';
 import type { ClassSession } from '../types/scheduleLessons';
 
 const ClassSessions: React.FC = () => {
-  const { classSessions, setClassSessions } = useClassSessions();
+  const {
+    classSessions,
+    addClassSession,
+    updateClassSession,
+    removeClassSession,
+  } = useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
 
   // Add new session
   const handleAddSession = (sessionData: Omit<ClassSession, 'id'>) => {
-    const newSession: ClassSession = {
-      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
-      ...sessionData,
-    };
-    setClassSessions((prev) => [...prev, newSession]);
+    addClassSession(sessionData);
     setEditingSession(null);
   };
 
@@ -29,19 +30,13 @@ const ClassSessions: React.FC = () => {
   // Save changes to session
   const handleSaveSession = (sessionData: Omit<ClassSession, 'id'>) => {
     if (!editingSession) return;
-    const updatedSession: ClassSession = {
-      id: editingSession.id,
-      ...sessionData,
-    };
-    setClassSessions((prev) =>
-      prev.map((session) => (session.id === editingSession.id ? updatedSession : session))
-    );
+    updateClassSession(editingSession.id, sessionData);
     setEditingSession(null);
   };
 
   // Remove session
   const handleRemoveSession = (id: string) => {
-    setClassSessions((prev) => prev.filter((session) => session.id !== id));
+    removeClassSession(id);
     setEditingSession(null);
   };
 
