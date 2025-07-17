@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-// import './ClassSessions.css'; // Remove old CSS
 import { useComponents } from '../contexts/ComponentsContext';
+import * as coursesService from '../services/coursesService';
+import * as classGroupsService from '../services/classGroupsService';
+import * as classroomsService from '../services/classroomsService';
+import * as instructorsService from '../services/instructorsService';
 
 const TABS = ['Courses', 'Class Groups', 'Classrooms', 'Instructors'];
 
@@ -17,14 +20,31 @@ const ComponentManagement: React.FC = () => {
     setInstructors,
   } = useComponents();
 
-  // Form states
   const [form, setForm] = useState<any>({});
-  const [editId, setEditId] = useState<number | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
 
-  // Handlers for each tab
+  // Helpers
   const getList = () => [courses, classGroups, classrooms, instructors][activeTab];
-  const setList = (fn: any) =>
-    [setCourses, setClassGroups, setClassrooms, setInstructors][activeTab](fn);
+  const getSetList = () =>
+    [setCourses, setClassGroups, setClassrooms, setInstructors][activeTab];
+
+  // Return service functions for current tab
+  const getServices = () => {
+    switch (activeTab) {
+      case 0:
+        return coursesService;
+      case 1:
+        return classGroupsService;
+      case 2:
+        return classroomsService;
+      case 3:
+        return instructorsService;
+      default:
+        throw new Error('Invalid tab index');
+    }
+  };
+
+  // Field definitions per tab
   const getFields = () => {
     switch (activeTab) {
       case 0:
@@ -59,32 +79,52 @@ const ComponentManagement: React.FC = () => {
     setEditId(item.id);
   };
 
-  const handleDelete = (id: number) => {
-    setList((prev: any[]) => prev.filter((i) => i.id !== id));
+  const handleDelete = (id: string) => {
+    const services = getServices();
+    const updatedList = services.removeCourse(id);
+
+    // Update state accordingly
+    const setter = getSetList();
+    setter(updatedList);
+
     if (editId === id) resetForm();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const fields = getFields();
+
     if (fields.some((f) => !form[f.key])) {
       alert('Please fill out all fields.');
       return;
     }
+
+    const services = getServices();
+    const setter = getSetList();
+
     if (editId) {
-      setList((prev: any[]) => prev.map((i) => (i.id === editId ? { ...i, ...form } : i)));
+      // Update existing
+      const updatedItem = { ...form, id: editId };
+      const updatedList = services.updateCourse
+        ? services.updateCourse(updatedItem)
+        : getList().map((i: any) => (i.id === editId ? updatedItem : i));
+      setter(updatedList);
     } else {
-      setList((prev: any[]) => [
-        ...prev,
-        { ...form, id: Math.max(...[...getList()].map((i) => i.id), 0) + 1 },
-      ]);
+      // Add new
+      const newItem = services.addCourse ? services.addCourse(form) : (() => {
+        // Fallback: local add with generated id as string UUID
+        const newId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`;
+        return { ...form, id: newId };
+      })();
+
+      setter((prev) => (Array.isArray(prev) ? [...prev, newItem] : [newItem]));
     }
+
     resetForm();
   };
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
-      {/* Tabs and List */}
       <div className="flex-1 min-w-0">
         <h1 className="text-3xl font-bold text-center mb-6">Component Management</h1>
         <div className="flex gap-2 mb-6 justify-center flex-wrap">
@@ -111,22 +151,19 @@ const ComponentManagement: React.FC = () => {
             <p className="text-gray-500">No {TABS[activeTab].toLowerCase()} created yet.</p>
           ) : (
             getList().map((item: any) => {
-              // Ensure each item has a unique key, fall back to a different identifier if needed
-              const key = item.id
-                ? `${TABS[activeTab]}-${item.id}`
-                : `${TABS[activeTab]}-${Math.random()}`;
+              const key = item.id;
               return (
                 <div
                   key={key}
                   className="bg-gray-50 p-4 mb-4 rounded-lg shadow flex flex-col md:flex-row md:items-center md:justify-between"
                 >
                   <div>
-                    <h3 className="text-lg font-semibold text-blue-700">
-                      {item.name}
-                      {item.code ? ` (${item.code})` : ''}
-                    </h3>
+                    <h3 className="text-lg font-semibold text-blue-700">{item.name || item.title}</h3>
+                    {/* You can expand details per tab */}
+                    {item.code && <p className="text-gray-700">Code: {item.code}</p>}
                     {item.location && <p className="text-gray-700">Location: {item.location}</p>}
                     {item.email && <p className="text-gray-700">Email: {item.email}</p>}
+                    {item.date && <p className="text-gray-700">Date: {item.date}</p>}
                   </div>
                   <div className="flex gap-2 mt-4 md:mt-0">
                     <button
@@ -148,12 +185,10 @@ const ComponentManagement: React.FC = () => {
           )}
         </div>
       </div>
-      {/* Form */}
+
       <div className="w-full md:w-96">
         <h2 className="text-xl font-semibold mb-4 text-center">
-          {editId
-            ? `Edit ${TABS[activeTab].slice(0, -1)}`
-            : `Create ${TABS[activeTab].slice(0, -1)}`}
+          {editId ? `Edit ${TABS[activeTab].slice(0, -1)}` : `Create ${TABS[activeTab].slice(0, -1)}`}
         </h2>
         <form className="bg-white p-6 rounded-lg shadow" onSubmit={handleSubmit}>
           {getFields().map((f) => (

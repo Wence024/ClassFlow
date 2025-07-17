@@ -4,17 +4,7 @@ import * as coursesService from '../services/coursesService';
 import * as classGroupsService from '../services/classGroupsService';
 import * as classroomsService from '../services/classroomsService';
 import * as instructorsService from '../services/instructorsService';
-
-interface ComponentsContextType {
-  courses: Course[];
-  setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
-  classGroups: ClassGroup[];
-  setClassGroups: React.Dispatch<React.SetStateAction<ClassGroup[]>>;
-  classrooms: Classroom[];
-  setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>;
-  instructors: Instructor[];
-  setInstructors: React.Dispatch<React.SetStateAction<Instructor[]>>;
-}
+import type { ComponentsContextType } from '../types/ComponentsContextType';
 
 const ComponentsContext = createContext<ComponentsContextType | undefined>(undefined);
 
@@ -30,7 +20,7 @@ export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     classGroupsService.getClassGroups()
   );
   const [classrooms, setClassrooms] = useState<Classroom[]>(() =>
-     classroomsService.getClassrooms()
+    classroomsService.getClassrooms()
   );
   const [instructors, setInstructors] = useState<Instructor[]>(() =>
     instructorsService.getInstructors()
