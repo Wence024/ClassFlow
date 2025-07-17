@@ -46,7 +46,7 @@ export function updateClassroom(updated: Classroom): Classroom[] {
  * @param id - ID of the classroom to remove
  * @returns Updated array of Classroom
  */
-export function removeClassroom(id: number): Classroom[] {
+export function removeClassroom(id: string): Classroom[] {
   const rooms = getClassrooms();
   const next = rooms.filter((r) => r.id !== id);
   setClassrooms(next);

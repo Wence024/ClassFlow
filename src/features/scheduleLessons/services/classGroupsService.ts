@@ -46,7 +46,7 @@ export function updateClassGroup(updated: ClassGroup): ClassGroup[] {
  * @param id - ID of the group to remove
  * @returns Updated array of ClassGroup
  */
-export function removeClassGroup(id: number): ClassGroup[] {
+export function removeClassGroup(id: string): ClassGroup[] {
   const groups = getClassGroups();
   const next = groups.filter((g) => g.id !== id);
   setClassGroups(next);

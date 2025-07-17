@@ -69,7 +69,7 @@ export function updateClassSession(updatedSession: ClassSession): ClassSession[]
  *
  * Filters out the session with the given ID and persists the new array.
  */
-export function removeClassSession(id: number): ClassSession[] {
+export function removeClassSession(id: string): ClassSession[] {
   const sessions = getClassSessions();
   const updated = sessions.filter((s) => s.id !== id);
   setClassSessions(updated);

@@ -46,7 +46,7 @@ export function updateInstructor(updated: Instructor): Instructor[] {
  * @param id - ID of the instructor to remove
  * @returns Updated array of Instructor
  */
-export function removeInstructor(id: number): Instructor[] {
+export function removeInstructor(id: string): Instructor[] {
   const instructors = getInstructors();
   const next = instructors.filter((i) => i.id !== id);
   setInstructors(next);

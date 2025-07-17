@@ -46,7 +46,7 @@ export function updateCourse(updated: Course): Course[] {
  * @param id - ID of the course to remove
  * @returns Updated array of Course
  */
-export function removeCourse(id: number): Course[] {
+export function removeCourse(id: string): Course[] {
   const courses = getCourses();
   const next = courses.filter((c) => c.id !== id);
   setCourses(next);
