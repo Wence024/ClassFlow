@@ -10,7 +10,7 @@ interface ClassSessionsContextType {
   removeClassSession: (id: string) => void;
 }
 
-const ClassSessionsContext = createContext<ClassSessionsContextType | undefined>(undefined);
+export const ClassSessionsContext = createContext<ClassSessionsContextType | undefined>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
   const [classSessions, setClassSessions] = useState<ClassSession[]>(() =>
