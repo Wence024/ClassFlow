@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Service for managing courses in localStorage.
  *
@@ -24,8 +26,7 @@ export function setCourses(courses: Course[]): void {
  */
 export function addCourse(courseData: Omit<Course, 'id'>): Course {
   const courses = getCourses();
-  const newId = courses.length ? Math.max(...courses.map((c) => c.id)) + 1 : 1;
-  const newCourse: Course = { ...courseData, id: newId };
+  const newCourse: Course = { ...courseData, id: uuidv4() };
   setCourses([...courses, newCourse]);
   return newCourse;
 }

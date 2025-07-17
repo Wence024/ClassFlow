@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Service for managing class sessions in localStorage.
  *
@@ -40,8 +42,7 @@ export function setClassSessions(sessions: ClassSession[]): void {
  */
 export function addClassSession(sessionData: Omit<ClassSession, 'id'>): ClassSession {
   const sessions = getClassSessions();
-  const newId = sessions.length ? Math.max(...sessions.map((s) => s.id)) + 1 : 1;
-  const newSession: ClassSession = { ...sessionData, id: newId };
+  const newSession: ClassSession = { ...sessionData, id: uuidv4() };
   const updated = [...sessions, newSession];
   setClassSessions(updated);
   return newSession;

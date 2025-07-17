@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Service for managing classrooms in localStorage.
  *
@@ -24,8 +26,7 @@ export function setClassrooms(classrooms: Classroom[]): void {
  */
 export function addClassroom(data: Omit<Classroom, 'id'>): Classroom {
   const rooms = getClassrooms();
-  const newId = rooms.length ? Math.max(...rooms.map((r) => r.id)) + 1 : 1;
-  const newRoom: Classroom = { ...data, id: newId };
+  const newRoom: Classroom = { ...data, id: uuidv4() };
   setClassrooms([...rooms, newRoom]);
   return newRoom;
 }

@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Service for managing instructors in localStorage.
  *
@@ -24,8 +26,7 @@ export function setInstructors(instructors: Instructor[]): void {
  */
 export function addInstructor(data: Omit<Instructor, 'id'>): Instructor {
   const instructors = getInstructors();
-  const newId = instructors.length ? Math.max(...instructors.map((i) => i.id)) + 1 : 1;
-  const newInstructor: Instructor = { ...data, id: newId };
+  const newInstructor: Instructor = { ...data, id: uuidv4() };
   setInstructors([...instructors, newInstructor]);
   return newInstructor;
 }

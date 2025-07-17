@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Service for managing class groups in localStorage.
  *
@@ -24,8 +26,7 @@ export function setClassGroups(groups: ClassGroup[]): void {
  */
 export function addClassGroup(data: Omit<ClassGroup, 'id'>): ClassGroup {
   const groups = getClassGroups();
-  const newId = groups.length ? Math.max(...groups.map((g) => g.id)) + 1 : 1;
-  const newGroup: ClassGroup = { ...data, id: newId };
+  const newGroup: ClassGroup = { ...data, id: uuidv4() };
   setClassGroups([...groups, newGroup]);
   return newGroup;
 }
