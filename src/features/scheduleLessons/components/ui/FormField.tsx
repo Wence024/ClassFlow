@@ -21,8 +21,9 @@ const FormField: React.FC<FormFieldProps> = ({
   required = false,
   error,
 }) => {
-  const baseClasses = "w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400";
-  const errorClasses = error ? "border-red-500 focus:ring-red-400" : "";
+  const baseClasses =
+    'w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400';
+  const errorClasses = error ? 'border-red-500 focus:ring-red-400' : '';
 
   return (
     <div className="mb-4">
@@ -30,7 +31,7 @@ const FormField: React.FC<FormFieldProps> = ({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}:
       </label>
-      
+
       {type === 'select' ? (
         <select
           value={value}
@@ -55,10 +56,8 @@ const FormField: React.FC<FormFieldProps> = ({
           required={required}
         />
       )}
-      
-      {error && (
-        <p className="text-red-500 text-sm mt-1">{error}</p>
-      )}
+
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

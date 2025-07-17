@@ -29,11 +29,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
             activeTab === tab.id
               ? 'bg-blue-600 text-white shadow focus:ring-blue-500'
               : 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-500'
-          } ${
-            tab.disabled
-              ? 'opacity-50 cursor-not-allowed'
-              : ''
-          }`}
+          } ${tab.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           onClick={() => !tab.disabled && onTabChange(tab.id)}
         >
           {tab.label}

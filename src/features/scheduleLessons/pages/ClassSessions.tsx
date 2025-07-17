@@ -6,12 +6,8 @@ import ClassSessionForm from '../components/classSessions/ClassSessionForm';
 import type { ClassSession } from '../types/scheduleLessons';
 
 const ClassSessions: React.FC = () => {
-  const {
-    classSessions,
-    addClassSession,
-    updateClassSession,
-    removeClassSession,
-  } = useClassSessions();
+  const { classSessions, addClassSession, updateClassSession, removeClassSession } =
+    useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);

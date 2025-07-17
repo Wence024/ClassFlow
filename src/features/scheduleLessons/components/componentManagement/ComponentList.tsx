@@ -28,12 +28,7 @@ const ComponentList: React.FC<ComponentListProps> = ({
   return (
     <div className="space-y-4">
       {items.map((item) => (
-        <ComponentCard
-          key={item.id}
-          item={item}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <ComponentCard key={item.id} item={item} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </div>
   );

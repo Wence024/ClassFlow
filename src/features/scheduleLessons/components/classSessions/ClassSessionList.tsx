@@ -26,12 +26,7 @@ const ClassSessionList: React.FC<ClassSessionListProps> = ({
   return (
     <div className="space-y-4">
       {sessions.map((session) => (
-        <ClassSessionCard
-          key={session.id}
-          session={session}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <ClassSessionCard key={session.id} session={session} onEdit={onEdit} onDelete={onDelete} />
       ))}
     </div>
   );
