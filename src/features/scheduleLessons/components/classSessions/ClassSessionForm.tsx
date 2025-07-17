@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import FormField from '../common/FormField';
-import ActionButton from '../common/ActionButton';
-import type { ClassSession, Course, ClassGroup, Instructor, Classroom } from '../../types/scheduleLessons';
+import FormField from '../ui/FormField';
+import ActionButton from '../ui/ActionButton';
+import type {
+  ClassSession,
+  Course,
+  ClassGroup,
+  Instructor,
+  Classroom,
+} from '../../types/scheduleLessons';
 
 interface ClassSessionFormProps {
   courses: Course[];
@@ -74,13 +80,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
-    const course = courses.find(c => c.id === formData.courseId)!;
-    const group = classGroups.find(g => g.id === formData.groupId)!;
-    const instructor = instructors.find(i => i.id === formData.instructorId)!;
-    const classroom = classrooms.find(c => c.id === formData.classroomId)!;
+    const course = courses.find((c) => c.id === formData.courseId)!;
+    const group = classGroups.find((g) => g.id === formData.groupId)!;
+    const instructor = instructors.find((i) => i.id === formData.instructorId)!;
+    const classroom = classrooms.find((c) => c.id === formData.classroomId)!;
 
     onSubmit({
       course,
@@ -106,13 +112,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingSession ? 'Edit Class Session' : 'Create Class Session'}
       </h2>
-      
+
       <form onSubmit={handleSubmit}>
         <FormField
           label="Course"
           type="select"
           value={formData.courseId}
-          onChange={(value) => setFormData(prev => ({ ...prev, courseId: value }))}
+          onChange={(value) => setFormData((prev) => ({ ...prev, courseId: value }))}
           options={courses}
           required
           error={errors.courseId}
@@ -122,7 +128,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
           label="Class Group"
           type="select"
           value={formData.groupId}
-          onChange={(value) => setFormData(prev => ({ ...prev, groupId: value }))}
+          onChange={(value) => setFormData((prev) => ({ ...prev, groupId: value }))}
           options={classGroups}
           required
           error={errors.groupId}
@@ -132,7 +138,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
           label="Instructor"
           type="select"
           value={formData.instructorId}
-          onChange={(value) => setFormData(prev => ({ ...prev, instructorId: value }))}
+          onChange={(value) => setFormData((prev) => ({ ...prev, instructorId: value }))}
           options={instructors}
           required
           error={errors.instructorId}
@@ -142,28 +148,19 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
           label="Classroom"
           type="select"
           value={formData.classroomId}
-          onChange={(value) => setFormData(prev => ({ ...prev, classroomId: value }))}
+          onChange={(value) => setFormData((prev) => ({ ...prev, classroomId: value }))}
           options={classrooms}
           required
           error={errors.classroomId}
         />
 
         <div className="flex gap-2">
-          <ActionButton
-            type="submit"
-            variant="primary"
-            loading={loading}
-            className="flex-1"
-          >
+          <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
             {editingSession ? 'Save Changes' : 'Create Class Session'}
           </ActionButton>
-          
+
           {(editingSession || onCancel) && (
-            <ActionButton
-              type="button"
-              variant="secondary"
-              onClick={handleReset}
-            >
+            <ActionButton type="button" variant="secondary" onClick={handleReset}>
               Cancel
             </ActionButton>
           )}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useComponents } from '../contexts/ComponentsContext';
-import TabNavigation from '../components/common/TabNavigation';
+import TabNavigation from '../components/ui/TabNavigation';
 import ComponentList from '../components/componentManagement/ComponentList';
 import ComponentForm from '../components/componentManagement/ComponentForm';
 import type { Course, ClassGroup, Classroom, Instructor } from '../types/scheduleLessons';
@@ -111,12 +111,14 @@ const ComponentManagement: React.FC = () => {
           }}
         />
         <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-4">{TABS.find(t => t.id === activeTab)?.label} List</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            {TABS.find((t) => t.id === activeTab)?.label} List
+          </h2>
           <ComponentList
             items={getList()}
             onEdit={handleEditItem}
             onDelete={handleRemoveItem}
-            emptyMessage={`No ${TABS.find(t => t.id === activeTab)?.label.toLowerCase()} created yet.`}
+            emptyMessage={`No ${TABS.find((t) => t.id === activeTab)?.label.toLowerCase()} created yet.`}
           />
         </div>
       </div>

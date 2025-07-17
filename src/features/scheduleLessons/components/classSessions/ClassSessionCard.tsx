@@ -1,5 +1,5 @@
 import React from 'react';
-import ItemCard from '../common/ItemCard';
+import ItemCard from '../ui/ItemCard';
 import type { ClassSession } from '../../types/scheduleLessons';
 
 interface ClassSessionCardProps {
@@ -8,11 +8,7 @@ interface ClassSessionCardProps {
   onDelete: (id: string) => void;
 }
 
-const ClassSessionCard: React.FC<ClassSessionCardProps> = ({
-  session,
-  onEdit,
-  onDelete,
-}) => {
+const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ session, onEdit, onDelete }) => {
   const details = [
     { label: 'Instructor', value: session.instructor.name },
     { label: 'Classroom', value: session.classroom.name },

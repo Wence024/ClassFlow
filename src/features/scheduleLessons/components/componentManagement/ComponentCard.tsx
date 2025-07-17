@@ -1,5 +1,5 @@
 import React from 'react';
-import ItemCard from '../common/ItemCard';
+import ItemCard from '../ui/ItemCard';
 import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
 
 type ComponentItem = Course | ClassGroup | Classroom | Instructor;
@@ -10,14 +10,10 @@ interface ComponentCardProps {
   onDelete: (id: string) => void;
 }
 
-const ComponentCard: React.FC<ComponentCardProps> = ({
-  item,
-  onEdit,
-  onDelete,
-}) => {
+const ComponentCard: React.FC<ComponentCardProps> = ({ item, onEdit, onDelete }) => {
   const getDetails = (item: ComponentItem) => {
     const details: Array<{ label: string; value: string }> = [];
-    
+
     if ('code' in item && item.code) {
       details.push({ label: 'Code', value: item.code });
     }
@@ -27,7 +23,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
     if ('email' in item && item.email) {
       details.push({ label: 'Email', value: item.email });
     }
-    
+
     return details;
   };
 

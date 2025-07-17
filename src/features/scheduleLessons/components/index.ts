@@ -1,10 +1,10 @@
 // Barrel export for all reusable components
-export { default as FormField } from './common/FormField';
-export { default as ActionButton } from './common/ActionButton';
-export { default as ItemCard } from './common/ItemCard';
-export { default as TabNavigation } from './common/TabNavigation';
-export { default as LoadingSpinner } from './common/LoadingSpinner';
-export { default as ErrorMessage } from './common/ErrorMessage';
+export { default as FormField } from './ui/FormField';
+export { default as ActionButton } from './ui/ActionButton';
+export { default as ItemCard } from './ui/ItemCard';
+export { default as TabNavigation } from './ui/TabNavigation';
+export { default as LoadingSpinner } from './ui/LoadingSpinner';
+export { default as ErrorMessage } from './ui/ErrorMessage';
 
 // Class Sessions components
 export { default as ClassSessionForm } from './classSessions/ClassSessionForm';
