@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
-// import './ClassSessions.css'; // Remove old CSS
 import { useClassSessions } from '../contexts/ClassSessionsContext';
 import { useComponents } from '../contexts/ComponentsContext';
-import type { ClassSession } from '../types/classSessions';
+import type { ClassSession } from '../types/scheduleLessons';
 
 const ClassSessions: React.FC = () => {
   const { classSessions, setClassSessions } = useClassSessions();
   const { courses, classGroups, classrooms, instructors } = useComponents();
 
-  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
-  const [selectedGroup, setSelectedGroup] = useState<number | null>(null);
-  const [selectedInstructor, setSelectedInstructor] = useState<number | null>(null);
-  const [selectedClassroom, setSelectedClassroom] = useState<number | null>(null);
-  const [editingSession, setEditingSession] = useState<boolean>(false);
-  const [sessionIdToEdit, setSessionIdToEdit] = useState<number | null>(null); // Store the session ID being edited
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [selectedInstructor, setSelectedInstructor] = useState<string | null>(null);
+  const [selectedClassroom, setSelectedClassroom] = useState<string | null>(null);
+  const [editingSession, setEditingSession] = useState(false);
+  const [sessionIdToEdit, setSessionIdToEdit] = useState<string | null>(null);
 
-  // Function to create a new class session
+  // Create a new class session with string id
   const createClassSession = () => {
     if (!selectedCourse || !selectedGroup || !selectedInstructor || !selectedClassroom) {
       alert('Please fill out all fields before creating a class session.');
@@ -23,65 +22,58 @@ const ClassSessions: React.FC = () => {
     }
 
     const newSession: ClassSession = {
-      id: Date.now(),
+      id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`,
       course: courses.find((course) => course.id === selectedCourse)!,
       group: classGroups.find((group) => group.id === selectedGroup)!,
       instructor: instructors.find((instructor) => instructor.id === selectedInstructor)!,
       classroom: classrooms.find((classroom) => classroom.id === selectedClassroom)!,
     };
 
-    setClassSessions((prevSessions) => [...prevSessions, newSession]);
-    resetForm(); // Reset form after creating a session
+    setClassSessions((prev) => [...prev, newSession]);
+    resetForm();
   };
 
-  // Function to remove a class session
-  const removeClassSession = (id: number) => {
-    setClassSessions((prevSessions) => prevSessions.filter((session) => session.id !== id));
+  const removeClassSession = (id: string) => {
+    setClassSessions((prev) => prev.filter((session) => session.id !== id));
   };
 
-  // Function to edit a class session
-  const editClassSession = (id: number) => {
+  const editClassSession = (id: string) => {
     const session = classSessions.find((s) => s.id === id);
     if (session) {
       setSelectedCourse(session.course.id);
       setSelectedGroup(session.group.id);
       setSelectedInstructor(session.instructor.id);
       setSelectedClassroom(session.classroom.id);
-      setEditingSession(true); // Switch to edit mode
-      setSessionIdToEdit(id); // Store the ID of the session being edited
+      setEditingSession(true);
+      setSessionIdToEdit(id);
     }
   };
 
-  // Reset the form to "Create" mode
   const resetForm = () => {
     setSelectedCourse(null);
     setSelectedGroup(null);
     setSelectedInstructor(null);
     setSelectedClassroom(null);
-    setEditingSession(false); // Reset edit mode
-    setSessionIdToEdit(null); // Reset the session ID to edit
+    setEditingSession(false);
+    setSessionIdToEdit(null);
   };
 
-  // Handle save changes (either create or update)
   const saveClassSession = () => {
-    if (editingSession && sessionIdToEdit !== null) {
-      // Update the class session
+    if (editingSession && sessionIdToEdit) {
       const updatedSession: ClassSession = {
-        id: sessionIdToEdit, // Use the ID of the session being edited
+        id: sessionIdToEdit,
         course: courses.find((course) => course.id === selectedCourse)!,
         group: classGroups.find((group) => group.id === selectedGroup)!,
         instructor: instructors.find((instructor) => instructor.id === selectedInstructor)!,
         classroom: classrooms.find((classroom) => classroom.id === selectedClassroom)!,
       };
-
-      setClassSessions((prevSessions) =>
-        prevSessions.map((session) => (session.id === updatedSession.id ? updatedSession : session))
+      setClassSessions((prev) =>
+        prev.map((session) => (session.id === sessionIdToEdit ? updatedSession : session))
       );
     } else {
-      createClassSession(); // Call create session function if in "create" mode
+      createClassSession();
     }
-
-    resetForm(); // Reset after saving changes (create or edit)
+    resetForm();
   };
 
   return (
@@ -160,23 +152,20 @@ const ClassSessions: React.FC = () => {
               setValue: setSelectedClassroom,
               options: classrooms,
             },
-          ].map((field, index) => (
-            <div key={field.label || index} className="mb-4">
+          ].map((field) => (
+            <div key={field.label} className="mb-4">
               <label className="block font-semibold mb-1">{field.label}:</label>
               <select
                 value={field.value ?? ''}
-                onChange={(e) => field.setValue(Number(e.target.value) || null)}
+                onChange={(e) => field.setValue(e.target.value || null)} // <-- Note: string ID now
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
                 <option value="">Select {field.label}</option>
-                {field.options.map((option, optionIndex) => {
-                  const optionKey = `${field.label.toLowerCase()}-${option.id}-${optionIndex}`;
-                  return (
-                    <option key={optionKey} value={option.id}>
-                      {option.name}
-                    </option>
-                  );
-                })}
+                {field.options.map((option) => (
+                  <option key={`${field.label.toLowerCase()}-${option.id}`} value={option.id}>
+                    {option.name}
+                  </option>
+                ))}
               </select>
             </div>
           ))}
