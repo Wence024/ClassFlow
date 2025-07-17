@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { ClassSession } from '../types/classSessions';
-import * as timetableService from '../oldServices/timetableService';
+import type { ClassSession } from '../types/scheduleLessons';
+import * as timetableService from '../services/timetableService';
 
 const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
