@@ -2,7 +2,7 @@ import React from 'react';
 
 interface ActionButtonProps {
   children: React.ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
