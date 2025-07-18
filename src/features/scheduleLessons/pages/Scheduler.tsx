@@ -6,6 +6,7 @@ import { useTimetable } from '../hooks/useTimetable';
 import Drawer from '../components/timetabling/Drawer';
 import Timetable from '../components/timetabling/Timetable';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
+import type { ClassSession } from '../types/scheduleLessons';
 
 
 // App component
@@ -15,15 +16,17 @@ const SchedulerApp: React.FC = () => {
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
   // Memoize derived data to prevent recalculating on every render
-  const { unassignedSessions, assignedSessionIds } = useMemo(() => {
+  const unassignedSessions = useMemo(() => {
     const assignedIds = new Set(
-      timetable.flat().filter(Boolean).map((cs) => cs!.id)
+      timetable
+        .flat()
+        .filter((session: ClassSession | null): session is ClassSession => Boolean(session))
+        .map((cs: ClassSession) => cs.id)
     );
-    const unassigned = classSessions.filter((cs) => !assignedIds.has(cs.id));
-    return { unassignedSessions: unassigned, assignedSessionIds: assignedIds };
+    return classSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
   }, [timetable, classSessions]);
 
-  const drawerSessions = unassignedSessions.map((cs) => ({
+  const drawerSessions = unassignedSessions.map((cs: ClassSession) => ({
     id: cs.id,
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
