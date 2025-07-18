@@ -80,7 +80,7 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <TimetableContext.Provider
       value={{
-        groups: classGroups.map((g) => g.name),
+        groups: classGroups ? classGroups.map((g) => g.name) : [], // Ensure groups is always an array
         timetable,
         assignSession,
         removeSession,
