@@ -46,7 +46,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
               <tr key={groupIndex}>
                 <td className="p-2 border text-gray-900 font-semibold bg-gray-50">{group}</td>
                 {timetable[groupIndex].map((item, periodIndex) => (
-                  <td
+                    <td
                     key={periodIndex}
                     className={`p-2 border text-center min-w-[80px] ${item ? 'bg-green-400 text-white font-bold' : 'bg-gray-50 text-gray-900'}`}
                     onDrop={(e) => onDropToGrid(e, groupIndex, periodIndex)}
@@ -64,7 +64,15 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                         : undefined
                     }
                   >
-                    {item ? item.course.name + ' - ' + item.group.name : '—'}
+                    {item ? (
+                      <>
+                        <p>{item.course.name}</p>
+                        <p className="text-xs">{item.instructor.name}</p>
+                        <p className="text-xs">{item.classroom.name}</p>
+                      </>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 ))}
               </tr>
