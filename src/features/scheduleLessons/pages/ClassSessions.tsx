@@ -8,10 +8,10 @@ import type { ClassSession } from '../types/scheduleLessons';
 const ClassSessions: React.FC = () => {
   const { classSessions, addClassSession, updateClassSession, removeClassSession } =
     useClassSessions();
-  const { courses } = useCourses()
-  const { classGroups } = useClassGroups()
-  const { classrooms } = useClassrooms()
-  const { instructors } = useInstructors()
+  const { courses } = useCourses();
+  const { classGroups } = useClassGroups();
+  const { classrooms } = useClassrooms();
+  const { instructors } = useInstructors();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
 
