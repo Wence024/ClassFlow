@@ -14,8 +14,6 @@ export interface CoursesContextType {
   removeCourse: (id: string) => void;
 }
 
-
-
 export const CoursesProvider = ({ children }: { children: ReactNode }) => {
   const [courses, setCourses] = useState<Course[]>(() => coursesService.getCourses());
 
