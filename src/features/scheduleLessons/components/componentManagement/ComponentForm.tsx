@@ -3,16 +3,34 @@ import FormField from '../ui/FormField';
 import ActionButton from '../ui/ActionButton';
 import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
 
-type ComponentItem = Course | ClassGroup | Classroom | Instructor;
-type ComponentType = 'course' | 'classGroup' | 'classroom' | 'instructor';
-
-interface ComponentFormProps {
-  type: ComponentType;
-  editingItem?: ComponentItem | null;
-  onSubmit: (itemData: Omit<ComponentItem, 'id'>) => void;
+type BaseFormProps = {
   onCancel?: () => void;
   loading?: boolean;
-}
+};
+
+type ComponentFormProps = (
+  | {
+      type: 'course';
+      editingItem?: Course | null;
+      onSubmit: (itemData: Omit<Course, 'id'>) => void;
+    }
+  | {
+      type: 'classGroup';
+      editingItem?: ClassGroup | null;
+      onSubmit: (itemData: Omit<ClassGroup, 'id'>) => void;
+    }
+  | {
+      type: 'classroom';
+      editingItem?: Classroom | null;
+      onSubmit: (itemData: Omit<Classroom, 'id'>) => void;
+    }
+  | {
+      type: 'instructor';
+      editingItem?: Instructor | null;
+      onSubmit: (itemData: Omit<Instructor, 'id'>) => void;
+    }
+) &
+  BaseFormProps;
 
 interface FormData {
   name: string;
@@ -124,28 +142,22 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
 
     if (!validateForm()) return;
 
-    // Create the appropriate object based on type
-    const baseData = { name: formData.name };
-    let submitData: Omit<ComponentItem, 'id'>;
-
     switch (type) {
       case 'course':
-        submitData = { ...baseData, code: formData.code! } as Omit<Course, 'id'>;
+        onSubmit({ name: formData.name, code: formData.code! });
         break;
       case 'classGroup':
-        submitData = baseData as Omit<ClassGroup, 'id'>;
+        onSubmit({ name: formData.name });
         break;
       case 'classroom':
-        submitData = { ...baseData, location: formData.location! } as Omit<Classroom, 'id'>;
+        onSubmit({ name: formData.name, location: formData.location! });
         break;
       case 'instructor':
-        submitData = { ...baseData, email: formData.email! } as Omit<Instructor, 'id'>;
+        onSubmit({ name: formData.name, email: formData.email! });
         break;
       default:
         return;
     }
-
-    onSubmit(submitData);
   };
 
   const handleReset = () => {

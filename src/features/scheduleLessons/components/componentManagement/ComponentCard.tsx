@@ -1,17 +1,20 @@
-import React from 'react';
 import ItemCard from '../ui/ItemCard';
 import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
 
 type ComponentItem = Course | ClassGroup | Classroom | Instructor;
 
-interface ComponentCardProps {
-  item: ComponentItem;
-  onEdit: (item: ComponentItem) => void;
+interface ComponentCardProps<T extends ComponentItem> {
+  item: T;
+  onEdit: (item: T) => void;
   onDelete: (id: string) => void;
 }
 
-const ComponentCard: React.FC<ComponentCardProps> = ({ item, onEdit, onDelete }) => {
-  const getDetails = (item: ComponentItem) => {
+const ComponentCard = <T extends ComponentItem>({
+  item,
+  onEdit,
+  onDelete,
+}: ComponentCardProps<T>) => {
+  const getDetails = (item: T) => {
     const details: Array<{ label: string; value: string }> = [];
 
     if ('code' in item && item.code) {

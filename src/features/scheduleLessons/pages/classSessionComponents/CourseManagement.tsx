@@ -36,7 +36,7 @@ const CourseManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Courses</h2>
-        <ComponentList
+        <ComponentList<Course>
           items={courses}
           onEdit={handleEdit}
           onDelete={handleRemove}

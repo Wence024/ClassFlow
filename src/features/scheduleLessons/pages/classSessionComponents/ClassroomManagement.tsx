@@ -36,10 +36,10 @@ const ClassroomManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-        <ComponentList
-          items={classrooms as any}
-          onEdit={handleEdit as any}
-          onDelete={handleRemove as any}
+        <ComponentList<Classroom>
+          items={classrooms}
+          onEdit={handleEdit}
+          onDelete={handleRemove}
           emptyMessage="No classrooms created yet."
         />
       </div>
@@ -47,8 +47,8 @@ const ClassroomManagement: React.FC = () => {
       <div className="w-full md:w-96">
         <ComponentForm
           type="classroom"
-          editingItem={editingClassroom as any}
-          onSubmit={(editingClassroom ? handleSave : handleAdd) as any}
+          editingItem={editingClassroom}
+          onSubmit={editingClassroom ? handleSave : handleAdd}
           onCancel={editingClassroom ? handleCancel : undefined}
         />
       </div>

@@ -36,7 +36,7 @@ const ClassGroupManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
-        <ComponentList
+        <ComponentList<ClassGroup>
           items={classGroups}
           onEdit={handleEdit}
           onDelete={handleRemove}
