@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { ClassSession } from '../../types/scheduleLessons';
 import * as timetableService from '../../services/timetableService';
-import { TimetableContext, type TimetableContextType } from './TimetableContext';
+import { TimetableContext } from './TimetableContext';
 
 const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
@@ -16,31 +16,25 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   /**
    * Checks for conflicts for a given session at a specific time period.
-   * A conflict exists if the same instructor or classroom is already booked
-   * in the same time slot (period).
-   * @param currentTimetable The current timetable state.
-   * @param sessionToCheck The session to check for.
-   * @param targetPeriodIndex The period index to check within.
-   * @returns `true` if a conflict is found, otherwise `false`.
+   * Returns a detailed message if a conflict is found, otherwise an empty string.
    */
   const hasConflicts = (
     currentTimetable: (ClassSession | null)[][],
     sessionToCheck: ClassSession,
     targetPeriodIndex: number
-  ): boolean => {
+  ): string => {
     for (const group of currentTimetable) {
       const existingSession = group[targetPeriodIndex];
       if (existingSession) {
-        // Check for instructor or classroom conflict in the same period
-        if (
-          existingSession.instructor.id === sessionToCheck.instructor.id ||
-          existingSession.classroom.id === sessionToCheck.classroom.id
-        ) {
-          return true;
+        if (existingSession.instructor.id === sessionToCheck.instructor.id) {
+          return `Instructor conflict: ${existingSession.instructor.name} is already scheduled at this time.`;
+        }
+        if (existingSession.classroom.id === sessionToCheck.classroom.id) {
+          return `Classroom conflict: ${existingSession.classroom.name} is already in use at this time.`;
         }
       }
     }
-    return false;
+    return '';
   };
 
   // Assign a session to a cell
@@ -48,19 +42,23 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     groupIndex: number,
     periodIndex: number,
     session: ClassSession
-  ): boolean => {
-    let success = false;
+  ): string => {
+    let conflictMsg = '';
     setTimetable((prev) => {
-      // Prevent assigning to an already occupied cell or if conflict
-      if (prev[groupIndex][periodIndex] || hasConflicts(prev, session, periodIndex)) {
+      if (prev[groupIndex][periodIndex]) {
+        conflictMsg = 'This slot is already occupied.';
+        return prev;
+      }
+      const conflict = hasConflicts(prev, session, periodIndex);
+      if (conflict) {
+        conflictMsg = conflict;
         return prev;
       }
       const updated = prev.map((row) => [...row]);
       updated[groupIndex][periodIndex] = session;
-      success = true;
       return updated;
     });
-    return success;
+    return conflictMsg;
   };
 
   // Remove a session from a cell
@@ -76,28 +74,31 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const moveSession = (
     from: { groupIndex: number; periodIndex: number },
     to: { groupIndex: number; periodIndex: number }
-  ): boolean => {
-    let success = false;
+  ): string => {
+    let conflictMsg = '';
     setTimetable((prev) => {
       const sessionToMove = prev[from.groupIndex][from.periodIndex];
-      // Prevent moving to an occupied cell or if source is empty
-      if (!sessionToMove || prev[to.groupIndex][to.periodIndex]) {
+      if (!sessionToMove) {
+        conflictMsg = 'No session to move.';
         return prev;
       }
-      // Temporarily remove the session from its original spot to check for conflicts accurately
+      if (prev[to.groupIndex][to.periodIndex]) {
+        conflictMsg = 'This slot is already occupied.';
+        return prev;
+      }
       const tempTimetable = prev.map((row) => [...row]);
       tempTimetable[from.groupIndex][from.periodIndex] = null;
-      // Check for conflicts at the new location
-      if (hasConflicts(tempTimetable, sessionToMove, to.periodIndex)) {
+      const conflict = hasConflicts(tempTimetable, sessionToMove, to.periodIndex);
+      if (conflict) {
+        conflictMsg = conflict;
         return prev;
       }
       const updated = prev.map((row) => [...row]);
       updated[from.groupIndex][from.periodIndex] = null;
       updated[to.groupIndex][to.periodIndex] = sessionToMove;
-      success = true;
       return updated;
     });
-    return success;
+    return conflictMsg;
   };
 
   return (

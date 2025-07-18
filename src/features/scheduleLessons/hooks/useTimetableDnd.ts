@@ -32,24 +32,26 @@ export const useTimetableDnd = () => {
     e.preventDefault();
     if (!dragSource) return;
 
-    let success = true;
+    let conflictMsg = '';
     // Case 1: Moving an item within the timetable grid
     if (dragSource.from === 'timetable') {
-      success = moveSession(
+      conflictMsg = moveSession(
         { groupIndex: dragSource.groupIndex!, periodIndex: dragSource.periodIndex! },
         { groupIndex, periodIndex }
       );
-      if (!success) {
-        notifyConflict('Conflict: Instructor or classroom is already scheduled at this time.');
+      if (conflictMsg) {
+        console.log(conflictMsg);
+        notifyConflict(conflictMsg);
       }
     }
     // Case 2: Dragging a new item from the drawer
     else if (dragSource.from === 'drawer') {
       const sessionToAssign = classSessions.find((cs) => cs.id === dragSource.sessionId);
       if (sessionToAssign) {
-        success = assignSession(groupIndex, periodIndex, sessionToAssign);
-        if (!success) {
-          notifyConflict('Conflict: Instructor or classroom is already scheduled at this time.');
+        conflictMsg = assignSession(groupIndex, periodIndex, sessionToAssign);
+        if (conflictMsg) {
+          console.log(conflictMsg);
+          notifyConflict(conflictMsg);
         }
       }
     }

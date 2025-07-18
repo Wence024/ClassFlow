@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 
-let notify: ((msg: string) => void) | null = null;
+let listeners: ((msg: string) => void)[] = [];
 
 export function showNotification(msg: string) {
-  if (notify) notify(msg);
+  listeners.forEach((fn) => fn(msg));
 }
 
 const Notification: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
 
   React.useEffect(() => {
-    notify = setMessage;
+    listeners.push(setMessage);
     return () => {
-      notify = null;
+      listeners = listeners.filter((fn) => fn !== setMessage);
     };
   }, []);
 
@@ -32,4 +32,4 @@ const Notification: React.FC = () => {
   );
 };
 
-export default Notification; 
+export default Notification;
