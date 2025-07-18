@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
-import { ClassSessionsProvider, ComponentsProvider } from './features/scheduleLessons/contexts/';
+import { ClassSessionsProvider, CoursesProvider, ClassGroupsProvider, ClassroomsProvider, InstructorsProvider } from './features/scheduleLessons/contexts/';
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
 import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
@@ -70,7 +70,10 @@ function App() {
 
   return (
     <ClassSessionsProvider>
-      <ComponentsProvider>
+      <CoursesProvider>
+        <ClassGroupsProvider>
+          <ClassroomsProvider>
+            <InstructorsProvider>
         <BrowserRouter>
           <AuthProvider>
             <NavBar onLogout={handleLogout} />
@@ -113,7 +116,10 @@ function App() {
             </Routes>
           </AuthProvider>
         </BrowserRouter>
-      </ComponentsProvider>
+            </InstructorsProvider>
+          </ClassroomsProvider>
+        </ClassGroupsProvider>
+      </CoursesProvider>
     </ClassSessionsProvider>
   );
 }

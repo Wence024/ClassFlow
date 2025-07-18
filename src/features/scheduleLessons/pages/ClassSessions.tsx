@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useClassSessions } from '../hooks/useClassSessions';
-import { useComponents } from '../hooks/useComponents';
+import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../hooks/useComponents';
 import ClassSessionList from '../components/classSessions/ClassSessionList';
 import ClassSessionForm from '../components/classSessions/ClassSessionForm';
 import type { ClassSession } from '../types/scheduleLessons';
@@ -8,7 +8,10 @@ import type { ClassSession } from '../types/scheduleLessons';
 const ClassSessions: React.FC = () => {
   const { classSessions, addClassSession, updateClassSession, removeClassSession } =
     useClassSessions();
-  const { courses, classGroups, classrooms, instructors } = useComponents();
+  const { courses } = useCourses()
+  const { classGroups } = useClassGroups()
+  const { classrooms } = useClassrooms()
+  const { instructors } = useInstructors()
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
 
