@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 // import './Scheduler.css'; // Remove old CSS
 import { useClassSessions } from '../hooks/useClassSessions';
-import { TimetableProvider, useTimetable } from '../contexts/timetable/TimetableProvider';
-import type { ClassSession } from '../types/classSessions';
+import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
+import type { ClassSession } from '../types/scheduleLessons';
+import { useTimetable } from '../hooks/useTimetable';
 
 type DragSource = {
   from: 'drawer' | 'timetable';
@@ -113,8 +114,7 @@ const Timetable: React.FC<{
 // App component
 const SchedulerApp: React.FC = () => {
   const { classSessions } = useClassSessions();
-  const { timetable, assignSession, removeSession } = useTimetable();
-  const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
+  const { timetable, groups, assignSession, removeSession } = useTimetable();
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
 
   // Helper: get all class session IDs currently in the timetable

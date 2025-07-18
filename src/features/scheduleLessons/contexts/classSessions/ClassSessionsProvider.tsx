@@ -3,20 +3,18 @@
 //
 // TODO: Add conflict detection when adding/updating sessions (e.g., overlapping timeslots).
 // TODO: Support multi-user (sync with backend, not just localStorage).
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassSession } from '../../types/scheduleLessons';
 import * as classSessionsService from '../../services/classSessionsService';
+import { ClassSessionsContext } from './ClassSessionsContext';
 
-interface ClassSessionsContextType {
+export interface ClassSessionsContextType {
   classSessions: ClassSession[];
   addClassSession: (sessionData: Omit<ClassSession, 'id'>) => void;
   updateClassSession: (id: string, sessionData: Omit<ClassSession, 'id'>) => void;
   removeClassSession: (id: string) => void;
 }
-
-// Provides class session state and CRUD methods to consumers.
-export const ClassSessionsContext = createContext<ClassSessionsContextType | undefined>(undefined);
 
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
   // State is initialized from localStorage via the service.

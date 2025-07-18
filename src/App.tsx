@@ -6,7 +6,7 @@ import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
 import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
 import { authRoutes } from './features/auth/routes/AuthRoutes';
-import { AuthProvider } from './features/auth/contexts/AuthContext';
+import { AuthProvider } from './features/auth/contexts/AuthProvider';
 import { useAuth } from './features/auth/hooks/useAuth';
 import PrivateRoute from './features/auth/components/PrivateRoute';
 

@@ -3,14 +3,15 @@
 //
 // TODO: Support multi-user (sync with backend, not just localStorage).
 // TODO: Add aggregated views (e.g., show stats or summaries of components).
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
 import * as coursesService from '../../services/coursesService';
 import * as classGroupsService from '../../services/classGroupsService';
 import * as classroomsService from '../../services/classroomsService';
 import * as instructorsService from '../../services/instructorsService';
+import { ComponentsContext } from './ComponentsContext';
 
-interface ManagementContextType {
+export interface ManagementContextType {
   courses: Course[];
   classGroups: ClassGroup[];
   classrooms: Classroom[];
@@ -28,15 +29,6 @@ interface ManagementContextType {
   updateInstructor: (id: string, data: Omit<Instructor, 'id'>) => void;
   removeInstructor: (id: string) => void;
 }
-
-// Provides all component state and CRUD methods to consumers.
-const ComponentsContext = createContext<ManagementContextType | undefined>(undefined);
-
-export const useComponents = () => {
-  const ctx = useContext(ComponentsContext);
-  if (!ctx) throw new Error('useComponents must be used within a ComponentsProvider');
-  return ctx;
-};
 
 export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // State is initialized from localStorage via the service.
