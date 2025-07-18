@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
-import { ClassSessionsProvider } from './features/scheduleLessons/contexts/ClassSessionsContext';
-import { ComponentsProvider } from './features/scheduleLessons/contexts/ComponentsContext';
+import { ClassSessionsProvider, ComponentsProvider } from './features/scheduleLessons/contexts/';
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
 import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
