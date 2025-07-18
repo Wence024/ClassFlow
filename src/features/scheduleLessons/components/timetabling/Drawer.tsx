@@ -1,14 +1,18 @@
 import React from 'react';
+import type { ClassSession } from '../../types/scheduleLessons';
 
 export type DragSource = {
   from: 'drawer' | 'timetable';
-  className: string;
+  sessionId: string;
   groupIndex?: number;
   periodIndex?: number;
 };
 
+type DrawerSession = Pick<ClassSession, 'id'> & { displayName: string };
+
 interface DrawerProps {
-  drawerClasses: string[];
+  // Use a structured object instead of just a string for better data handling
+  drawerSessions: DrawerSession[];
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   onDropToDrawer: (e: React.DragEvent) => void;
 }
@@ -18,7 +22,7 @@ interface DrawerProps {
  * Allows drag-and-drop to timetable.
  * Single responsibility: only renders the drawer UI and handles drag events.
  */
-const Drawer: React.FC<DrawerProps> = ({ drawerClasses, onDragStart, onDropToDrawer }) => {
+const Drawer: React.FC<DrawerProps> = ({ drawerSessions, onDragStart, onDropToDrawer }) => {
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
   return (
@@ -29,14 +33,14 @@ const Drawer: React.FC<DrawerProps> = ({ drawerClasses, onDragStart, onDropToDra
     >
       <h3 className="text-xl font-semibold mb-4 text-center">Available Classes</h3>
       <ul className="space-y-2">
-        {drawerClasses.map((classItem, index) => (
+        {drawerSessions.map((session) => (
           <li
-            key={index}
+            key={session.id}
             draggable
-            onDragStart={(e) => onDragStart(e, { from: 'drawer', className: classItem })}
+            onDragStart={(e) => onDragStart(e, { from: 'drawer', sessionId: session.id })}
             className="p-2 bg-gray-100 rounded cursor-grab text-center hover:bg-gray-200 text-gray-900"
           >
-            {classItem}
+            {session.displayName}
           </li>
         ))}
       </ul>

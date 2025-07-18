@@ -57,7 +57,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                         ? (e) =>
                             onDragStart(e, {
                               from: 'timetable',
-                              className: item.course.name + ' - ' + item.group.name,
+                              sessionId: item.id,
                               groupIndex,
                               periodIndex,
                             })
