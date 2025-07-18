@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ClassSessionsContext } from '../contexts/ClassSessionsContext';
+import { ClassSessionsContext } from '../contexts/classSessions/ClassSessionsProvider';
 
 export function useClassSessions() {
   const ctx = useContext(ClassSessionsContext);

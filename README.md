@@ -82,6 +82,7 @@ The app will be available at [http://localhost:5173](http://localhost:5173) (or 
 - Loading and error states are clearly indicated.
 - Responsive layout for desktop and mobile.
 - Code is organized by feature (`features/auth`, `features/scheduleLessons`).
+- **Contexts and hooks are now modularized for maintainability and scalability.**
 
 ---
 
@@ -91,14 +92,22 @@ The app will be available at [http://localhost:5173](http://localhost:5173) (or 
 ClassFlow/
   src/
     features/
-      auth/           # Authentication (API, context, pages, routes)
-      scheduleLessons/ # Class/session/timetable management
-    App.tsx           # App shell, routing, layout
-    index.css         # Tailwind and global styles
-    main.tsx          # App entry point
-  tailwind.config.cjs # Tailwind config
-  postcss.config.cjs  # PostCSS config
-  package.json        # Scripts and dependencies
+      auth/                # Authentication (API, context, pages, routes)
+      scheduleLessons/     # Class/session/timetable management
+        contexts/
+          classSessions/   # ClassSessionsProvider
+          components/      # ComponentsProvider
+          timetable/       # TimetableProvider
+          index.ts         # Barrel export for all contexts
+        hooks/             # Custom hooks (useClassSessions, useComponents, useTimetable)
+        pages/             # Page components (UI orchestration only)
+        components/        # UI and feature components
+    App.tsx                # App shell, routing, layout
+    index.css              # Tailwind and global styles
+    main.tsx               # App entry point
+  tailwind.config.cjs      # Tailwind config
+  postcss.config.cjs       # PostCSS config
+  package.json             # Scripts and dependencies
 ```
 
 ---

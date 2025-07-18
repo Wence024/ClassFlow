@@ -1,3 +1,8 @@
+// Context for managing all component entities (courses, groups, classrooms, instructors).
+// All CRUD logic is delegated to the respective service modules for maintainability.
+//
+// TODO: Support multi-user (sync with backend, not just localStorage).
+// TODO: Add aggregated views (e.g., show stats or summaries of components).
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
 import * as coursesService from '../../services/coursesService';
@@ -24,6 +29,7 @@ interface ManagementContextType {
   removeInstructor: (id: string) => void;
 }
 
+// Provides all component state and CRUD methods to consumers.
 const ComponentsContext = createContext<ManagementContextType | undefined>(undefined);
 
 export const useComponents = () => {
@@ -33,6 +39,7 @@ export const useComponents = () => {
 };
 
 export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // State is initialized from localStorage via the service.
   const [courses, setCourses] = useState<Course[]>(() => coursesService.getCourses());
   const [classGroups, setClassGroups] = useState<ClassGroup[]>(() =>
     classGroupsService.getClassGroups()
@@ -44,6 +51,7 @@ export const ComponentsProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     instructorsService.getInstructors()
   );
 
+  // Persist state to localStorage on every change.
   useEffect(() => {
     coursesService.setCourses(courses);
   }, [courses]);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useClassSessions } from '../contexts/ClassSessionsContext';
-import { useComponents } from '../contexts/ComponentsContext';
+import { useClassSessions } from '../hooks/useClassSessions';
+import { useComponents } from '../hooks/useComponents';
 import ClassSessionList from '../components/classSessions/ClassSessionList';
 import ClassSessionForm from '../components/classSessions/ClassSessionForm';
 import type { ClassSession } from '../types/scheduleLessons';

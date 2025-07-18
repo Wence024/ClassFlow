@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 // import './Scheduler.css'; // Remove old CSS
-import { useClassSessions } from '../contexts/ClassSessionsContext';
-import { TimetableProvider, useTimetable } from '../contexts/TimetableContext';
+import { useClassSessions } from '../hooks/useClassSessions';
+import { TimetableProvider, useTimetable } from '../contexts/timetable/TimetableProvider';
 import type { ClassSession } from '../types/classSessions';
 
 type DragSource = {

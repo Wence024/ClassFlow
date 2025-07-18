@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useComponents } from '../contexts/ComponentsContext';
+import { useComponents } from '../hooks/useComponents';
 import TabNavigation from '../components/ui/TabNavigation';
 import ComponentList from '../components/componentManagement/ComponentList';
 import ComponentForm from '../components/componentManagement/ComponentForm';
