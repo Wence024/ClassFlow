@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 // import './Scheduler.css'; // Remove old CSS
 import { useClassSessions } from '../hooks/useClassSessions';
 import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
 import { useTimetable } from '../hooks/useTimetable';
 import Drawer from '../components/timetabling/Drawer';
 import Timetable from '../components/timetabling/Timetable';
-import { useTimetableDnd } from '../hooks/useTimetableDnd';
+import { useTimetableDnd, setNotifyConflict } from '../hooks/useTimetableDnd';
+import Notification, { showNotification } from '../components/ui/Notification';
 import type { ClassSession } from '../types/scheduleLessons';
-
 
 // App component
 const SchedulerApp: React.FC = () => {
@@ -31,20 +31,28 @@ const SchedulerApp: React.FC = () => {
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
 
+  // Connect notification system to DnD logic
+  useEffect(() => {
+    setNotifyConflict(showNotification);
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
-      <Drawer
-        drawerSessions={drawerSessions}
-        onDragStart={handleDragStart}
-        onDropToDrawer={handleDropToDrawer}
-      />
-      <Timetable
-        groups={groups}
-        timetable={timetable}
-        onDragStart={handleDragStart}
-        onDropToGrid={handleDropToGrid}
-      />
-    </div>
+    <>
+      <Notification />
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
+        <Drawer
+          drawerSessions={drawerSessions}
+          onDragStart={handleDragStart}
+          onDropToDrawer={handleDropToDrawer}
+        />
+        <Timetable
+          groups={groups}
+          timetable={timetable}
+          onDragStart={handleDragStart}
+          onDropToGrid={handleDropToGrid}
+        />
+      </div>
+    </>
   );
 };
 

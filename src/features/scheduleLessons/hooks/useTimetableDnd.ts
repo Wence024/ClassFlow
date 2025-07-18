@@ -3,6 +3,12 @@ import type { DragSource } from '../components/timetabling/Drawer';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from './useClassSessions';
 
+// Placeholder for notification callback (to be set by the UI layer)
+let notifyConflict: (msg: string) => void = () => {};
+export const setNotifyConflict = (fn: (msg: string) => void) => {
+  notifyConflict = fn;
+};
+
 /**
  * A custom hook to encapsulate all drag-and-drop logic for the scheduler.
  * It manages the drag source state and provides memoized event handlers
@@ -26,18 +32,25 @@ export const useTimetableDnd = () => {
     e.preventDefault();
     if (!dragSource) return;
 
+    let success = true;
     // Case 1: Moving an item within the timetable grid
     if (dragSource.from === 'timetable') {
-      moveSession(
+      success = moveSession(
         { groupIndex: dragSource.groupIndex!, periodIndex: dragSource.periodIndex! },
         { groupIndex, periodIndex }
       );
+      if (!success) {
+        notifyConflict('Conflict: Instructor or classroom is already scheduled at this time.');
+      }
     }
     // Case 2: Dragging a new item from the drawer
     else if (dragSource.from === 'drawer') {
       const sessionToAssign = classSessions.find((cs) => cs.id === dragSource.sessionId);
       if (sessionToAssign) {
-        assignSession(groupIndex, periodIndex, sessionToAssign);
+        success = assignSession(groupIndex, periodIndex, sessionToAssign);
+        if (!success) {
+          notifyConflict('Conflict: Instructor or classroom is already scheduled at this time.');
+        }
       }
     }
     setDragSource(null); // Clean up after drop
