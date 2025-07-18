@@ -32,20 +32,26 @@ const CourseManagement: React.FC = () => {
   const handleCancel = () => setEditingCourse(null);
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Courses</h2>
-      <ComponentList
-        items={courses}
-        onEdit={handleEdit}
-        onDelete={handleRemove}
-        emptyMessage="No courses created yet."
-      />
-      <ComponentForm
-        type="course"
-        editingItem={editingCourse}
-        onSubmit={editingCourse ? handleSave : handleAdd}
-        onCancel={editingCourse ? handleCancel : undefined}
-      />
+    <div className="flex flex-col md:flex-row gap-8 mt-8">
+      {/* List (left) */}
+      <div className="flex-1 min-w-0">
+        <h2 className="text-xl font-semibold mb-4">Courses</h2>
+        <ComponentList
+          items={courses}
+          onEdit={handleEdit}
+          onDelete={handleRemove}
+          emptyMessage="No courses created yet."
+        />
+      </div>
+      {/* Form (right) */}
+      <div className="w-full md:w-96">
+        <ComponentForm
+          type="course"
+          editingItem={editingCourse}
+          onSubmit={editingCourse ? handleSave : handleAdd}
+          onCancel={editingCourse ? handleCancel : undefined}
+        />
+      </div>
     </div>
   );
 };

@@ -32,20 +32,26 @@ const InstructorManagement: React.FC = () => {
   const handleCancel = () => setEditingInstructor(null);
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Instructors</h2>
-      <ComponentList
-        items={instructors}
-        onEdit={handleEdit}
-        onDelete={handleRemove}
-        emptyMessage="No instructors created yet."
-      />
-      <ComponentForm
-        type="instructor"
-        editingItem={editingInstructor}
-        onSubmit={editingInstructor ? handleSave : handleAdd}
-        onCancel={editingInstructor ? handleCancel : undefined}
-      />
+    <div className="flex flex-col md:flex-row gap-8 mt-8">
+      {/* List (left) */}
+      <div className="flex-1 min-w-0">
+        <h2 className="text-xl font-semibold mb-4">Instructors</h2>
+        <ComponentList
+          items={instructors}
+          onEdit={handleEdit}
+          onDelete={handleRemove}
+          emptyMessage="No instructors created yet."
+        />
+      </div>
+      {/* Form (right) */}
+      <div className="w-full md:w-96">
+        <ComponentForm
+          type="instructor"
+          editingItem={editingInstructor}
+          onSubmit={editingInstructor ? handleSave : handleAdd}
+          onCancel={editingInstructor ? handleCancel : undefined}
+        />
+      </div>
     </div>
   );
 };

@@ -32,20 +32,26 @@ const ClassGroupManagement: React.FC = () => {
   const handleCancel = () => setEditingGroup(null);
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
-      <ComponentList
-        items={classGroups}
-        onEdit={handleEdit}
-        onDelete={handleRemove}
-        emptyMessage="No class groups created yet."
-      />
-      <ComponentForm
-        type="classGroup"
-        editingItem={editingGroup}
-        onSubmit={editingGroup ? handleSave : handleAdd}
-        onCancel={editingGroup ? handleCancel : undefined}
-      />
+    <div className="flex flex-col md:flex-row gap-8 mt-8">
+      {/* List (left) */}
+      <div className="flex-1 min-w-0">
+        <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
+        <ComponentList
+          items={classGroups}
+          onEdit={handleEdit}
+          onDelete={handleRemove}
+          emptyMessage="No class groups created yet."
+        />
+      </div>
+      {/* Form (right) */}
+      <div className="w-full md:w-96">
+        <ComponentForm
+          type="classGroup"
+          editingItem={editingGroup}
+          onSubmit={editingGroup ? handleSave : handleAdd}
+          onCancel={editingGroup ? handleCancel : undefined}
+        />
+      </div>
     </div>
   );
 };
