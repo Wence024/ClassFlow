@@ -9,7 +9,7 @@ import {
 } from './features/scheduleLessons/contexts/';
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
-import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
+import ComponentManagement from './features/scheduleLessons/pages/classSessionComponents';
 import { authRoutes } from './features/auth/routes/AuthRoutes';
 import { AuthProvider } from './features/auth/contexts/AuthProvider';
 import { useAuth } from './features/auth/hooks/useAuth';
