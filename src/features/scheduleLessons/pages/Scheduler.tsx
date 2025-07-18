@@ -1,5 +1,4 @@
 import React, { useMemo, useEffect } from 'react';
-// import './Scheduler.css'; // Remove old CSS
 import { useClassSessions } from '../hooks/useClassSessions';
 import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
 import { useTimetable } from '../hooks/useTimetable';
@@ -38,12 +37,6 @@ const SchedulerApp: React.FC = () => {
 
   return (
     <>
-    <button
-  onClick={() => showNotification('Test notification!')}
-  className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded shadow"
->
-  Test Notification
-</button>
       <Notification />
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
         <Drawer
