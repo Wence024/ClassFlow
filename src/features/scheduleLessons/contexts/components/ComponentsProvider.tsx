@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Course, ClassGroup, Classroom, Instructor } from '../types/scheduleLessons';
-import * as coursesService from '../services/coursesService';
-import * as classGroupsService from '../services/classGroupsService';
-import * as classroomsService from '../services/classroomsService';
-import * as instructorsService from '../services/instructorsService';
-import type { ComponentsContextType } from '../types/ComponentsContextType';
+import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
+import * as coursesService from '../../services/coursesService';
+import * as classGroupsService from '../../services/classGroupsService';
+import * as classroomsService from '../../services/classroomsService';
+import * as instructorsService from '../../services/instructorsService';
 
 interface ManagementContextType {
   courses: Course[];

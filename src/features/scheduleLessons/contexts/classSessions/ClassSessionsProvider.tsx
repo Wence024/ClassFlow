@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { ClassSession } from '../types/scheduleLessons';
-import * as classSessionsService from '../services/classSessionsService';
+import type { ClassSession } from '../../types/scheduleLessons';
+import * as classSessionsService from '../../services/classSessionsService';
 
 interface ClassSessionsContextType {
   classSessions: ClassSession[];
@@ -53,9 +53,3 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
     </ClassSessionsContext.Provider>
   );
 };
-
-export function useClassSessions() {
-  const ctx = useContext(ClassSessionsContext);
-  if (!ctx) throw new Error('useClassSessions must be used within a ClassSessionsProvider');
-  return ctx;
-}

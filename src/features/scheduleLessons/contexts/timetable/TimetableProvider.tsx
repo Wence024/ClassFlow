@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { ClassSession } from '../types/scheduleLessons';
-import * as timetableService from '../services/timetableService';
+import type { ClassSession } from '../../types/scheduleLessons';
+import * as timetableService from '../../services/timetableService';
 
 const groups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
 
@@ -52,4 +52,4 @@ export function useTimetable() {
   const ctx = useContext(TimetableContext);
   if (!ctx) throw new Error('useTimetable must be used within a TimetableProvider');
   return ctx;
-}
+} 
