@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { ClassGroup } from '../../types/scheduleLessons';
-import * as classGroupsService from '../../services/classGroupsService';
+import type { ClassGroup } from '../../../types/scheduleLessons';
+import * as classGroupsService from '../../../services/classGroupsService';
+import { ClassGroupsContext } from './ClassGroupsContext';
 
 // Context for managing class groups state and CRUD operations.
 // TODO: Support multi-user (sync with backend, not just localStorage).
@@ -12,8 +13,6 @@ export interface ClassGroupsContextType {
   updateClassGroup: (id: string, data: Omit<ClassGroup, 'id'>) => void;
   removeClassGroup: (id: string) => void;
 }
-
-export const ClassGroupsContext = createContext<ClassGroupsContextType | undefined>(undefined);
 
 export const ClassGroupsProvider = ({ children }: { children: ReactNode }) => {
   const [classGroups, setClassGroups] = useState<ClassGroup[]>(() =>

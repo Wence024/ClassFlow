@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { Classroom } from '../../types/scheduleLessons';
-import * as classroomsService from '../../services/classroomsService';
+import type { Classroom } from '../../../types/scheduleLessons';
+import * as classroomsService from '../../../services/classroomsService';
+import { ClassroomsContext } from './ClassroomsContext';
 
 // Context for managing classrooms state and CRUD operations.
 // TODO: Support multi-user (sync with backend, not just localStorage).
@@ -12,8 +13,6 @@ export interface ClassroomsContextType {
   updateClassroom: (id: string, data: Omit<Classroom, 'id'>) => void;
   removeClassroom: (id: string) => void;
 }
-
-export const ClassroomsContext = createContext<ClassroomsContextType | undefined>(undefined);
 
 export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
   const [classrooms, setClassrooms] = useState<Classroom[]>(() =>

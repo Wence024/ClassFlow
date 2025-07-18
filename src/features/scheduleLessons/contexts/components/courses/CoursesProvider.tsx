@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { Course } from '../../types/scheduleLessons';
-import * as coursesService from '../../services/coursesService';
+import type { Course } from '../../../types/scheduleLessons';
+import * as coursesService from '../../../services/coursesService';
+import { CoursesContext } from './CoursesContext';
 
 // Context for managing courses state and CRUD operations.
 // TODO: Support multi-user (sync with backend, not just localStorage).
@@ -13,7 +14,7 @@ export interface CoursesContextType {
   removeCourse: (id: string) => void;
 }
 
-export const CoursesContext = createContext<CoursesContextType | undefined>(undefined);
+
 
 export const CoursesProvider = ({ children }: { children: ReactNode }) => {
   const [courses, setCourses] = useState<Course[]>(() => coursesService.getCourses());
