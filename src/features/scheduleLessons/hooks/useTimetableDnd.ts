@@ -1,71 +1,70 @@
-import { useState } from 'react';
-import type { DragSource } from '../components/timetabling/Drawer';
+import { useCallback } from 'react';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from './useClassSessions';
+import type { DragSource } from '../components/timetabling/Drawer';
 
-// Placeholder for notification callback (to be set by the UI layer)
-let notifyConflict: (msg: string) => void = () => {};
-export const setNotifyConflict = (fn: (msg: string) => void) => {
-  notifyConflict = fn;
+const DRAG_DATA_KEY = 'application/json';
+
+let notifyConflictCallback: (message: string) => void = () => {};
+
+export const setNotifyConflict = (fn: (message: string) => void) => {
+  notifyConflictCallback = fn;
 };
 
-/**
- * A custom hook to encapsulate all drag-and-drop logic for the scheduler.
- * It manages the drag source state and provides memoized event handlers
- * for drag start, drop on grid, and drop on drawer.
- *
- * This cleans up the Scheduler page component, making it a pure orchestrator
- * of UI components.
- */
 export const useTimetableDnd = () => {
-  const { classSessions } = useClassSessions();
   const { assignSession, removeSession, moveSession } = useTimetable();
-  const [dragSource, setDragSource] = useState<DragSource | null>(null);
+  const { classSessions } = useClassSessions();
 
-  const handleDragStart = (e: React.DragEvent, source: DragSource) => {
-    setDragSource(source);
-    // Use a generic data type; the important data is in the `dragSource` state
-    e.dataTransfer.setData('text/plain', source.sessionId);
-  };
+  const handleDragStart = useCallback((e: React.DragEvent, source: DragSource) => {
+    e.dataTransfer.setData(DRAG_DATA_KEY, JSON.stringify(source));
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
 
-  const handleDropToGrid = (e: React.DragEvent, groupIndex: number, periodIndex: number) => {
-    e.preventDefault();
-    if (!dragSource) return;
+  const handleDropToGrid = useCallback(
+    (e: React.DragEvent, groupId: string, periodIndex: number) => {
+      e.preventDefault();
+      const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
-    let conflictMsg = '';
-    // Case 1: Moving an item within the timetable grid
-    if (dragSource.from === 'timetable') {
-      conflictMsg = moveSession(
-        { groupIndex: dragSource.groupIndex!, periodIndex: dragSource.periodIndex! },
-        { groupIndex, periodIndex }
-      );
-      if (conflictMsg) {
-        console.log(conflictMsg);
-        notifyConflict(conflictMsg);
-      }
-    }
-    // Case 2: Dragging a new item from the drawer
-    else if (dragSource.from === 'drawer') {
-      const sessionToAssign = classSessions.find((cs) => cs.id === dragSource.sessionId);
-      if (sessionToAssign) {
-        conflictMsg = assignSession(groupIndex, periodIndex, sessionToAssign);
-        if (conflictMsg) {
-          console.log(conflictMsg);
-          notifyConflict(conflictMsg);
+      if (source.from === 'drawer') {
+        const sessionToAssign = classSessions.find((cs) => cs.id === source.sessionId);
+        if (sessionToAssign) {
+          const error = assignSession(groupId, periodIndex, sessionToAssign);
+          if (error) {
+            notifyConflictCallback(error);
+          }
+        }
+      } else if (source.from === 'timetable') {
+        if (source.groupId && source.periodIndex !== undefined) {
+          const error = moveSession(
+            { groupId: source.groupId, periodIndex: source.periodIndex },
+            { groupId, periodIndex }
+          );
+          if (error) {
+            notifyConflictCallback(error);
+          }
         }
       }
-    }
-    setDragSource(null); // Clean up after drop
-  };
+    },
+    [classSessions, assignSession, moveSession]
+  );
 
-  const handleDropToDrawer = (e: React.DragEvent) => {
-    e.preventDefault();
-    // Only handle drops from the timetable grid back to the drawer
-    if (dragSource?.from === 'timetable') {
-      removeSession(dragSource.groupIndex!, dragSource.periodIndex!);
-    }
-    setDragSource(null); // Clean up after drop
-  };
+  const handleDropToDrawer = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
-  return { handleDragStart, handleDropToGrid, handleDropToDrawer };
+      // Only handle drops from the timetable back to the drawer
+      if (source.from === 'timetable' && source.groupId && source.periodIndex !== undefined) {
+        removeSession(source.groupId, source.periodIndex);
+      }
+    },
+    [removeSession]
+  );
+
+  return {
+    handleDragStart,
+    handleDropToGrid,
+    handleDropToDrawer,
+  };
 };
+

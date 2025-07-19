@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect } from 'react';
+// import './Scheduler.css'; // Remove old CSS
 import { useClassSessions } from '../hooks/useClassSessions';
 import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
 import { useTimetable } from '../hooks/useTimetable';
@@ -16,12 +17,15 @@ const SchedulerApp: React.FC = () => {
 
   // Memoize derived data to prevent recalculating on every render
   const unassignedSessions = useMemo(() => {
-    const assignedIds = new Set(
-      timetable
-        .flat()
-        .filter((session: ClassSession | null): session is ClassSession => Boolean(session))
-        .map((cs: ClassSession) => cs.id)
-    );
+    const assignedIds = new Set<string>();
+    // Iterate over the map values to get all assigned sessions
+    for (const sessions of timetable.values()) {
+      for (const session of sessions) {
+        if (session) {
+          assignedIds.add(session.id);
+        }
+      }
+    }
     return classSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
   }, [timetable, classSessions]);
 

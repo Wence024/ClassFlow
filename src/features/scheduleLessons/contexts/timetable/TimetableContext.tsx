@@ -1,14 +1,14 @@
 import { createContext } from 'react';
-import type { ClassSession } from '../../types/scheduleLessons';
+import type { ClassSession, ClassGroup } from '../../types/scheduleLessons';
 
 export interface TimetableContextType {
-  groups: string[];
-  timetable: (ClassSession | null)[][];
-  assignSession: (groupIndex: number, periodIndex: number, session: ClassSession) => string;
-  removeSession: (groupIndex: number, periodIndex: number) => void;
+  groups: ClassGroup[];
+  timetable: Map<string, (ClassSession | null)[]>;
+  assignSession: (groupId: string, periodIndex: number, session: ClassSession) => string;
+  removeSession: (groupId: string, periodIndex: number) => void;
   moveSession: (
-    from: { groupIndex: number; periodIndex: number },
-    to: { groupIndex: number; periodIndex: number }
+    from: { groupId: string; periodIndex: number },
+    to: { groupId: string; periodIndex: number }
   ) => string;
 }
 

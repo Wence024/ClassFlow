@@ -1,12 +1,12 @@
 import React from 'react';
-import type { ClassSession } from '../../types/scheduleLessons';
+import type { ClassSession, ClassGroup } from '../../types/scheduleLessons';
 import type { DragSource } from './Drawer';
 
 interface TimetableProps {
-  groups: string[];
-  timetable: (ClassSession | null)[][];
+  groups: ClassGroup[];
+  timetable: Map<string, (ClassSession | null)[]>;
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
-  onDropToGrid: (e: React.DragEvent, groupIndex: number, periodIndex: number) => void;
+  onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
 }
 
 /**
@@ -19,73 +19,60 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
 
   return (
     <div className="w-full md:w-3/4 bg-white p-6 rounded-lg shadow overflow-x-auto">
-      {!groups || groups.length === 0 ? (
-        <p>Loading Timetable...</p>
-      ) : (
-        <>
-          <h3 className="text-xl font-semibold mb-4 text-center">Timetable</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="p-2 border text-gray-700 bg-gray-100">Group</th>
-                  <th colSpan={8} className="p-2 border text-gray-700 bg-gray-100">
-                    Day 1
-                  </th>
-                  <th colSpan={8} className="p-2 border text-gray-700 bg-gray-100">
-                    Day 2
-                  </th>
-                </tr>
-                <tr>
-                  <th className="p-2 border text-gray-700 bg-gray-100"></th>
-                  {Array.from({ length: 16 }, (_, i) => (
-                    <th key={i} className="p-2 border text-gray-700 bg-gray-100">
-                      P{i + 1}
-                    </th>
+      <h3 className="text-xl font-semibold mb-4 text-center">Timetable</h3>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="p-2 border">Group</th>
+              {Array.from({ length: 16 }, (_, i) => (
+                <th key={i} className="p-2 border">
+                  Period {i + 1}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {groups.map((group) => {
+              const sessions = timetable.get(group.id) || [];
+              return (
+                <tr key={group.id}>
+                  <td className="p-2 border text-gray-900 font-semibold bg-gray-50">{group.name}</td>
+                  {sessions.map((item, periodIndex) => (
+                    <td
+                      key={periodIndex}
+                      className={`p-2 border text-center min-w-[80px] ${item ? 'bg-green-400 text-white font-bold' : 'bg-gray-50 text-gray-900'}`}
+                      onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
+                      onDragOver={handleDragOver}
+                    >
+                      {item ? (
+                        <div
+                          draggable
+                          onDragStart={(e) =>
+                            onDragStart(e, {
+                              from: 'timetable',
+                              sessionId: item.id,
+                                groupId: group.id,
+                              periodIndex,
+                            })
+                          }
+                          className="cursor-grab"
+                        >
+                          <p>{item.course.name}</p>
+                          <p className="text-xs">{item.instructor.name}</p>
+                          <p className="text-xs">{item.classroom.name}</p>
+                        </div>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
                   ))}
                 </tr>
-              </thead>
-              <tbody>
-                {groups.map((group, groupIndex) => (
-                  <tr key={groupIndex}>
-                    <td className="p-2 border text-gray-900 font-semibold bg-gray-50">{group}</td>
-                    {timetable[groupIndex].map((item, periodIndex) => (
-                      <td
-                        key={periodIndex}
-                        className={`p-2 border text-center min-w-[80px] ${item ? 'bg-green-400 text-white font-bold' : 'bg-gray-50 text-gray-900'}`}
-                        onDrop={(e) => onDropToGrid(e, groupIndex, periodIndex)}
-                        onDragOver={handleDragOver}
-                        draggable={!!item}
-                        onDragStart={
-                          item
-                            ? (e) =>
-                                onDragStart(e, {
-                                  from: 'timetable',
-                                  sessionId: item.id,
-                                  groupIndex,
-                                  periodIndex,
-                                })
-                            : undefined
-                        }
-                      >
-                        {item ? (
-                          <>
-                            <p>{item.course.name}</p>
-                            <p className="text-xs">{item.instructor.name}</p>
-                            <p className="text-xs">{item.classroom.name}</p>
-                          </>
-                        ) : (
-                          '—'
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

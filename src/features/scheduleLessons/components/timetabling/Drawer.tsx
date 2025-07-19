@@ -4,7 +4,7 @@ import type { ClassSession } from '../../types/scheduleLessons';
 export type DragSource = {
   from: 'drawer' | 'timetable';
   sessionId: string;
-  groupIndex?: number;
+  groupId?: string;
   periodIndex?: number;
 };
 

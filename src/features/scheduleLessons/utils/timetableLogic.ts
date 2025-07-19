@@ -1,104 +1,113 @@
 import type { ClassSession } from '../types/scheduleLessons';
 
-export type TimetableGrid = (ClassSession | null)[][];
+export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
 /**
- * Checks for conflicts for a given session at a specific time period.
- * Returns a detailed message if a conflict is found, otherwise an empty string.
+ * Checks for conflicts for a given session at a specific time period across all groups.
+ * It ignores the cell from which the session is being moved (if provided).
  */
-export const checkConflicts = (
+const checkConflicts = (
   timetable: TimetableGrid,
   sessionToCheck: ClassSession,
-  targetPeriodIndex: number
+  targetGroupId: string,
+  targetPeriodIndex: number,
+  source?: { groupId: string; periodIndex: number }
 ): string => {
-  for (const group of timetable) {
-    const existingSession = group[targetPeriodIndex];
+  // 1. Check the target cell itself for a group conflict
+  const targetGroupSessions = timetable.get(targetGroupId);
+  if (targetGroupSessions?.[targetPeriodIndex]) {
+    return `Group conflict: A session is already scheduled in this slot for ${sessionToCheck.group.name}.`;
+  }
+
+  // 2. Check for instructor and classroom conflicts across all groups at the target time
+  for (const [groupId, sessions] of timetable.entries()) {
+    const existingSession = sessions[targetPeriodIndex];
+
     if (existingSession) {
-      if (existingSession.instructor.id === sessionToCheck.instructor.id) {
-        return `Instructor conflict: ${existingSession.instructor.name} is already scheduled at this time.`;
+      // If we are moving a session, we must ignore a conflict with itself at its original position.
+      if (source && source.groupId === groupId && source.periodIndex === targetPeriodIndex) {
+        continue;
       }
-      if (existingSession.group.id === sessionToCheck.group.id) {
-        return `Group conflict: ${existingSession.group.name} is already scheduled at this time.`;
+
+      if (existingSession.instructor.id === sessionToCheck.instructor.id) {
+        return `Instructor conflict: ${existingSession.instructor.name} is already scheduled in this period for group ${existingSession.group.name}.`;
       }
       if (existingSession.classroom.id === sessionToCheck.classroom.id) {
-        return `Classroom conflict: ${existingSession.classroom.name} is already in use at this time.`;
+        return `Classroom conflict: ${existingSession.classroom.name} is already in use during this period by group ${existingSession.group.name}.`;
       }
     }
   }
-  return '';
+
+  return ''; // No conflicts
 };
 
 /**
- * Creates a new timetable with the session assigned to the specified cell.
- * Returns an object with the updated timetable or an error message.
+ * Creates a new timetable Map with the session assigned.
  */
 export const assignSessionToTimetable = (
   timetable: TimetableGrid,
-  groupIndex: number,
+  groupId: string,
   periodIndex: number,
   session: ClassSession
 ): { updatedTimetable: TimetableGrid; error?: string } => {
-  if (timetable[groupIndex][periodIndex]) {
-    return { updatedTimetable: timetable, error: 'This slot is already occupied.' };
-  }
-
-  const conflict = checkConflicts(timetable, session, periodIndex);
+  const conflict = checkConflicts(timetable, session, groupId, periodIndex);
   if (conflict) {
     return { updatedTimetable: timetable, error: conflict };
   }
 
-  const updatedTimetable = timetable.map((row) => [...row]);
-  updatedTimetable[groupIndex][periodIndex] = session;
-  return { updatedTimetable };
+  const newTimetable = new Map(timetable);
+  const groupSessions = [...(newTimetable.get(groupId) || [])];
+  groupSessions[periodIndex] = session;
+  newTimetable.set(groupId, groupSessions);
+
+  return { updatedTimetable: newTimetable };
 };
 
 /**
- * Creates a new timetable with the session removed from the specified cell.
+ * Creates a new timetable Map with the session removed.
  */
 export const removeSessionFromTimetable = (
   timetable: TimetableGrid,
-  groupIndex: number,
+  groupId: string,
   periodIndex: number
 ): TimetableGrid => {
-  const updatedTimetable = timetable.map((row) => [...row]);
-  updatedTimetable[groupIndex][periodIndex] = null;
-  return updatedTimetable;
+  const newTimetable = new Map(timetable);
+  const groupSessions = [...(newTimetable.get(groupId) || [])];
+  groupSessions[periodIndex] = null;
+  newTimetable.set(groupId, groupSessions);
+  return newTimetable;
 };
 
 /**
- * Creates a new timetable with the session moved from one cell to another.
- * Returns an object with the updated timetable or an error message.
+ * Moves a session from one cell to another, checking for conflicts.
  */
 export const moveSessionInTimetable = (
   timetable: TimetableGrid,
-  from: { groupIndex: number; periodIndex: number },
-  to: { groupIndex: number; periodIndex: number }
+  from: { groupId: string; periodIndex: number },
+  to: { groupId: string; periodIndex: number }
 ): { updatedTimetable: TimetableGrid; error?: string } => {
-  const sessionToMove = timetable[from.groupIndex][from.periodIndex];
+  const sessionToMove = timetable.get(from.groupId)?.[from.periodIndex];
+
   if (!sessionToMove) {
     return { updatedTimetable: timetable, error: 'No session to move.' };
   }
 
-  if (timetable[to.groupIndex][to.periodIndex]) {
-    return { updatedTimetable: timetable, error: 'This slot is already occupied.' };
-  }
+  // Temporarily remove the session to avoid self-conflict checks
+  const tempTimetable = removeSessionFromTimetable(timetable, from.groupId, from.periodIndex);
 
-  // Create a temporary grid with the session removed from its original spot
-  // to check for conflicts at the new spot.
-  const tempTimetable = removeSessionFromTimetable(timetable, from.groupIndex, from.periodIndex);
-
-  const conflict = checkConflicts(tempTimetable, sessionToMove, to.periodIndex);
+  const conflict = checkConflicts(tempTimetable, sessionToMove, to.groupId, to.periodIndex);
   if (conflict) {
     return { updatedTimetable: timetable, error: conflict };
   }
 
-  // If no conflicts, perform the move on the temporary grid
-  const { updatedTimetable } = assignSessionToTimetable(
+  // If no conflicts, perform the assignment on the temporary timetable
+  const { updatedTimetable: finalTimetable } = assignSessionToTimetable(
     tempTimetable,
-    to.groupIndex,
+    to.groupId,
     to.periodIndex,
     sessionToMove
   );
 
-  return { updatedTimetable };
+  return { updatedTimetable: finalTimetable };
 };
+

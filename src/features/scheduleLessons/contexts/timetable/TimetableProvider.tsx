@@ -9,46 +9,49 @@ const NUMBER_OF_PERIODS = 16;
 
 export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { classGroups } = useClassGroups();
-  const [timetable, setTimetable] = useState<timetableLogic.TimetableGrid>(() =>
-    timetableService.getTimetable()
+  // Use a Map for the timetable state: Map<groupId, sessions[]>
+  const [timetable, setTimetable] = useState<Map<string, (ClassSession | null)[]>>(() =>
+    new Map(timetableService.getTimetable())
   );
 
   // Synchronize timetable rows with classGroups from ComponentsContext
   useEffect(() => {
-    setTimetable((currentTimetable) => {
-      const currentRows = currentTimetable.length;
-      const targetRows = classGroups.length;
+    setTimetable((currentMap) => {
+      const newMap = new Map<string, (ClassSession | null)[]>();
+      let hasChanged = false;
 
-      if (currentRows === targetRows) {
-        return currentTimetable; // No change needed
+      // Copy existing, valid groups to the new map
+      for (const group of classGroups) {
+        if (currentMap.has(group.id)) {
+          newMap.set(group.id, currentMap.get(group.id)!);
+        } else {
+          newMap.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
+          hasChanged = true;
+        }
       }
 
-      const periods = currentTimetable[0]?.length || NUMBER_OF_PERIODS;
-
-      if (targetRows > currentRows) {
-        // Add new rows if groups were added
-        const newRows = Array(targetRows - currentRows)
-          .fill(null)
-          .map(() => Array(periods).fill(null));
-        return [...currentTimetable, ...newRows];
-      } else {
-        // Remove rows from the end if groups were removed
-        return currentTimetable.slice(0, targetRows);
+      // Check if any groups were removed by comparing sizes.
+      // This is the most common and cheapest check.
+      if (currentMap.size !== newMap.size) {
+        hasChanged = true;
       }
+
+      return hasChanged ? newMap : currentMap;
     });
-  }, [classGroups.length]);
+  }, [classGroups]);
 
   // Persist timetable to localStorage on every change
   useEffect(() => {
-    timetableService.setTimetable(timetable);
+    // Convert Map to array for JSON serialization
+    timetableService.setTimetable(Array.from(timetable.entries()));
   }, [timetable]);
 
   const assignSession = (
-    groupIndex: number,
+    groupId: string,
     periodIndex: number,
     session: ClassSession
   ): string => {
-    const result = timetableLogic.assignSessionToTimetable(timetable, groupIndex, periodIndex, session);
+    const result = timetableLogic.assignSessionToTimetable(timetable, groupId, periodIndex, session);
 
     if (result.error) {
       return result.error;
@@ -58,14 +61,14 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return '';
   };
 
-  const removeSession = (groupIndex: number, periodIndex: number) => {
-    const updatedTimetable = timetableLogic.removeSessionFromTimetable(timetable, groupIndex, periodIndex);
+  const removeSession = (groupId: string, periodIndex: number) => {
+    const updatedTimetable = timetableLogic.removeSessionFromTimetable(timetable, groupId, periodIndex);
     setTimetable(updatedTimetable);
   };
 
   const moveSession = (
-    from: { groupIndex: number; periodIndex: number },
-    to: { groupIndex: number; periodIndex: number }
+    from: { groupId: string; periodIndex: number },
+    to: { groupId: string; periodIndex: number }
   ): string => {
     const result = timetableLogic.moveSessionInTimetable(timetable, from, to);
 
@@ -80,7 +83,7 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <TimetableContext.Provider
       value={{
-        groups: classGroups ? classGroups.map((g) => g.name) : [], // Ensure groups is always an array
+        groups: classGroups, // Pass the full group objects
         timetable,
         assignSession,
         removeSession,
@@ -91,5 +94,3 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     </TimetableContext.Provider>
   );
 };
-
-// TODO: Refrain from modifying classGroup data or else the codebase won't run because of Timetable reading "undefined".

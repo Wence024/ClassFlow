@@ -1,27 +1,27 @@
-/**
- * Service for managing the timetable in localStorage.
- */
 import type { ClassSession } from '../types/scheduleLessons';
 
 const TIMETABLE_KEY = 'timetable';
-const GROUPS = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
-const defaultTimetable: (ClassSession | null)[][] = Array.from({ length: GROUPS.length }, () =>
-  Array(16).fill(null)
-);
+
+// The data is stored as an array of [groupId, sessions[]] tuples for JSON compatibility.
+type StoredTimetable = [string, (ClassSession | null)[]][];
 
 /**
- * Get the timetable from localStorage, or return the default timetable.
- * @returns 2D array of ClassSession or null
+ * Retrieves the timetable data from localStorage.
  */
-export function getTimetable(): (ClassSession | null)[][] {
-  const stored = localStorage.getItem(TIMETABLE_KEY);
-  return stored ? JSON.parse(stored) : defaultTimetable;
-}
+export const getTimetable = (): StoredTimetable => {
+  try {
+    const data = localStorage.getItem(TIMETABLE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error reading timetable from localStorage', error);
+    return [];
+  }
+};
 
 /**
- * Save the timetable to localStorage.
- * @param timetable - 2D array of ClassSession or null
+ * Saves the timetable data to localStorage.
  */
-export function setTimetable(timetable: (ClassSession | null)[][]): void {
+export const setTimetable = (timetable: StoredTimetable): void => {
   localStorage.setItem(TIMETABLE_KEY, JSON.stringify(timetable));
-}
+};
+
