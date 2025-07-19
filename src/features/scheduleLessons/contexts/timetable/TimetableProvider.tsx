@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { ClassSession } from '../../types/scheduleLessons';
 import * as timetableService from '../../services/timetableService';
 import { TimetableContext } from './TimetableContext';
@@ -9,13 +9,24 @@ const NUMBER_OF_PERIODS = 16;
 
 export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { classGroups } = useClassGroups();
-  // Use a Map for the timetable state: Map<groupId, sessions[]>
-  const [timetable, setTimetable] = useState<Map<string, (ClassSession | null)[]>>(() =>
-    new Map(timetableService.getTimetable())
-  );
+  const [timetable, setTimetable] = useState<Map<string, (ClassSession | null)[]>>(new Map());
+  const isInitialized = useRef(false);
+
+  // Effect for initial load and migration from localStorage
+  useEffect(() => {
+    // Only run once classGroups are available and we haven't initialized.
+    if (classGroups.length > 0 && !isInitialized.current) {
+      const initialData = timetableService.getTimetable(classGroups);
+      setTimetable(new Map(initialData));
+      isInitialized.current = true;
+    }
+  }, [classGroups]);
 
   // Synchronize timetable rows with classGroups from ComponentsContext
   useEffect(() => {
+    // Do not run this synchronization logic until after the initial load.
+    if (!isInitialized.current) return;
+
     setTimetable((currentMap) => {
       const newMap = new Map<string, (ClassSession | null)[]>();
       let hasChanged = false;
@@ -42,6 +53,9 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Persist timetable to localStorage on every change
   useEffect(() => {
+    // Do not run this persistence logic until after the initial load.
+    if (!isInitialized.current) return;
+
     // Convert Map to array for JSON serialization
     timetableService.setTimetable(Array.from(timetable.entries()));
   }, [timetable]);
@@ -94,3 +108,5 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     </TimetableContext.Provider>
   );
 };
+
+// TODO: Refrain from modifying classGroup data or else the codebase won't run because of Timetable reading "undefined".
