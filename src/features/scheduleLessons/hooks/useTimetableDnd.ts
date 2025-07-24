@@ -34,14 +34,12 @@ export const useTimetableDnd = () => {
           }
         }
       } else if (source.from === 'timetable') {
-        if (source.groupId && source.periodIndex !== undefined) {
-          const error = moveSession(
-            { groupId: source.groupId, periodIndex: source.periodIndex },
-            { groupId, periodIndex }
-          );
-          if (error) {
-            notifyConflictCallback(error);
-          }
+        const error = moveSession(
+          { groupId: source.groupId, periodIndex: source.periodIndex },
+          { groupId, periodIndex }
+        );
+        if (error) {
+          notifyConflictCallback(error);
         }
       }
     },
@@ -53,8 +51,7 @@ export const useTimetableDnd = () => {
       e.preventDefault();
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
-      // Only handle drops from the timetable back to the drawer
-      if (source.from === 'timetable' && source.groupId && source.periodIndex !== undefined) {
+      if (source.from === 'timetable') {
         removeSession(source.groupId, source.periodIndex);
       }
     },

@@ -1,12 +1,17 @@
 import React from 'react';
 import type { ClassSession } from '../../types/scheduleLessons';
 
-export type DragSource = {
-  from: 'drawer' | 'timetable';
-  sessionId: string;
-  groupId?: string;
-  periodIndex?: number;
-};
+export type DragSource =
+  | {
+      from: 'drawer';
+      sessionId: string;
+    }
+  | {
+      from: 'timetable';
+      sessionId: string;
+      groupId: string;
+      periodIndex: number;
+    };
 
 type DrawerSession = Pick<ClassSession, 'id'> & { displayName: string };
 
