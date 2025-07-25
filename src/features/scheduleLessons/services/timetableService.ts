@@ -63,4 +63,3 @@ export const setTimetable = (timetable: StoredTimetable): void => {
   localStorage.setItem(TIMETABLE_KEY, JSON.stringify(timetable));
   localStorage.setItem(TIMETABLE_VERSION_KEY, String(CURRENT_DATA_VERSION));
 };
-

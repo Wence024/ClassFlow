@@ -53,4 +53,4 @@ const Drawer: React.FC<DrawerProps> = ({ drawerSessions, onDragStart, onDropToDr
   );
 };
 
-export default Drawer; 
+export default Drawer;

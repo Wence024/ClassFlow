@@ -37,7 +37,9 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
               const sessions = timetable.get(group.id) || [];
               return (
                 <tr key={group.id}>
-                  <td className="p-2 border text-gray-900 font-semibold bg-gray-50">{group.name}</td>
+                  <td className="p-2 border text-gray-900 font-semibold bg-gray-50">
+                    {group.name}
+                  </td>
                   {sessions.map((item, periodIndex) => (
                     <td
                       key={periodIndex}
@@ -52,7 +54,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                             onDragStart(e, {
                               from: 'timetable',
                               sessionId: item.id,
-                                groupId: group.id,
+                              groupId: group.id,
                               periodIndex,
                             })
                           }

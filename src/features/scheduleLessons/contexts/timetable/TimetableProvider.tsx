@@ -60,12 +60,13 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     timetableService.setTimetable(Array.from(timetable.entries()));
   }, [timetable]);
 
-  const assignSession = (
-    groupId: string,
-    periodIndex: number,
-    session: ClassSession
-  ): string => {
-    const result = timetableLogic.assignSessionToTimetable(timetable, groupId, periodIndex, session);
+  const assignSession = (groupId: string, periodIndex: number, session: ClassSession): string => {
+    const result = timetableLogic.assignSessionToTimetable(
+      timetable,
+      groupId,
+      periodIndex,
+      session
+    );
 
     if (result.error) {
       return result.error;
@@ -76,7 +77,11 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const removeSession = (groupId: string, periodIndex: number) => {
-    const updatedTimetable = timetableLogic.removeSessionFromTimetable(timetable, groupId, periodIndex);
+    const updatedTimetable = timetableLogic.removeSessionFromTimetable(
+      timetable,
+      groupId,
+      periodIndex
+    );
     setTimetable(updatedTimetable);
   };
 
