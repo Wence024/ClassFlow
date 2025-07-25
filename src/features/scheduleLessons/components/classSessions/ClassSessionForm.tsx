@@ -83,10 +83,23 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
     if (!validateForm()) return;
 
-    const course = courses.find((c) => c.id === formData.courseId)!;
-    const group = classGroups.find((g) => g.id === formData.groupId)!;
-    const instructor = instructors.find((i) => i.id === formData.instructorId)!;
-    const classroom = classrooms.find((c) => c.id === formData.classroomId)!;
+    // Use consistent variable names and remove the risky '!' non-null assertion
+    const course = courses.find((item) => item.id === formData.courseId);
+    const group = classGroups.find((item) => item.id === formData.groupId);
+    const instructor = instructors.find((item) => item.id === formData.instructorId);
+    const classroom = classrooms.find((item) => item.id === formData.classroomId);
+
+    // Defensive check to ensure all entities were found before submitting
+    if (!course || !group || !instructor || !classroom) {
+      console.error('Failed to find one or more entities for the class session.', {
+        formData,
+        course,
+        group,
+        instructor,
+        classroom,
+      });
+      return; // Stop execution to prevent crash
+    }
 
     onSubmit({
       course,

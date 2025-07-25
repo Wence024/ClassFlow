@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import FormField from '../ui/FormField';
 import ActionButton from '../ui/ActionButton';
+import { showNotification } from '../ui/Notification';
 import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
 
 type BaseFormProps = {
@@ -140,22 +141,46 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      showNotification('Please fix the errors in the form before submitting.');
+      return;
+    }
 
     switch (type) {
-      case 'course':
-        onSubmit({ name: formData.name, code: formData.code! });
+      case 'course': {
+        if (!formData.name || !formData.code) {
+          showNotification('Course name and code are required.');
+          return;
+        }
+        onSubmit({ name: formData.name, code: formData.code });
         break;
-      case 'classGroup':
+      }
+      case 'classGroup': {
+        if (!formData.name) {
+          showNotification('Class group name is required.');
+          return;
+        }
         onSubmit({ name: formData.name });
         break;
-      case 'classroom':
-        onSubmit({ name: formData.name, location: formData.location! });
+      }
+      case 'classroom': {
+        if (!formData.name || !formData.location) {
+          showNotification('Classroom name and location are required.');
+          return;
+        }
+        onSubmit({ name: formData.name, location: formData.location });
         break;
-      case 'instructor':
-        onSubmit({ name: formData.name, email: formData.email! });
+      }
+      case 'instructor': {
+        if (!formData.name || !formData.email) {
+          showNotification('Instructor name and email are required.');
+          return;
+        }
+        onSubmit({ name: formData.name, email: formData.email });
         break;
+      }
       default:
+        showNotification('Unknown form type.');
         return;
     }
   };
