@@ -7,6 +7,10 @@ import { useClassGroups } from '../../hooks/useComponents';
 
 const NUMBER_OF_PERIODS = 16;
 
+/**
+ * This provider synchronizes the timetable grid with the master list of class groups.
+ * If a class group is deleted, its corresponding row and all scheduled sessions within it are safely removed from the timetable.
+ */
 export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { classGroups } = useClassGroups();
   const [timetable, setTimetable] = useState<Map<string, (ClassSession | null)[]>>(new Map());
@@ -33,8 +37,9 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       // Copy existing, valid groups to the new map
       for (const group of classGroups) {
-        if (currentMap.has(group.id)) {
-          newMap.set(group.id, currentMap.get(group.id)!);
+        const existingRow = currentMap.get(group.id);
+        if (existingRow) {
+          newMap.set(group.id, existingRow);
         } else {
           newMap.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
           hasChanged = true;
@@ -113,5 +118,3 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     </TimetableContext.Provider>
   );
 };
-
-// TODO: Refrain from modifying classGroup data or else the codebase won't run because of Timetable reading "undefined".
