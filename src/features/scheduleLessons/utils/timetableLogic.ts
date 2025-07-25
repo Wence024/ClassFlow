@@ -15,7 +15,11 @@ const checkConflicts = (
 ): string => {
   // 1. Check the target cell itself for a group conflict
   const targetGroupSessions = timetable.get(targetGroupId);
-  if (targetGroupSessions?.[targetPeriodIndex]) {
+  if (
+    targetGroupSessions?.[targetPeriodIndex] &&
+    // If moving, ignore the source cell (the session itself)
+    (!source || targetGroupId !== source.groupId || targetPeriodIndex !== source.periodIndex)
+  ) {
     return `Group conflict: A session is already scheduled in this slot for ${sessionToCheck.group.name}.`;
   }
 
@@ -25,7 +29,7 @@ const checkConflicts = (
 
     if (existingSession) {
       // If we are moving a session, we must ignore a conflict with itself at its original position.
-      if (source && source.groupId === groupId && source.periodIndex === targetPeriodIndex) {
+      if (source && groupId === source.groupId && targetPeriodIndex === source.periodIndex) {
         continue;
       }
 
@@ -92,22 +96,22 @@ export const moveSessionInTimetable = (
     return { updatedTimetable: timetable, error: 'No session to move.' };
   }
 
-  // Temporarily remove the session to avoid self-conflict checks
-  const tempTimetable = removeSessionFromTimetable(timetable, from.groupId, from.periodIndex);
-
-  const conflict = checkConflicts(tempTimetable, sessionToMove, to.groupId, to.periodIndex);
+  // Check for conflicts, but ignore the source cell (the session itself)
+  const conflict = checkConflicts(timetable, sessionToMove, to.groupId, to.periodIndex, from);
   if (conflict) {
     return { updatedTimetable: timetable, error: conflict };
   }
 
-  // If no conflicts, perform the assignment on the temporary timetable
-  const { updatedTimetable: finalTimetable } = assignSessionToTimetable(
-    tempTimetable,
-    to.groupId,
-    to.periodIndex,
-    sessionToMove
-  );
+  // Perform the move in a single pass
+  const newTimetable = new Map(timetable);
+  // Remove from old cell
+  const fromSessions = [...(newTimetable.get(from.groupId) || [])];
+  fromSessions[from.periodIndex] = null;
+  newTimetable.set(from.groupId, fromSessions);
+  // Assign to new cell
+  const toSessions = [...(newTimetable.get(to.groupId) || [])];
+  toSessions[to.periodIndex] = sessionToMove;
+  newTimetable.set(to.groupId, toSessions);
 
-  return { updatedTimetable: finalTimetable };
+  return { updatedTimetable: newTimetable };
 };
-
