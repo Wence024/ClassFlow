@@ -16,6 +16,22 @@ A modern class scheduling and authentication web app built with **Vite**, **Reac
 
 ---
 
+## Developer Onboarding
+
+Welcome! This project follows a clear roadmap for maintainability and scaling. Please review these onboarding tips:
+
+- **Phases:** Code is structured for MVP, with clear separation for post-MVP and scaling features. See `Remember_when_Coding.md` for philosophy.
+- **Folder Structure:** Features are modular (see Project Structure below). Contexts, hooks, and services are separated for clarity.
+- **Type Safety:** TypeScript is enforced throughout. Avoid non-null assertions (`!`); use defensive checks.
+- **Error Handling:** All user-facing errors use the notification system (`showNotification`).
+- **Testing:** Core business logic is covered by unit tests (see `/src/features/scheduleLessons/utils/timetableLogic.test.ts`).
+- **Docs:** See `/docs/architecture.md` for system overview, `/docs/testing.md` for test strategy, and `/docs/user-guide.md` for user-facing help.
+- **.env:** Copy `.env.example` to `.env` and fill in Supabase credentials.
+
+For more, see the [Documentation](#documentation) section below.
+
+---
+
 ## Getting Started
 
 ### 1. Clone & Install
@@ -131,3 +147,12 @@ npm run preview
 ## License
 
 MIT
+
+---
+
+## Documentation
+
+- [System Architecture](docs/architecture.md)
+- [Testing & QA](docs/testing.md)
+- [User Guide / FAQ](docs/user-guide.md)
+- [Development Roadmap](Remember_when_Coding.md)
