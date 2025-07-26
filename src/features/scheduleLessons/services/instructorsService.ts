@@ -1,54 +1,78 @@
-import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../../../lib/supabase';
+import type {
+  Instructor,
+  InstructorInsert,
+  InstructorUpdate,
+} from '../types/instructor';
+
+const TABLE = 'instructors';
 
 /**
- * Service for managing instructors in localStorage.
- *
- * Responsibilities:
- * - Abstracts all localStorage access for instructors
- * - Provides CRUD operations (create, read, update, delete)
- * - Handles ID generation and data persistence
+ * Fetches all instructors for a specific user from the database.
+ * @param user_id The ID of the user whose instructors to retrieve.
+ * @returns A promise that resolves to an array of Instructor objects.
+ * @throws An error if the Supabase query fails.
  */
-import type { Instructor } from '../types/scheduleLessons';
+export async function getInstructors(user_id: string): Promise<Instructor[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('user_id', user_id)
+    .order('name');
+  if (error) throw error;
+  return data || [];
+}
 
-/** Get all instructors from localStorage. */
-export function getInstructors(): Instructor[] {
-  const stored = localStorage.getItem('instructors');
-  return stored ? JSON.parse(stored) : [];
-}
-/** Save all instructors to localStorage. */
-export function setInstructors(instructors: Instructor[]): void {
-  localStorage.setItem('instructors', JSON.stringify(instructors));
-}
 /**
- * Add a new instructor and save to localStorage.
- * @param data - Instructor data without id
- * @returns The new Instructor
+ * Adds a new instructor to the database.
+ * The input object must include the `user_id` of the owner.
+ * @param instructor The InstructorInsert object containing the data for the new instructor.
+ * @returns A promise that resolves to the newly created Instructor object, including its database-generated id.
+ * @throws An error if the Supabase insert fails.
  */
-export function addInstructor(data: Omit<Instructor, 'id'>): Instructor {
-  const instructors = getInstructors();
-  const newInstructor: Instructor = { ...data, id: uuidv4() };
-  setInstructors([...instructors, newInstructor]);
-  return newInstructor;
+export async function addInstructor(instructor: InstructorInsert): Promise<Instructor> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert([instructor])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
+
 /**
- * Update an existing instructor by id.
- * @param updated - Instructor with updated data
- * @returns Updated array of Instructor
+ * Updates an existing instructor in the database.
+ * This function relies on Supabase's Row-Level Security (RLS) to ensure
+ * that users can only update their own records. The RLS policy should
+ * check that `auth.uid() = user_id`.
+ * @param id The unique identifier of the instructor to update.
+ * @param instructor The InstructorUpdate object containing the fields to update.
+ * @returns A promise that resolves to the updated Instructor object.
+ * @throws An error if the Supabase update fails or the record is not found.
  */
-export function updateInstructor(updated: Instructor): Instructor[] {
-  const instructors = getInstructors();
-  const next = instructors.map((i) => (i.id === updated.id ? updated : i));
-  setInstructors(next);
-  return next;
+export async function updateInstructor(id: string, instructor: InstructorUpdate): Promise<Instructor> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(instructor)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
+
 /**
- * Remove an instructor by id.
- * @param id - ID of the instructor to remove
- * @returns Updated array of Instructor
+ * Removes an instructor from the database.
+ * @param id The unique identifier of the instructor to remove.
+ * @param user_id The ID of the user, to ensure they own the record being deleted.
+ * @returns A promise that resolves when the operation is complete.
+ * @throws An error if the Supabase delete fails.
  */
-export function removeInstructor(id: string): Instructor[] {
-  const instructors = getInstructors();
-  const next = instructors.filter((i) => i.id !== id);
-  setInstructors(next);
-  return next;
+export async function removeInstructor(id: string, user_id: string): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user_id);
+  if (error) throw error;
 }

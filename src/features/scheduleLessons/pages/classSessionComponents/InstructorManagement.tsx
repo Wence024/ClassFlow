@@ -2,30 +2,37 @@ import React, { useState } from 'react';
 import { useInstructors } from '../../hooks/useComponents';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import type { Instructor } from '../../types/scheduleLessons';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../components/ui/ErrorMessage';
+import type {
+  Instructor,
+  InstructorInsert,
+  InstructorUpdate,
+} from '../../types/instructor';
 
 // Page for managing instructors (list, add, edit, remove)
-// TODO: Add search/filter, aggregation, and multi-user support.
+// Now fully async and backed by Supabase.
 const InstructorManagement: React.FC = () => {
-  const { instructors, addInstructor, updateInstructor, removeInstructor } = useInstructors();
+  const { instructors, addInstructor, updateInstructor, removeInstructor, loading, error } =
+    useInstructors();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
 
   // Add new instructor
-  const handleAdd = (data: Omit<Instructor, 'id'>) => {
-    addInstructor(data);
+  const handleAdd = async (data: InstructorInsert | InstructorUpdate) => {
+    await addInstructor(data as InstructorInsert);
     setEditingInstructor(null);
   };
   // Edit instructor
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
   // Save changes
-  const handleSave = (data: Omit<Instructor, 'id'>) => {
+  const handleSave = async (data: InstructorInsert | InstructorUpdate) => {
     if (!editingInstructor) return;
-    updateInstructor(editingInstructor.id, data);
+    await updateInstructor(editingInstructor.id, data as InstructorUpdate);
     setEditingInstructor(null);
   };
   // Remove instructor
-  const handleRemove = (id: string) => {
-    removeInstructor(id);
+  const handleRemove = async (id: string) => {
+    await removeInstructor(id);
     setEditingInstructor(null);
   };
   // Cancel editing
@@ -36,12 +43,16 @@ const InstructorManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Instructors</h2>
-        <ComponentList<Instructor>
-          items={instructors}
-          onEdit={handleEdit}
-          onDelete={handleRemove}
-          emptyMessage="No instructors created yet."
-        />
+        {loading && <LoadingSpinner text="Loading instructors..." />}
+        {error && <ErrorMessage message={error} />}
+        {!loading && !error && (
+          <ComponentList<Instructor>
+            items={instructors}
+            onEdit={handleEdit}
+            onDelete={handleRemove}
+            emptyMessage="No instructors created yet."
+          />
+        )}
       </div>
       {/* Form (right) */}
       <div className="w-full md:w-96">
@@ -50,6 +61,7 @@ const InstructorManagement: React.FC = () => {
           editingItem={editingInstructor}
           onSubmit={editingInstructor ? handleSave : handleAdd}
           onCancel={editingInstructor ? handleCancel : undefined}
+          loading={loading}
         />
       </div>
     </div>
