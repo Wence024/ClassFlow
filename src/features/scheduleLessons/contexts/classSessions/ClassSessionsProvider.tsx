@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type {
   ClassSession,
@@ -8,6 +8,7 @@ import type {
 import * as classSessionsService from '../../services/classSessionsService';
 import { ClassSessionsContext } from './ClassSessionsContext';
 import { useAuth } from '../../../auth/hooks/useAuth';
+import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../../hooks/useComponents';
 
 /**
  * Defines the shape of the context provided by ClassSessionsProvider.
@@ -41,23 +42,33 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    /**
-     * Fetches class sessions from the service when the user is authenticated.
-     * Clears existing sessions if the user logs out.
-     */
+  // Depend on component contexts to trigger re-fetch when they change.
+  const { courses } = useCourses();
+  const { classGroups } = useClassGroups();
+  const { classrooms } = useClassrooms();
+  const { instructors } = useInstructors();
+
+  const fetchClassSessions = useCallback(async () => {
     if (!user) {
       setClassSessions([]);
       setLoading(false);
       return;
     }
     setLoading(true);
-    classSessionsService
-      .getClassSessions(user.id)
-      .then((data) => setClassSessions(data))
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
+    try {
+      const data = await classSessionsService.getClassSessions(user.id);
+      setClassSessions(data);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
+
+  // Re-fetch sessions when user changes or any underlying component data is modified.
+  useEffect(() => {
+    fetchClassSessions();
+  }, [fetchClassSessions, courses, classGroups, classrooms, instructors]);
 
   /**
    * Adds a new class session to the database and updates the local state.
@@ -68,8 +79,8 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
     setLoading(true);
     setError(null);
     try {
-      const newSession = await classSessionsService.addClassSession({ ...data, user_id: user.id });
-      setClassSessions((prev) => [...prev, newSession]);
+      await classSessionsService.addClassSession({ ...data, user_id: user.id });
+      await fetchClassSessions(); // Re-fetch to ensure data consistency
     } catch (err: unknown) {
       setError((err as Error).message);
     } finally {
@@ -87,8 +98,8 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
     setLoading(true);
     setError(null);
     try {
-      const updated = await classSessionsService.updateClassSession(id, data);
-      setClassSessions((prev) => prev.map((s) => (s.id === id ? updated : s)));
+      await classSessionsService.updateClassSession(id, data);
+      await fetchClassSessions(); // Re-fetch to ensure data consistency
     } catch (err: unknown) {
       setError((err as Error).message);
     } finally {
@@ -106,7 +117,7 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
     setError(null);
     try {
       await classSessionsService.removeClassSession(id, user.id);
-      setClassSessions((prev) => prev.filter((s) => s.id !== id));
+      await fetchClassSessions(); // Re-fetch to ensure data consistency
     } catch (err: unknown) {
       setError((err as Error).message);
     } finally {

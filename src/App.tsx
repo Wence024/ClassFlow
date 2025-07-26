@@ -77,11 +77,11 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ClassSessionsProvider>
-          <CoursesProvider>
-            <ClassGroupsProvider>
-              <ClassroomsProvider>
-                <InstructorsProvider>
+        <CoursesProvider>
+          <ClassGroupsProvider>
+            <ClassroomsProvider>
+              <InstructorsProvider>
+                <ClassSessionsProvider>
                   <NavBar onLogout={handleLogout} />
                   {toast && (
                     <div
@@ -120,11 +120,11 @@ function App() {
                       }
                     />
                   </Routes>
-                </InstructorsProvider>
-              </ClassroomsProvider>
-            </ClassGroupsProvider>
-          </CoursesProvider>
-        </ClassSessionsProvider>
+                </ClassSessionsProvider>
+              </InstructorsProvider>
+            </ClassroomsProvider>
+          </ClassGroupsProvider>
+        </CoursesProvider>
       </AuthProvider>
     </BrowserRouter>
   );
