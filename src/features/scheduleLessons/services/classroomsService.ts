@@ -1,54 +1,78 @@
-import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../../../lib/supabase';
+import type {
+  Classroom,
+  ClassroomInsert,
+  ClassroomUpdate,
+} from '../types/classroom';
+
+const TABLE = 'classrooms';
 
 /**
- * Service for managing classrooms in localStorage.
- *
- * Responsibilities:
- * - Abstracts all localStorage access for classrooms
- * - Provides CRUD operations (create, read, update, delete)
- * - Handles ID generation and data persistence
+ * Fetches all classrooms for a specific user from the database.
+ * @param user_id The ID of the user whose classrooms to retrieve.
+ * @returns A promise that resolves to an array of Classroom objects.
+ * @throws An error if the Supabase query fails.
  */
-import type { Classroom } from '../types/scheduleLessons';
+export async function getClassrooms(user_id: string): Promise<Classroom[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('user_id', user_id)
+    .order('name');
+  if (error) throw error;
+  return data || [];
+}
 
-/** Get all classrooms from localStorage. */
-export function getClassrooms(): Classroom[] {
-  const stored = localStorage.getItem('classrooms');
-  return stored ? JSON.parse(stored) : [];
-}
-/** Save all classrooms to localStorage. */
-export function setClassrooms(classrooms: Classroom[]): void {
-  localStorage.setItem('classrooms', JSON.stringify(classrooms));
-}
 /**
- * Add a new classroom and save to localStorage.
- * @param data - Classroom data without id
- * @returns The new Classroom
+ * Adds a new classroom to the database.
+ * The input object must include the `user_id` of the owner.
+ * @param classroom The ClassroomInsert object containing the data for the new classroom.
+ * @returns A promise that resolves to the newly created Classroom object, including its database-generated id.
+ * @throws An error if the Supabase insert fails.
  */
-export function addClassroom(data: Omit<Classroom, 'id'>): Classroom {
-  const rooms = getClassrooms();
-  const newRoom: Classroom = { ...data, id: uuidv4() };
-  setClassrooms([...rooms, newRoom]);
-  return newRoom;
+export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert([classroom])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
+
 /**
- * Update an existing classroom by id.
- * @param updated - Classroom with updated data
- * @returns Updated array of Classroom
+ * Updates an existing classroom in the database.
+ * This function relies on Supabase's Row-Level Security (RLS) to ensure
+ * that users can only update their own records. The RLS policy should
+ * check that `auth.uid() = user_id`.
+ * @param id The unique identifier of the classroom to update.
+ * @param classroom The ClassroomUpdate object containing the fields to update.
+ * @returns A promise that resolves to the updated Classroom object.
+ * @throws An error if the Supabase update fails or the record is not found.
  */
-export function updateClassroom(updated: Classroom): Classroom[] {
-  const rooms = getClassrooms();
-  const next = rooms.map((r) => (r.id === updated.id ? updated : r));
-  setClassrooms(next);
-  return next;
+export async function updateClassroom(id: string, classroom: ClassroomUpdate): Promise<Classroom> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(classroom)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
+
 /**
- * Remove a classroom by id.
- * @param id - ID of the classroom to remove
- * @returns Updated array of Classroom
+ * Removes a classroom from the database.
+ * @param id The unique identifier of the classroom to remove.
+ * @param user_id The ID of the user, to ensure they own the record being deleted.
+ * @returns A promise that resolves when the operation is complete.
+ * @throws An error if the Supabase delete fails.
  */
-export function removeClassroom(id: string): Classroom[] {
-  const rooms = getClassrooms();
-  const next = rooms.filter((r) => r.id !== id);
-  setClassrooms(next);
-  return next;
+export async function removeClassroom(id: string, user_id: string): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user_id);
+  if (error) throw error;
 }

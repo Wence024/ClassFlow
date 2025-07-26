@@ -2,30 +2,33 @@ import React, { useState } from 'react';
 import { useClassrooms } from '../../hooks/useComponents';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import type { Classroom } from '../../types/scheduleLessons';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../components/ui/ErrorMessage';
+import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
 
 // Page for managing classrooms (list, add, edit, remove)
-// TODO: Add search/filter, aggregation, and multi-user support.
+// Now fully async and backed by Supabase.
 const ClassroomManagement: React.FC = () => {
-  const { classrooms, addClassroom, updateClassroom, removeClassroom } = useClassrooms();
+  const { classrooms, addClassroom, updateClassroom, removeClassroom, loading, error } =
+    useClassrooms();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
 
   // Add new classroom
-  const handleAdd = (data: Omit<Classroom, 'id'>) => {
-    addClassroom(data);
+  const handleAdd = async (data: ClassroomInsert | ClassroomUpdate) => {
+    await addClassroom(data as ClassroomInsert);
     setEditingClassroom(null);
   };
   // Edit classroom
   const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
   // Save changes
-  const handleSave = (data: Omit<Classroom, 'id'>) => {
+  const handleSave = async (data: ClassroomInsert | ClassroomUpdate) => {
     if (!editingClassroom) return;
-    updateClassroom(editingClassroom.id, data);
+    await updateClassroom(editingClassroom.id, data as ClassroomUpdate);
     setEditingClassroom(null);
   };
   // Remove classroom
-  const handleRemove = (id: string) => {
-    removeClassroom(id);
+  const handleRemove = async (id: string) => {
+    await removeClassroom(id);
     setEditingClassroom(null);
   };
   // Cancel editing
@@ -36,12 +39,16 @@ const ClassroomManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-        <ComponentList<Classroom>
-          items={classrooms}
-          onEdit={handleEdit}
-          onDelete={handleRemove}
-          emptyMessage="No classrooms created yet."
-        />
+        {loading && <LoadingSpinner text="Loading classrooms..." />}
+        {error && <ErrorMessage message={error} />}
+        {!loading && !error && (
+          <ComponentList<Classroom>
+            items={classrooms}
+            onEdit={handleEdit}
+            onDelete={handleRemove}
+            emptyMessage="No classrooms created yet."
+          />
+        )}
       </div>
       {/* Form (right) */}
       <div className="w-full md:w-96">
@@ -50,6 +57,7 @@ const ClassroomManagement: React.FC = () => {
           editingItem={editingClassroom}
           onSubmit={editingClassroom ? handleSave : handleAdd}
           onCancel={editingClassroom ? handleCancel : undefined}
+          loading={loading}
         />
       </div>
     </div>
