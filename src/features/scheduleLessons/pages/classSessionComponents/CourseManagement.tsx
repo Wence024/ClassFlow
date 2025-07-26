@@ -2,30 +2,32 @@ import React, { useState } from 'react';
 import { useCourses } from '../../hooks/useComponents';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import type { Course } from '../../types/scheduleLessons';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../components/ui/ErrorMessage';
+import type { Course } from '../../types/supabase';
 
-// Page for managing courses (list, add, edit, remove)
+// Page for managing courses (list, add, edit, remove)  
 // TODO: Add search/filter, aggregation, and multi-user support.
 const CourseManagement: React.FC = () => {
-  const { courses, addCourse, updateCourse, removeCourse } = useCourses();
+  const { courses, addCourse, updateCourse, removeCourse, loading, error } = useCourses();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   // Add new course
-  const handleAdd = (data: Omit<Course, 'id'>) => {
-    addCourse(data);
+  const handleAdd = async (data: Omit<Course, 'id'>) => {
+    await addCourse(data);
     setEditingCourse(null);
   };
   // Edit course
   const handleEdit = (course: Course) => setEditingCourse(course);
   // Save changes
-  const handleSave = (data: Omit<Course, 'id'>) => {
+  const handleSave = async (data: Omit<Course, 'id'>) => {
     if (!editingCourse) return;
-    updateCourse(editingCourse.id, data);
+    await updateCourse(editingCourse.id, data);
     setEditingCourse(null);
   };
   // Remove course
-  const handleRemove = (id: string) => {
-    removeCourse(id);
+  const handleRemove = async (id: string) => {
+    await removeCourse(id);
     setEditingCourse(null);
   };
   // Cancel editing
@@ -36,6 +38,8 @@ const CourseManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Courses</h2>
+        {loading && <LoadingSpinner text="Loading courses..." />}
+        {error && <ErrorMessage message={error} />}
         <ComponentList<Course>
           items={courses}
           onEdit={handleEdit}
@@ -50,6 +54,7 @@ const CourseManagement: React.FC = () => {
           editingItem={editingCourse}
           onSubmit={editingCourse ? handleSave : handleAdd}
           onCancel={editingCourse ? handleCancel : undefined}
+          loading={loading}
         />
       </div>
     </div>

@@ -3,40 +3,86 @@ import type { ReactNode } from 'react';
 import type { Course } from '../../../types/scheduleLessons';
 import * as coursesService from '../../../services/coursesService';
 import { CoursesContext } from './CoursesContext';
+import { useAuth } from '../../../../auth/hooks/useAuth';
 
-// Context for managing courses state and CRUD operations.
-// TODO: Support multi-user (sync with backend, not just localStorage).
-// TODO: Add aggregation/stats for courses.
+type CourseInsert = Database['public']['Tables']['courses']['Insert'];
+type CourseUpdate = Database['public']['Tables']['courses']['Update'];
+
 export interface CoursesContextType {
   courses: Course[];
-  addCourse: (data: Omit<Course, 'id'>) => void;
-  updateCourse: (id: string, data: Omit<Course, 'id'>) => void;
-  removeCourse: (id: string) => void;
+  loading: boolean;
+  error: string | null;
+  addCourse: (data: CourseInsert) => Promise<void>;
+  updateCourse: (id: string, data: CourseUpdate) => Promise<void>;
+  removeCourse: (id: string) => Promise<void>;
 }
 
 export const CoursesProvider = ({ children }: { children: ReactNode }) => {
-  const [courses, setCourses] = useState<Course[]>(() => coursesService.getCourses());
+  const { user } = useAuth();
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    coursesService.setCourses(courses);
-  }, [courses]);
+    if (!user) {
+      setCourses([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    coursesService
+      .getCourses(user.id)
+      .then((data) => setCourses(data))
+      .catch((err) => setError((err as Error).message))
+      .finally(() => setLoading(false));
+  }, [user]);
 
-  const addCourse = (data: Omit<Course, 'id'>) => {
-    const newCourse = coursesService.addCourse(data);
-    setCourses((prev) => [...prev, newCourse]);
+  const addCourse = async (data: CourseInsert) => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const newCourse = await coursesService.addCourse({ ...data, user_id: user.id });
+      setCourses((prev: Course[]) => [...prev, newCourse]);
+    } catch (err: unknown) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
-  const updateCourse = (id: string, data: Omit<Course, 'id'>) => {
-    const updatedCourse = { id, ...data };
-    const updatedList = coursesService.updateCourse(updatedCourse);
-    setCourses(updatedList);
+
+  const updateCourse = async (id: string, data: CourseUpdate) => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await coursesService.updateCourse(id, { ...data, user_id: user.id });
+      setCourses((prev: Course[]) => prev.map((c) => (c.id === id ? updated : c)));
+    } catch (err: unknown) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
-  const removeCourse = (id: string) => {
-    const updatedList = coursesService.removeCourse(id);
-    setCourses(updatedList);
+
+  const removeCourse = async (id: string) => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      await coursesService.removeCourse(id, user.id);
+      setCourses((prev: Course[]) => prev.filter((c) => c.id !== id));
+    } catch (err: unknown) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <CoursesContext.Provider value={{ courses, addCourse, updateCourse, removeCourse }}>
+    <CoursesContext.Provider
+      value={{ courses, loading, error, addCourse, updateCourse, removeCourse }}
+    >
       {children}
     </CoursesContext.Provider>
   );

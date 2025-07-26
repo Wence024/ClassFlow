@@ -75,13 +75,13 @@ function App() {
   };
 
   return (
-    <ClassSessionsProvider>
-      <CoursesProvider>
-        <ClassGroupsProvider>
-          <ClassroomsProvider>
-            <InstructorsProvider>
-              <BrowserRouter>
-                <AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <ClassSessionsProvider>
+          <CoursesProvider>
+            <ClassGroupsProvider>
+              <ClassroomsProvider>
+                <InstructorsProvider>
                   <NavBar onLogout={handleLogout} />
                   {toast && (
                     <div
@@ -120,13 +120,13 @@ function App() {
                       }
                     />
                   </Routes>
-                </AuthProvider>
-              </BrowserRouter>
-            </InstructorsProvider>
-          </ClassroomsProvider>
-        </ClassGroupsProvider>
-      </CoursesProvider>
-    </ClassSessionsProvider>
+                </InstructorsProvider>
+              </ClassroomsProvider>
+            </ClassGroupsProvider>
+          </CoursesProvider>
+        </ClassSessionsProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
