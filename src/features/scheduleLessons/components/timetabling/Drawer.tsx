@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ClassSession } from '../../types/scheduleLessons';
+import type { ClassSession } from '../../types/';
 
 export type DragSource =
   | {

@@ -5,6 +5,7 @@ export { default as ItemCard } from './ui/ItemCard';
 export { default as TabNavigation } from './ui/TabNavigation';
 export { default as LoadingSpinner } from './ui/LoadingSpinner';
 export { default as ErrorMessage } from './ui/ErrorMessage';
+export { default as Notification } from './ui/Notification';
 
 // Class Sessions components
 export { default as ClassSessionForm } from './classSessions/ClassSessionForm';
@@ -17,7 +18,5 @@ export { default as ComponentList } from './componentManagement/ComponentList';
 export { default as ComponentCard } from './componentManagement/ComponentCard';
 
 // Scheduler components
-export { default as TimetableGrid } from './scheduler/TimetableGrid';
-export { default as ClassDrawer } from './scheduler/ClassDrawer';
-export { default as TimetableCell } from './scheduler/TimetableCell';
-export { default as DragDropProvider } from './scheduler/DragDropProvider';
+export { default as TimetableGrid } from './timetabling/Timetable';
+export { default as ClassDrawer } from './timetabling/Drawer';

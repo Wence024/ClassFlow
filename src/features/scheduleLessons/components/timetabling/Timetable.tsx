@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ClassSession, ClassGroup } from '../../types/scheduleLessons';
+import type { ClassSession, ClassGroup } from '../../types/';
 import type { DragSource } from './Drawer';
 
 interface TimetableProps {

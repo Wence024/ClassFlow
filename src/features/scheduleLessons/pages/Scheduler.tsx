@@ -6,8 +6,8 @@ import { useTimetable } from '../hooks/useTimetable';
 import Drawer from '../components/timetabling/Drawer';
 import Timetable from '../components/timetabling/Timetable';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import Notification from '../components/ui/Notification';
-import type { ClassSession } from '../types/scheduleLessons';
+import { Notification } from '../components/';
+import type { ClassSession } from '../types';
 
 // App component
 const SchedulerApp: React.FC = () => {
