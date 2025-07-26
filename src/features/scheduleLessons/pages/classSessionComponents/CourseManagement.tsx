@@ -4,9 +4,9 @@ import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
-import type { Course, CourseInsert, CourseUpdate } from '../../types/scheduleLessons';
+import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 
-// Page for managing courses (list, add, edit, remove)  
+// Page for managing courses (list, add, edit, remove)
 // TODO: Add search/filter, aggregation, and multi-user support.
 const CourseManagement: React.FC = () => {
   const { courses, addCourse, updateCourse, removeCourse, loading, error } = useCourses();

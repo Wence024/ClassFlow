@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { Course, CourseInsert, CourseUpdate } from '../../../types/scheduleLessons';
+import type { Course, CourseInsert, CourseUpdate } from '../../../types/course';
 import * as coursesService from '../../../services/coursesService';
 import { CoursesContext } from './CoursesContext';
 import { useAuth } from '../../../../auth/hooks/useAuth';

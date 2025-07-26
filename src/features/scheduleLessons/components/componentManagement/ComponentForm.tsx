@@ -2,20 +2,10 @@ import React, { useState, useEffect } from 'react';
 import FormField from '../ui/FormField';
 import ActionButton from '../ui/ActionButton';
 import { showNotification } from '../ui/Notification';
-import type {
-  Course,
-  ClassGroup,
-  Classroom,
-  Instructor,
-  CourseInsert,
-  CourseUpdate,
-  ClassGroupInsert,
-  ClassGroupUpdate,
-  ClassroomInsert,
-  ClassroomUpdate,
-  InstructorInsert,
-  InstructorUpdate,
-} from '../../types/scheduleLessons';
+import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
+import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
+import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
+import type { Instructor, InstructorInsert, InstructorUpdate } from '../../types/instructor';
 
 type BaseFormProps = {
   onCancel?: () => void;
