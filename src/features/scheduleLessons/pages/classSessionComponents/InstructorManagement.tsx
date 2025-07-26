@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useInstructors } from '../../hooks/useComponents';
+import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
+import { showNotification } from '../../components/ui/Notification';
 import type {
   Instructor,
   InstructorInsert,
@@ -15,6 +17,7 @@ import type {
 const InstructorManagement: React.FC = () => {
   const { instructors, addInstructor, updateInstructor, removeInstructor, loading, error } =
     useInstructors();
+  const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
 
   // Add new instructor
@@ -32,6 +35,15 @@ const InstructorManagement: React.FC = () => {
   };
   // Remove instructor
   const handleRemove = async (id: string) => {
+    const isUsed = classSessions.some((session) => session.instructor?.id === id);
+    if (isUsed) {
+      const instructorName =
+        instructors.find((i) => i.id === id)?.name || 'the selected instructor';
+      showNotification(
+        `Cannot delete "${instructorName}". It is currently used in one or more class sessions.`
+      );
+      return;
+    }
     await removeInstructor(id);
     setEditingInstructor(null);
   };

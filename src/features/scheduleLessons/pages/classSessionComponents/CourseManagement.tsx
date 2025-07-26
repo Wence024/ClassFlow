@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { useCourses } from '../../hooks/useComponents';
+import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
+import { showNotification } from '../../components/ui/Notification';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 
 // Page for managing courses (list, add, edit, remove)
 // TODO: Add search/filter, aggregation, and multi-user support.
 const CourseManagement: React.FC = () => {
   const { courses, addCourse, updateCourse, removeCourse, loading, error } = useCourses();
+  const { classSessions } = useClassSessions();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   // Add new course
@@ -27,6 +30,14 @@ const CourseManagement: React.FC = () => {
   };
   // Remove course
   const handleRemove = async (id: string) => {
+    const isUsed = classSessions.some((session) => session.course?.id === id);
+    if (isUsed) {
+      const courseName = courses.find((c) => c.id === id)?.name || 'the selected course';
+      showNotification(
+        `Cannot delete "${courseName}". It is currently used in one or more class sessions.`
+      );
+      return;
+    }
     await removeCourse(id);
     setEditingCourse(null);
   };
@@ -40,12 +51,14 @@ const CourseManagement: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4">Courses</h2>
         {loading && <LoadingSpinner text="Loading courses..." />}
         {error && <ErrorMessage message={error} />}
-        <ComponentList<Course>
-          items={courses}
-          onEdit={handleEdit}
-          onDelete={handleRemove}
-          emptyMessage="No courses created yet."
-        />
+        {!loading && !error && (
+          <ComponentList<Course>
+            items={courses}
+            onEdit={handleEdit}
+            onDelete={handleRemove}
+            emptyMessage="No courses created yet."
+          />
+        )}
       </div>
       {/* Form (right) */}
       <div className="w-full md:w-96">

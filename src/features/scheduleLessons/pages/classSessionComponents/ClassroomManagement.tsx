@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useClassrooms } from '../../hooks/useComponents';
+import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
+import { showNotification } from '../../components/ui/Notification';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
 
 // Page for managing classrooms (list, add, edit, remove)
@@ -11,6 +13,7 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/cl
 const ClassroomManagement: React.FC = () => {
   const { classrooms, addClassroom, updateClassroom, removeClassroom, loading, error } =
     useClassrooms();
+  const { classSessions } = useClassSessions();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
 
   // Add new classroom
@@ -28,6 +31,15 @@ const ClassroomManagement: React.FC = () => {
   };
   // Remove classroom
   const handleRemove = async (id: string) => {
+    const isUsed = classSessions.some((session) => session.classroom?.id === id);
+    if (isUsed) {
+      const classroomName =
+        classrooms.find((c) => c.id === id)?.name || 'the selected classroom';
+      showNotification(
+        `Cannot delete "${classroomName}". It is currently used in one or more class sessions.`
+      );
+      return;
+    }
     await removeClassroom(id);
     setEditingClassroom(null);
   };

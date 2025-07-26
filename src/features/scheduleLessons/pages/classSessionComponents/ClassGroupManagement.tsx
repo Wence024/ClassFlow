@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useClassGroups } from '../../hooks/useComponents';
+import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
+import { showNotification } from '../../components/ui/Notification';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
 
 // Page for managing class groups (list, add, edit, remove)
@@ -11,6 +13,7 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types
 const ClassGroupManagement: React.FC = () => {
   const { classGroups, addClassGroup, updateClassGroup, removeClassGroup, loading, error } =
     useClassGroups();
+  const { classSessions } = useClassSessions();
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
 
   // Add new group
@@ -28,6 +31,14 @@ const ClassGroupManagement: React.FC = () => {
   };
   // Remove group
   const handleRemove = async (id: string) => {
+    const isUsed = classSessions.some((session) => session.group?.id === id);
+    if (isUsed) {
+      const groupName = classGroups.find((g) => g.id === id)?.name || 'the selected group';
+      showNotification(
+        `Cannot delete "${groupName}". It is currently used in one or more class sessions.`
+      );
+      return;
+    }
     await removeClassGroup(id);
     setEditingGroup(null);
   };
@@ -41,12 +52,14 @@ const ClassGroupManagement: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
         {loading && <LoadingSpinner text="Loading class groups..." />}
         {error && <ErrorMessage message={error} />}
-        <ComponentList<ClassGroup>
-          items={classGroups}
-          onEdit={handleEdit}
-          onDelete={handleRemove}
-          emptyMessage="No class groups created yet."
-        />
+        {!loading && !error && (
+          <ComponentList<ClassGroup>
+            items={classGroups}
+            onEdit={handleEdit}
+            onDelete={handleRemove}
+            emptyMessage="No class groups created yet."
+          />
+        )}
       </div>
       {/* Form (right) */}
       <div className="w-full md:w-96">
