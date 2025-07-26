@@ -13,16 +13,16 @@ const CourseManagement: React.FC = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   // Add new course
-  const handleAdd = async (data: CourseInsert) => {
-    await addCourse(data);
+  const handleAdd = async (data: CourseInsert | CourseUpdate) => {
+    await addCourse(data as CourseInsert);
     setEditingCourse(null);
   };
   // Edit course
   const handleEdit = (course: Course) => setEditingCourse(course);
   // Save changes
-  const handleSave = async (data: CourseUpdate) => {
+  const handleSave = async (data: CourseInsert | CourseUpdate) => {
     if (!editingCourse) return;
-    await updateCourse(editingCourse.id, data);
+    await updateCourse(editingCourse.id, data as CourseUpdate);
     setEditingCourse(null);
   };
   // Remove course

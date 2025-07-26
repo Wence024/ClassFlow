@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useClassGroups } from '../../hooks/useComponents';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import type { ClassGroup } from '../../types/scheduleLessons';
+import type { ClassGroup } from '../../types/classGroup';
 
 // Page for managing class groups (list, add, edit, remove)
 // TODO: Add search/filter, aggregation, and multi-user support.
