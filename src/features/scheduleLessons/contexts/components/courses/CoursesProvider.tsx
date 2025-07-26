@@ -5,6 +5,15 @@ import * as coursesService from '../../../services/coursesService';
 import { CoursesContext } from './CoursesContext';
 import { useAuth } from '../../../../auth/hooks/useAuth';
 
+/**
+ * Defines the shape of the context provided by CoursesProvider.
+ * @property courses - An array of course objects for the current user.
+ * @property loading - A boolean indicating if an operation is in progress.
+ * @property error - A string containing an error message if an operation failed, otherwise null.
+ * @property addCourse - Function to add a new course.
+ * @property updateCourse - Function to update an existing course.
+ * @property removeCourse - Function to remove a course.
+ */
 export interface CoursesContextType {
   courses: Course[];
   loading: boolean;
@@ -14,6 +23,14 @@ export interface CoursesContextType {
   removeCourse: (id: string) => Promise<void>;
 }
 
+/**
+ * Provides course-related state and CRUD operations to its children.
+ * It handles fetching data from the `coursesService`, manages loading and error states,
+ * and exposes functions to add, update, and remove courses.
+ *
+ * @param {object} props - The component props.
+ * @param {ReactNode} props.children - The child components that will consume the context.
+ */
 export const CoursesProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
@@ -21,6 +38,10 @@ export const CoursesProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    /**
+     * Fetches courses from the service when the user is authenticated.
+     * Clears existing courses if the user logs out.
+     */
     if (!user) {
       setCourses([]);
       setLoading(false);
@@ -34,6 +55,12 @@ export const CoursesProvider = ({ children }: { children: ReactNode }) => {
       .finally(() => setLoading(false));
   }, [user]);
 
+  /**
+   * Adds a new course to the database and updates the local state.
+   * It constructs the full `CourseInsert` object with the current user's ID.
+   * @param data - The course data to be added, excluding `id` and `user_id`.
+   * @returns A promise that resolves when the operation is complete.
+   */
   const addCourse = async (data: CourseInsert) => {
     if (!user) return;
     setLoading(true);
@@ -48,12 +75,19 @@ export const CoursesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /**
+   * Updates an existing course in the database and updates the local state.
+   * @param id - The ID of the course to update.
+   * @param data - An object containing the course fields to update.
+   * @returns A promise that resolves when the operation is complete.
+   */
   const updateCourse = async (id: string, data: CourseUpdate) => {
     if (!user) return;
     setLoading(true);
     setError(null);
     try {
-      const updated = await coursesService.updateCourse(id, { ...data, user_id: user.id });
+      // The service call is simpler as RLS handles security on the backend.
+      const updated = await coursesService.updateCourse(id, data);
       setCourses((prev: Course[]) => prev.map((c) => (c.id === id ? updated : c)));
     } catch (err: unknown) {
       setError((err as Error).message);
@@ -62,6 +96,11 @@ export const CoursesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /**
+   * Removes a course from the database and updates the local state.
+   * @param id - The ID of the course to remove.
+   * @returns A promise that resolves when the operation is complete.
+   */
   const removeCourse = async (id: string) => {
     if (!user) return;
     setLoading(true);
