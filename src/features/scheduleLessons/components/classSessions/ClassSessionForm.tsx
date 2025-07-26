@@ -3,11 +3,13 @@ import FormField from '../ui/FormField';
 import ActionButton from '../ui/ActionButton';
 import type {
   ClassSession,
-  Course,
-  ClassGroup,
-  Instructor,
-  Classroom,
-} from '../../types/scheduleLessons';
+  ClassSessionInsert,
+  ClassSessionUpdate,
+} from '../../types/classSession';
+import type { Course } from '../../types/course';
+import type { ClassGroup } from '../../types/classGroup';
+import type { Instructor } from '../../types/instructor';
+import type { Classroom } from '../../types/classroom';
 
 interface ClassSessionFormProps {
   courses: Course[];
@@ -15,7 +17,7 @@ interface ClassSessionFormProps {
   instructors: Instructor[];
   classrooms: Classroom[];
   editingSession?: ClassSession | null;
-  onSubmit: (sessionData: Omit<ClassSession, 'id'>) => void;
+  onSubmit: (sessionData: ClassSessionInsert | ClassSessionUpdate) => void;
   onCancel?: () => void;
   loading?: boolean;
 }
@@ -50,10 +52,10 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   useEffect(() => {
     if (editingSession) {
       setFormData({
-        courseId: editingSession.course.id,
-        groupId: editingSession.group.id,
-        instructorId: editingSession.instructor.id,
-        classroomId: editingSession.classroom.id,
+        courseId: editingSession.course?.id || '',
+        groupId: editingSession.group?.id || '',
+        instructorId: editingSession.instructor?.id || '',
+        classroomId: editingSession.classroom?.id || '',
       });
     } else {
       setFormData({
@@ -83,29 +85,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
     if (!validateForm()) return;
 
-    // Use consistent variable names and remove the risky '!' non-null assertion
-    const course = courses.find((item) => item.id === formData.courseId);
-    const group = classGroups.find((item) => item.id === formData.groupId);
-    const instructor = instructors.find((item) => item.id === formData.instructorId);
-    const classroom = classrooms.find((item) => item.id === formData.classroomId);
-
-    // Defensive check to ensure all entities were found before submitting
-    if (!course || !group || !instructor || !classroom) {
-      console.error('Failed to find one or more entities for the class session.', {
-        formData,
-        course,
-        group,
-        instructor,
-        classroom,
-      });
-      return; // Stop execution to prevent crash
-    }
-
+    // Construct the payload with foreign keys for Supabase.
+    // The service expects snake_case keys.
     onSubmit({
-      course,
-      group,
-      instructor,
-      classroom,
+      course_id: formData.courseId,
+      class_group_id: formData.groupId,
+      instructor_id: formData.instructorId,
+      classroom_id: formData.classroomId,
     });
   };
 
