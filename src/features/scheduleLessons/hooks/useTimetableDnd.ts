@@ -1,15 +1,10 @@
 import { useCallback } from 'react';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from './useClassSessions';
+import { showNotification } from '../components/ui/Notification';
 import type { DragSource } from '../components/timetabling/Drawer';
 
 const DRAG_DATA_KEY = 'application/json';
-
-let notifyConflictCallback: (message: string) => void = () => {};
-
-export const setNotifyConflict = (fn: (message: string) => void) => {
-  notifyConflictCallback = fn;
-};
 
 export const useTimetableDnd = () => {
   const { assignSession, removeSession, moveSession } = useTimetable();
@@ -30,7 +25,7 @@ export const useTimetableDnd = () => {
         if (sessionToAssign) {
           const error = assignSession(groupId, periodIndex, sessionToAssign);
           if (error) {
-            notifyConflictCallback(error);
+            showNotification(error);
           }
         }
       } else if (source.from === 'timetable') {
@@ -39,7 +34,7 @@ export const useTimetableDnd = () => {
           { groupId, periodIndex }
         );
         if (error) {
-          notifyConflictCallback(error);
+          showNotification(error);
         }
       }
     },

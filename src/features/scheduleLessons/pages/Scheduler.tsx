@@ -5,8 +5,8 @@ import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
 import { useTimetable } from '../hooks/useTimetable';
 import Drawer from '../components/timetabling/Drawer';
 import Timetable from '../components/timetabling/Timetable';
-import { useTimetableDnd, setNotifyConflict } from '../hooks/useTimetableDnd';
-import Notification, { showNotification } from '../components/ui/Notification';
+import { useTimetableDnd } from '../hooks/useTimetableDnd';
+import Notification from '../components/ui/Notification';
 import type { ClassSession } from '../types/scheduleLessons';
 
 // App component
@@ -33,11 +33,6 @@ const SchedulerApp: React.FC = () => {
     id: cs.id,
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
-
-  // Connect notification system to DnD logic
-  useEffect(() => {
-    setNotifyConflict(showNotification);
-  }, []);
 
   return (
     <>
