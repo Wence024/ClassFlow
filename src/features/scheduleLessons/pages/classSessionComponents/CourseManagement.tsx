@@ -4,7 +4,7 @@ import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
-import type { Course } from '../../types/supabase';
+import type { Course, CourseInsert, CourseUpdate } from '../../types/scheduleLessons';
 
 // Page for managing courses (list, add, edit, remove)  
 // TODO: Add search/filter, aggregation, and multi-user support.
@@ -13,14 +13,14 @@ const CourseManagement: React.FC = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   // Add new course
-  const handleAdd = async (data: Omit<Course, 'id'>) => {
+  const handleAdd = async (data: CourseInsert) => {
     await addCourse(data);
     setEditingCourse(null);
   };
   // Edit course
   const handleEdit = (course: Course) => setEditingCourse(course);
   // Save changes
-  const handleSave = async (data: Omit<Course, 'id'>) => {
+  const handleSave = async (data: CourseUpdate) => {
     if (!editingCourse) return;
     await updateCourse(editingCourse.id, data);
     setEditingCourse(null);

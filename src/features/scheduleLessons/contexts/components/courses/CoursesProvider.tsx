@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { Course } from '../../../types/scheduleLessons';
+import type { Course, CourseInsert, CourseUpdate } from '../../../types/scheduleLessons';
 import * as coursesService from '../../../services/coursesService';
 import { CoursesContext } from './CoursesContext';
 import { useAuth } from '../../../../auth/hooks/useAuth';
-
-type CourseInsert = Database['public']['Tables']['courses']['Insert'];
-type CourseUpdate = Database['public']['Tables']['courses']['Update'];
 
 export interface CoursesContextType {
   courses: Course[];

@@ -1,11 +1,8 @@
 import { supabase } from '../../../lib/supabase';
-import type { Database } from '../../../lib/supabase.types';
+import type { Course, CourseInsert, CourseUpdate } from '../types/scheduleLessons';
 
 const TABLE = 'courses';
 
-type Course = Database['public']['Tables']['courses']['Row'];
-type CourseInsert = Database['public']['Tables']['courses']['Insert'];
-type CourseUpdate = Database['public']['Tables']['courses']['Update'];
 
 export async function getCourses(user_id: string): Promise<Course[]> {
   const { data, error } = await supabase

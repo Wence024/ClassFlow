@@ -2,7 +2,20 @@ import React, { useState, useEffect } from 'react';
 import FormField from '../ui/FormField';
 import ActionButton from '../ui/ActionButton';
 import { showNotification } from '../ui/Notification';
-import type { Course, ClassGroup, Classroom, Instructor } from '../../types/scheduleLessons';
+import type {
+  Course,
+  ClassGroup,
+  Classroom,
+  Instructor,
+  CourseInsert,
+  CourseUpdate,
+  ClassGroupInsert,
+  ClassGroupUpdate,
+  ClassroomInsert,
+  ClassroomUpdate,
+  InstructorInsert,
+  InstructorUpdate,
+} from '../../types/scheduleLessons';
 
 type BaseFormProps = {
   onCancel?: () => void;
@@ -13,22 +26,22 @@ type ComponentFormProps = (
   | {
       type: 'course';
       editingItem?: Course | null;
-      onSubmit: (itemData: Omit<Course, 'id'>) => void;
+      onSubmit: (itemData: CourseInsert | CourseUpdate) => void;
     }
   | {
       type: 'classGroup';
       editingItem?: ClassGroup | null;
-      onSubmit: (itemData: Omit<ClassGroup, 'id'>) => void;
+      onSubmit: (itemData: ClassGroupInsert | ClassGroupUpdate) => void;
     }
   | {
       type: 'classroom';
       editingItem?: Classroom | null;
-      onSubmit: (itemData: Omit<Classroom, 'id'>) => void;
+      onSubmit: (itemData: ClassroomInsert | ClassroomUpdate) => void;
     }
   | {
       type: 'instructor';
       editingItem?: Instructor | null;
-      onSubmit: (itemData: Omit<Instructor, 'id'>) => void;
+      onSubmit: (itemData: InstructorInsert | InstructorUpdate) => void;
     }
 ) &
   BaseFormProps;
@@ -152,7 +165,8 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
           showNotification('Course name and code are required.');
           return;
         }
-        onSubmit({ name: formData.name, code: formData.code });
+        const courseData = { name: formData.name, code: formData.code };
+        onSubmit(courseData as CourseInsert | CourseUpdate);
         break;
       }
       case 'classGroup': {
@@ -160,7 +174,8 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
           showNotification('Class group name is required.');
           return;
         }
-        onSubmit({ name: formData.name });
+        const groupData = { name: formData.name };
+        onSubmit(groupData as ClassGroupInsert | ClassGroupUpdate);
         break;
       }
       case 'classroom': {
@@ -168,7 +183,8 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
           showNotification('Classroom name and location are required.');
           return;
         }
-        onSubmit({ name: formData.name, location: formData.location });
+        const classroomData = { name: formData.name, location: formData.location };
+        onSubmit(classroomData as ClassroomInsert | ClassroomUpdate);
         break;
       }
       case 'instructor': {
@@ -176,7 +192,8 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
           showNotification('Instructor name and email are required.');
           return;
         }
-        onSubmit({ name: formData.name, email: formData.email });
+        const instructorData = { name: formData.name, email: formData.email };
+        onSubmit(instructorData as InstructorInsert | InstructorUpdate);
         break;
       }
       default:
