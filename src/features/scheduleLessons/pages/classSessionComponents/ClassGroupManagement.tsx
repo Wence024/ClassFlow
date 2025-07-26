@@ -2,30 +2,33 @@ import React, { useState } from 'react';
 import { useClassGroups } from '../../hooks/useComponents';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import type { ClassGroup } from '../../types/classGroup';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../components/ui/ErrorMessage';
+import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
 
 // Page for managing class groups (list, add, edit, remove)
-// TODO: Add search/filter, aggregation, and multi-user support.
+// Now fully async and backed by Supabase.
 const ClassGroupManagement: React.FC = () => {
-  const { classGroups, addClassGroup, updateClassGroup, removeClassGroup } = useClassGroups();
+  const { classGroups, addClassGroup, updateClassGroup, removeClassGroup, loading, error } =
+    useClassGroups();
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
 
   // Add new group
-  const handleAdd = (data: Omit<ClassGroup, 'id'>) => {
-    addClassGroup(data);
+  const handleAdd = async (data: ClassGroupInsert | ClassGroupUpdate) => {
+    await addClassGroup(data as ClassGroupInsert);
     setEditingGroup(null);
   };
   // Edit group
   const handleEdit = (group: ClassGroup) => setEditingGroup(group);
   // Save changes
-  const handleSave = (data: Omit<ClassGroup, 'id'>) => {
+  const handleSave = async (data: ClassGroupInsert | ClassGroupUpdate) => {
     if (!editingGroup) return;
-    updateClassGroup(editingGroup.id, data);
+    await updateClassGroup(editingGroup.id, data as ClassGroupUpdate);
     setEditingGroup(null);
   };
   // Remove group
-  const handleRemove = (id: string) => {
-    removeClassGroup(id);
+  const handleRemove = async (id: string) => {
+    await removeClassGroup(id);
     setEditingGroup(null);
   };
   // Cancel editing
@@ -36,6 +39,8 @@ const ClassGroupManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
+        {loading && <LoadingSpinner text="Loading class groups..." />}
+        {error && <ErrorMessage message={error} />}
         <ComponentList<ClassGroup>
           items={classGroups}
           onEdit={handleEdit}
@@ -50,6 +55,7 @@ const ClassGroupManagement: React.FC = () => {
           editingItem={editingGroup}
           onSubmit={editingGroup ? handleSave : handleAdd}
           onCancel={editingGroup ? handleCancel : undefined}
+          loading={loading}
         />
       </div>
     </div>
