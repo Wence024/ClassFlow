@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { ClassSession, ClassGroup } from '../../types/scheduleLessons';
+import type { ClassSession, ClassGroup } from '../../types/';
 
 export interface TimetableContextType {
   groups: ClassGroup[];
@@ -8,7 +8,8 @@ export interface TimetableContextType {
   removeSession: (groupId: string, periodIndex: number) => void;
   moveSession: (
     from: { groupId: string; periodIndex: number },
-    to: { groupId: string; periodIndex: number }
+    to: { groupId: string; periodIndex: number },
+    session: ClassSession
   ) => string;
 }
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { ClassSession } from '../../types/scheduleLessons';
+import type { ClassSession } from '../../types/';
 import * as timetableService from '../../services/timetableService';
 import { TimetableContext } from './TimetableContext';
-import * as timetableLogic from '../../utils/timetableLogic';
+import checkConflicts, { type TimetableGrid } from '../../utils/checkConflicts';
 import { useClassGroups } from '../../hooks/useComponents';
 
 const NUMBER_OF_PERIODS = 16;
@@ -66,41 +66,60 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [timetable]);
 
   const assignSession = (groupId: string, periodIndex: number, session: ClassSession): string => {
-    const result = timetableLogic.assignSessionToTimetable(
-      timetable,
-      groupId,
-      periodIndex,
-      session
-    );
-
-    if (result.error) {
-      return result.error;
-    }
-
-    setTimetable(result.updatedTimetable);
+    // Use checkConflicts for client-side conflict detection
+    const conflict = checkConflicts(timetable as TimetableGrid, session, groupId, periodIndex);
+    if (conflict) return conflict;
+    // ...existing code for updating state or backend...
+    // For legacy/local-only: update state
+    const newTimetable = new Map(timetable);
+    const row = newTimetable.get(groupId)
+      ? [...newTimetable.get(groupId)!]
+      : Array(NUMBER_OF_PERIODS).fill(null);
+    row[periodIndex] = session;
+    newTimetable.set(groupId, row);
+    setTimetable(newTimetable);
     return '';
   };
 
   const removeSession = (groupId: string, periodIndex: number) => {
-    const updatedTimetable = timetableLogic.removeSessionFromTimetable(
-      timetable,
-      groupId,
-      periodIndex
-    );
-    setTimetable(updatedTimetable);
+    // Remove session from timetable
+    const newTimetable = new Map(timetable);
+    const row = newTimetable.get(groupId)
+      ? [...newTimetable.get(groupId)!]
+      : Array(NUMBER_OF_PERIODS).fill(null);
+    row[periodIndex] = null;
+    newTimetable.set(groupId, row);
+    setTimetable(newTimetable);
   };
 
   const moveSession = (
     from: { groupId: string; periodIndex: number },
-    to: { groupId: string; periodIndex: number }
+    to: { groupId: string; periodIndex: number },
+    session: ClassSession
   ): string => {
-    const result = timetableLogic.moveSessionInTimetable(timetable, from, to);
-
-    if (result.error) {
-      return result.error;
-    }
-
-    setTimetable(result.updatedTimetable);
+    // Use checkConflicts for client-side conflict detection
+    const conflict = checkConflicts(
+      timetable as TimetableGrid,
+      session,
+      to.groupId,
+      to.periodIndex,
+      from
+    );
+    if (conflict) return conflict;
+    // ...existing code for updating state or backend...
+    // Remove from old cell, assign to new cell
+    const newTimetable = new Map(timetable);
+    const fromRow = newTimetable.get(from.groupId)
+      ? [...newTimetable.get(from.groupId)!]
+      : Array(NUMBER_OF_PERIODS).fill(null);
+    fromRow[from.periodIndex] = null;
+    newTimetable.set(from.groupId, fromRow);
+    const toRow = newTimetable.get(to.groupId)
+      ? [...newTimetable.get(to.groupId)!]
+      : Array(NUMBER_OF_PERIODS).fill(null);
+    toRow[to.periodIndex] = session;
+    newTimetable.set(to.groupId, toRow);
+    setTimetable(newTimetable);
     return '';
   };
 
