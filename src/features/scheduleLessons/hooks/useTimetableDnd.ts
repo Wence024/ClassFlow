@@ -16,22 +16,23 @@ export const useTimetableDnd = () => {
   }, []);
 
   const handleDropToGrid = useCallback(
-    (e: React.DragEvent, groupId: string, periodIndex: number) => {
+    async (e: React.DragEvent, class_group_id: string, period_index: number) => {
       e.preventDefault();
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
       if (source.from === 'drawer') {
-        const sessionToAssign = classSessions.find((cs) => cs.id === source.sessionId);
+        const sessionToAssign = classSessions.find((cs) => cs.id === source.class_session_id);
         if (sessionToAssign) {
-          const error = assignSession(groupId, periodIndex, sessionToAssign);
+          const error = await assignSession(class_group_id, period_index, sessionToAssign);
           if (error) {
             showNotification(error);
           }
         }
       } else if (source.from === 'timetable') {
-        const error = moveSession(
-          { groupId: source.groupId, periodIndex: source.periodIndex },
-          { groupId, periodIndex }
+        const error = await moveSession(
+          { class_group_id: source.class_group_id, period_index: source.period_index },
+          { class_group_id, period_index },
+          classSessions.find((cs) => cs.id === source.class_session_id)!
         );
         if (error) {
           showNotification(error);
@@ -42,12 +43,12 @@ export const useTimetableDnd = () => {
   );
 
   const handleDropToDrawer = useCallback(
-    (e: React.DragEvent) => {
+    async (e: React.DragEvent) => {
       e.preventDefault();
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
       if (source.from === 'timetable') {
-        removeSession(source.groupId, source.periodIndex);
+        await removeSession(source.class_group_id, source.period_index);
       }
     },
     [removeSession]

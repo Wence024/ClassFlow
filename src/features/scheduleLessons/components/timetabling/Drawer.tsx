@@ -4,13 +4,13 @@ import type { ClassSession } from '../../types/';
 export type DragSource =
   | {
       from: 'drawer';
-      sessionId: string;
+      class_session_id: string;
     }
   | {
       from: 'timetable';
-      sessionId: string;
-      groupId: string;
-      periodIndex: number;
+      class_session_id: string;
+      class_group_id: string;
+      period_index: number;
     };
 
 type DrawerSession = Pick<ClassSession, 'id'> & { displayName: string };
@@ -42,7 +42,7 @@ const Drawer: React.FC<DrawerProps> = ({ drawerSessions, onDragStart, onDropToDr
           <li
             key={session.id}
             draggable
-            onDragStart={(e) => onDragStart(e, { from: 'drawer', sessionId: session.id })}
+            onDragStart={(e) => onDragStart(e, { from: 'drawer', class_session_id: session.id })}
             className="p-2 bg-gray-100 rounded cursor-grab text-center hover:bg-gray-200 text-gray-900"
           >
             {session.displayName}

@@ -53,9 +53,9 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                           onDragStart={(e) =>
                             onDragStart(e, {
                               from: 'timetable',
-                              sessionId: item.id,
-                              groupId: group.id,
-                              periodIndex,
+                              class_session_id: item.id,
+                              class_group_id: group.id,
+                              period_index: periodIndex,
                             })
                           }
                           className="cursor-grab"

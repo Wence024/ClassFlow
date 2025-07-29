@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo } from 'react';
 // import './Scheduler.css'; // Remove old CSS
 import { useClassSessions } from '../hooks/useClassSessions';
 import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
