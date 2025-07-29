@@ -35,6 +35,28 @@ export async function getClassSessions(user_id: string): Promise<ClassSession[]>
 }
 
 /**
+ * Fetches a single, fully-hydrated class session by its ID.
+ * This includes all related data such as course, class group, instructor, and classroom.
+ * 
+ * Note: This function assumes that Row-Level Security (RLS) is enabled on the `class_sessions` table
+ * to restrict access by `user_id`. If not, consider adding a `.eq('user_id', user_id)` filter.
+ *
+ * @param id The unique identifier of the class session to retrieve.
+ * @returns A promise that resolves to the fully-hydrated ClassSession object.
+ * @throws An error if the session is not found or if the Supabase query fails.
+ */
+export async function getClassSession(id: string): Promise<ClassSession> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(SELECT_COLUMNS)
+    .eq('id', id)
+    .single();
+
+  if (error) throw error;
+  return data as unknown as ClassSession;
+}
+
+/**
  * Adds a new class session to the database.
  * The input object must contain the foreign keys for the related components.
  * @param session The ClassSessionInsert object containing the foreign keys for the new session.

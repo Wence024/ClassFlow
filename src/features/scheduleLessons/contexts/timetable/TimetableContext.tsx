@@ -4,13 +4,19 @@ import type { ClassSession, ClassGroup } from '../../types/';
 export interface TimetableContextType {
   groups: ClassGroup[];
   timetable: Map<string, (ClassSession | null)[]>;
-  assignSession: (groupId: string, periodIndex: number, session: ClassSession) => string;
-  removeSession: (groupId: string, periodIndex: number) => void;
-  moveSession: (
-    from: { groupId: string; periodIndex: number },
-    to: { groupId: string; periodIndex: number },
+  assignSession: (
+    class_group_id: string,
+    period_index: number,
     session: ClassSession
-  ) => string;
+  ) => Promise<string>;
+  removeSession: (class_group_id: string, period_index: number) => Promise<void>;
+  moveSession: (
+    from: { class_group_id: string; period_index: number },
+    to: { class_group_id: string; period_index: number },
+    session: ClassSession
+  ) => Promise<string>;
+  loading: boolean;
+  error: Error | null;
 }
 
 /**

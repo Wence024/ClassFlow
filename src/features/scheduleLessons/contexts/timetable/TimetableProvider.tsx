@@ -1,136 +1,146 @@
-import React, { useState, useEffect, useRef } from 'react';
-import type { ClassSession } from '../../types/';
+// src/features/scheduleLessons/context/TimetableProvider.tsx
+
+import React, { useState, useEffect } from 'react';
+import type { ClassSession } from '../../types';
 import * as timetableService from '../../services/timetableService';
 import { TimetableContext } from './TimetableContext';
-import checkConflicts, { type TimetableGrid } from '../../utils/checkConflicts';
+import checkConflicts from '../../utils/checkConflicts';
 import { useClassGroups } from '../../hooks/useComponents';
+import { useAuth } from '../../../auth/hooks/useAuth';
+import { getClassSession } from '../../services/classSessionsService';
 
 const NUMBER_OF_PERIODS = 16;
 
-/**
- * This provider synchronizes the timetable grid with the master list of class groups.
- * If a class group is deleted, its corresponding row and all scheduled sessions within it are safely removed from the timetable.
- */
 export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { classGroups } = useClassGroups();
   const [timetable, setTimetable] = useState<Map<string, (ClassSession | null)[]>>(new Map());
-  const isInitialized = useRef(false);
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  // Effect for initial load and migration from localStorage
   useEffect(() => {
-    // Only run once classGroups are available and we haven't initialized.
-    if (classGroups.length > 0 && !isInitialized.current) {
-      const initialData = timetableService.getTimetable(classGroups);
-      setTimetable(new Map(initialData));
-      isInitialized.current = true;
-    }
-  }, [classGroups]);
+    const loadTimetable = async () => {
+      if (!user || !classGroups.length) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const assignments = await timetableService.getTimetableAssignments(user.id);
 
-  // Synchronize timetable rows with classGroups from ComponentsContext
-  useEffect(() => {
-    // Do not run this synchronization logic until after the initial load.
-    if (!isInitialized.current) return;
-
-    setTimetable((currentMap) => {
-      const newMap = new Map<string, (ClassSession | null)[]>();
-      let hasChanged = false;
-
-      // Copy existing, valid groups to the new map
-      for (const group of classGroups) {
-        const existingRow = currentMap.get(group.id);
-        if (existingRow) {
-          newMap.set(group.id, existingRow);
-        } else {
-          newMap.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
-          hasChanged = true;
+        const grid = new Map<string, (ClassSession | null)[]>();
+        for (const group of classGroups) {
+          grid.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
         }
+
+        for (const assignment of assignments) {
+          const session = await getClassSession(assignment.class_session_id);
+          const row = grid.get(assignment.class_group_id);
+          if (row) row[assignment.period_index] = session;
+        }
+
+        setTimetable(grid);
+      } catch (err) {
+        console.error('Failed to load timetable:', err);
+        setError(err as Error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Check if any groups were removed by comparing sizes.
-      // This is the most common and cheapest check.
-      if (currentMap.size !== newMap.size) {
-        hasChanged = true;
-      }
+    loadTimetable();
+  }, [user, classGroups]);
 
-      return hasChanged ? newMap : currentMap;
-    });
-  }, [classGroups]);
-
-  // Persist timetable to localStorage on every change
-  useEffect(() => {
-    // Do not run this persistence logic until after the initial load.
-    if (!isInitialized.current) return;
-
-    // Convert Map to array for JSON serialization
-    timetableService.setTimetable(Array.from(timetable.entries()));
-  }, [timetable]);
-
-  const assignSession = (groupId: string, periodIndex: number, session: ClassSession): string => {
-    // Use checkConflicts for client-side conflict detection
-    const conflict = checkConflicts(timetable as TimetableGrid, session, groupId, periodIndex);
-    if (conflict) return conflict;
-    // ...existing code for updating state or backend...
-    // For legacy/local-only: update state
-    const newTimetable = new Map(timetable);
-    const row = newTimetable.get(groupId)
-      ? [...newTimetable.get(groupId)!]
-      : Array(NUMBER_OF_PERIODS).fill(null);
-    row[periodIndex] = session;
-    newTimetable.set(groupId, row);
-    setTimetable(newTimetable);
-    return '';
-  };
-
-  const removeSession = (groupId: string, periodIndex: number) => {
-    // Remove session from timetable
-    const newTimetable = new Map(timetable);
-    const row = newTimetable.get(groupId)
-      ? [...newTimetable.get(groupId)!]
-      : Array(NUMBER_OF_PERIODS).fill(null);
-    row[periodIndex] = null;
-    newTimetable.set(groupId, row);
-    setTimetable(newTimetable);
-  };
-
-  const moveSession = (
-    from: { groupId: string; periodIndex: number },
-    to: { groupId: string; periodIndex: number },
+  const assignSession = async (
+    class_group_id: string,
+    period_index: number,
     session: ClassSession
-  ): string => {
-    // Use checkConflicts for client-side conflict detection
-    const conflict = checkConflicts(
-      timetable as TimetableGrid,
-      session,
-      to.groupId,
-      to.periodIndex,
-      from
-    );
+  ): Promise<string> => {
+    if (!user) return 'User not authenticated';
+
+    const conflict = checkConflicts(timetable, session, class_group_id, period_index);
     if (conflict) return conflict;
-    // ...existing code for updating state or backend...
-    // Remove from old cell, assign to new cell
-    const newTimetable = new Map(timetable);
-    const fromRow = newTimetable.get(from.groupId)
-      ? [...newTimetable.get(from.groupId)!]
-      : Array(NUMBER_OF_PERIODS).fill(null);
-    fromRow[from.periodIndex] = null;
-    newTimetable.set(from.groupId, fromRow);
-    const toRow = newTimetable.get(to.groupId)
-      ? [...newTimetable.get(to.groupId)!]
-      : Array(NUMBER_OF_PERIODS).fill(null);
-    toRow[to.periodIndex] = session;
-    newTimetable.set(to.groupId, toRow);
-    setTimetable(newTimetable);
-    return '';
+
+    try {
+      await timetableService.assignSessionToTimetable({
+        user_id: user.id,
+        class_group_id,
+        period_index,
+        class_session_id: session.id,
+      });
+
+      const newTimetable = new Map(timetable);
+      const row = [...(newTimetable.get(class_group_id) ?? Array(NUMBER_OF_PERIODS).fill(null))];
+      row[period_index] = session;
+      newTimetable.set(class_group_id, row);
+      setTimetable(newTimetable);
+      return '';
+    } catch (err) {
+      console.error(err);
+      return 'Failed to assign session.';
+    }
+  };
+
+  const removeSession = async (class_group_id: string, period_index: number): Promise<void> => {
+    if (!user) return;
+
+    try {
+      await timetableService.removeSessionFromTimetable(user.id, class_group_id, period_index);
+
+      const newTimetable = new Map(timetable);
+      const row = [...(newTimetable.get(class_group_id) ?? Array(NUMBER_OF_PERIODS).fill(null))];
+      row[period_index] = null;
+      newTimetable.set(class_group_id, row);
+      setTimetable(newTimetable);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const moveSession = async (
+    from: { class_group_id: string; period_index: number },
+    to: { class_group_id: string; period_index: number },
+    session: ClassSession
+  ): Promise<string> => {
+    if (!user) return 'User not authenticated';
+
+    const conflict = checkConflicts(timetable, session, to.class_group_id, to.period_index, from);
+    if (conflict) return conflict;
+
+    try {
+      await timetableService.moveSessionInTimetable(user.id, from, to, {
+        user_id: user.id,
+        class_group_id: to.class_group_id,
+        period_index: to.period_index,
+        class_session_id: session.id,
+      });
+
+      const newTimetable = new Map(timetable);
+
+      const fromRow = [...(newTimetable.get(from.class_group_id) ?? Array(NUMBER_OF_PERIODS).fill(null))];
+      fromRow[from.period_index] = null;
+      newTimetable.set(from.class_group_id, fromRow);
+
+      const toRow = [...(newTimetable.get(to.class_group_id) ?? Array(NUMBER_OF_PERIODS).fill(null))];
+      toRow[to.period_index] = session;
+      newTimetable.set(to.class_group_id, toRow);
+
+      setTimetable(newTimetable);
+      return '';
+    } catch (err) {
+      console.error(err);
+      return 'Failed to move session.';
+    }
   };
 
   return (
     <TimetableContext.Provider
       value={{
-        groups: classGroups, // Pass the full group objects
+        groups: classGroups,
         timetable,
         assignSession,
         removeSession,
         moveSession,
+        loading,
+        error,
       }}
     >
       {children}
