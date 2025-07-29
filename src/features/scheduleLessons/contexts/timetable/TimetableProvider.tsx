@@ -59,6 +59,7 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const conflict = checkConflicts(timetable, session, class_group_id, period_index);
     if (conflict) return conflict;
 
+    setLoading(true);
     try {
       await timetableService.assignSessionToTimetable({
         user_id: user.id,
@@ -76,12 +77,14 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (err) {
       console.error(err);
       return 'Failed to assign session.';
+    } finally {
+      setLoading(false);
     }
   };
 
   const removeSession = async (class_group_id: string, period_index: number): Promise<void> => {
     if (!user) return;
-
+    setLoading(true);
     try {
       await timetableService.removeSessionFromTimetable(user.id, class_group_id, period_index);
 
@@ -92,6 +95,8 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setTimetable(newTimetable);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +110,7 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const conflict = checkConflicts(timetable, session, to.class_group_id, to.period_index, from);
     if (conflict) return conflict;
 
+    setLoading(true);
     try {
       await timetableService.moveSessionInTimetable(user.id, from, to, {
         user_id: user.id,
@@ -128,6 +134,8 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch (err) {
       console.error(err);
       return 'Failed to move session.';
+    } finally {
+      setLoading(false);
     }
   };
 

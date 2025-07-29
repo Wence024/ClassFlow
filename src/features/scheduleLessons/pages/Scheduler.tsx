@@ -6,13 +6,13 @@ import { useTimetable } from '../hooks/useTimetable';
 import Drawer from '../components/timetabling/Drawer';
 import Timetable from '../components/timetabling/Timetable';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import { Notification } from '../components/';
+import { LoadingSpinner, Notification } from '../components/';
 import type { ClassSession } from '../types';
 
 // App component
 const SchedulerApp: React.FC = () => {
   const { classSessions } = useClassSessions();
-  const { timetable, groups } = useTimetable();
+  const { timetable, groups, loading } = useTimetable();
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
   // Memoize derived data to prevent recalculating on every render
@@ -37,7 +37,12 @@ const SchedulerApp: React.FC = () => {
   return (
     <>
       <Notification />
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8 relative">
+        {loading && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
+            {loading && <LoadingSpinner text="Updating timetable..." />}
+          </div>
+        )}
         <Drawer
           drawerSessions={drawerSessions}
           onDragStart={handleDragStart}
