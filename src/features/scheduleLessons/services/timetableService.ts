@@ -1,65 +1,89 @@
-import type { ClassSession, ClassGroup } from '../types/scheduleLessons';
 
-const TIMETABLE_KEY = 'timetable';
-const TIMETABLE_VERSION_KEY = 'timetable_version';
-const CURRENT_DATA_VERSION = 2; // 1: old array[][], 2: new Map-like [id, sessions[]][]
+import { supabase } from '../../../lib/supabase';
+import type { TimetableAssignment, TimetableAssignmentInsert } from '../types/timetable';
 
-// The data format we store in localStorage
-export type StoredTimetable = [string, (ClassSession | null)[]][];
+// --- Data Versioning ---
+export const CURRENT_TIMETABLE_VERSION = 2;
+
+// --- Data Migration Template ---
+// If you change the timetable data structure in the future, add migration helpers here.
+// Example:
+// export async function migrateTimetableV2ToV3(user_id: string): Promise<void> {
+//   // Fetch all assignments for user
+//   // Transform and upsert with new version
+// }
 
 /**
- * Migrates the old array-based timetable data to the new Map-compatible format.
- * @param oldData The old timetable data, expected to be (ClassSession | null)[][]
- * @param classGroups The current list of class groups to map indices to IDs.
- * @returns The migrated data in the new StoredTimetable format.
+ * Fetch all timetable assignments for a user from Supabase.
+ * Checks for version mismatches and logs a warning if migration is needed.
+ * @param user_id The user's unique ID.
+ * @returns Array of TimetableAssignment objects.
  */
-const migrateV1ToV2 = (oldData: unknown, classGroups: ClassGroup[]): StoredTimetable => {
-  // Ensure oldData is in the expected format before trying to migrate
-  if (!Array.isArray(oldData) || (oldData.length > 0 && !Array.isArray(oldData[0]))) {
-    console.error('Old timetable data is not in the expected format. Cannot migrate.');
-    return [];
+export async function getTimetableAssignments(user_id: string): Promise<TimetableAssignment[]> {
+  const { data, error } = await supabase
+    .from('timetable_assignments')
+    .select('*')
+    .eq('user_id', user_id);
+  if (error) throw error;
+  const needsMigration = (data ?? []).some(row => row.data_version !== CURRENT_TIMETABLE_VERSION);
+  if (needsMigration) {
+    // Optionally: trigger migration logic here or notify the user/admin
+    console.warn('Some timetable assignments are not at the current data version. Migration may be needed.');
   }
-
-  console.log('Migrating timetable data from v1 to v2...');
-  return classGroups.map((group, index) => {
-    const rowData = (oldData as (ClassSession | null)[][])[index] || [];
-    return [group.id, rowData];
-  });
-};
+  return data as TimetableAssignment[];
+}
 
 /**
- * Retrieves timetable data from localStorage, performing migration if necessary.
- * @param classGroups The current list of class groups, required for migration.
- * @returns The timetable data in the current, valid format.
+ * Assign a session to a group/period (insert or upsert) in Supabase.
+ * Always sets data_version to the current version.
+ * @param assignment TimetableAssignmentInsert object.
+ * @returns The upserted TimetableAssignment object.
  */
-export const getTimetable = (classGroups: ClassGroup[]): StoredTimetable => {
-  try {
-    const storedVersion = parseInt(localStorage.getItem(TIMETABLE_VERSION_KEY) || '1', 10);
-    const dataStr = localStorage.getItem(TIMETABLE_KEY);
-
-    if (!dataStr) return [];
-
-    const data = JSON.parse(dataStr);
-
-    if (storedVersion < CURRENT_DATA_VERSION) {
-      const migratedData = migrateV1ToV2(data, classGroups);
-      setTimetable(migratedData); // Persist the migrated data immediately
-      return migratedData;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error reading timetable from localStorage', error);
-    localStorage.removeItem(TIMETABLE_KEY);
-    localStorage.removeItem(TIMETABLE_VERSION_KEY);
-    return [];
-  }
-};
+export async function assignSessionToTimetable(assignment: TimetableAssignmentInsert): Promise<TimetableAssignment> {
+  const assignmentWithVersion = { ...assignment, data_version: CURRENT_TIMETABLE_VERSION };
+  const { data, error } = await supabase
+    .from('timetable_assignments')
+    .upsert([assignmentWithVersion], { onConflict: 'user_id,class_group_id,period_index' })
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data as TimetableAssignment;
+}
 
 /**
- * Saves the timetable data to localStorage, tagging it with the current version.
+ * Remove a session from a group/period in Supabase.
+ * @param user_id The user's unique ID.
+ * @param class_group_id The class group ID.
+ * @param period_index The period index.
  */
-export const setTimetable = (timetable: StoredTimetable): void => {
-  localStorage.setItem(TIMETABLE_KEY, JSON.stringify(timetable));
-  localStorage.setItem(TIMETABLE_VERSION_KEY, String(CURRENT_DATA_VERSION));
-};
+export async function removeSessionFromTimetable(user_id: string, class_group_id: string, period_index: number): Promise<void> {
+  const { error } = await supabase
+    .from('timetable_assignments')
+    .delete()
+    .eq('user_id', user_id)
+    .eq('class_group_id', class_group_id)
+    .eq('period_index', period_index);
+  if (error) throw error;
+}
+
+
+/**
+ * Move a session from one cell to another (delete old, upsert new) in Supabase.
+ * Always sets data_version to the current version.
+ * @param user_id The user's unique ID.
+ * @param from The source cell ({ class_group_id, period_index }).
+ * @param to The destination cell ({ class_group_id, period_index }).
+ * @param assignment TimetableAssignmentInsert for the new cell.
+ * @returns The upserted TimetableAssignment object for the new cell.
+ */
+export async function moveSessionInTimetable(
+  user_id: string,
+  from: { class_group_id: string; period_index: number },
+  to: { class_group_id: string; period_index: number },
+  assignment: TimetableAssignmentInsert
+): Promise<TimetableAssignment> {
+  await removeSessionFromTimetable(user_id, from.class_group_id, from.period_index);
+  const assignmentWithVersion = { ...assignment, data_version: CURRENT_TIMETABLE_VERSION };
+  return assignSessionToTimetable(assignmentWithVersion);
+}
+
