@@ -5,7 +5,6 @@ import ClassGroupManagement from './ClassGroupManagement';
 import ClassroomManagement from './ClassroomManagement';
 import InstructorManagement from './InstructorManagement';
 
-
 const TABS = [
   { id: 'course', label: 'Courses' },
   { id: 'classGroup', label: 'Class Groups' },
@@ -21,7 +20,7 @@ const ComponentManagement: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
       <div className="flex-1 min-w-0">
-        <Notification/>
+        <Notification />
         <h1 className="text-3xl font-bold text-center mb-6">Component Management</h1>
         <TabNavigation
           tabs={TABS}

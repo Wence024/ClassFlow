@@ -33,8 +33,7 @@ const ClassroomManagement: React.FC = () => {
   const handleRemove = async (id: string) => {
     const isUsed = classSessions.some((session) => session.classroom?.id === id);
     if (isUsed) {
-      const classroomName =
-        classrooms.find((c) => c.id === id)?.name || 'the selected classroom';
+      const classroomName = classrooms.find((c) => c.id === id)?.name || 'the selected classroom';
       showNotification(
         `Cannot delete "${classroomName}". It is currently used in one or more class sessions.`
       );

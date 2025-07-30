@@ -1,9 +1,5 @@
 import { supabase } from '../../../lib/supabase';
-import type {
-  Classroom,
-  ClassroomInsert,
-  ClassroomUpdate,
-} from '../types/classroom';
+import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
 
 const TABLE = 'classrooms';
 
@@ -31,11 +27,7 @@ export async function getClassrooms(user_id: string): Promise<Classroom[]> {
  * @throws An error if the Supabase insert fails.
  */
 export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert([classroom])
-    .select()
-    .single();
+  const { data, error } = await supabase.from(TABLE).insert([classroom]).select().single();
   if (error) throw error;
   return data;
 }
@@ -69,10 +61,6 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassroom(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase
-    .from(TABLE)
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user_id);
+  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }

@@ -34,16 +34,16 @@ export interface ClassroomsContextType {
 export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  
-    const {
-      data: classrooms = [],
-      isLoading: loading,
-      error,
-    } = useQuery({
-      queryKey: ['classrooms', user?.id],
-      queryFn: () => (user ? classroomsService.getClassrooms(user.id) : Promise.resolve([])),
-      enabled: !!user,
-    });
+
+  const {
+    data: classrooms = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ['classrooms', user?.id],
+    queryFn: () => (user ? classroomsService.getClassrooms(user.id) : Promise.resolve([])),
+    enabled: !!user,
+  });
 
   /**
    * Adds a new classroom to the database and updates the local state.
@@ -52,11 +52,11 @@ export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
    * @returns A promise that resolves when the operation is complete.
    */
   const addClassroomMutation = useMutation({
-      mutationFn: (data: ClassroomInsert) =>
-        classroomsService.addClassroom({ ...data, user_id: user!.id }),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
-    });
-    const addClassroom = (data: ClassroomInsert) => addClassroomMutation.mutateAsync(data);
+    mutationFn: (data: ClassroomInsert) =>
+      classroomsService.addClassroom({ ...data, user_id: user!.id }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
+  });
+  const addClassroom = (data: ClassroomInsert) => addClassroomMutation.mutateAsync(data);
 
   /**
    * Updates an existing classroom in the database and updates the local state.
@@ -65,12 +65,12 @@ export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
    * @returns A promise that resolves when the operation is complete.
    */
   const updateClassroomMutation = useMutation({
-      mutationFn: ({ id, data }: { id: string; data: ClassroomUpdate }) =>
-        classroomsService.updateClassroom(id, data),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
-    });
-    const updateClassroom = (id: string, data: ClassroomUpdate) =>
-      updateClassroomMutation.mutateAsync({ id, data });
+    mutationFn: ({ id, data }: { id: string; data: ClassroomUpdate }) =>
+      classroomsService.updateClassroom(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
+  });
+  const updateClassroom = (id: string, data: ClassroomUpdate) =>
+    updateClassroomMutation.mutateAsync({ id, data });
 
   /**
    * Removes a classroom from the database and updates the local state.

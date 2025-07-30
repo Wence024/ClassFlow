@@ -4,4 +4,4 @@ export * from './classGroup';
 export * from './classroom';
 export * from './instructor';
 export * from './classSession';
-export * from './timetable'; 
+export * from './timetable';

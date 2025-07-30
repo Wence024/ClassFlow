@@ -33,7 +33,8 @@ export const CoursesProvider = ({ children }: { children: ReactNode }) => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['courses', user?.id] }),
   });
   const updateCourseMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: CourseUpdate }) => coursesService.updateCourse(id, data),
+    mutationFn: ({ id, data }: { id: string; data: CourseUpdate }) =>
+      coursesService.updateCourse(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['courses', user?.id] }),
   });
   const removeCourseMutation = useMutation({
@@ -42,7 +43,8 @@ export const CoursesProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const addCourse = (data: CourseInsert) => addCourseMutation.mutateAsync(data);
-  const updateCourse = (id: string, data: CourseUpdate) => updateCourseMutation.mutateAsync({ id, data });
+  const updateCourse = (id: string, data: CourseUpdate) =>
+    updateCourseMutation.mutateAsync({ id, data });
   const removeCourse = (id: string) => removeCourseMutation.mutateAsync(id);
 
   return (

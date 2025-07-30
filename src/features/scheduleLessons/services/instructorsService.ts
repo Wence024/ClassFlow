@@ -1,9 +1,5 @@
 import { supabase } from '../../../lib/supabase';
-import type {
-  Instructor,
-  InstructorInsert,
-  InstructorUpdate,
-} from '../types/instructor';
+import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
 
 const TABLE = 'instructors';
 
@@ -31,11 +27,7 @@ export async function getInstructors(user_id: string): Promise<Instructor[]> {
  * @throws An error if the Supabase insert fails.
  */
 export async function addInstructor(instructor: InstructorInsert): Promise<Instructor> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert([instructor])
-    .select()
-    .single();
+  const { data, error } = await supabase.from(TABLE).insert([instructor]).select().single();
   if (error) throw error;
   return data;
 }
@@ -50,7 +42,10 @@ export async function addInstructor(instructor: InstructorInsert): Promise<Instr
  * @returns A promise that resolves to the updated Instructor object.
  * @throws An error if the Supabase update fails or the record is not found.
  */
-export async function updateInstructor(id: string, instructor: InstructorUpdate): Promise<Instructor> {
+export async function updateInstructor(
+  id: string,
+  instructor: InstructorUpdate
+): Promise<Instructor> {
   const { data, error } = await supabase
     .from(TABLE)
     .update(instructor)
@@ -69,10 +64,6 @@ export async function updateInstructor(id: string, instructor: InstructorUpdate)
  * @throws An error if the Supabase delete fails.
  */
 export async function removeInstructor(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase
-    .from(TABLE)
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user_id);
+  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }

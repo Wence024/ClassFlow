@@ -1,9 +1,5 @@
 import { supabase } from '../../../lib/supabase';
-import type {
-  ClassSession,
-  ClassSessionInsert,
-  ClassSessionUpdate,
-} from '../types/classSession';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
 
 const TABLE = 'class_sessions';
 
@@ -24,10 +20,7 @@ const SELECT_COLUMNS = `
  * @throws An error if the Supabase query fails.
  */
 export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select(SELECT_COLUMNS)
-    .eq('user_id', user_id);
+  const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
 
   if (error) throw error;
   // The data from Supabase should match our hydrated ClassSession type.
@@ -37,7 +30,7 @@ export async function getClassSessions(user_id: string): Promise<ClassSession[]>
 /**
  * Fetches a single, fully-hydrated class session by its ID.
  * This includes all related data such as course, class group, instructor, and classroom.
- * 
+ *
  * Note: This function assumes that Row-Level Security (RLS) is enabled on the `class_sessions` table
  * to restrict access by `user_id`. If not, consider adding a `.eq('user_id', user_id)` filter.
  *
@@ -46,11 +39,7 @@ export async function getClassSessions(user_id: string): Promise<ClassSession[]>
  * @throws An error if the session is not found or if the Supabase query fails.
  */
 export async function getClassSession(id: string): Promise<ClassSession> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select(SELECT_COLUMNS)
-    .eq('id', id)
-    .single();
+  const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('id', id).single();
 
   if (error) throw error;
   return data as unknown as ClassSession;
@@ -83,7 +72,10 @@ export async function addClassSession(session: ClassSessionInsert): Promise<Clas
  * @returns A promise that resolves to the updated, fully-hydrated ClassSession object.
  * @throws An error if the Supabase update fails or the record is not found.
  */
-export async function updateClassSession(id: string, session: ClassSessionUpdate): Promise<ClassSession> {
+export async function updateClassSession(
+  id: string,
+  session: ClassSessionUpdate
+): Promise<ClassSession> {
   const { data, error } = await supabase
     .from(TABLE)
     .update(session)
@@ -102,10 +94,6 @@ export async function updateClassSession(id: string, session: ClassSessionUpdate
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassSession(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase
-    .from(TABLE)
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user_id);
+  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }

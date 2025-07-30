@@ -6,11 +6,7 @@ import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../components/ui/ErrorMessage';
 import { showNotification } from '../../components/ui/Notification';
-import type {
-  Instructor,
-  InstructorInsert,
-  InstructorUpdate,
-} from '../../types/instructor';
+import type { Instructor, InstructorInsert, InstructorUpdate } from '../../types/instructor';
 
 // Page for managing instructors (list, add, edit, remove)
 // Now fully async and backed by Supabase.

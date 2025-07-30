@@ -27,11 +27,7 @@ export async function getClassGroups(user_id: string): Promise<ClassGroup[]> {
  * @throws An error if the Supabase insert fails.
  */
 export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert([group])
-    .select()
-    .single();
+  const { data, error } = await supabase.from(TABLE).insert([group]).select().single();
   if (error) throw error;
   return data;
 }
@@ -47,12 +43,7 @@ export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup
  * @throws An error if the Supabase update fails or the record is not found.
  */
 export async function updateClassGroup(id: string, group: ClassGroupUpdate): Promise<ClassGroup> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .update(group)
-    .eq('id', id)
-    .select()
-    .single();
+  const { data, error } = await supabase.from(TABLE).update(group).eq('id', id).select().single();
   if (error) throw error;
   return data;
 }
@@ -65,10 +56,6 @@ export async function updateClassGroup(id: string, group: ClassGroupUpdate): Pro
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassGroup(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase
-    .from(TABLE)
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user_id);
+  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }

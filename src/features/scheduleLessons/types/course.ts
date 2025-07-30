@@ -6,4 +6,4 @@ export type Course = Database['public']['Tables']['courses']['Row'];
 
 // --- Insert/Update Types for CRUD Operations ---
 export type CourseInsert = Database['public']['Tables']['courses']['Insert'];
-export type CourseUpdate = Database['public']['Tables']['courses']['Update']; 
+export type CourseUpdate = Database['public']['Tables']['courses']['Update'];

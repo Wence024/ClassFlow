@@ -3,11 +3,7 @@ import { useClassSessions } from '../hooks/useClassSessions';
 import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../hooks/useComponents';
 import ClassSessionList from '../components/classSessions/ClassSessionList';
 import ClassSessionForm from '../components/classSessions/ClassSessionForm';
-import type {
-  ClassSession,
-  ClassSessionInsert,
-  ClassSessionUpdate,
-} from '../types/classSession';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
 

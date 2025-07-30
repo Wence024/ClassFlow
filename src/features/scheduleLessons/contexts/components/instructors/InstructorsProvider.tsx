@@ -78,10 +78,10 @@ export const InstructorsProvider = ({ children }: { children: ReactNode }) => {
    * @returns A promise that resolves when the operation is complete.
    */
   const removeInstructorMutation = useMutation({
-      mutationFn: (id: string) => instructorsService.removeInstructor(id, user!.id),
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Instructors', user?.id] }),
-    });
-    const removeInstructor = (id: string) => removeInstructorMutation.mutateAsync(id);
+    mutationFn: (id: string) => instructorsService.removeInstructor(id, user!.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Instructors', user?.id] }),
+  });
+  const removeInstructor = (id: string) => removeInstructorMutation.mutateAsync(id);
 
   return (
     <InstructorsContext.Provider

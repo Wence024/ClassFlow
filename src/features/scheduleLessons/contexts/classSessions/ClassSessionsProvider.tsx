@@ -7,7 +7,12 @@ import type {
 import * as classSessionsService from '../../services/classSessionsService';
 import { ClassSessionsContext } from './ClassSessionsContext';
 import { useAuth } from '../../../auth/hooks/useAuth';
-import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../../hooks/useComponents';
+import {
+  useCourses,
+  useClassGroups,
+  useClassrooms,
+  useInstructors,
+} from '../../hooks/useComponents';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 /**
@@ -67,7 +72,8 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
    * @param data - The session data containing foreign keys.
    */
   const addClassSessionMutation = useMutation({
-    mutationFn: (data: ClassSessionInsert) => classSessionsService.addClassSession({ ...data, user_id: user!.id }),
+    mutationFn: (data: ClassSessionInsert) =>
+      classSessionsService.addClassSession({ ...data, user_id: user!.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classSessions', user?.id] }),
   });
   const addClassSession = (data: ClassSessionInsert) => addClassSessionMutation.mutateAsync(data);
@@ -78,10 +84,12 @@ export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => 
    * @param data - The updated session data.
    */
   const updateClassSessionMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: ClassSessionUpdate }) => classSessionsService.updateClassSession(id, data),
+    mutationFn: ({ id, data }: { id: string; data: ClassSessionUpdate }) =>
+      classSessionsService.updateClassSession(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classSessions', user?.id] }),
   });
-  const updateClassSession = (id: string, data: ClassSessionUpdate) => updateClassSessionMutation.mutateAsync({ id, data });
+  const updateClassSession = (id: string, data: ClassSessionUpdate) =>
+    updateClassSessionMutation.mutateAsync({ id, data });
 
   /**
    * Removes a class session from the database and updates the local state.

@@ -19,7 +19,9 @@ export default function checkConflicts(
   const targetGroupSessions = timetable.get(targetGroupId);
   if (
     targetGroupSessions?.[targetPeriodIndex] &&
-    (!source || targetGroupId !== source.class_group_id || targetPeriodIndex !== source.period_index)
+    (!source ||
+      targetGroupId !== source.class_group_id ||
+      targetPeriodIndex !== source.period_index)
   ) {
     return `Group conflict: A session is already scheduled in this slot for ${sessionToCheck.group.name}.`;
   }
@@ -29,7 +31,11 @@ export default function checkConflicts(
     const existingSession = sessions[targetPeriodIndex];
 
     if (existingSession) {
-      if (source && groupId === source.class_group_id && targetPeriodIndex === source.period_index) {
+      if (
+        source &&
+        groupId === source.class_group_id &&
+        targetPeriodIndex === source.period_index
+      ) {
         continue;
       }
 

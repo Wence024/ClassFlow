@@ -6,4 +6,4 @@ export type Instructor = Database['public']['Tables']['instructors']['Row'];
 
 // --- Insert/Update Types for CRUD Operations ---
 export type InstructorInsert = Database['public']['Tables']['instructors']['Insert'];
-export type InstructorUpdate = Database['public']['Tables']['instructors']['Update']; 
+export type InstructorUpdate = Database['public']['Tables']['instructors']['Update'];
