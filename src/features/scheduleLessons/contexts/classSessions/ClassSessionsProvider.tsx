@@ -1,4 +1,3 @@
-import { useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type {
   ClassSession,
@@ -9,6 +8,7 @@ import * as classSessionsService from '../../services/classSessionsService';
 import { ClassSessionsContext } from './ClassSessionsContext';
 import { useAuth } from '../../../auth/hooks/useAuth';
 import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../../hooks/useComponents';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Defines the shape of the context provided by ClassSessionsProvider.
@@ -23,8 +23,8 @@ export interface ClassSessionsContextType {
   classSessions: ClassSession[];
   loading: boolean;
   error: string | null;
-  addClassSession: (data: ClassSessionInsert) => Promise<void>;
-  updateClassSession: (id: string, data: ClassSessionUpdate) => Promise<void>;
+  addClassSession: (data: ClassSessionInsert) => Promise<ClassSession>;
+  updateClassSession: (id: string, data: ClassSessionUpdate) => Promise<ClassSession>;
   removeClassSession: (id: string) => Promise<void>;
 }
 
@@ -38,99 +38,67 @@ export interface ClassSessionsContextType {
  */
 export const ClassSessionsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [classSessions, setClassSessions] = useState<ClassSession[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Depend on component contexts to trigger re-fetch when they change.
   const { courses } = useCourses();
   const { classGroups } = useClassGroups();
   const { classrooms } = useClassrooms();
   const { instructors } = useInstructors();
+  const queryClient = useQueryClient();
 
-  const fetchClassSessions = useCallback(async () => {
-    if (!user) {
-      setClassSessions([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const data = await classSessionsService.getClassSessions(user.id);
-      setClassSessions(data);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  // Re-fetch sessions when user changes or any underlying component data is modified.
-  useEffect(() => {
-    fetchClassSessions();
-  }, [fetchClassSessions, courses, classGroups, classrooms, instructors]);
+  // Fetch class sessions, refetch when dependencies change
+  const {
+    data: classSessions = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: [
+      'classSessions',
+      user?.id,
+      courses?.length,
+      classGroups?.length,
+      classrooms?.length,
+      instructors?.length,
+    ],
+    queryFn: () => (user ? classSessionsService.getClassSessions(user.id) : Promise.resolve([])),
+    enabled: !!user,
+  });
 
   /**
    * Adds a new class session to the database and updates the local state.
    * @param data - The session data containing foreign keys.
    */
-  const addClassSession = async (data: ClassSessionInsert) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await classSessionsService.addClassSession({ ...data, user_id: user.id });
-      await fetchClassSessions(); // Re-fetch to ensure data consistency
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const addClassSessionMutation = useMutation({
+    mutationFn: (data: ClassSessionInsert) => classSessionsService.addClassSession({ ...data, user_id: user!.id }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classSessions', user?.id] }),
+  });
+  const addClassSession = (data: ClassSessionInsert) => addClassSessionMutation.mutateAsync(data);
 
   /**
    * Updates an existing class session in the database and updates the local state.
    * @param id - The ID of the session to update.
-   * @param data - An object containing the session fields to update.
+   * @param data - The updated session data.
    */
-  const updateClassSession = async (id: string, data: ClassSessionUpdate) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await classSessionsService.updateClassSession(id, data);
-      await fetchClassSessions(); // Re-fetch to ensure data consistency
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateClassSessionMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ClassSessionUpdate }) => classSessionsService.updateClassSession(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classSessions', user?.id] }),
+  });
+  const updateClassSession = (id: string, data: ClassSessionUpdate) => updateClassSessionMutation.mutateAsync({ id, data });
 
   /**
    * Removes a class session from the database and updates the local state.
    * @param id - The ID of the session to remove.
    */
-  const removeClassSession = async (id: string) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await classSessionsService.removeClassSession(id, user.id);
-      await fetchClassSessions(); // Re-fetch to ensure data consistency
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const removeClassSessionMutation = useMutation({
+    mutationFn: (id: string) => classSessionsService.removeClassSession(id, user!.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classSessions', user?.id] }),
+  });
+  const removeClassSession = (id: string) => removeClassSessionMutation.mutateAsync(id);
 
   return (
     <ClassSessionsContext.Provider
       value={{
         classSessions,
         loading,
-        error,
+        error: error ? (error as Error).message : null,
         addClassSession,
         updateClassSession,
         removeClassSession,

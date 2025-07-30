@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../../types/classGroup';
 import * as classGroupsService from '../../../services/classGroupsService';
 import { ClassGroupsContext } from './ClassGroupsContext';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Provides class group-related state and CRUD operations to its children.
@@ -17,34 +17,24 @@ export interface ClassGroupsContextType {
   classGroups: ClassGroup[];
   loading: boolean;
   error: string | null;
-  addClassGroup: (data: ClassGroupInsert) => Promise<void>;
-  updateClassGroup: (id: string, data: ClassGroupUpdate) => Promise<void>;
+  addClassGroup: (data: ClassGroupInsert) => Promise<ClassGroup>;
+  updateClassGroup: (id: string, data: ClassGroupUpdate) => Promise<ClassGroup>;
   removeClassGroup: (id: string) => Promise<void>;
 }
 
 export const ClassGroupsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [classGroups, setClassGroups] = useState<ClassGroup[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    /**
-     * Fetches class groups from the service when the user is authenticated.
-     * Clears existing class groups if the user logs out.
-     */
-    if (!user) {
-      setClassGroups([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    classGroupsService
-      .getClassGroups(user.id)
-      .then((data) => setClassGroups(data))
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const {
+    data: classGroups = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ['classGroups', user?.id],
+    queryFn: () => (user ? classGroupsService.getClassGroups(user.id) : Promise.resolve([])),
+    enabled: !!user,
+  });
 
   /**
    * Adds a new class group to the database and updates the local state.
@@ -52,62 +42,48 @@ export const ClassGroupsProvider = ({ children }: { children: ReactNode }) => {
    * @param data - The class group data to be added, excluding `id` and `user_id`.
    * @returns A promise that resolves when the operation is complete.
    */
-  const addClassGroup = async (data: ClassGroupInsert) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const newGroup = await classGroupsService.addClassGroup({ ...data, user_id: user.id });
-      setClassGroups((prev: ClassGroup[]) => [...prev, newGroup]);
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const addClassGroupMutation = useMutation({
+    mutationFn: (data: ClassGroupInsert) =>
+      classGroupsService.addClassGroup({ ...data, user_id: user!.id }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classGroups', user?.id] }),
+  });
+  const addClassGroup = (data: ClassGroupInsert) => addClassGroupMutation.mutateAsync(data);
 
   /**
    * Updates an existing class group in the database and updates the local state.
    * @param id - The ID of the class group to update.
-   * @param data - An object containing the class group fields to update.
+   * @param data - The updated class group data.
    * @returns A promise that resolves when the operation is complete.
    */
-  const updateClassGroup = async (id: string, data: ClassGroupUpdate) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const updated = await classGroupsService.updateClassGroup(id, data);
-      setClassGroups((prev: ClassGroup[]) => prev.map((g) => (g.id === id ? updated : g)));
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateClassGroupMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ClassGroupUpdate }) =>
+      classGroupsService.updateClassGroup(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classGroups', user?.id] }),
+  });
+  const updateClassGroup = (id: string, data: ClassGroupUpdate) =>
+    updateClassGroupMutation.mutateAsync({ id, data });
 
   /**
    * Removes a class group from the database and updates the local state.
    * @param id - The ID of the class group to remove.
    * @returns A promise that resolves when the operation is complete.
    */
-  const removeClassGroup = async (id: string) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await classGroupsService.removeClassGroup(id, user.id);
-      setClassGroups((prev: ClassGroup[]) => prev.filter((g) => g.id !== id));
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const removeClassGroupMutation = useMutation({
+    mutationFn: (id: string) => classGroupsService.removeClassGroup(id, user!.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classGroups', user?.id] }),
+  });
+  const removeClassGroup = (id: string) => removeClassGroupMutation.mutateAsync(id);
 
   return (
     <ClassGroupsContext.Provider
-      value={{ classGroups, loading, error, addClassGroup, updateClassGroup, removeClassGroup }}
+      value={{
+        classGroups,
+        loading,
+        error: error ? (error as Error).message : null,
+        addClassGroup,
+        updateClassGroup,
+        removeClassGroup,
+      }}
     >
       {children}
     </ClassGroupsContext.Provider>

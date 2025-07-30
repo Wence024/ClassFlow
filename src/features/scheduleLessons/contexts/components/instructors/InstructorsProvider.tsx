@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type {
-  Instructor,
-  InstructorInsert,
-  InstructorUpdate,
-} from '../../../types/instructor';
+import type { Instructor, InstructorInsert, InstructorUpdate } from '../../../types/instructor';
 import * as instructorsService from '../../../services/instructorsService';
 import { InstructorsContext } from './InstructorsContext';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Defines the shape of the context provided by InstructorsProvider.
@@ -22,8 +18,8 @@ export interface InstructorsContextType {
   instructors: Instructor[];
   loading: boolean;
   error: string | null;
-  addInstructor: (data: InstructorInsert) => Promise<void>;
-  updateInstructor: (id: string, data: InstructorUpdate) => Promise<void>;
+  addInstructor: (data: InstructorInsert) => Promise<Instructor>;
+  updateInstructor: (id: string, data: InstructorUpdate) => Promise<Instructor>;
   removeInstructor: (id: string) => Promise<void>;
 }
 
@@ -37,27 +33,17 @@ export interface InstructorsContextType {
  */
 export const InstructorsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [instructors, setInstructors] = useState<Instructor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    /**
-     * Fetches instructors from the service when the user is authenticated.
-     * Clears existing instructors if the user logs out.
-     */
-    if (!user) {
-      setInstructors([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    instructorsService
-      .getInstructors(user.id)
-      .then((data) => setInstructors(data))
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const {
+    data: instructors = [],
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: ['instructors', user?.id],
+    queryFn: () => (user ? instructorsService.getInstructors(user.id) : Promise.resolve([])),
+    enabled: !!user,
+  });
 
   /**
    * Adds a new instructor to the database and updates the local state.
@@ -65,19 +51,12 @@ export const InstructorsProvider = ({ children }: { children: ReactNode }) => {
    * @param data - The instructor data to be added, excluding `id` and `user_id`.
    * @returns A promise that resolves when the operation is complete.
    */
-  const addInstructor = async (data: InstructorInsert) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const newInstructor = await instructorsService.addInstructor({ ...data, user_id: user.id });
-      setInstructors((prev) => [...prev, newInstructor]);
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const addInstructorMutation = useMutation({
+    mutationFn: (data: InstructorInsert) =>
+      instructorsService.addInstructor({ ...data, user_id: user!.id }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Instructors', user?.id] }),
+  });
+  const addInstructor = (data: InstructorInsert) => addInstructorMutation.mutateAsync(data);
 
   /**
    * Updates an existing instructor in the database and updates the local state.
@@ -85,42 +64,35 @@ export const InstructorsProvider = ({ children }: { children: ReactNode }) => {
    * @param data - An object containing the instructor fields to update.
    * @returns A promise that resolves when the operation is complete.
    */
-  const updateInstructor = async (id: string, data: InstructorUpdate) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const updated = await instructorsService.updateInstructor(id, data);
-      setInstructors((prev) => prev.map((i) => (i.id === id ? updated : i)));
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateInstructorMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: InstructorUpdate }) =>
+      instructorsService.updateInstructor(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Instructors', user?.id] }),
+  });
+  const updateInstructor = (id: string, data: InstructorUpdate) =>
+    updateInstructorMutation.mutateAsync({ id, data });
 
   /**
    * Removes an instructor from the database and updates the local state.
    * @param id - The ID of the instructor to remove.
    * @returns A promise that resolves when the operation is complete.
    */
-  const removeInstructor = async (id: string) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await instructorsService.removeInstructor(id, user.id);
-      setInstructors((prev) => prev.filter((i) => i.id !== id));
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const removeInstructorMutation = useMutation({
+      mutationFn: (id: string) => instructorsService.removeInstructor(id, user!.id),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['Instructors', user?.id] }),
+    });
+    const removeInstructor = (id: string) => removeInstructorMutation.mutateAsync(id);
 
   return (
     <InstructorsContext.Provider
-      value={{ instructors, loading, error, addInstructor, updateInstructor, removeInstructor }}
+      value={{
+        instructors,
+        loading,
+        error: error ? (error as Error).message : null,
+        addInstructor,
+        updateInstructor,
+        removeInstructor,
+      }}
     >
       {children}
     </InstructorsContext.Provider>

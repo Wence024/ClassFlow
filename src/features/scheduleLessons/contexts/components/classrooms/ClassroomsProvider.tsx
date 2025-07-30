@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../../types/classroom';
 import * as classroomsService from '../../../services/classroomsService';
 import { ClassroomsContext } from './ClassroomsContext';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 /**
  * Defines the shape of the context provided by ClassroomsProvider.
@@ -18,8 +18,8 @@ export interface ClassroomsContextType {
   classrooms: Classroom[];
   loading: boolean;
   error: string | null;
-  addClassroom: (data: ClassroomInsert) => Promise<void>;
-  updateClassroom: (id: string, data: ClassroomUpdate) => Promise<void>;
+  addClassroom: (data: ClassroomInsert) => Promise<Classroom>;
+  updateClassroom: (id: string, data: ClassroomUpdate) => Promise<Classroom>;
   removeClassroom: (id: string) => Promise<void>;
 }
 
@@ -33,27 +33,17 @@ export interface ClassroomsContextType {
  */
 export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
-  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    /**
-     * Fetches classrooms from the service when the user is authenticated.
-     * Clears existing classrooms if the user logs out.
-     */
-    if (!user) {
-      setClassrooms([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    classroomsService
-      .getClassrooms(user.id)
-      .then((data) => setClassrooms(data))
-      .catch((err) => setError((err as Error).message))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const queryClient = useQueryClient();
+  
+    const {
+      data: classrooms = [],
+      isLoading: loading,
+      error,
+    } = useQuery({
+      queryKey: ['classrooms', user?.id],
+      queryFn: () => (user ? classroomsService.getClassrooms(user.id) : Promise.resolve([])),
+      enabled: !!user,
+    });
 
   /**
    * Adds a new classroom to the database and updates the local state.
@@ -61,19 +51,12 @@ export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
    * @param data - The classroom data to be added, excluding `id` and `user_id`.
    * @returns A promise that resolves when the operation is complete.
    */
-  const addClassroom = async (data: ClassroomInsert) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const newClassroom = await classroomsService.addClassroom({ ...data, user_id: user.id });
-      setClassrooms((prev) => [...prev, newClassroom]);
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const addClassroomMutation = useMutation({
+      mutationFn: (data: ClassroomInsert) =>
+        classroomsService.addClassroom({ ...data, user_id: user!.id }),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
+    });
+    const addClassroom = (data: ClassroomInsert) => addClassroomMutation.mutateAsync(data);
 
   /**
    * Updates an existing classroom in the database and updates the local state.
@@ -81,42 +64,35 @@ export const ClassroomsProvider = ({ children }: { children: ReactNode }) => {
    * @param data - An object containing the classroom fields to update.
    * @returns A promise that resolves when the operation is complete.
    */
-  const updateClassroom = async (id: string, data: ClassroomUpdate) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const updated = await classroomsService.updateClassroom(id, data);
-      setClassrooms((prev) => prev.map((c) => (c.id === id ? updated : c)));
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const updateClassroomMutation = useMutation({
+      mutationFn: ({ id, data }: { id: string; data: ClassroomUpdate }) =>
+        classroomsService.updateClassroom(id, data),
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
+    });
+    const updateClassroom = (id: string, data: ClassroomUpdate) =>
+      updateClassroomMutation.mutateAsync({ id, data });
 
   /**
    * Removes a classroom from the database and updates the local state.
    * @param id - The ID of the classroom to remove.
    * @returns A promise that resolves when the operation is complete.
    */
-  const removeClassroom = async (id: string) => {
-    if (!user) return;
-    setLoading(true);
-    setError(null);
-    try {
-      await classroomsService.removeClassroom(id, user.id);
-      setClassrooms((prev) => prev.filter((c) => c.id !== id));
-    } catch (err: unknown) {
-      setError((err as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const removeClassroomMutation = useMutation({
+    mutationFn: (id: string) => classroomsService.removeClassroom(id, user!.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['classrooms', user?.id] }),
+  });
+  const removeClassroom = (id: string) => removeClassroomMutation.mutateAsync(id);
 
   return (
     <ClassroomsContext.Provider
-      value={{ classrooms, loading, error, addClassroom, updateClassroom, removeClassroom }}
+      value={{
+        classrooms,
+        loading,
+        error: error ? (error as Error).message : null,
+        addClassroom,
+        updateClassroom,
+        removeClassroom,
+      }}
     >
       {children}
     </ClassroomsContext.Provider>
