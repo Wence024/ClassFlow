@@ -2,13 +2,11 @@ import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
-import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
-import Scheduler from './features/scheduleLessons/pages/Scheduler';
-import ComponentManagement from './features/scheduleLessons/pages/classSessionComponents';
-import { authRoutes } from './features/auth/routes/AuthRoutes';
+import { AuthRoutes } from './features/auth/routes/AuthRoutes';
+import { ScheduleLessonsRoutes } from './features/scheduleLessons/routes/scheduleLessonsRoutes';
+
 import { AuthProvider } from './features/auth/contexts/AuthProvider';
 import { useAuth } from './features/auth/hooks/useAuth';
-import PrivateRoute from './features/auth/components/PrivateRoute';
 
 // Home page component that redirects based on auth status
 const HomePage = () => {
@@ -84,32 +82,12 @@ function App() {
             </div>
           )}
           <Routes>
-            {authRoutes}
             <Route path="/" element={<HomePage />} />
-            <Route
-              path="/class-sessions"
-              element={
-                <PrivateRoute>
-                  <ClassSessions />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/scheduler"
-              element={
-                <PrivateRoute>
-                  <Scheduler />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/component-management"
-              element={
-                <PrivateRoute>
-                  <ComponentManagement />
-                </PrivateRoute>
-              }
-            />
+
+            <AuthRoutes />
+            <ScheduleLessonsRoutes />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

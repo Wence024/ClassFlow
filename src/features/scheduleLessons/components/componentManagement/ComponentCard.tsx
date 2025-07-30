@@ -1,4 +1,4 @@
-import ItemCard from '../ui/ItemCard';
+import ItemCard from '../../../../components/ui/ItemCard';
 import type { Course } from '../../types/course';
 import type { ClassGroup } from '../../types/classGroup';
 import type { Classroom } from '../../types/classroom';

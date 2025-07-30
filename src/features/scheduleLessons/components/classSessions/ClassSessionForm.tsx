@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import FormField from '../ui/FormField';
-import ActionButton from '../ui/ActionButton';
+import FormField from '../../../../components/ui/FormField';
+import ActionButton from '../../../../components/ui/ActionButton';
 import type {
   ClassSession,
   ClassSessionInsert,

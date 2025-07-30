@@ -4,8 +4,8 @@ import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../ho
 import ClassSessionList from '../components/classSessions/ClassSessionList';
 import ClassSessionForm from '../components/classSessions/ClassSessionForm';
 import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import ErrorMessage from '../components/ui/ErrorMessage';
+import LoadingSpinner from '../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../components/ui/ErrorMessage';
 
 const ClassSessions: React.FC = () => {
   const {

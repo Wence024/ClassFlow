@@ -3,9 +3,9 @@ import { useCourses } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import ErrorMessage from '../../components/ui/ErrorMessage';
-import { showNotification } from '../../components/ui/Notification';
+import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../../components/ui/ErrorMessage';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 
 // Page for managing courses (list, add, edit, remove)

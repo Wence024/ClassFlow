@@ -11,8 +11,8 @@ Here is your **consolidated, de-duplicated, and streamlined ClassFlow Maintenanc
 - [x] **React Query** — ✅ Fully adopted
 - [x] **Fix `useTimetable` real-time re-subscription** due to unstable dependencies
 - [x] **Remove `localStorage` fallback** from `authService.getStoredUser()` — security risk
-- [ ] **Standardize loading state naming** — unify `isLoading` vs `loading`
-- [ ] **Implement error boundaries** at feature level (`auth`, `scheduling`)
+- [x] **Standardize loading state naming** — unify `isLoading` vs `loading`
+- [x] **Implement error boundaries** at feature level (`auth`, `scheduling`)
 - [ ] **Create validation schemas** (Zod/Yup) for all user inputs
 
 ### 🛡️ Type Safety & Data Consistency

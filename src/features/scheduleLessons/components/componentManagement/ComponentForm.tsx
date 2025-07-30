@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import FormField from '../ui/FormField';
-import ActionButton from '../ui/ActionButton';
-import { showNotification } from '../ui/Notification';
+import FormField from '../../../../components/ui/FormField';
+import ActionButton from '../../../../components/ui/ActionButton';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';

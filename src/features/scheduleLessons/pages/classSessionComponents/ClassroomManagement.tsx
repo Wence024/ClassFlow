@@ -3,9 +3,9 @@ import { useClassrooms } from '../../hooks/';
 import { useClassSessions } from '../../hooks/';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import ErrorMessage from '../../components/ui/ErrorMessage';
-import { showNotification } from '../../components/ui/Notification';
+import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../../components/ui/ErrorMessage';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
 
 // Page for managing classrooms (list, add, edit, remove)
