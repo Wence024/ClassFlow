@@ -6,7 +6,6 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
 export function useInstructors() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
   const queryKey = ['instructors', user?.id];
 
   const {
@@ -37,9 +36,16 @@ export function useInstructors() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const loading =
+    isLoading ||
+    isFetching ||
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    removeMutation.isPending;
+
   return {
     instructors,
-    isLoading: isLoading || isFetching,
+    loading,
     error: error ? (error as Error).message : null,
     addInstructor: addMutation.mutateAsync,
     updateInstructor: (id: string, data: InstructorUpdate) =>

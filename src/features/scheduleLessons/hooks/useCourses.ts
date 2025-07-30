@@ -6,7 +6,6 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
 export function useCourses() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
   const queryKey = ['courses', user?.id];
 
   const {
@@ -36,9 +35,16 @@ export function useCourses() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const loading =
+    isLoading ||
+    isFetching ||
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    removeMutation.isPending;
+
   return {
     courses,
-    isLoading: isLoading || isFetching,
+    loading,
     error: error ? (error as Error).message : null,
     addCourse: addMutation.mutateAsync,
     updateCourse: (id: string, data: CourseUpdate) => updateMutation.mutateAsync({ id, data }),

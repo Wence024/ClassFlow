@@ -13,13 +13,13 @@ const ClassSessions: React.FC = () => {
     addClassSession,
     updateClassSession,
     removeClassSession,
-    loading: isLoading,
+    loading: classSessionsLoading, // Standardize to 'loading'
     error,
   } = useClassSessions();
-  const { courses, isLoading: coursesLoading } = useCourses();
-  const { classGroups, isLoading: groupsLoading } = useClassGroups();
-  const { classrooms, isLoading: classroomsLoading } = useClassrooms();
-  const { instructors, isLoading: instructorsLoading } = useInstructors();
+  const { courses, loading: coursesLoading } = useCourses();
+  const { classGroups, loading: groupsLoading } = useClassGroups();
+  const { classrooms, loading: classroomsLoading } = useClassrooms();
+  const { instructors, loading: instructorsLoading } = useInstructors();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
 
@@ -50,14 +50,13 @@ const ClassSessions: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
-      {/* Class Sessions List */}
       <div className="flex-1 min-w-0">
         <h1 className="text-3xl font-bold text-center mb-6">Class Session Management</h1>
         <div className="mt-4">
           <h2 className="text-xl font-semibold mb-4">Class Sessions</h2>
-          {isLoading && <LoadingSpinner text="Loading sessions..." />}
+          {classSessionsLoading && <LoadingSpinner text="Loading sessions..." />}
           {error && <ErrorMessage message={error} />}
-          {!isLoading && !error && (
+          {!classSessionsLoading && !error && (
             <ClassSessionList
               sessions={classSessions}
               onEdit={handleEditSession}
@@ -66,8 +65,6 @@ const ClassSessions: React.FC = () => {
           )}
         </div>
       </div>
-
-      {/* Create/Edit Form */}
       <div className="w-full md:w-96">
         <ClassSessionForm
           courses={courses}
@@ -75,10 +72,14 @@ const ClassSessions: React.FC = () => {
           instructors={instructors}
           classrooms={classrooms}
           editingSession={editingSession}
-          onSubmit={editingSession ? handleSaveSession : handleAddSession}
           onCancel={editingSession ? handleCancel : undefined}
+          onSubmit={editingSession ? handleSaveSession : handleAddSession}
           loading={
-            isLoading || coursesLoading || groupsLoading || classroomsLoading || instructorsLoading
+            classSessionsLoading ||
+            coursesLoading ||
+            groupsLoading ||
+            classroomsLoading ||
+            instructorsLoading
           }
         />
       </div>
