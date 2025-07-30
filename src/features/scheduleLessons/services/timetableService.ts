@@ -1,28 +1,20 @@
 // src/features/scheduleLessons/services/timetableService.ts
 
 import { supabase } from '../../../lib/supabase';
-// The HydratedTimetableAssignment type you created in the previous step is still correct.
 import type {
   TimetableAssignment,
   TimetableAssignmentInsert,
   HydratedTimetableAssignment,
 } from '../types/timetable';
 
-// --- Data Versioning (no changes here) ---
-export const CURRENT_TIMETABLE_VERSION = 2;
+// DELETED: Obsolete data versioning constant.
+// export const CURRENT_TIMETABLE_VERSION = 2;
 
-// --- Data Migration Template ---
-// If you change the timetable data structure in the future, add migration helpers here.
-// Example:
-// export async function migrateTimetableV2ToV3(user_id: string): Promise<void> {
-//   // Fetch all assignments for user
-//   // Transform and upsert with new version
-// }
+// DELETED: Obsolete migration template comments.
 
 /**
  * Fetch all timetable assignments for a user from Supabase, with the full
- * class session data embedded. This version uses an INNER JOIN to ensure
- * data integrity and performance.
+ * class session data embedded.
  * @param user_id The user's unique ID.
  * @returns Array of HydratedTimetableAssignment objects.
  */
@@ -31,7 +23,6 @@ export async function getTimetableAssignments(
 ): Promise<HydratedTimetableAssignment[]> {
   const { data, error } = await supabase
     .from('timetable_assignments')
-    // THIS IS THE CORRECTED QUERY
     .select(
       `
       *,
@@ -47,37 +38,27 @@ export async function getTimetableAssignments(
     .eq('user_id', user_id);
 
   if (error) {
-    // It's good practice to log the specific error for easier debugging.
     console.error('Error fetching hydrated timetable assignments:', error);
     throw error;
   }
 
-  // The rest of the function remains the same.
-  const needsMigration = (data ?? []).some((row) => row.data_version !== CURRENT_TIMETABLE_VERSION);
-  if (needsMigration) {
-    console.warn(
-      'Some timetable assignments are not at the current data version. Migration may be needed.'
-    );
-  }
+  // DELETED: Obsolete check for data migration.
 
   return data as HydratedTimetableAssignment[];
 }
 
-// --- NO OTHER CHANGES ARE NEEDED IN THIS FILE ---
-
 /**
  * Assign a session to a group/period (insert or upsert) in Supabase.
- * Always sets data_version to the current version.
  * @param assignment TimetableAssignmentInsert object.
  * @returns The upserted TimetableAssignment object.
  */
 export async function assignSessionToTimetable(
   assignment: TimetableAssignmentInsert
 ): Promise<TimetableAssignment> {
-  const assignmentWithVersion = { ...assignment, data_version: CURRENT_TIMETABLE_VERSION };
+  // REMOVED: data_version logic is no longer needed.
   const { data, error } = await supabase
     .from('timetable_assignments')
-    .upsert([assignmentWithVersion], { onConflict: 'user_id,class_group_id,period_index' })
+    .upsert([assignment], { onConflict: 'user_id,class_group_id,period_index' })
     .select('*')
     .single();
   if (error) throw error;
@@ -106,7 +87,6 @@ export async function removeSessionFromTimetable(
 
 /**
  * Move a session from one cell to another (delete old, upsert new) in Supabase.
- * Always sets data_version to the current version.
  * @param user_id The user's unique ID.
  * @param from The source cell ({ class_group_id, period_index }).
  * @param to The destination cell ({ class_group_id, period_index }).
@@ -120,6 +100,6 @@ export async function moveSessionInTimetable(
   assignment: TimetableAssignmentInsert
 ): Promise<TimetableAssignment> {
   await removeSessionFromTimetable(user_id, from.class_group_id, from.period_index);
-  const assignmentWithVersion = { ...assignment, data_version: CURRENT_TIMETABLE_VERSION };
-  return assignSessionToTimetable(assignmentWithVersion);
+  // REMOVED: data_version logic is no longer needed.
+  return assignSessionToTimetable(assignment);
 }

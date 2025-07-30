@@ -15,7 +15,7 @@ Welcome to ClassFlow! This guide covers basic usage and answers common questions
 - **Why can’t I assign a session?**
   - There may be a conflict (instructor, classroom, or group). Check the notification for details.
 - **How is my data saved?**
-  - All data is stored locally in your browser for now. Future versions will support cloud sync.
+  - Your data is securely saved to your account in the cloud. This means you can log in and access your timetable from any device!
 - **How do I reset my password?**
   - Use the Forgot Password link on the login page.
 - **How do I report a bug or contribute?**
@@ -26,7 +26,7 @@ Welcome to ClassFlow! This guide covers basic usage and answers common questions
 - **I see an error notification:**
   - Read the message for details. Most errors are due to missing fields or scheduling conflicts.
 - **My data disappeared:**
-  - If you cleared your browser storage, your data may be lost. Future versions will support cloud backup.
+  - This should no longer be an issue. Since your data is stored securely in your cloud account, it is not affected by clearing your browser's local storage.
 
 ## More Help
 
