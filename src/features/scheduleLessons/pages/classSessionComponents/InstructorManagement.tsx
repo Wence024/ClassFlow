@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useInstructors } from '../../hooks/useComponents';
+import { useInstructors } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
@@ -11,7 +11,7 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../../types
 // Page for managing instructors (list, add, edit, remove)
 // Now fully async and backed by Supabase.
 const InstructorManagement: React.FC = () => {
-  const { instructors, addInstructor, updateInstructor, removeInstructor, loading, error } =
+  const { instructors, addInstructor, updateInstructor, removeInstructor, isLoading, error } =
     useInstructors();
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
@@ -51,9 +51,9 @@ const InstructorManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Instructors</h2>
-        {loading && <LoadingSpinner text="Loading instructors..." />}
+        {isLoading && <LoadingSpinner text="Loading instructors..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<Instructor>
             items={instructors}
             onEdit={handleEdit}
@@ -69,7 +69,7 @@ const InstructorManagement: React.FC = () => {
           editingItem={editingInstructor}
           onSubmit={editingInstructor ? handleSave : handleAdd}
           onCancel={editingInstructor ? handleCancel : undefined}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </div>

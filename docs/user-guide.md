@@ -31,4 +31,4 @@ Welcome to ClassFlow! This guide covers basic usage and answers common questions
 ## More Help
 
 - For technical details, see the [System Architecture](architecture.md) and [Testing Guide](testing.md).
-- For development philosophy, see `Remember_when_Coding.md`.
+- For development philosophy, see `Remember_when_Coding.md`

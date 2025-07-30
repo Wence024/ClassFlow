@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCourses } from '../../hooks/useComponents';
+import { useCourses } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
@@ -11,7 +11,7 @@ import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 // Page for managing courses (list, add, edit, remove)
 // TODO: Add search/filter, aggregation, and multi-user support.
 const CourseManagement: React.FC = () => {
-  const { courses, addCourse, updateCourse, removeCourse, loading, error } = useCourses();
+  const { courses, addCourse, updateCourse, removeCourse, isLoading, error } = useCourses();
   const { classSessions } = useClassSessions();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
@@ -49,9 +49,9 @@ const CourseManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Courses</h2>
-        {loading && <LoadingSpinner text="Loading courses..." />}
+        {isLoading && <LoadingSpinner text="Loading courses..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<Course>
             items={courses}
             onEdit={handleEdit}
@@ -67,7 +67,7 @@ const CourseManagement: React.FC = () => {
           editingItem={editingCourse}
           onSubmit={editingCourse ? handleSave : handleAdd}
           onCancel={editingCourse ? handleCancel : undefined}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useClassrooms } from '../../hooks/useComponents';
+import { useClassrooms } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
@@ -11,7 +11,7 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/cl
 // Page for managing classrooms (list, add, edit, remove)
 // Now fully async and backed by Supabase.
 const ClassroomManagement: React.FC = () => {
-  const { classrooms, addClassroom, updateClassroom, removeClassroom, loading, error } =
+  const { classrooms, addClassroom, updateClassroom, removeClassroom, isLoading, error } =
     useClassrooms();
   const { classSessions } = useClassSessions();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
@@ -50,9 +50,9 @@ const ClassroomManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-        {loading && <LoadingSpinner text="Loading classrooms..." />}
+        {isLoading && <LoadingSpinner text="Loading classrooms..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<Classroom>
             items={classrooms}
             onEdit={handleEdit}
@@ -68,7 +68,7 @@ const ClassroomManagement: React.FC = () => {
           editingItem={editingClassroom}
           onSubmit={editingClassroom ? handleSave : handleAdd}
           onCancel={editingClassroom ? handleCancel : undefined}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </div>

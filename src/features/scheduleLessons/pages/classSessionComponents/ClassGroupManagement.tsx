@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useClassGroups } from '../../hooks/useComponents';
+import { useClassGroups } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
@@ -11,7 +11,7 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types
 // Page for managing class groups (list, add, edit, remove)
 // Now fully async and backed by Supabase.
 const ClassGroupManagement: React.FC = () => {
-  const { classGroups, addClassGroup, updateClassGroup, removeClassGroup, loading, error } =
+  const { classGroups, addClassGroup, updateClassGroup, removeClassGroup, isLoading, error } =
     useClassGroups();
   const { classSessions } = useClassSessions();
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
@@ -50,9 +50,9 @@ const ClassGroupManagement: React.FC = () => {
       {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
-        {loading && <LoadingSpinner text="Loading class groups..." />}
+        {isLoading && <LoadingSpinner text="Loading class groups..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<ClassGroup>
             items={classGroups}
             onEdit={handleEdit}
@@ -68,7 +68,7 @@ const ClassGroupManagement: React.FC = () => {
           editingItem={editingGroup}
           onSubmit={editingGroup ? handleSave : handleAdd}
           onCancel={editingGroup ? handleCancel : undefined}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
     </div>

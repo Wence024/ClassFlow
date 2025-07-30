@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-// import './Scheduler.css'; // Remove old CSS
 import { useClassSessions } from '../hooks/useClassSessions';
-import { TimetableProvider } from '../contexts/timetable/TimetableProvider';
+// REMOVED: TimetableProvider is no longer needed
 import { useTimetable } from '../hooks/useTimetable';
 import Drawer from '../components/timetabling/Drawer';
 import Timetable from '../components/timetabling/Timetable';
@@ -9,16 +8,15 @@ import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, Notification } from '../components/';
 import type { ClassSession } from '../types';
 
-// App component
-const SchedulerApp: React.FC = () => {
+// SchedulerApp no longer needs to be a separate component
+const Scheduler: React.FC = () => {
   const { classSessions } = useClassSessions();
-  const { timetable, groups, loading } = useTimetable();
+  // useTimetable now works without a provider
+  const { timetable, groups, loading } = useTimetable(); 
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
-  // Memoize derived data to prevent recalculating on every render
   const unassignedSessions = useMemo(() => {
     const assignedIds = new Set<string>();
-    // Iterate over the map values to get all assigned sessions
     for (const sessions of timetable.values()) {
       for (const session of sessions) {
         if (session) {
@@ -40,7 +38,7 @@ const SchedulerApp: React.FC = () => {
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8 relative">
         {loading && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
-            {loading && <LoadingSpinner text="Updating timetable..." />}
+            <LoadingSpinner text="Updating timetable..." />
           </div>
         )}
         <Drawer
@@ -58,11 +56,5 @@ const SchedulerApp: React.FC = () => {
     </>
   );
 };
-
-const Scheduler: React.FC = () => (
-  <TimetableProvider>
-    <SchedulerApp />
-  </TimetableProvider>
-);
 
 export default Scheduler;

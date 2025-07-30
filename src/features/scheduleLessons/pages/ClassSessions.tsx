@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useClassSessions } from '../hooks/useClassSessions';
-import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../hooks/useComponents';
+import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../hooks/';
 import ClassSessionList from '../components/classSessions/ClassSessionList';
 import ClassSessionForm from '../components/classSessions/ClassSessionForm';
 import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
@@ -8,12 +8,12 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
 
 const ClassSessions: React.FC = () => {
-  const { classSessions, addClassSession, updateClassSession, removeClassSession, loading, error } =
+  const { classSessions, addClassSession, updateClassSession, removeClassSession, loading: isLoading, error } =
     useClassSessions();
-  const { courses, loading: coursesLoading } = useCourses();
-  const { classGroups, loading: groupsLoading } = useClassGroups();
-  const { classrooms, loading: classroomsLoading } = useClassrooms();
-  const { instructors, loading: instructorsLoading } = useInstructors();
+  const { courses, isLoading: coursesLoading } = useCourses();
+  const { classGroups, isLoading: groupsLoading } = useClassGroups();
+  const { classrooms, isLoading: classroomsLoading } = useClassrooms();
+  const { instructors, isLoading: instructorsLoading } = useInstructors();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
 
@@ -49,9 +49,9 @@ const ClassSessions: React.FC = () => {
         <h1 className="text-3xl font-bold text-center mb-6">Class Session Management</h1>
         <div className="mt-4">
           <h2 className="text-xl font-semibold mb-4">Class Sessions</h2>
-          {loading && <LoadingSpinner text="Loading sessions..." />}
+          {isLoading && <LoadingSpinner text="Loading sessions..." />}
           {error && <ErrorMessage message={error} />}
-          {!loading && !error && (
+          {!isLoading && !error && (
             <ClassSessionList
               sessions={classSessions}
               onEdit={handleEditSession}
@@ -72,7 +72,7 @@ const ClassSessions: React.FC = () => {
           onSubmit={editingSession ? handleSaveSession : handleAddSession}
           onCancel={editingSession ? handleCancel : undefined}
           loading={
-            loading || coursesLoading || groupsLoading || classroomsLoading || instructorsLoading
+            isLoading || coursesLoading || groupsLoading || classroomsLoading || instructorsLoading
           }
         />
       </div>
