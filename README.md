@@ -16,6 +16,22 @@ A modern class scheduling and authentication web app built with **Vite**, **Reac
 
 ---
 
+## Developer Onboarding
+
+Welcome! This project follows a clear roadmap for maintainability and scaling. Please review these onboarding tips:
+
+- **Phases:** Code is structured for MVP, with clear separation for post-MVP and scaling features. See `Remember_when_Coding.md` for philosophy.
+- **Folder Structure:** Features are modular (see Project Structure below). Contexts, hooks, and services are separated for clarity.
+- **Type Safety:** TypeScript is enforced throughout. Avoid non-null assertions (`!`); use defensive checks.
+- **Error Handling:** All user-facing errors use the notification system (`showNotification`).
+- **Testing:** Core business logic is covered by unit tests (see `/src/features/scheduleLessons/utils/timetableLogic.test.ts`).
+- **Docs:** See `/docs/architecture.md` for system overview, `/docs/testing.md` for test strategy, and `/docs/user-guide.md` for user-facing help.
+- **.env:** Copy `.env.example` to `.env` and fill in Supabase credentials.
+
+For more, see the [Documentation](#documentation) section below.
+
+---
+
 ## Getting Started
 
 ### 1. Clone & Install
@@ -82,6 +98,7 @@ The app will be available at [http://localhost:5173](http://localhost:5173) (or 
 - Loading and error states are clearly indicated.
 - Responsive layout for desktop and mobile.
 - Code is organized by feature (`features/auth`, `features/scheduleLessons`).
+- **Contexts and hooks are now modularized for maintainability and scalability.**
 
 ---
 
@@ -91,14 +108,22 @@ The app will be available at [http://localhost:5173](http://localhost:5173) (or 
 ClassFlow/
   src/
     features/
-      auth/           # Authentication (API, context, pages, routes)
-      scheduleLessons/ # Class/session/timetable management
-    App.tsx           # App shell, routing, layout
-    index.css         # Tailwind and global styles
-    main.tsx          # App entry point
-  tailwind.config.cjs # Tailwind config
-  postcss.config.cjs  # PostCSS config
-  package.json        # Scripts and dependencies
+      auth/                # Authentication (API, context, pages, routes)
+      scheduleLessons/     # Class/session/timetable management
+        contexts/
+          classSessions/   # ClassSessionsProvider
+          components/      # ComponentsProvider
+          timetable/       # TimetableProvider
+          index.ts         # Barrel export for all contexts
+        hooks/             # Custom hooks (useClassSessions, useComponents, useTimetable)
+        pages/             # Page components (UI orchestration only)
+        components/        # UI and feature components
+    App.tsx                # App shell, routing, layout
+    index.css              # Tailwind and global styles
+    main.tsx               # App entry point
+  tailwind.config.cjs      # Tailwind config
+  postcss.config.cjs       # PostCSS config
+  package.json             # Scripts and dependencies
 ```
 
 ---
@@ -122,3 +147,12 @@ npm run preview
 ## License
 
 MIT
+
+---
+
+## Documentation
+
+- [System Architecture](docs/architecture.md)
+- [Testing & QA](docs/testing.md)
+- [User Guide / FAQ](docs/user-guide.md)
+- [Development Roadmap](Remember_when_Coding.md)

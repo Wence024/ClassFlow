@@ -1,12 +1,17 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
-import { ClassSessionsProvider } from './features/scheduleLessons/contexts/ClassSessionsContext';
-import { ComponentsProvider } from './features/scheduleLessons/contexts/ComponentsContext';
+import {
+  ClassSessionsProvider,
+  CoursesProvider,
+  ClassGroupsProvider,
+  ClassroomsProvider,
+  InstructorsProvider,
+} from './features/scheduleLessons/contexts/';
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
-import ComponentManagement from './features/scheduleLessons/pages/ComponentManagement';
+import ComponentManagement from './features/scheduleLessons/pages/classSessionComponents';
 import { authRoutes } from './features/auth/routes/AuthRoutes';
-import { AuthProvider } from './features/auth/contexts/AuthContext';
+import { AuthProvider } from './features/auth/contexts/AuthProvider';
 import { useAuth } from './features/auth/hooks/useAuth';
 import PrivateRoute from './features/auth/components/PrivateRoute';
 
@@ -70,52 +75,58 @@ function App() {
   };
 
   return (
-    <ClassSessionsProvider>
-      <ComponentsProvider>
-        <BrowserRouter>
-          <AuthProvider>
-            <NavBar onLogout={handleLogout} />
-            {toast && (
-              <div
-                className="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-lg z-50 text-base shadow-lg"
-                role="status"
-                aria-live="polite"
-              >
-                {toast}
-              </div>
-            )}
-            <Routes>
-              {authRoutes}
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/class-sessions"
-                element={
-                  <PrivateRoute>
-                    <ClassSessions />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/scheduler"
-                element={
-                  <PrivateRoute>
-                    <Scheduler />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/component-management"
-                element={
-                  <PrivateRoute>
-                    <ComponentManagement />
-                  </PrivateRoute>
-                }
-              />
-            </Routes>
-          </AuthProvider>
-        </BrowserRouter>
-      </ComponentsProvider>
-    </ClassSessionsProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <CoursesProvider>
+          <ClassGroupsProvider>
+            <ClassroomsProvider>
+              <InstructorsProvider>
+                <ClassSessionsProvider>
+                  <NavBar onLogout={handleLogout} />
+                  {toast && (
+                    <div
+                      className="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-2 rounded-lg z-50 text-base shadow-lg"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {toast}
+                    </div>
+                  )}
+                  <Routes>
+                    {authRoutes}
+                    <Route path="/" element={<HomePage />} />
+                    <Route
+                      path="/class-sessions"
+                      element={
+                        <PrivateRoute>
+                          <ClassSessions />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/scheduler"
+                      element={
+                        <PrivateRoute>
+                          <Scheduler />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      path="/component-management"
+                      element={
+                        <PrivateRoute>
+                          <ComponentManagement />
+                        </PrivateRoute>
+                      }
+                    />
+                  </Routes>
+                </ClassSessionsProvider>
+              </InstructorsProvider>
+            </ClassroomsProvider>
+          </ClassGroupsProvider>
+        </CoursesProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
