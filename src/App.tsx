@@ -7,8 +7,8 @@ import {
   ClassroomsProvider,
   InstructorsProvider,
 } from './features/scheduleLessons/contexts/';
-  import { QueryClientProvider } from '@tanstack/react-query';
-  import queryClient from './lib/reactQueryClient';
+import { QueryClientProvider } from '@tanstack/react-query';
+import queryClient from './lib/reactQueryClient';
 import ClassSessions from './features/scheduleLessons/pages/ClassSessions';
 import Scheduler from './features/scheduleLessons/pages/Scheduler';
 import ComponentManagement from './features/scheduleLessons/pages/classSessionComponents';

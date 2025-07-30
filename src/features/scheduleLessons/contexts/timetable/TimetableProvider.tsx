@@ -8,6 +8,8 @@ import checkConflicts from '../../utils/checkConflicts';
 import { useClassGroups } from '../../hooks/useComponents';
 import { useAuth } from '../../../auth/hooks/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+// We no longer need the separate classSessionsService import here
+// import * as classSessionsService from '../../services/classSessionsService';
 
 const NUMBER_OF_PERIODS = 16;
 
@@ -16,35 +18,58 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch assignments
+  // Fetch assignments WITH the full session data included. This is now ONE query.
   const {
     data: assignments = [],
-    isLoading: loading,
-    error,
+    isLoading: loadingAssignments,
+    isFetching: fetchingAssignments,
+    error: errorAssignments,
   } = useQuery({
-    queryKey: ['timetableAssignments', user?.id],
+    // The query key can be simplified as it no longer fetches just "assignments"
+    queryKey: ['hydratedTimetable', user?.id],
+    // The query function is now the updated service call
     queryFn: () => (user ? timetableService.getTimetableAssignments(user.id) : Promise.resolve([])),
     enabled: !!user && classGroups.length > 0,
   });
 
-  // Build timetable grid from assignments
+  // REMOVED: The separate query for class sessions is no longer needed.
+  /*
+  const {
+    data: classSessions = [],
+    isLoading: loadingSessions,
+    isFetching: fetchingSessions,
+    error: errorSessions,
+  } = useRQ({
+    queryKey: ['classSessions', user?.id],
+    queryFn: () => (user ? classSessionsService.getClassSessions(user.id) : Promise.resolve([])),
+    enabled: !!user,
+  });
+  */
+
+  // Build timetable grid. The logic is now much simpler.
   const timetable = useMemo(() => {
     const grid = new Map<string, (ClassSession | null)[]>();
     if (!classGroups.length) return grid;
+
     for (const group of classGroups) {
       grid.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
     }
+    // No need to check for a separate classSessions array
     if (!assignments.length) return grid;
-    // Note: This is async in your original, but for react-query, you should hydrate sessions elsewhere or prefetch.
-    // Here, we just map session ids for now.
+
     for (const assignment of assignments) {
       const row = grid.get(assignment.class_group_id);
-      if (row) row[assignment.period_index] = { id: assignment.class_session_id } as ClassSession;
+      // The full session object is directly on the assignment!
+      const session = assignment.class_session || null;
+      if (row && session) {
+        row[assignment.period_index] = session;
+      }
     }
     return grid;
+    // The dependency array is simpler
   }, [assignments, classGroups]);
 
-  // Mutations
+  // --- Mutations remain unchanged ---
   const assignSessionMutation = useMutation({
     mutationFn: async ({
       class_group_id,
@@ -63,8 +88,8 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         class_session_id: session.id,
       });
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['timetableAssignments', user?.id] }),
+    // Invalidate the new, consolidated query key
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hydratedTimetable', user?.id] }),
   });
 
   const removeSessionMutation = useMutation({
@@ -78,8 +103,7 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (!user) throw new Error('User not authenticated');
       await timetableService.removeSessionFromTimetable(user.id, class_group_id, period_index);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['timetableAssignments', user?.id] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hydratedTimetable', user?.id] }),
   });
 
   const moveSessionMutation = useMutation({
@@ -100,11 +124,10 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         class_session_id: session.id,
       });
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ['timetableAssignments', user?.id] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['hydratedTimetable', user?.id] }),
   });
 
-  // Provider methods
+  // --- Provider methods (assignSession, removeSession, moveSession) remain unchanged ---
   const assignSession = async (
     class_group_id: string,
     period_index: number,
@@ -145,6 +168,14 @@ export const TimetableProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return 'Failed to move session.';
     }
   };
+
+  // The loading/error states are now derived from a single query.
+  const loading =
+    fetchingAssignments ||
+    assignSessionMutation.isPending ||
+    removeSessionMutation.isPending ||
+    moveSessionMutation.isPending;
+  const error = errorAssignments;
 
   return (
     <TimetableContext.Provider
