@@ -12,7 +12,7 @@ import type { ClassSession } from '../types';
 const Scheduler: React.FC = () => {
   const { classSessions } = useClassSessions();
   // useTimetable now works without a provider
-  const { timetable, groups, loading } = useTimetable(); 
+  const { timetable, groups, loading } = useTimetable();
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
   const unassignedSessions = useMemo(() => {
@@ -35,23 +35,25 @@ const Scheduler: React.FC = () => {
   return (
     <>
       <Notification />
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8 relative">
-        {loading && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-70">
-            <LoadingSpinner text="Updating timetable..." />
-          </div>
-        )}
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
         <Drawer
           drawerSessions={drawerSessions}
           onDragStart={handleDragStart}
           onDropToDrawer={handleDropToDrawer}
         />
-        <Timetable
-          groups={groups}
-          timetable={timetable}
-          onDragStart={handleDragStart}
-          onDropToGrid={handleDropToGrid}
-        />
+        <div className="relative w-full">
+          {loading && (
+            <div className="absolute right-1/2 top-4 -translate-x-1/2 z-10">
+              <LoadingSpinner size={'md'} text="" />
+            </div>
+          )}
+          <Timetable
+            groups={groups}
+            timetable={timetable}
+            onDragStart={handleDragStart}
+            onDropToGrid={handleDropToGrid}
+          />
+        </div>
       </div>
     </>
   );
