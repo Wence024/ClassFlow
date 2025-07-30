@@ -16,8 +16,7 @@ export function useClassSessions() {
     error,
   } = useQuery<ClassSession[]>({
     queryKey,
-    queryFn: () =>
-      user ? classSessionsService.getClassSessions(user.id) : Promise.resolve([]),
+    queryFn: () => (user ? classSessionsService.getClassSessions(user.id) : Promise.resolve([])),
     enabled: !!user,
   });
 

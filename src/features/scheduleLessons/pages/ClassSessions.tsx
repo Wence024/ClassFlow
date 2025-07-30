@@ -8,8 +8,14 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
 
 const ClassSessions: React.FC = () => {
-  const { classSessions, addClassSession, updateClassSession, removeClassSession, loading: isLoading, error } =
-    useClassSessions();
+  const {
+    classSessions,
+    addClassSession,
+    updateClassSession,
+    removeClassSession,
+    loading: isLoading,
+    error,
+  } = useClassSessions();
   const { courses, isLoading: coursesLoading } = useCourses();
   const { classGroups, isLoading: groupsLoading } = useClassGroups();
   const { classrooms, isLoading: classroomsLoading } = useClassrooms();
