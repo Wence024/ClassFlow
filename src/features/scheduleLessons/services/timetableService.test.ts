@@ -1,17 +1,23 @@
 import { vi } from 'vitest';
-import { assignSessionToTimetable } from './timetableService';
+import {
+  assignSessionToTimetable,
+  getTimetableAssignments,
+  removeSessionFromTimetable,
+  moveSessionInTimetable,
+  CURRENT_TIMETABLE_VERSION,
+} from './timetableService';
 
 interface TimetableAssignmentInput {
   class_group_id: string;
   period_index: number;
   class_session_id: string;
   user_id: string;
-  data_version?: number;
   created_at: string | null;
 }
 
 interface TimetableAssignment extends TimetableAssignmentInput {
   id: string;
+  data_version: number;
 }
 
 type ChainableMock = ReturnType<typeof vi.fn>;
@@ -24,10 +30,7 @@ interface MockSupabaseQueryBuilder {
   upsert: ChainableMock;
   delete: ChainableMock;
   from: ChainableMock;
-  single: vi.Mock<
-    Promise<{ data: TimetableAssignment | null; error: { message: string } | null }>,
-    []
-  >;
+  single: vi.Mock<Promise<{ data: any; error: any }>, []>;
 }
 
 const mockSupabaseQueryBuilder: MockSupabaseQueryBuilder = {
@@ -47,79 +50,167 @@ vi.mock('../../../lib/supabase', () => ({
   },
 }));
 
-// Mock data with ID (full TimetableAssignment)
-const mockAssignmentWithId: TimetableAssignment = {
-  id: '123',
-  class_group_id: 'group1',
-  period_index: 1,
-  class_session_id: 'session1',
-  user_id: 'user1',
-  created_at: null,
-};
-
-// Mock input data without ID (TimetableAssignmentInput)
 const mockAssignmentInput = {
-  class_group_id: '11111111-1111-1111-1111-111111111111',
+  class_group_id: 'group-id',
   period_index: 1,
-  class_session_id: '22222222-2222-2222-2222-222222222222',
-  user_id: '33333333-3333-3333-3333-333333333333',
+  class_session_id: 'session-id',
+  user_id: 'user-id',
   created_at: null,
 };
 
-describe('assignSessionToTimetable', () => {
+const mockAssignmentWithId = {
+  ...mockAssignmentInput,
+  id: '123',
+  data_version: CURRENT_TIMETABLE_VERSION,
+};
+
+describe('TimetableService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Ensure all chained methods return the builder
+    mockSupabaseQueryBuilder.select.mockReturnThis();
+    mockSupabaseQueryBuilder.eq.mockReturnThis();
+    mockSupabaseQueryBuilder.insert.mockReturnThis();
+    mockSupabaseQueryBuilder.upsert.mockReturnThis();
+    mockSupabaseQueryBuilder.update.mockReturnThis();
+    mockSupabaseQueryBuilder.delete.mockReturnThis();
+    mockSupabaseQueryBuilder.from.mockReturnThis();
   });
 
-  test('should insert assignment without id and return assigned with id', async () => {
-    // Setup mocks to return the query builder for chaining
-    mockSupabaseQueryBuilder.upsert.mockReturnValueOnce(mockSupabaseQueryBuilder);
-    // Setup single() to resolve with expected data and no error
-    mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
-      data: mockAssignmentWithId,
-      error: null,
+  describe('assignSessionToTimetable', () => {
+    test('should insert and return assigned record with id', async () => {
+      mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
+        data: mockAssignmentWithId,
+        error: null,
+      });
+
+      const result = await assignSessionToTimetable(mockAssignmentInput);
+
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
+        [{ ...mockAssignmentInput, data_version: CURRENT_TIMETABLE_VERSION }],
+        { onConflict: 'user_id,class_group_id,period_index' }
+      );
+      expect(result).toEqual(mockAssignmentWithId);
     });
 
-    const result = await assignSessionToTimetable(mockAssignmentInput);
+    test('should throw if single() returns error', async () => {
+      mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'fail' },
+      });
 
-    expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
-      [{ ...mockAssignmentInput, data_version: 2 }],
-      { onConflict: 'user_id,class_group_id,period_index' }
-    );
-
-    expect(result).toEqual(mockAssignmentWithId);
-  });
-
-  test('should handle error returned from single', async () => {
-    const errorMessage = 'Insert failed';
-    mockSupabaseQueryBuilder.upsert.mockReturnValueOnce(mockSupabaseQueryBuilder);
-    mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
-      data: null,
-      error: { message: errorMessage },
+      await expect(assignSessionToTimetable(mockAssignmentInput)).rejects.toThrow('fail');
     });
 
-    await expect(assignSessionToTimetable(mockAssignmentInput)).rejects.toThrow(errorMessage);
+    test('should add data_version before upsert', async () => {
+      mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
+        data: mockAssignmentWithId,
+        error: null,
+      });
 
-    expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
-      [{ ...mockAssignmentInput, data_version: 2 }],
-      { onConflict: 'user_id,class_group_id,period_index' }
-    );
+      await assignSessionToTimetable(mockAssignmentInput);
+
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
+        [{ ...mockAssignmentInput, data_version: CURRENT_TIMETABLE_VERSION }],
+        { onConflict: 'user_id,class_group_id,period_index' }
+      );
+    });
   });
 
-  test('should add data_version before upserting', async () => {
-    mockSupabaseQueryBuilder.upsert.mockReturnValueOnce(mockSupabaseQueryBuilder);
-    mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
-      data: mockAssignmentWithId,
-      error: null,
+  describe('getTimetableAssignments', () => {
+    test('should return assignments and check data_version', async () => {
+      const mockRows = [{ ...mockAssignmentWithId }, { ...mockAssignmentWithId, data_version: 1 }];
+
+      mockSupabaseQueryBuilder.eq.mockResolvedValueOnce({ data: mockRows, error: null });
+
+      vi.spyOn(console, 'warn').mockImplementation(() => {}); // silence warning
+
+      const result = await getTimetableAssignments('user-id');
+
+      expect(result).toEqual(mockRows);
+      expect(console.warn).toHaveBeenCalledWith(
+        'Some timetable assignments are not at the current data version. Migration may be needed.'
+      );
     });
 
-    await assignSessionToTimetable(mockAssignmentInput);
+    test('should throw if Supabase returns error', async () => {
+      mockSupabaseQueryBuilder.eq.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'fail' },
+      });
 
-    expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
-      [{ ...mockAssignmentInput, data_version: 2 }],
-      { onConflict: 'user_id,class_group_id,period_index' }
-    );
+      await expect(getTimetableAssignments('user-id')).rejects.toThrow('fail');
+    });
   });
 
-  // Additional tests can be added here to cover other behavior
+  describe('removeSessionFromTimetable', () => {
+    test('should delete without error', async () => {
+      mockSupabaseQueryBuilder.delete.mockReturnThis();
+
+      // First two eq calls return the builder
+      mockSupabaseQueryBuilder.eq
+        .mockReturnValueOnce(mockSupabaseQueryBuilder)
+        .mockReturnValueOnce(mockSupabaseQueryBuilder);
+
+      // Final eq call returns the result of the delete operation
+      mockSupabaseQueryBuilder.eq.mockResolvedValueOnce({ error: null });
+
+      await expect(removeSessionFromTimetable('user-id', 'group-id', 1)).resolves.toBeUndefined();
+    });
+
+    test('should throw if Supabase delete returns error', async () => {
+      mockSupabaseQueryBuilder.delete.mockReturnThis();
+      mockSupabaseQueryBuilder.eq
+        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
+        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
+        .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
+
+      await expect(removeSessionFromTimetable('user-id', 'group-id', 1)).rejects.toThrow('fail');
+    });
+  });
+
+  describe('moveSessionInTimetable', () => {
+    test('should remove then assign new session with version', async () => {
+      mockSupabaseQueryBuilder.delete.mockReturnThis();
+
+      // Three eqs for the remove
+      mockSupabaseQueryBuilder.eq
+        .mockReturnValueOnce(mockSupabaseQueryBuilder)
+        .mockReturnValueOnce(mockSupabaseQueryBuilder)
+        .mockResolvedValueOnce({ error: null }); // final .eq() resolves the delete
+
+      // Then for upsert/assign
+      mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
+        data: mockAssignmentWithId,
+        error: null,
+      });
+
+      const result = await moveSessionInTimetable(
+        'user-id',
+        { class_group_id: 'A', period_index: 1 },
+        { class_group_id: 'B', period_index: 2 },
+        mockAssignmentInput
+      );
+
+      expect(result).toEqual(mockAssignmentWithId);
+    });
+
+    test('should throw if delete fails', async () => {
+      mockSupabaseQueryBuilder.delete.mockReturnThis();
+      mockSupabaseQueryBuilder.eq
+        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
+        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
+        .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
+
+      await expect(
+        moveSessionInTimetable(
+          'user-id',
+          { class_group_id: 'A', period_index: 1 },
+          { class_group_id: 'B', period_index: 2 },
+          mockAssignmentInput
+        )
+      ).rejects.toThrow('fail');
+    });
+  });
 });
