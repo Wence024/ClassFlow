@@ -13,13 +13,13 @@ import type { AuthResponse, User } from '../types/auth';
 
 /**
  * Log in a user using Supabase authentication.
+ * Supabase client handles secure session storage automatically.
  * @param email - User's email
  * @param password - User's password
  * @returns AuthResponse with user and token
  */
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const response = await loginApi(email, password);
-  localStorage.setItem('authUser', JSON.stringify(response.user));
   return response;
 }
 
@@ -37,36 +37,24 @@ export async function register(
   password: string
 ): Promise<{ user: User; token: string; needsVerification: boolean }> {
   const response = await registerApi(name, email, password);
-  // If token is empty, user needs to verify email
   const needsVerification = !response.token;
-  localStorage.setItem('authUser', JSON.stringify(response.user));
   return { ...response, needsVerification };
 }
 
 /**
- * Log out the current user and clear their session.
+ * Log out the current user and clear their secure session.
  */
 export async function logout(): Promise<void> {
   await logoutApi();
-  localStorage.removeItem('authUser');
 }
 
 /**
- * Get the currently stored user from localStorage or Supabase session.
+ * Get the currently authenticated user directly from the secure Supabase session.
  * @returns User object or null
  */
 export async function getStoredUser(): Promise<User | null> {
-  // First try to get from Supabase session
-  const currentUser = await getCurrentUser();
-  if (currentUser) {
-    // Update localStorage with current session
-    localStorage.setItem('authUser', JSON.stringify(currentUser.user));
-    return currentUser.user;
-  }
-
-  // Fallback to localStorage if no active session
-  const stored = localStorage.getItem('authUser');
-  return stored ? JSON.parse(stored) : null;
+  const response = await getCurrentUser();
+  return response?.user ?? null;
 }
 
 /**
