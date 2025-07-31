@@ -7,3 +7,5 @@ dist
 *.yml
 *.yaml
 *.json
+
+src/lib/supabase.types.ts

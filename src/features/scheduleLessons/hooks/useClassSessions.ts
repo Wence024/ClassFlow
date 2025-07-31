@@ -7,17 +7,16 @@ import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../ty
 export function useClassSessions() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
   const queryKey = ['classSessions', user?.id];
 
   const {
     data: classSessions = [],
-    isLoading: loading,
+    isLoading,
+    isFetching,
     error,
   } = useQuery<ClassSession[]>({
     queryKey,
-    queryFn: () =>
-      user ? classSessionsService.getClassSessions(user.id) : Promise.resolve([]),
+    queryFn: () => (user ? classSessionsService.getClassSessions(user.id) : Promise.resolve([])),
     enabled: !!user,
   });
 
@@ -37,6 +36,13 @@ export function useClassSessions() {
     mutationFn: (id: string) => classSessionsService.removeClassSession(id, user!.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
+
+  const loading =
+    isLoading ||
+    isFetching ||
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    removeMutation.isPending;
 
   return {
     classSessions,

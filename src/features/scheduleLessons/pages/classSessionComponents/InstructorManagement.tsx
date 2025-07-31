@@ -3,15 +3,15 @@ import { useInstructors } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import ErrorMessage from '../../components/ui/ErrorMessage';
-import { showNotification } from '../../components/ui/Notification';
+import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../../components/ui/ErrorMessage';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../../types/instructor';
 
 // Page for managing instructors (list, add, edit, remove)
 // Now fully async and backed by Supabase.
 const InstructorManagement: React.FC = () => {
-  const { instructors, addInstructor, updateInstructor, removeInstructor, isLoading, error } =
+  const { instructors, addInstructor, updateInstructor, removeInstructor, loading, error } =
     useInstructors();
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
@@ -48,12 +48,11 @@ const InstructorManagement: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row gap-8 mt-8">
-      {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Instructors</h2>
-        {isLoading && <LoadingSpinner text="Loading instructors..." />}
+        {loading && <LoadingSpinner text="Loading instructors..." />}
         {error && <ErrorMessage message={error} />}
-        {!isLoading && !error && (
+        {!loading && !error && (
           <ComponentList<Instructor>
             items={instructors}
             onEdit={handleEdit}
@@ -62,14 +61,13 @@ const InstructorManagement: React.FC = () => {
           />
         )}
       </div>
-      {/* Form (right) */}
       <div className="w-full md:w-96">
         <ComponentForm
           type="instructor"
           editingItem={editingInstructor}
-          onSubmit={editingInstructor ? handleSave : handleAdd}
           onCancel={editingInstructor ? handleCancel : undefined}
-          loading={isLoading}
+          onSubmit={editingInstructor ? handleSave : handleAdd}
+          loading={loading}
         />
       </div>
     </div>

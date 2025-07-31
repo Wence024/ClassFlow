@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import FormField from '../ui/FormField';
-import ActionButton from '../ui/ActionButton';
+import { z } from 'zod'; // Import Zod
+import { classSessionSchema } from '../../types/validation'; // Import the new schema
+import FormField from '../../../../components/ui/FormField';
+import ActionButton from '../../../../components/ui/ActionButton';
 import type {
   ClassSession,
   ClassSessionInsert,
@@ -68,31 +70,32 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
     setErrors({});
   }, [editingSession]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
-
-    if (!formData.courseId) newErrors.courseId = 'Course is required';
-    if (!formData.groupId) newErrors.groupId = 'Class group is required';
-    if (!formData.instructorId) newErrors.instructorId = 'Instructor is required';
-    if (!formData.classroomId) newErrors.classroomId = 'Classroom is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    try {
+      // Use Zod to validate the form data
+      classSessionSchema.parse(formData);
+      setErrors({}); // Clear errors on success
 
-    // Construct the payload with foreign keys for Supabase.
-    // The service expects snake_case keys.
-    onSubmit({
-      course_id: formData.courseId,
-      class_group_id: formData.groupId,
-      instructor_id: formData.instructorId,
-      classroom_id: formData.classroomId,
-    });
+      // The service expects snake_case keys, so we still map the validated data.
+      onSubmit({
+        course_id: formData.courseId,
+        class_group_id: formData.groupId,
+        instructor_id: formData.instructorId,
+        classroom_id: formData.classroomId,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formattedErrors: Partial<FormData> = {};
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            formattedErrors[err.path[0] as keyof FormData] = err.message;
+          }
+        });
+        setErrors(formattedErrors);
+      }
+    }
   };
 
   const handleReset = () => {
@@ -111,59 +114,69 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingSession ? 'Edit Class Session' : 'Create Class Session'}
       </h2>
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        role="form"
+        aria-label={editingSession ? 'Edit Class Session Form' : 'Create Class Session Form'}
+      >
+        <fieldset disabled={loading}>
+          <FormField
+            id="courseId"
+            label="Course"
+            type="select"
+            value={formData.courseId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, courseId: value }))}
+            options={courses}
+            required
+            error={errors.courseId}
+          />
 
-      <form onSubmit={handleSubmit}>
-        <FormField
-          label="Course"
-          type="select"
-          value={formData.courseId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, courseId: value }))}
-          options={courses}
-          required
-          error={errors.courseId}
-        />
+          <FormField
+            id="classGroupId"
+            label="Class Group"
+            type="select"
+            value={formData.groupId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, groupId: value }))}
+            options={classGroups}
+            required
+            error={errors.groupId}
+          />
 
-        <FormField
-          label="Class Group"
-          type="select"
-          value={formData.groupId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, groupId: value }))}
-          options={classGroups}
-          required
-          error={errors.groupId}
-        />
+          <FormField
+            id="instructorId"
+            label="Instructor"
+            type="select"
+            value={formData.instructorId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, instructorId: value }))}
+            options={instructors}
+            required
+            error={errors.instructorId}
+          />
 
-        <FormField
-          label="Instructor"
-          type="select"
-          value={formData.instructorId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, instructorId: value }))}
-          options={instructors}
-          required
-          error={errors.instructorId}
-        />
+          <FormField
+            id="classrromId"
+            label="Classroom"
+            type="select"
+            value={formData.classroomId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, classroomId: value }))}
+            options={classrooms}
+            required
+            error={errors.classroomId}
+          />
 
-        <FormField
-          label="Classroom"
-          type="select"
-          value={formData.classroomId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, classroomId: value }))}
-          options={classrooms}
-          required
-          error={errors.classroomId}
-        />
-
-        <div className="flex gap-2">
-          <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
-            {editingSession ? 'Save Changes' : 'Create Class Session'}
-          </ActionButton>
-
-          {(editingSession || onCancel) && (
-            <ActionButton type="button" variant="secondary" onClick={handleReset}>
-              Cancel
+          <div className="flex gap-2 mt-4">
+            <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
+              {editingSession ? 'Save Changes' : 'Create Class Session'}
             </ActionButton>
-          )}
-        </div>
+
+            {onCancel && (
+              <ActionButton type="button" variant="secondary" onClick={handleReset}>
+                Cancel
+              </ActionButton>
+            )}
+          </div>
+        </fieldset>
       </form>
     </div>
   );

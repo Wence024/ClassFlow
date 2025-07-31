@@ -127,7 +127,7 @@ export function useTimetable() {
       });
       return { previousAssignments };
     },
-    onError: (err, movedItem, context) => {
+    onError: (_err, _movedItem, context) => {
       queryClient.setQueryData(queryKey, context?.previousAssignments);
     },
     onSettled: () => {
@@ -161,7 +161,7 @@ export function useTimetable() {
       );
       return { previousAssignments };
     },
-    onError: (err, removedItem, context) => {
+    onError: (_err, _removedItem, context) => {
       queryClient.setQueryData(queryKey, context?.previousAssignments);
     },
     onSettled: () => {

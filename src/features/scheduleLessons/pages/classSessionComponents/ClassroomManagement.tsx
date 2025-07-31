@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useClassrooms } from '../../hooks/';
-import { useClassSessions } from '../../hooks/useClassSessions';
+import { useClassSessions } from '../../hooks/';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import ErrorMessage from '../../components/ui/ErrorMessage';
-import { showNotification } from '../../components/ui/Notification';
+import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../../components/ui/ErrorMessage';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
 
 // Page for managing classrooms (list, add, edit, remove)
 // Now fully async and backed by Supabase.
 const ClassroomManagement: React.FC = () => {
-  const { classrooms, addClassroom, updateClassroom, removeClassroom, isLoading, error } =
+  const { classrooms, addClassroom, updateClassroom, removeClassroom, loading, error } =
     useClassrooms();
   const { classSessions } = useClassSessions();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
@@ -47,12 +47,11 @@ const ClassroomManagement: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row gap-8 mt-8">
-      {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-        {isLoading && <LoadingSpinner text="Loading classrooms..." />}
+        {loading && <LoadingSpinner text="Loading classrooms..." />}
         {error && <ErrorMessage message={error} />}
-        {!isLoading && !error && (
+        {!loading && !error && (
           <ComponentList<Classroom>
             items={classrooms}
             onEdit={handleEdit}
@@ -61,14 +60,13 @@ const ClassroomManagement: React.FC = () => {
           />
         )}
       </div>
-      {/* Form (right) */}
       <div className="w-full md:w-96">
         <ComponentForm
           type="classroom"
           editingItem={editingClassroom}
-          onSubmit={editingClassroom ? handleSave : handleAdd}
           onCancel={editingClassroom ? handleCancel : undefined}
-          loading={isLoading}
+          onSubmit={editingClassroom ? handleSave : handleAdd}
+          loading={loading}
         />
       </div>
     </div>

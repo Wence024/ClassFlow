@@ -3,15 +3,15 @@ import { useCourses } from '../../hooks/';
 import { useClassSessions } from '../../hooks/useClassSessions';
 import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import ErrorMessage from '../../components/ui/ErrorMessage';
-import { showNotification } from '../../components/ui/Notification';
+import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
+import ErrorMessage from '../../../../components/ui/ErrorMessage';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 
 // Page for managing courses (list, add, edit, remove)
 // TODO: Add search/filter, aggregation, and multi-user support.
 const CourseManagement: React.FC = () => {
-  const { courses, addCourse, updateCourse, removeCourse, isLoading, error } = useCourses();
+  const { courses, addCourse, updateCourse, removeCourse, loading, error } = useCourses();
   const { classSessions } = useClassSessions();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
@@ -46,12 +46,11 @@ const CourseManagement: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row gap-8 mt-8">
-      {/* List (left) */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Courses</h2>
-        {isLoading && <LoadingSpinner text="Loading courses..." />}
+        {loading && <LoadingSpinner text="Loading courses..." />}
         {error && <ErrorMessage message={error} />}
-        {!isLoading && !error && (
+        {!loading && !error && (
           <ComponentList<Course>
             items={courses}
             onEdit={handleEdit}
@@ -60,14 +59,13 @@ const CourseManagement: React.FC = () => {
           />
         )}
       </div>
-      {/* Form (right) */}
       <div className="w-full md:w-96">
         <ComponentForm
           type="course"
           editingItem={editingCourse}
-          onSubmit={editingCourse ? handleSave : handleAdd}
           onCancel={editingCourse ? handleCancel : undefined}
-          loading={isLoading}
+          onSubmit={editingCourse ? handleSave : handleAdd}
+          loading={loading}
         />
       </div>
     </div>

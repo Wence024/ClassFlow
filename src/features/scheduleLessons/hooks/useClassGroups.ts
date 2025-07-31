@@ -6,7 +6,6 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/cl
 export function useClassGroups() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
   const queryKey = ['classGroups', user?.id];
 
   const {
@@ -37,9 +36,16 @@ export function useClassGroups() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const loading =
+    isLoading ||
+    isFetching ||
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    removeMutation.isPending;
+
   return {
     classGroups,
-    isLoading: isLoading || isFetching,
+    loading,
     error: error ? (error as Error).message : null,
     addClassGroup: addMutation.mutateAsync,
     updateClassGroup: (id: string, data: ClassGroupUpdate) =>

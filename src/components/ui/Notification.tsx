@@ -1,25 +1,24 @@
-import React, { useState, useRef } from 'react';
-
-let listeners: ((msg: string) => void)[] = [];
-
-export function showNotification(msg: string) {
-  listeners.forEach((fn) => fn(msg));
-}
+import React, { useState, useRef, useEffect } from 'react';
+// Import the subscribe function from our new service
+import { subscribe } from '../../lib/notificationsService';
 
 const AUTO_DISMISS_MS = 4000;
 
+// This component now has a single responsibility: displaying the notification UI.
 const Notification: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  React.useEffect(() => {
-    listeners.push(setMessage);
-    return () => {
-      listeners = listeners.filter((fn) => fn !== setMessage);
-    };
-  }, []);
+  useEffect(() => {
+    // Subscribe to the notification service when the component mounts.
+    // The subscribe function returns a cleanup function (unsubscribe).
+    const unsubscribe = subscribe(setMessage);
 
-  React.useEffect(() => {
+    // The cleanup function will be called when the component unmounts.
+    return unsubscribe;
+  }, []); // The empty dependency array ensures this runs only once.
+
+  useEffect(() => {
     if (message) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setMessage(null), AUTO_DISMISS_MS);
@@ -43,7 +42,7 @@ const Notification: React.FC = () => {
         onClick={() => setMessage(null)}
         aria-label="Dismiss notification"
       >
-        ×
+        x
       </button>
     </div>
   );

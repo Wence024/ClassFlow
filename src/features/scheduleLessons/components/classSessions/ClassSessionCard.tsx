@@ -1,5 +1,5 @@
 import React from 'react';
-import ItemCard from '../ui/ItemCard';
+import ItemCard from '../../../../components/ui/ItemCard';
 import type { ClassSession } from '../../types/classSession';
 
 interface ClassSessionCardProps {

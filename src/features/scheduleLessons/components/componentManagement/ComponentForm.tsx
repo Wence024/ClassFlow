@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import FormField from '../ui/FormField';
-import ActionButton from '../ui/ActionButton';
-import { showNotification } from '../ui/Notification';
+import { z } from 'zod'; // Import Zod
+import FormField from '../../../../components/ui/FormField';
+import ActionButton from '../../../../components/ui/ActionButton';
+import { showNotification } from '../../../../components/ui/Notification';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../../types/instructor';
+import { componentSchemas } from '../../types/validation';
 
 type BaseFormProps = {
   onCancel?: () => void;
@@ -123,84 +125,35 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
     setErrors({});
   }, [editingItem, type]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
-
-    config.fields.forEach((field) => {
-      if (field.required && !formData[field.key]) {
-        newErrors[field.key] = `${field.label} is required`;
-      }
-    });
-
-    // Email validation
-    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      showNotification('Please fix the errors in the form before submitting.');
-      return;
-    }
+    const schema = componentSchemas[type];
+    const dataToValidate = {
+      name: formData.name,
+      code: formData.code,
+      location: formData.location,
+      email: formData.email,
+    };
 
-    switch (type) {
-      case 'course': {
-        if (!formData.name || !formData.code) {
-          showNotification('Course name and code are required.');
-          return;
-        }
-        const courseData = { name: formData.name, code: formData.code };
-        onSubmit(courseData as CourseInsert | CourseUpdate);
-        break;
+    try {
+      // Zod validates the data
+      const validatedData = schema.parse(dataToValidate);
+      setErrors({}); // Clear errors on success
+      onSubmit(validatedData); // Submit the Zod-validated data
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Format Zod errors into a flat object for our state
+        const formattedErrors: Partial<FormData> = {};
+        error.issues.forEach((err: z.core.$ZodIssue) => {
+          if (err.path[0]) {
+            formattedErrors[err.path[0] as keyof FormData] = err.message;
+          }
+        });
+        setErrors(formattedErrors);
+        showNotification('Please fix the errors in the form.');
       }
-      case 'classGroup': {
-        if (!formData.name) {
-          showNotification('Class group name is required.');
-          return;
-        }
-        const groupData = { name: formData.name };
-        onSubmit(groupData as ClassGroupInsert | ClassGroupUpdate);
-        break;
-      }
-      case 'classroom': {
-        if (!formData.name || !formData.location) {
-          showNotification('Classroom name and location are required.');
-          return;
-        }
-        const classroomData = { name: formData.name, location: formData.location };
-        onSubmit(classroomData as ClassroomInsert | ClassroomUpdate);
-        break;
-      }
-      case 'instructor': {
-        if (!formData.name || !formData.email) {
-          showNotification('Instructor name and email are required.');
-          return;
-        }
-        const instructorData = { name: formData.name, email: formData.email };
-        onSubmit(instructorData as InstructorInsert | InstructorUpdate);
-        break;
-      }
-      default:
-        showNotification('Unknown form type.');
-        return;
     }
-  };
-
-  const handleReset = () => {
-    setFormData({
-      name: '',
-      code: '',
-      location: '',
-      email: '',
-    });
-    setErrors({});
-    onCancel?.();
   };
 
   return (
@@ -209,30 +162,39 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
         {editingItem ? `Edit ${config.title}` : `Create ${config.title}`}
       </h2>
 
-      <form onSubmit={handleSubmit}>
-        {config.fields.map((field) => (
-          <FormField
-            key={field.key}
-            label={field.label}
-            type={field.type || 'text'}
-            value={formData[field.key] || ''}
-            onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
-            required={field.required}
-            error={errors[field.key]}
-          />
-        ))}
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        role="form"
+        aria-label={`${editingItem ? 'Edit' : 'Create'} ${config.title}`}
+      >
+        <fieldset disabled={loading}>
+          {config.fields.map((field) => (
+            <FormField
+              key={field.key}
+              id={field.key} // Pass the key as the id
+              label={field.label}
+              type={field.type || 'text'}
+              value={formData[field.key] || ''}
+              onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
+              required={field.required}
+              error={errors[field.key]}
+              autoComplete={field.key === 'email' ? 'email' : 'off'}
+            />
+          ))}
 
-        <div className="flex gap-2">
-          <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
-            {editingItem ? 'Save Changes' : `Create ${config.title}`}
-          </ActionButton>
-
-          {(editingItem || onCancel) && (
-            <ActionButton type="button" variant="secondary" onClick={handleReset}>
-              Cancel
+          <div className="flex gap-2 mt-4">
+            <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
+              {editingItem ? 'Save Changes' : `Create ${config.title}`}
             </ActionButton>
-          )}
-        </div>
+
+            {onCancel && (
+              <ActionButton type="button" variant="secondary" onClick={onCancel}>
+                Cancel
+              </ActionButton>
+            )}
+          </div>
+        </fieldset>
       </form>
     </div>
   );

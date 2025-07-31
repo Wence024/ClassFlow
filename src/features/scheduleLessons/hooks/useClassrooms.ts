@@ -6,7 +6,6 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
 export function useClassrooms() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-
   const queryKey = ['classrooms', user?.id];
 
   const {
@@ -37,9 +36,16 @@ export function useClassrooms() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const loading =
+    isLoading ||
+    isFetching ||
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    removeMutation.isPending;
+
   return {
     classrooms,
-    isLoading: isLoading || isFetching,
+    loading,
     error: error ? (error as Error).message : null,
     addClassroom: addMutation.mutateAsync,
     updateClassroom: (id: string, data: ClassroomUpdate) =>
