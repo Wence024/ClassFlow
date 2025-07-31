@@ -9,6 +9,8 @@
 
 - [ ] Transition from context+providers into react query (useClassSessions.ts hook is already implemented)
 
+- [ ] UI issue: separate submit loading in forms vs fetching loading in lists.
+
 ## Provider fixes
 
 ### TimetableProvider

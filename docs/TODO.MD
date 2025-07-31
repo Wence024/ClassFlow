@@ -1,16 +1,5 @@
 # Todos
 
-- [x] Data Migration Needed?
-  - If users have existing localStorage data from the old [][] format, it may break unless you:
-  - Clear storage on update, or
-  - Write a migration script that converts the old format to the new [id, array] tuple format.
-- [x] Test for Edge Cases:
-  - Moving a session back to its original slot (Handled by logic, covered by test)
-  - Rapid reordering of classGroups (Handled by TimetableProvider useEffect)
-  - Drag-cancel scenarios (Handled by native DnD API, no state change)
-- [x] Typescript Safety:
-  - `groupId` is kept consistent by the TimetableProvider, which syncs the timetable Map with the classGroups array. This prevents invalid key access.
-
 1. [x] **Implement Basic Conflict Detection (Core MVP Feature)**
     - A scheduler's primary value is preventing conflicts. This is a core piece of business logic that makes your application truly useful. It fits perfectly within your existing architecture.
 2. [x] **Backend Integration with Supabase (MVP Foundation)**
