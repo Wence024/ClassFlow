@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 // Import your new ErrorBoundary component
-import ErrorBoundary from '../../../components/ui/ErrorBoundary'; 
+import ErrorBoundary from '../../../components/ui/ErrorBoundary';
 
 // Import Pages
 import LoginPage from '../pages/LoginPage';

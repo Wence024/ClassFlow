@@ -13,7 +13,7 @@ Here is your **consolidated, de-duplicated, and streamlined ClassFlow Maintenanc
 - [x] **Remove `localStorage` fallback** from `authService.getStoredUser()` — security risk
 - [x] **Standardize loading state naming** — unify `isLoading` vs `loading`
 - [x] **Implement error boundaries** at feature level (`auth`, `scheduling`)
-- [ ] **Create validation schemas** (Zod/Yup) for all user inputs
+- [x] **Create validation schemas** (Zod/Yup) for all user inputs
 
 ### 🛡️ Type Safety & Data Consistency
 
