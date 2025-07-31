@@ -4,7 +4,7 @@
     - A scheduler's primary value is preventing conflicts. This is a core piece of business logic that makes your application truly useful. It fits perfectly within your existing architecture.
 2. [x] **Backend Integration with Supabase (MVP Foundation)**
     - Your roadmap correctly identifies this as an MVP task. Moving from localStorage to a real backend is the single most important step to enable persistence, sharing, and future features like multi-user collaboration.
-3. **Write Unit Tests for Core Logic**
+3. [x] **Write Unit Tests for Core Logic**
     - Once conflict detection and the core data flow are in place, it's the perfect time to write tests. This aligns with your "Post-MVP (Short-Term)" plan to solidify your business logic before adding more complexity.
 4. **Admin Academic Setup**
     - This is a great next feature. It makes the application dynamic and configurable, moving beyond hardcoded values and empowering administrators.

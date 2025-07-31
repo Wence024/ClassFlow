@@ -1,103 +1,111 @@
-import {
-  assignSessionToTimetable,
-  removeSessionFromTimetable,
-  moveSessionInTimetable,
-} from './timetableLogic';
-import type {
-  ClassSession,
-  Course,
-  ClassGroup,
-  Instructor,
-  Classroom,
-} from '../types/scheduleLessons';
+import { describe, it, expect } from 'vitest';
+import { buildTimetableGrid } from './timetableLogic';
+import type { HydratedTimetableAssignment, ClassGroup, ClassSession } from '../types';
 
-describe('timetableLogic', () => {
-  const course: Course = { id: 'c1', name: 'Math', code: 'MATH101' };
-  const groupA: ClassGroup = { id: 'gA', name: 'Group A' };
-  const groupB: ClassGroup = { id: 'gB', name: 'Group B' };
-  const instructor: Instructor = { id: 'i1', name: 'Alice', email: 'alice@example.com' };
-  const classroom: Classroom = { id: 'r1', name: 'Room 1', location: 'Building A' };
+// --- Mock Data Setup ---
 
-  const sessionA: ClassSession = {
-    id: 'sA',
-    course,
-    group: groupA,
-    instructor,
-    classroom,
-  };
-  const sessionB: ClassSession = {
-    id: 'sB',
-    course,
-    group: groupB,
-    instructor,
-    classroom,
-  };
+// Minimal valid mocks for hydrated ClassSession
+import type { Course } from '../types/course';
+import type { Instructor } from '../types/instructor';
+import type { Classroom } from '../types/classroom';
 
-  function emptyTimetable() {
-    return new Map([
-      [groupA.id, Array(2).fill(null)],
-      [groupB.id, Array(2).fill(null)],
-    ]);
-  }
+const mockCourse: Course = {
+  id: 'course1',
+  name: 'Course 1',
+  code: 'C101',
+  user_id: 'user1',
+  created_at: null,
+};
+const mockGroup1: ClassGroup = { id: 'group1', name: 'CS-1A', user_id: 'user1', created_at: '' };
+const mockGroup2: ClassGroup = { id: 'group2', name: 'CS-1B', user_id: 'user1', created_at: '' };
 
-  it('assigns a session to an empty slot', () => {
-    const timetable = emptyTimetable();
-    const { updatedTimetable, error } = assignSessionToTimetable(timetable, groupA.id, 0, sessionA);
-    expect(error).toBeFalsy();
-    expect(updatedTimetable.get(groupA.id)?.[0]).toEqual(sessionA);
+const mockInstructor: Instructor = {
+  id: 'instructor1',
+  name: 'Instructor 1',
+  email: 'instructor1@example.com',
+  user_id: 'user1',
+  created_at: null,
+};
+const mockClassroom: Classroom = {
+  id: 'classroom1',
+  name: 'Room 101',
+  location: 'Building A',
+  user_id: 'user1',
+  created_at: null,
+};
+
+const mockSession1: ClassSession = {
+  id: 'session1',
+  course: mockCourse,
+  group: mockGroup1,
+  instructor: mockInstructor,
+  classroom: mockClassroom,
+};
+const mockSession2: ClassSession = {
+  id: 'session2',
+  course: mockCourse,
+  group: mockGroup2,
+  instructor: mockInstructor,
+  classroom: mockClassroom,
+};
+
+const mockAssignment1: HydratedTimetableAssignment = {
+  id: 'assign1',
+  user_id: 'user1',
+  class_group_id: 'group1',
+  period_index: 0,
+  created_at: '',
+  class_session: mockSession1,
+};
+
+const mockAssignment2: HydratedTimetableAssignment = {
+  id: 'assign2',
+  user_id: 'user1',
+  class_group_id: 'group2',
+  period_index: 3,
+  created_at: '',
+  class_session: mockSession2,
+};
+
+describe('buildTimetableGrid', () => {
+  it('should create an empty grid if no groups are provided', () => {
+    const grid = buildTimetableGrid([], []);
+    expect(grid.size).toBe(0);
   });
 
-  it('prevents assigning to an occupied slot (group conflict)', () => {
-    const timetable = emptyTimetable();
-    timetable.get(groupA.id)![0] = sessionA;
-    const { error } = assignSessionToTimetable(timetable, groupA.id, 0, sessionA);
-    expect(error).toMatch(/Group conflict/);
+  it('should create a grid with empty rows for all class groups when there are no assignments', () => {
+    const groups = [mockGroup1, mockGroup2];
+    const grid = buildTimetableGrid([], groups);
+
+    expect(grid.size).toBe(2);
+    expect(grid.has('group1')).toBe(true);
+    expect(grid.get('group1')?.length).toBe(16);
+    expect(grid.get('group1')?.every((cell) => cell === null)).toBe(true);
+    expect(grid.get('group2')?.every((cell) => cell === null)).toBe(true);
   });
 
-  it('prevents instructor conflict across groups', () => {
-    const timetable = emptyTimetable();
-    timetable.get(groupA.id)![0] = sessionA;
-    const { error } = assignSessionToTimetable(timetable, groupB.id, 0, sessionB);
-    expect(error).toMatch(/Instructor conflict/);
+  it('should correctly place assignments into the grid', () => {
+    const groups = [mockGroup1, mockGroup2];
+    const assignments = [mockAssignment1, mockAssignment2];
+    const grid = buildTimetableGrid(assignments, groups);
+
+    // Check Group 1
+    expect(grid.get('group1')?.[0]).toEqual(mockAssignment1.class_session);
+    expect(grid.get('group1')?.[1]).toBeNull();
+
+    // Check Group 2
+    expect(grid.get('group2')?.[3]).toEqual(mockAssignment2.class_session);
+    expect(grid.get('group2')?.[4]).toBeNull();
   });
 
-  it('prevents classroom conflict across groups', () => {
-    const sessionB2 = { ...sessionB, instructor: { ...instructor, id: 'i2', name: 'Bob' } };
-    const timetable = emptyTimetable();
-    timetable.get(groupA.id)![0] = sessionA;
-    const { error } = assignSessionToTimetable(timetable, groupB.id, 0, sessionB2);
-    expect(error).toMatch(/Classroom conflict/);
-  });
+  it('should handle assignments for groups that might not be in the group list (graceful handling)', () => {
+    const groups = [mockGroup1]; // Only provide group1
+    const assignments = [mockAssignment1, mockAssignment2]; // But have an assignment for group2
+    const grid = buildTimetableGrid(assignments, groups);
 
-  it('removes a session from a slot', () => {
-    const timetable = emptyTimetable();
-    timetable.get(groupA.id)![1] = sessionA;
-    const updated = removeSessionFromTimetable(timetable, groupA.id, 1);
-    expect(updated.get(groupA.id)?.[1]).toBeNull();
-  });
-
-  it('moves a session to a new slot (no conflict)', () => {
-    const timetable = emptyTimetable();
-    timetable.get(groupA.id)![0] = sessionA;
-    const { updatedTimetable, error } = moveSessionInTimetable(
-      timetable,
-      { groupId: groupA.id, periodIndex: 0 },
-      { groupId: groupB.id, periodIndex: 1 }
-    );
-    expect(error).toBeFalsy();
-    expect(updatedTimetable.get(groupA.id)?.[0]).toBeNull();
-    expect(updatedTimetable.get(groupB.id)?.[1]).toEqual(sessionA);
-  });
-
-  it('prevents move if target slot has group conflict', () => {
-    const timetable = emptyTimetable();
-    timetable.get(groupA.id)![0] = sessionA;
-    timetable.get(groupB.id)![1] = sessionB;
-    const { error } = moveSessionInTimetable(
-      timetable,
-      { groupId: groupA.id, periodIndex: 0 },
-      { groupId: groupB.id, periodIndex: 1 }
-    );
-    expect(error).toMatch(/Group conflict/);
+    expect(grid.size).toBe(1);
+    expect(grid.has('group1')).toBe(true);
+    expect(grid.has('group2')).toBe(false); // group2 row is not created
+    expect(grid.get('group1')?.[0]).toEqual(mockAssignment1.class_session);
   });
 });

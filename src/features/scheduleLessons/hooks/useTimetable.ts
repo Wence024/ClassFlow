@@ -1,25 +1,18 @@
-// *** FIX: Import useState and useMemo ***
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassGroups } from './useClassGroups';
 import * as timetableService from '../services/timetableService';
 import checkConflicts from '../utils/checkConflicts';
+import { buildTimetableGrid } from '../utils/timetableLogic';
 import type { ClassSession, HydratedTimetableAssignment } from '../types';
 import { supabase } from '../../../lib/supabase';
-
-const NUMBER_OF_PERIODS = 16;
 
 export function useTimetable() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { classGroups } = useClassGroups();
-
-  // *** FIX 1: Stabilize the queryKey array with useMemo. ***
-  // This prevents the useEffect from re-running on every render.
   const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
-
-  // *** FIX 2: Create a stable, unique ID for the channel instance. ***
   const [channelId] = useState(() => Math.random().toString(36).slice(2));
 
   const {
@@ -32,20 +25,12 @@ export function useTimetable() {
     enabled: !!user && classGroups.length > 0,
   });
 
-  const timetable = useMemo(() => {
-    const grid = new Map<string, (ClassSession | null)[]>();
-    if (!classGroups.length) return grid;
-    classGroups.forEach((group) => {
-      grid.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
-    });
-    assignments.forEach((assignment) => {
-      const row = grid.get(assignment.class_group_id);
-      if (row && assignment.class_session) {
-        row[assignment.period_index] = assignment.class_session;
-      }
-    });
-    return grid;
-  }, [assignments, classGroups]);
+  // The hook's logic is now simpler and more declarative.
+  // It calls our pure, testable function to perform the complex transformation.
+  const timetable = useMemo(
+    () => buildTimetableGrid(assignments, classGroups),
+    [assignments, classGroups]
+  );
 
   // --- Real-time Subscription Logic (CORRECTED) ---
   useEffect(() => {
