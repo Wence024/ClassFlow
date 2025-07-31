@@ -114,59 +114,69 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingSession ? 'Edit Class Session' : 'Create Class Session'}
       </h2>
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        role="form"
+        aria-label={editingSession ? 'Edit Class Session Form' : 'Create Class Session Form'}
+      >
+        <fieldset disabled={loading}>
+          <FormField
+            id="courseId"
+            label="Course"
+            type="select"
+            value={formData.courseId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, courseId: value }))}
+            options={courses}
+            required
+            error={errors.courseId}
+          />
 
-      <form onSubmit={handleSubmit}>
-        <FormField
-          label="Course"
-          type="select"
-          value={formData.courseId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, courseId: value }))}
-          options={courses}
-          required
-          error={errors.courseId}
-        />
+          <FormField
+            id="classGroupId"
+            label="Class Group"
+            type="select"
+            value={formData.groupId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, groupId: value }))}
+            options={classGroups}
+            required
+            error={errors.groupId}
+          />
 
-        <FormField
-          label="Class Group"
-          type="select"
-          value={formData.groupId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, groupId: value }))}
-          options={classGroups}
-          required
-          error={errors.groupId}
-        />
+          <FormField
+            id="instructorId"
+            label="Instructor"
+            type="select"
+            value={formData.instructorId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, instructorId: value }))}
+            options={instructors}
+            required
+            error={errors.instructorId}
+          />
 
-        <FormField
-          label="Instructor"
-          type="select"
-          value={formData.instructorId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, instructorId: value }))}
-          options={instructors}
-          required
-          error={errors.instructorId}
-        />
+          <FormField
+            id="classrromId"
+            label="Classroom"
+            type="select"
+            value={formData.classroomId}
+            onChange={(value) => setFormData((prev) => ({ ...prev, classroomId: value }))}
+            options={classrooms}
+            required
+            error={errors.classroomId}
+          />
 
-        <FormField
-          label="Classroom"
-          type="select"
-          value={formData.classroomId}
-          onChange={(value) => setFormData((prev) => ({ ...prev, classroomId: value }))}
-          options={classrooms}
-          required
-          error={errors.classroomId}
-        />
-
-        <div className="flex gap-2">
-          <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
-            {editingSession ? 'Save Changes' : 'Create Class Session'}
-          </ActionButton>
-
-          {(editingSession || onCancel) && (
-            <ActionButton type="button" variant="secondary" onClick={handleReset}>
-              Cancel
+          <div className="flex gap-2 mt-4">
+            <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
+              {editingSession ? 'Save Changes' : 'Create Class Session'}
             </ActionButton>
-          )}
-        </div>
+
+            {onCancel && (
+              <ActionButton type="button" variant="secondary" onClick={handleReset}>
+                Cancel
+              </ActionButton>
+            )}
+          </div>
+        </fieldset>
       </form>
     </div>
   );

@@ -156,47 +156,45 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
     }
   };
 
-  const handleReset = () => {
-    setFormData({
-      name: '',
-      code: '',
-      location: '',
-      email: '',
-    });
-    setErrors({});
-    onCancel?.();
-  };
-
   return (
     <div className="bg-white p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingItem ? `Edit ${config.title}` : `Create ${config.title}`}
       </h2>
 
-      <form onSubmit={handleSubmit}>
-        {config.fields.map((field) => (
-          <FormField
-            key={field.key}
-            label={field.label}
-            type={field.type || 'text'}
-            value={formData[field.key] || ''}
-            onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
-            required={field.required}
-            error={errors[field.key]}
-          />
-        ))}
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        role="form"
+        aria-label={`${editingItem ? 'Edit' : 'Create'} ${config.title}`}
+      >
+        <fieldset disabled={loading}>
+          {config.fields.map((field) => (
+            <FormField
+              key={field.key}
+              id={field.key} // Pass the key as the id
+              label={field.label}
+              type={field.type || 'text'}
+              value={formData[field.key] || ''}
+              onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
+              required={field.required}
+              error={errors[field.key]}
+              autoComplete={field.key === 'email' ? 'email' : 'off'}
+            />
+          ))}
 
-        <div className="flex gap-2">
-          <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
-            {editingItem ? 'Save Changes' : `Create ${config.title}`}
-          </ActionButton>
-
-          {(editingItem || onCancel) && (
-            <ActionButton type="button" variant="secondary" onClick={handleReset}>
-              Cancel
+          <div className="flex gap-2 mt-4">
+            <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
+              {editingItem ? 'Save Changes' : `Create ${config.title}`}
             </ActionButton>
-          )}
-        </div>
+
+            {onCancel && (
+              <ActionButton type="button" variant="secondary" onClick={onCancel}>
+                Cancel
+              </ActionButton>
+            )}
+          </div>
+        </fieldset>
       </form>
     </div>
   );
