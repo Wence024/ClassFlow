@@ -1,3 +1,4 @@
+// Note: Only pass a valid, non-empty autocomplete string to the input for accessibility compliance.
 import React from 'react';
 
 interface FormFieldProps {
@@ -64,7 +65,7 @@ const FormField: React.FC<FormFieldProps> = ({
           placeholder={placeholder}
           className={`${baseClasses} ${errorClasses}`}
           required={required}
-          autoComplete={autoComplete}
+          {...(autoComplete ? { autoComplete } : {})}
           aria-describedby={errorId}
         />
       )}

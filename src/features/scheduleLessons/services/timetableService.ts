@@ -96,7 +96,7 @@ export async function removeSessionFromTimetable(
 export async function moveSessionInTimetable(
   user_id: string,
   from: { class_group_id: string; period_index: number },
-  to: { class_group_id: string; period_index: number },
+  _to: { class_group_id: string; period_index: number },
   assignment: TimetableAssignmentInsert
 ): Promise<TimetableAssignment> {
   await removeSessionFromTimetable(user_id, from.class_group_id, from.period_index);
