@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { z } from 'zod'; // Import Zod
 import FormField from '../../../../components/ui/FormField';
 import ActionButton from '../../../../components/ui/ActionButton';
-import { showNotification } from '../../../../components/ui/Notification';
+import { showNotification } from '../../../../lib/notificationsService';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/classroom';
