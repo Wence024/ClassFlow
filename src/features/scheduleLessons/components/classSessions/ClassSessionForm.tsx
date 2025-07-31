@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { z } from 'zod'; // Import Zod
+import { classSessionSchema } from '../../types/validation'; // Import the new schema
 import FormField from '../../../../components/ui/FormField';
 import ActionButton from '../../../../components/ui/ActionButton';
 import type {
@@ -68,31 +70,32 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
     setErrors({});
   }, [editingSession]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
-
-    if (!formData.courseId) newErrors.courseId = 'Course is required';
-    if (!formData.groupId) newErrors.groupId = 'Class group is required';
-    if (!formData.instructorId) newErrors.instructorId = 'Instructor is required';
-    if (!formData.classroomId) newErrors.classroomId = 'Classroom is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) return;
+    try {
+      // Use Zod to validate the form data
+      classSessionSchema.parse(formData);
+      setErrors({}); // Clear errors on success
 
-    // Construct the payload with foreign keys for Supabase.
-    // The service expects snake_case keys.
-    onSubmit({
-      course_id: formData.courseId,
-      class_group_id: formData.groupId,
-      instructor_id: formData.instructorId,
-      classroom_id: formData.classroomId,
-    });
+      // The service expects snake_case keys, so we still map the validated data.
+      onSubmit({
+        course_id: formData.courseId,
+        class_group_id: formData.groupId,
+        instructor_id: formData.instructorId,
+        classroom_id: formData.classroomId,
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const formattedErrors: Partial<FormData> = {};
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            formattedErrors[err.path[0] as keyof FormData] = err.message;
+          }
+        });
+        setErrors(formattedErrors);
+      }
+    }
   };
 
   const handleReset = () => {
