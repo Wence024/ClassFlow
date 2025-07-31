@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from './useClassSessions';
-import { showNotification } from '../../../components/ui/Notification';
+import { showNotification } from '../../../lib/notificationsService';
 import type { DragSource } from '../components/timetabling/Drawer';
 
 const DRAG_DATA_KEY = 'application/json';

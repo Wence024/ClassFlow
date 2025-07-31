@@ -5,7 +5,7 @@ import ComponentList from '../../components/componentManagement/ComponentList';
 import ComponentForm from '../../components/componentManagement/ComponentForm';
 import LoadingSpinner from '../../../../components/ui/LoadingSpinner';
 import ErrorMessage from '../../../../components/ui/ErrorMessage';
-import { showNotification } from '../../../../components/ui/Notification';
+import { showNotification } from '../../../../lib/notificationsService';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../../types/classGroup';
 
 // Page for managing class groups (list, add, edit, remove)
