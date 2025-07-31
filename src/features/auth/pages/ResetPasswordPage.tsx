@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { z } from 'zod';
+import { resetPasswordSchema } from '../types/validation';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 
@@ -14,10 +16,10 @@ function parseHash(hash: string) {
 }
 
 const ResetPasswordPage: React.FC = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -42,9 +44,9 @@ const ResetPasswordPage: React.FC = () => {
 
     // Show error if present in hash
     if (errorDescription) {
-      setError(decodeURIComponent(errorDescription));
+      setApiError(decodeURIComponent(errorDescription));
     } else if (!accessToken || !refreshToken) {
-      setError(
+      setApiError(
         'Invalid or missing reset link parameters. Please request a new password reset link.'
       );
     }
@@ -52,19 +54,24 @@ const ResetPasswordPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+    setApiError(null);
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    try {
+      resetPasswordSchema.parse(formData);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const errors: Record<string, string> = {};
+        err.issues.forEach((e) => {
+          const key = e.path[0];
+          if (typeof key === 'string') errors[key] = e.message;
+        });
+        setFormErrors(errors);
+      }
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const { accessToken, refreshToken } = tokens;
@@ -84,7 +91,7 @@ const ResetPasswordPage: React.FC = () => {
 
       // Update the password
       const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
+        password: formData.password,
       });
 
       if (updateError) {
@@ -98,10 +105,14 @@ const ResetPasswordPage: React.FC = () => {
       }, 3000);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to reset password';
-      setError(errorMessage);
+      setApiError(errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   if (success) {
@@ -126,47 +137,51 @@ const ResetPasswordPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
-      <form onSubmit={handleSubmit} role="form" aria-label="Reset password form">
+      <form onSubmit={handleSubmit} noValidate role="form" aria-label="Reset password form">
         <div className="mb-4">
-          <label htmlFor="reset-password" className="block font-semibold mb-1">
-            New Password:
-          </label>
+          <label htmlFor="password">New Password:</label>
           <input
-            id="reset-password"
+            id="password"
+            name="password"
             type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
             required
             autoComplete="new-password"
             aria-label="New password"
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+          {formErrors.password && (
+            <p className="text-red-600 text-sm mt-1">{formErrors.password}</p>
+          )}
         </div>
         <div className="mb-4">
-          <label htmlFor="reset-confirm-password" className="block font-semibold mb-1">
-            Confirm New Password:
-          </label>
+          <label htmlFor="confirmPassword">Confirm New Password:</label>
           <input
-            id="reset-confirm-password"
+            id="confirmPassword"
+            name="confirmPassword"
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            value={formData.confirmPassword}
+            onChange={handleChange}
             required
             autoComplete="new-password"
             aria-label="Confirm new password"
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+          {formErrors.confirmPassword && (
+            <p className="text-red-600 text-sm mt-1">{formErrors.confirmPassword}</p>
+          )}
         </div>
         <button
           type="submit"
-          disabled={loading || !!tokens.error}
+          disabled={loading}
           className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
         >
           {loading ? 'Resetting...' : 'Reset Password'}
         </button>
-        {error && (
+        {apiError && (
           <div className="text-red-600 mt-3 text-center" role="alert" aria-live="assertive">
-            {error}
+            {apiError}
           </div>
         )}
       </form>
