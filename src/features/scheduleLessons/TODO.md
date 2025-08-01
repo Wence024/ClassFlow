@@ -10,6 +10,10 @@
 - [ ] Transition from context+providers into react query (useClassSessions.ts hook is already implemented)
 
 - [ ] UI issue: separate submit loading in forms vs fetching loading in lists.
+- [ ] Verify loading state in timetable again.
+- [ ] Advanced feature: change classSchedule component on self-schedule conflict detection
+- [ ] Search and filter feature for class sessions and components
+- [ ] Deal with data anomalies (esp. when deleting in timetable, classgroup, or classSession component)
 
 ## Provider fixes
 
