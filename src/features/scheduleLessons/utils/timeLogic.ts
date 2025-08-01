@@ -1,50 +1,43 @@
 import type { ScheduleConfig } from '../types/scheduleConfig';
 
 /**
- * Represents a single time slot in the timetable header.
+ * Represents a single time header in the timetable.
  */
-export interface TimeSlot {
+export interface TimeHeader {
   label: string; // e.g., "7:30 AM - 9:00 AM"
-  dayIndex: number;
-  periodIndexInDay: number;
 }
 
 /**
- * Pure business logic to generate an array of formatted time slots
+ * Pure business logic to generate headers for the timetable UI
  * based on the academic schedule configuration.
  *
  * @param settings The academic settings from the database.
- * @returns An array of TimeSlot objects.
+ * @returns An object containing day headers and time headers for a single day.
  */
-export function generateTimeSlots(settings: ScheduleConfig): TimeSlot[] {
-  const slots: TimeSlot[] = [];
-  const { start_time, period_duration_mins, periods_per_day, class_days_per_week } = settings;
+export function generateTimetableHeaders(settings: ScheduleConfig): {
+  dayHeaders: string[];
+  timeHeaders: TimeHeader[];
+} {
+  const dayHeaders = [...new Array(settings.class_days_per_week)].map((_, i) => `Day ${i + 1}`);
+  const timeHeaders: TimeHeader[] = [];
 
-  // Create a Date object to handle time calculations safely
-  const [startHour, startMinute] = start_time.split(':').map(Number);
+  const [startHour, startMinute] = settings.start_time.split(':').map(Number);
   let currentTime = new Date();
   currentTime.setHours(startHour, startMinute, 0, 0);
 
-  for (let day = 0; day < class_days_per_week; day++) {
-    for (let period = 0; period < periods_per_day; period++) {
-      const startTime = new Date(currentTime);
-      const endTime = new Date(startTime.getTime() + period_duration_mins * 60000);
+  for (let period = 0; period < settings.periods_per_day; period++) {
+    const startTime = new Date(currentTime);
+    const endTime = new Date(startTime.getTime() + settings.period_duration_mins * 60000);
 
-      const formatTime = (date: Date) =>
-        date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const formatTime = (date: Date) =>
+      date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-      slots.push({
-        label: `${formatTime(startTime)} - ${formatTime(endTime)}`,
-        dayIndex: day,
-        periodIndexInDay: period,
-      });
+    timeHeaders.push({
+      label: `${formatTime(startTime)} - ${formatTime(endTime)}`,
+    });
 
-      // Set the start time for the next period
-      currentTime = endTime;
-    }
-    // Reset time for the next day
-    currentTime.setHours(startHour, startMinute, 0, 0);
+    currentTime = endTime; // Set up for the next loop
   }
 
-  return slots;
+  return { dayHeaders, timeHeaders };
 }

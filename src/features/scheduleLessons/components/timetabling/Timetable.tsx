@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import type { ClassSession, ClassGroup } from '../../types/';
 import type { DragSource } from './Drawer';
 import { useScheduleConfig } from '../../hooks/useScheduleConfig';
-import { generateTimeSlots, type TimeSlot } from '../../utils/timeLogic';
+import { generateTimetableHeaders } from '../../utils/timeLogic';
 
 interface TimetableProps {
   groups: ClassGroup[];
@@ -19,14 +19,10 @@ interface TimetableProps {
 const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
   const { settings } = useScheduleConfig();
 
-  // Generate the time slots and day headers using our new utility
-  const { timeSlots, dayHeaders } = useMemo(() => {
-    if (!settings) return { timeSlots: [], dayHeaders: [] };
-
-    const allSlots = generateTimeSlots(settings);
-    const uniqueDays = [...new Array(settings.class_days_per_week)].map((_, i) => `Day ${i + 1}`);
-
-    return { timeSlots: allSlots, dayHeaders: uniqueDays };
+  // Generate the day and time headers for the columns
+  const { dayHeaders, timeHeaders } = useMemo(() => {
+    if (!settings) return { dayHeaders: [], timeHeaders: [] };
+    return generateTimetableHeaders(settings);
   }, [settings]);
 
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
@@ -40,75 +36,70 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
   return (
     <div className="w-full bg-white p-6 rounded-lg shadow overflow-x-auto">
       <h3 className="text-xl font-semibold mb-4 text-center">Timetable</h3>
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse text-sm">
         <thead>
+          {/* Row 1: Day Headers */}
           <tr>
-            <th className="p-2 border sticky left-0 bg-white z-10">Time / Group</th>
-            {groups.map((group) => (
-              <th key={group.id} className="p-2 border">
-                {group.name}
+            <th className="p-2 border sticky left-0 bg-white z-10">Class Group</th>
+            {dayHeaders.map((dayLabel) => (
+              <th key={dayLabel} colSpan={periodsPerDay} className="p-2 border text-center">
+                {dayLabel}
               </th>
             ))}
           </tr>
+          {/* Row 2: Time Period Headers */}
+          <tr>
+            <th className="p-2 border sticky left-0 bg-white z-10"></th>
+            {dayHeaders.flatMap((_day, dayIndex) =>
+              timeHeaders.map((time, timeIndex) => (
+                <th key={`${dayIndex}-${timeIndex}`} className="p-2 border font-normal">
+                  {time.label}
+                </th>
+              ))
+            )}
+          </tr>
         </thead>
         <tbody>
-          {dayHeaders.map((dayLabel, dayIndex) => (
-            <React.Fragment key={dayIndex}>
-              {/* Day Separator Row */}
-              <tr>
-                <td
-                  colSpan={groups.length + 1}
-                  className="p-2 border bg-gray-100 font-bold text-center"
-                >
-                  {dayLabel}
-                </td>
-              </tr>
-              {/* Time Slot Rows for the Day */}
-              {timeSlots
-                .slice(dayIndex * periodsPerDay, (dayIndex + 1) * periodsPerDay)
-                .map((slot, periodIndexInDay) => {
-                  const absolutePeriodIndex = dayIndex * periodsPerDay + periodIndexInDay;
-                  return (
-                    <tr key={slot.label}>
-                      <td className="p-2 border font-semibold bg-gray-50 sticky left-0 z-10">
-                        {slot.label}
-                      </td>
-                      {groups.map((group) => {
-                        const session = timetable.get(group.id)?.[absolutePeriodIndex] || null;
-                        return (
-                          <td
-                            key={group.id}
-                            className={`p-2 border text-center min-w-[120px] ${session ? 'bg-green-400 text-white font-bold' : 'bg-gray-50'}`}
-                            onDrop={(e) => onDropToGrid(e, group.id, absolutePeriodIndex)}
-                            onDragOver={handleDragOver}
-                          >
-                            {session ? (
-                              <div
-                                draggable
-                                onDragStart={(e) =>
-                                  onDragStart(e, {
-                                    from: 'timetable',
-                                    class_session_id: session.id,
-                                    class_group_id: group.id,
-                                    period_index: absolutePeriodIndex,
-                                  })
-                                }
-                                className="cursor-grab"
-                              >
-                                <p>{session.course.name}</p>
-                                <p className="text-xs">{session.instructor.name}</p>
-                                <p className="text-xs">{session.classroom.name}</p>
-                              </div>
-                            ) : (
-                              '—'
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-            </React.Fragment>
+          {groups.map((group) => (
+            <tr key={group.id}>
+              {/* Row Header: Group Name */}
+              <td className="p-2 border font-semibold bg-gray-50 sticky left-0 z-10 whitespace-nowrap">
+                {group.name}
+              </td>
+              {/* Data Cells */}
+              {Array.from({ length: dayHeaders.length * timeHeaders.length }, (_, periodIndex) => {
+                const session = timetable.get(group.id)?.[periodIndex] || null;
+                return (
+                  <td
+                    key={periodIndex}
+                    className={`p-2 border text-center min-w-[120px] ${session ? 'bg-green-400 text-white font-bold' : 'bg-gray-50'}`}
+                    onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
+                    onDragOver={handleDragOver}
+                  >
+                    {session ? (
+                      <div
+                        draggable
+                        onDragStart={(e) =>
+                          onDragStart(e, {
+                            from: 'timetable',
+                            class_session_id: session.id,
+                            class_group_id: group.id,
+                            period_index: periodIndex,
+                          })
+                        }
+                        className="cursor-grab"
+                      >
+                        <p>{session.course.name}</p>
+                        <p className="text-xs">{session.instructor.name}</p>
+                        <p className="text-xs">{session.classroom.name}</p>
+                      </div>
+                    ) : (
+                      '—'
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
           ))}
         </tbody>
       </table>
