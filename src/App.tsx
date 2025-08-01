@@ -39,6 +39,12 @@ function NavBar({ onLogout }: { onLogout?: () => void }) {
       <Link to="/component-management" className="text-blue-600 dark:text-blue-400 hover:underline">
         Component Management
       </Link>
+      <Link
+        to="/schedule-configuration"
+        className="text-blue-600 dark:text-blue-400 hover:underline"
+      >
+        Configure Schedule
+      </Link>
       {user && (
         <span className="ml-8 font-semibold text-blue-700 dark:text-blue-300">
           Welcome, {user.name}

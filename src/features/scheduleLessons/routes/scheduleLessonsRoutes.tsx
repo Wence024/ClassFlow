@@ -6,6 +6,7 @@ import ClassSessions from '../pages/ClassSessions';
 import Scheduler from '../pages/Scheduler';
 import ComponentManagement from '../pages/classSessionComponents';
 import ErrorBoundary from '../../../components/ui/ErrorBoundary';
+import ScheduleConfigPage from '../pages/ScheduleConfigPage';
 
 // A component that renders all routes related to the schedule lessons feature
 export const ScheduleLessonsRoutes = (
@@ -39,6 +40,15 @@ export const ScheduleLessonsRoutes = (
       element={
         <PrivateRoute>
           <ComponentManagement />
+        </PrivateRoute>
+      }
+    />
+
+    <Route
+      path="schedule-configuration"
+      element={
+        <PrivateRoute>
+          <ScheduleConfigPage />
         </PrivateRoute>
       }
     />

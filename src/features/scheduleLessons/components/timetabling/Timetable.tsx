@@ -5,6 +5,7 @@ import type { DragSource } from './Drawer';
 interface TimetableProps {
   groups: ClassGroup[];
   timetable: Map<string, (ClassSession | null)[]>;
+  totalPeriods: number; // Add totalPeriods to the props
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
 }
@@ -14,18 +15,25 @@ interface TimetableProps {
  * Supports drag-and-drop from drawer and between timetable cells.
  * Single responsibility: only renders the timetable UI and handles drag events.
  */
-const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
+const Timetable: React.FC<TimetableProps> = ({
+  groups,
+  timetable,
+  totalPeriods,
+  onDragStart,
+  onDropToGrid,
+}) => {
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
   return (
-    <div className="w-full md:w-3/4 bg-white p-6 rounded-lg shadow overflow-x-auto">
+    <div className="w-full ...">
       <h3 className="text-xl font-semibold mb-4 text-center">Timetable</h3>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr>
               <th className="p-2 border">Group</th>
-              {Array.from({ length: 16 }, (_, i) => (
+              {/* Use the dynamic totalPeriods to generate headers */}
+              {Array.from({ length: totalPeriods }, (_, i) => (
                 <th key={i} className="p-2 border">
                   Period {i + 1}
                 </th>
