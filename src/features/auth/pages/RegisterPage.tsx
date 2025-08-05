@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { registerSchema } from '../types/validation';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../useAuth';
 import { Link } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {
