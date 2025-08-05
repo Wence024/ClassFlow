@@ -7,6 +7,7 @@ import { AuthContext } from './AuthContext';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true); // Start with loading true
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
+      setRole(user.role);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
@@ -111,11 +113,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, resendVerificationEmail, loading, error, clearError }}
+      value={{
+        user,
+        role,
+        login,
+        register,
+        logout,
+        resendVerificationEmail,
+        loading,
+        error,
+        clearError,
+      }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
-// TODO: Assess if hooks need to be separated to a single folder

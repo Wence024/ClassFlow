@@ -5,6 +5,7 @@ export type User = {
   id: string;
   name: string;
   email: string;
+  role: string;
 };
 
 /**
@@ -12,6 +13,7 @@ export type User = {
  */
 export type AuthContextType = {
   user: User | null;
+  role: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
