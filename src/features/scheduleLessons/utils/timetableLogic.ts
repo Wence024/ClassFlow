@@ -2,7 +2,7 @@ import type { ClassSession, HydratedTimetableAssignment, ClassGroup } from '../t
 
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
-const NUMBER_OF_PERIODS = 16;
+// DELETED: const NUMBER_OF_PERIODS = 16;
 
 /**
  * Pure business rule: Transforms a flat array of timetable assignments and a list of class groups
@@ -14,7 +14,8 @@ const NUMBER_OF_PERIODS = 16;
  */
 export function buildTimetableGrid(
   assignments: HydratedTimetableAssignment[],
-  classGroups: ClassGroup[]
+  classGroups: ClassGroup[],
+  totalPeriods: number // Now accepts total periods as an argument
 ): TimetableGrid {
   const grid: TimetableGrid = new Map();
 
@@ -22,8 +23,10 @@ export function buildTimetableGrid(
   if (!classGroups.length) {
     return grid;
   }
+
   for (const group of classGroups) {
-    grid.set(group.id, Array(NUMBER_OF_PERIODS).fill(null));
+    // Use the dynamic totalPeriods value
+    grid.set(group.id, Array(totalPeriods).fill(null));
   }
 
   // 2. Populate the grid with the assignments.

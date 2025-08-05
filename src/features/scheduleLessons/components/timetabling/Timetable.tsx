@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { ClassSession, ClassGroup } from '../../types/';
 import type { DragSource } from './Drawer';
+import { useScheduleConfig } from '../../hooks/useScheduleConfig';
+import { generateTimetableHeaders } from '../../utils/timeLogic';
 
 interface TimetableProps {
   groups: ClassGroup[];
@@ -15,66 +17,92 @@ interface TimetableProps {
  * Single responsibility: only renders the timetable UI and handles drag events.
  */
 const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
+  const { settings } = useScheduleConfig();
+
+  // Generate the day and time headers for the columns
+  const { dayHeaders, timeHeaders } = useMemo(() => {
+    if (!settings) return { dayHeaders: [], timeHeaders: [] };
+    return generateTimetableHeaders(settings);
+  }, [settings]);
+
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
+  if (!settings) {
+    return <div className="text-center p-4">Loading configuration...</div>;
+  }
+
+  const periodsPerDay = settings.periods_per_day;
+
   return (
-    <div className="w-full md:w-3/4 bg-white p-6 rounded-lg shadow overflow-x-auto">
+    <div className="w-full bg-white p-6 rounded-lg shadow overflow-x-auto">
       <h3 className="text-xl font-semibold mb-4 text-center">Timetable</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="p-2 border">Group</th>
-              {Array.from({ length: 16 }, (_, i) => (
-                <th key={i} className="p-2 border">
-                  Period {i + 1}
+      <table className="w-full border-collapse text-sm">
+        <thead>
+          {/* Row 1: Day Headers */}
+          <tr>
+            <th className="p-2 border sticky left-0 bg-white z-10">Class Group</th>
+            {dayHeaders.map((dayLabel) => (
+              <th key={dayLabel} colSpan={periodsPerDay} className="p-2 border text-center">
+                {dayLabel}
+              </th>
+            ))}
+          </tr>
+          {/* Row 2: Time Period Headers */}
+          <tr>
+            <th className="p-2 border sticky left-0 bg-white z-10"></th>
+            {dayHeaders.flatMap((_day, dayIndex) =>
+              timeHeaders.map((time, timeIndex) => (
+                <th key={`${dayIndex}-${timeIndex}`} className="p-2 border font-normal">
+                  {time.label}
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {groups.map((group) => {
-              const sessions = timetable.get(group.id) || [];
-              return (
-                <tr key={group.id}>
-                  <td className="p-2 border text-gray-900 font-semibold bg-gray-50">
-                    {group.name}
+              ))
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {groups.map((group) => (
+            <tr key={group.id}>
+              {/* Row Header: Group Name */}
+              <td className="p-2 border font-semibold bg-gray-50 sticky left-0 z-10 whitespace-nowrap">
+                {group.name}
+              </td>
+              {/* Data Cells */}
+              {Array.from({ length: dayHeaders.length * timeHeaders.length }, (_, periodIndex) => {
+                const session = timetable.get(group.id)?.[periodIndex] || null;
+                return (
+                  <td
+                    key={periodIndex}
+                    className={`p-2 border text-center min-w-[120px] ${session ? 'bg-green-400 text-white font-bold' : 'bg-gray-50'}`}
+                    onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
+                    onDragOver={handleDragOver}
+                  >
+                    {session ? (
+                      <div
+                        draggable
+                        onDragStart={(e) =>
+                          onDragStart(e, {
+                            from: 'timetable',
+                            class_session_id: session.id,
+                            class_group_id: group.id,
+                            period_index: periodIndex,
+                          })
+                        }
+                        className="cursor-grab"
+                      >
+                        <p>{session.course.name}</p>
+                        <p className="text-xs">{session.instructor.name}</p>
+                        <p className="text-xs">{session.classroom.name}</p>
+                      </div>
+                    ) : (
+                      '—'
+                    )}
                   </td>
-                  {sessions.map((item, periodIndex) => (
-                    <td
-                      key={periodIndex}
-                      className={`p-2 border text-center min-w-[80px] ${item ? 'bg-green-400 text-white font-bold' : 'bg-gray-50 text-gray-900'}`}
-                      onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
-                      onDragOver={handleDragOver}
-                    >
-                      {item ? (
-                        <div
-                          draggable
-                          onDragStart={(e) =>
-                            onDragStart(e, {
-                              from: 'timetable',
-                              class_session_id: item.id,
-                              class_group_id: group.id,
-                              period_index: periodIndex,
-                            })
-                          }
-                          className="cursor-grab"
-                        >
-                          <p>{item.course.name}</p>
-                          <p className="text-xs">{item.instructor.name}</p>
-                          <p className="text-xs">{item.classroom.name}</p>
-                        </div>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };

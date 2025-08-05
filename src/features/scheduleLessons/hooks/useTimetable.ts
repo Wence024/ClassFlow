@@ -7,6 +7,7 @@ import checkConflicts from '../utils/checkConflicts';
 import { buildTimetableGrid } from '../utils/timetableLogic';
 import type { ClassSession, HydratedTimetableAssignment } from '../types';
 import { supabase } from '../../../lib/supabase';
+import { useScheduleConfig } from './useScheduleConfig'; // Import the new hook
 
 export function useTimetable() {
   const { user } = useAuth();
@@ -14,6 +15,10 @@ export function useTimetable() {
   const { classGroups } = useClassGroups();
   const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
   const [channelId] = useState(() => Math.random().toString(36).slice(2));
+  const { settings } = useScheduleConfig();
+
+  // Define a default to prevent crashes while settings are loading
+  const totalPeriods = settings ? settings.periods_per_day * settings.class_days_per_week : 8;
 
   const {
     data: assignments = [],
@@ -25,11 +30,10 @@ export function useTimetable() {
     enabled: !!user && classGroups.length > 0,
   });
 
-  // The hook's logic is now simpler and more declarative.
-  // It calls our pure, testable function to perform the complex transformation.
   const timetable = useMemo(
-    () => buildTimetableGrid(assignments, classGroups),
-    [assignments, classGroups]
+    // Pass the dynamic totalPeriods to our logic function
+    () => buildTimetableGrid(assignments, classGroups, totalPeriods),
+    [assignments, classGroups, totalPeriods]
   );
 
   // --- Real-time Subscription Logic (CORRECTED) ---

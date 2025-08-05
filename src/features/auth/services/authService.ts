@@ -37,6 +37,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
       id: data.user.id,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
       email: data.user.email!,
+      role: data.user.user_metadata?.role || 'user',
     },
     token: data.session.access_token,
   };
@@ -77,6 +78,7 @@ export async function register(
       id: data.user.id,
       name: data.user.user_metadata?.name || name,
       email: data.user.email!,
+      role: data.user.user_metadata?.role || 'user',
     },
     token: data.session?.access_token || '',
     needsVerification: !data.session,
@@ -112,6 +114,7 @@ export async function getStoredUser(): Promise<User | null> {
     id: session.user.id,
     name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
     email: session.user.email!,
+    role: session.user.user_metadata?.role || 'user',
   };
 }
 
