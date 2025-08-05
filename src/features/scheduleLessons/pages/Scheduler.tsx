@@ -12,7 +12,7 @@ import type { ClassSession } from '../types';
 const Scheduler: React.FC = () => {
   const { classSessions } = useClassSessions();
   // useTimetable now works without a provider
-  const { timetable, groups, totalPeriods, loading } = useTimetable();
+  const { timetable, groups, loading } = useTimetable();
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
   const unassignedSessions = useMemo(() => {
@@ -50,7 +50,6 @@ const Scheduler: React.FC = () => {
           <Timetable
             groups={groups}
             timetable={timetable}
-            totalPeriods={totalPeriods}
             onDragStart={handleDragStart}
             onDropToGrid={handleDropToGrid}
           />

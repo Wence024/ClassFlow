@@ -223,7 +223,6 @@ export function useTimetable() {
 
   return {
     groups: classGroups,
-    totalPeriods, // Expose this for the UI component
     timetable,
     assignSession,
     removeSession,
