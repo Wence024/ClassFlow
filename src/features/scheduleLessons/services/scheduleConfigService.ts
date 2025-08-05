@@ -17,7 +17,8 @@ export async function getScheduleConfig(userId: string): Promise<ScheduleConfig 
   const { data, error } = await supabase
     .from('schedule_configuration')
     .select('*')
-    .eq('user_id', userId) // 🛠️ To be removed in future
+    // .eq('user_id', userId)
+    //  // 🛠️ To be removed in future
     .single();
 
   if (error && error.code !== 'PGRST116') {
