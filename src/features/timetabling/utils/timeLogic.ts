@@ -1,4 +1,4 @@
-import type { ScheduleConfig } from '../../scheduleConfig/scheduleConfig';
+import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 
 /**
  * Represents a single time header in the timetable.

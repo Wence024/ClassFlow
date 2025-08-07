@@ -1,5 +1,5 @@
-import { supabase } from '../../lib/supabase';
-import type { ScheduleConfig, ScheduleConfigUpdate } from './scheduleConfig';
+import { supabase } from '../../../lib/supabase';
+import type { ScheduleConfig, ScheduleConfigUpdate } from '../types/scheduleConfig';
 
 /**
  * ✅ CURRENT BEHAVIOR:

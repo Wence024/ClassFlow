@@ -1,4 +1,4 @@
-import type { ClassSession } from '../../classSessions/classSession';
+import type { ClassSession } from '../../classSessions/types/classSession';
 
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 

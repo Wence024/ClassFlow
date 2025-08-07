@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../auth/useAuth';
-import * as scheduleConfigService from './scheduleConfigService';
-import type { ScheduleConfigUpdate } from './scheduleConfig';
+import { useAuth } from '../../auth/hooks/useAuth';
+import * as scheduleConfigService from '../services/scheduleConfigService';
+import type { ScheduleConfigUpdate } from '../types/scheduleConfig';
 
 export function useScheduleConfig() {
   const { user } = useAuth();

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { useClassSessions } from './useClassSessions';
+import { useClassSessions } from '../hooks/useClassSessions';
 import { ClassSessionList, ClassSessionForm } from './components';
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from './classSession';
-import { LoadingSpinner, ErrorMessage } from '../../components/ui';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
+import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import {
   useClassGroups,
   useClassrooms,
   useCourses,
   useInstructors,
-} from '../classSessionComponents/hooks';
+} from '../../classSessionComponents/hooks';
 
 const ClassSessions: React.FC = () => {
   const {

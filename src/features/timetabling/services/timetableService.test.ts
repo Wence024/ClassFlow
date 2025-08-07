@@ -8,7 +8,7 @@ import {
   moveClassSessionInTimetable,
 } from './timetableService';
 import type { HydratedTimetableAssignment, TimetableAssignment } from '../types/timetable';
-import type { ClassSession } from '../../classSessions/classSession';
+import type { ClassSession } from '../../classSessions/types/classSession';
 
 // Supabase response types for mocking
 type SupabaseError = { message: string };

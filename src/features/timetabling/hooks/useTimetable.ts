@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../auth/useAuth';
+import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassGroups } from '../../classSessionComponents/hooks/';
 import * as timetableService from '../services/timetableService';
 import checkConflicts from '../utils/checkConflicts';
 import { buildTimetableGrid } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
-import { useScheduleConfig } from '../../scheduleConfig/useScheduleConfig'; // Import the new hook
-import type { ClassSession } from '../../classSessions/classSession';
+import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig'; // Import the new hook
+import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment } from '../types/timetable';
 
 export function useTimetable() {

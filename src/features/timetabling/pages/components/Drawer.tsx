@@ -1,6 +1,6 @@
 import React from 'react';
-import type { DragSource } from '../types/DragSouuce';
-import type { ClassSession } from '../../classSessions/classSession';
+import type { DragSource } from '../../types/DragSouuce';
+import type { ClassSession } from '../../../classSessions/types/classSession';
 
 type DrawerClassSession = Pick<ClassSession, 'id'> & { displayName: string };
 

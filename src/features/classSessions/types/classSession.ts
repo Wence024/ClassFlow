@@ -1,9 +1,9 @@
 // Import the generated Database type. This is the single source of truth.
-import type { Database } from '../../lib/supabase.types';
-import type { Course } from '../classSessionComponents/types/course';
-import type { ClassGroup } from '../classSessionComponents/types/classGroup';
-import type { Instructor } from '../classSessionComponents/types/instructor';
-import type { Classroom } from '../classSessionComponents/types/classroom';
+import type { Database } from '../../../lib/supabase.types';
+import type { Course } from '../../classSessionComponents/types/course';
+import type { ClassGroup } from '../../classSessionComponents/types/classGroup';
+import type { Instructor } from '../../classSessionComponents/types/instructor';
+import type { Classroom } from '../../classSessionComponents/types/classroom';
 
 // --- Base Entity Types (from Supabase) ---
 // This represents the raw database row for a class session, containing foreign keys.

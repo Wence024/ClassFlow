@@ -1,8 +1,8 @@
 // src/features/scheduleLessons/hooks/useClassSessions.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../auth/useAuth';
-import * as classSessionsService from './classSessionsService';
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from './classSession';
+import { useAuth } from '../../auth/hooks/useAuth';
+import * as classSessionsService from '../services/classSessionsService';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
 
 export function useClassSessions() {
   const { user } = useAuth();

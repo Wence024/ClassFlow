@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { buildTimetableGrid } from './timetableLogic';
+import { buildTimetableGrid } from '../timetableLogic';
 
 // --- Mock Data Setup ---
 
 // Minimal valid mocks for hydrated ClassSession
-import type { Course } from '../../classSessionComponents/types/course';
-import type { Instructor } from '../../classSessionComponents/types/instructor';
-import type { Classroom } from '../../classSessionComponents/types/classroom';
-import type { ClassSession } from '../../classSessions/classSession';
-import type { ClassGroup } from '../../classSessionComponents/types';
-import type { HydratedTimetableAssignment } from '../types/timetable';
+import type { Course } from '../../../classSessionComponents/types/course';
+import type { Instructor } from '../../../classSessionComponents/types/instructor';
+import type { Classroom } from '../../../classSessionComponents/types/classroom';
+import type { ClassSession } from '../../../classSessions/types/classSession';
+import type { ClassGroup } from '../../../classSessionComponents/types';
+import type { HydratedTimetableAssignment } from '../../types/timetable';
 
 const mockCourse: Course = {
   id: 'course1',

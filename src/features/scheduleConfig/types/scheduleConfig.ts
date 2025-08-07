@@ -1,4 +1,4 @@
-import type { Database } from '../../lib/supabase.types';
+import type { Database } from '../../../lib/supabase.types';
 
 // The raw database row for academic settings
 export type ScheduleConfig = Database['public']['Tables']['schedule_configuration']['Row'];

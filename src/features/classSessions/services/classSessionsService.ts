@@ -1,5 +1,5 @@
-import { supabase } from '../../lib/supabase';
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from './classSession';
+import { supabase } from '../../../lib/supabase';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
 
 const TABLE = 'class_sessions';
 

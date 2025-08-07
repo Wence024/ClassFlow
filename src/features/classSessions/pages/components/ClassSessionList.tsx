@@ -1,6 +1,6 @@
 import React from 'react';
 import ClassSessionCard from './ClassSessionCard';
-import type { ClassSession } from '../classSession';
+import type { ClassSession } from '../../types/classSession';
 
 interface ClassSessionListProps {
   classSessions: ClassSession[];

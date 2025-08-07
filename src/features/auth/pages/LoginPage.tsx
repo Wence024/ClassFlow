@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { z } from 'zod';
 import { loginSchema } from '../types/validation';
-import { useAuth } from '../useAuth';
+import { useAuth } from '../hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 import { ActionButton } from '../../../components/ui';
 

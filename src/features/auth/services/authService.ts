@@ -1,8 +1,8 @@
 /**
  * AuthService handles all authentication logic and direct communication with the Supabase backend.
  */
-import { supabase } from '../../lib/supabase';
-import type { AuthResponse, User } from './types/auth';
+import { supabase } from '../../../lib/supabase';
+import type { AuthResponse, User } from '../types/auth';
 
 /**
  * Log in a user using Supabase authentication.

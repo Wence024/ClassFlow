@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { z } from 'zod'; // Import Zod
-import { classSessionSchema } from '../../classSessionComponents/types/validation';
-import { FormField, ActionButton } from '../../../components/ui';
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../classSession';
-import type { Course } from '../../classSessionComponents/types/course';
-import type { ClassGroup } from '../../classSessionComponents/types/classGroup';
-import type { Instructor } from '../../classSessionComponents/types/instructor';
-import type { Classroom } from '../../classSessionComponents/types/classroom';
+import { classSessionSchema } from '../../../classSessionComponents/types/validation';
+import { FormField, ActionButton } from '../../../../components/ui';
+import type {
+  ClassSession,
+  ClassSessionInsert,
+  ClassSessionUpdate,
+} from '../../types/classSession';
+import type { Course } from '../../../classSessionComponents/types/course';
+import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
+import type { Instructor } from '../../../classSessionComponents/types/instructor';
+import type { Classroom } from '../../../classSessionComponents/types/classroom';
 
 interface ClassSessionFormProps {
   courses: Course[];

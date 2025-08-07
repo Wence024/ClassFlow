@@ -3,10 +3,10 @@ import PrivateRoute from '../features/auth/components/PrivateRoute';
 
 // Import Pages
 import ClassSessions from '../features/classes/ClassSessionsPage';
-import Scheduler from '../features/timetabling/TimetablePage';
+import Scheduler from '../features/timetabling/pages/TimetablePage';
 import ComponentManagement from '../features/classComponents/pages';
 import { ErrorBoundary } from '../components/ui';
-import ScheduleConfigPage from '../features/scheduleConfig/ScheduleConfigPage';
+import ScheduleConfigPage from '../features/scheduleConfig/pages/ScheduleConfigPage';
 
 // A component that renders all routes related to the schedule lessons feature
 export const ScheduleLessonsRoutes = (

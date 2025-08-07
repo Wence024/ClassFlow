@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
-import { useTimetable } from './hooks/useTimetable';
+import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
-import { useTimetableDnd } from './hooks/useTimetableDnd';
-import { LoadingSpinner, Notification } from '../../components/ui';
-import { useClassSessions } from '../classSessions/useClassSessions';
-import type { ClassSession } from '../classSessions/classSession';
+import { useTimetableDnd } from '../hooks/useTimetableDnd';
+import { LoadingSpinner, Notification } from '../../../components/ui';
+import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+import type { ClassSession } from '../../classSessions/types/classSession';
 
 // SchedulerApp no longer needs to be a separate component
 const Scheduler: React.FC = () => {

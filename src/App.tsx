@@ -2,11 +2,11 @@ import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
-import { AuthRoutes } from './features/auth/AuthRoutes';
+import { AuthRoutes } from './features/auth/routes/AuthRoutes';
 import { ScheduleLessonsRoutes } from './routes/scheduleLessonsRoutes';
 
 import { AuthProvider } from './features/auth/contexts/AuthProvider';
-import { useAuth } from './features/auth/useAuth';
+import { useAuth } from './features/auth/hooks/useAuth';
 
 // Home page component that redirects based on auth status
 const HomePage = () => {

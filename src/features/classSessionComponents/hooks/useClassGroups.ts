@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../auth/useAuth';
+import { useAuth } from '../../auth/hooks/useAuth';
 import * as classGroupsService from '../services/classGroupsService';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/classGroup';
 

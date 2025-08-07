@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { User } from '../types/auth';
-import * as authService from '../authService';
+import * as authService from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 

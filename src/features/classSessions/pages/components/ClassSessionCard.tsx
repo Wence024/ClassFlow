@@ -1,6 +1,6 @@
 import React from 'react';
-import { ItemCard } from '../../../components/ui';
-import type { ClassSession } from '../classSession';
+import { ItemCard } from '../../../../components/ui';
+import type { ClassSession } from '../../types/classSession';
 
 interface ClassSessionCardProps {
   classSession: ClassSession;
