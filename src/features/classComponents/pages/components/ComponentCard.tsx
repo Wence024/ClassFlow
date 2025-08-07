@@ -1,8 +1,8 @@
-import { ItemCard } from '../../../components/ui';
-import type { Course } from '../types/course';
-import type { ClassGroup } from '../types/classGroup';
-import type { Classroom } from '../types/classroom';
-import type { Instructor } from '../types/instructor';
+import { ItemCard } from '../../../../components/ui';
+import type { Course } from '../../types/course';
+import type { ClassGroup } from '../../types/classGroup';
+import type { Classroom } from '../../types/classroom';
+import type { Instructor } from '../../types/instructor';
 
 type ComponentItem = Course | ClassGroup | Classroom | Instructor;
 

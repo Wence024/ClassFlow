@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useCourses } from '../hooks';
-import { ComponentList, ComponentForm } from '../components';
+import { ComponentList, ComponentForm } from './components';
 import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { Course, CourseInsert, CourseUpdate } from '../types/course';

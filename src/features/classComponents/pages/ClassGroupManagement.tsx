@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classes/useClassSessions';
-import { ComponentList, ComponentForm } from '../components/';
+import { ComponentList, ComponentForm } from './components';
 import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/classGroup';

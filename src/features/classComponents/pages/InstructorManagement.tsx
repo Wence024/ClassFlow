@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useInstructors } from '../hooks';
-import { ComponentList, ComponentForm } from '../components/';
+import { ComponentList, ComponentForm } from './components';
 import { LoadingSpinner, ErrorMessage } from '../../../components/ui/';
 import { showNotification } from '../../../lib/notificationsService';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
