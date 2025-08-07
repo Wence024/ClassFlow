@@ -13,11 +13,6 @@ interface TimetableProps {
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
 }
 
-/**
- * Timetable grid component for displaying and managing class session assignments.
- * Supports drag-and-drop from drawer and between timetable cells.
- * Single responsibility: only renders the timetable UI and handles drag events.
- */
 const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
   const { settings } = useScheduleConfig();
 
@@ -43,9 +38,9 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
           Timetable Grid
         </h3>
       </div>
-      {/* The scroll container is now inside the main card */}
       <div className="overflow-x-auto p-2">
-        <table className="w-full min-w-[1200px] border-separate border-spacing-0">
+        {/* We remove min-w from the table itself, letting the column widths dictate the total width */}
+        <table className="w-full border-separate border-spacing-0">
           <thead>
             <tr>
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-white z-20">
@@ -67,9 +62,11 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                 timeHeaders.map((time, timeIndex) => (
                   <th
                     key={timeIndex}
-                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500"
+                    // --- THIS IS THE KEY CHANGE ---
+                    // We set a minimum width for each column header.
+                    // 140px is a good starting point, you can adjust as needed.
+                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[4rem]"
                   >
-                    {/* Time labels fit on one line now */}
                     {time.label}
                   </th>
                 ))
@@ -85,7 +82,6 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                 {Array.from({ length: totalPeriods }, (_, periodIndex) => {
                   const classSession = timetable.get(group.id)?.[periodIndex] || null;
                   return (
-                    // The TD itself has no border
                     <td key={periodIndex} className="p-1 align-top">
                       <div
                         onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
