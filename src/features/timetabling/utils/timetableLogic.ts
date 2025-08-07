@@ -1,8 +1,6 @@
-import type {
-  ClassSession,
-  HydratedTimetableAssignment,
-  ClassGroup,
-} from '../../scheduleLessons/types';
+import type { ClassGroup } from '../../classComponents/types';
+import type { ClassSession } from '../../classes/classSession';
+import type { HydratedTimetableAssignment } from '../types/timetable';
 
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 

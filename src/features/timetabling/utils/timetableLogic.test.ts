@@ -8,7 +8,8 @@ import type { Course } from '../../classComponents/types/course';
 import type { Instructor } from '../../classComponents/types/instructor';
 import type { Classroom } from '../../classComponents/types/classroom';
 import type { ClassSession } from '../../classes/classSession';
-import type { ClassGroup, HydratedTimetableAssignment } from '../../scheduleLessons/types';
+import type { ClassGroup } from '../../classComponents/types';
+import type { HydratedTimetableAssignment } from '../types/timetable';
 
 const mockCourse: Course = {
   id: 'course1',
@@ -69,14 +70,16 @@ const mockAssignment2: HydratedTimetableAssignment = {
 };
 
 describe('buildTimetableGrid', () => {
+  const totalPeriods = 16;
   it('should create an empty grid if no groups are provided', () => {
-    const grid = buildTimetableGrid([], []);
+    const grid = buildTimetableGrid([], [], totalPeriods);
     expect(grid.size).toBe(0);
   });
 
   it('should create a grid with empty rows for all class groups when there are no assignments', () => {
     const groups = [mockGroup1, mockGroup2];
-    const grid = buildTimetableGrid([], groups);
+    const totalPeriods = 16;
+    const grid = buildTimetableGrid([], groups, totalPeriods);
 
     expect(grid.size).toBe(2);
     expect(grid.has('group1')).toBe(true);
@@ -88,7 +91,8 @@ describe('buildTimetableGrid', () => {
   it('should correctly place assignments into the grid', () => {
     const groups = [mockGroup1, mockGroup2];
     const assignments = [mockAssignment1, mockAssignment2];
-    const grid = buildTimetableGrid(assignments, groups);
+    const totalPeriods = 16;
+    const grid = buildTimetableGrid(assignments, groups, totalPeriods);
 
     // Check Group 1
     expect(grid.get('group1')?.[0]).toEqual(mockAssignment1.class_session);
@@ -102,7 +106,8 @@ describe('buildTimetableGrid', () => {
   it('should handle assignments for groups that might not be in the group list (graceful handling)', () => {
     const groups = [mockGroup1]; // Only provide group1
     const assignments = [mockAssignment1, mockAssignment2]; // But have an assignment for group2
-    const grid = buildTimetableGrid(assignments, groups);
+    const totalPeriods = 16;
+    const grid = buildTimetableGrid(assignments, groups, totalPeriods);
 
     expect(grid.size).toBe(1);
     expect(grid.has('group1')).toBe(true);
