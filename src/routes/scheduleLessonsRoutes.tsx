@@ -2,9 +2,9 @@ import { Outlet, Route } from 'react-router-dom';
 import PrivateRoute from '../features/auth/components/PrivateRoute';
 
 // Import Pages
-import ClassSessions from '../features/classes/ClassSessionsPage';
-import Scheduler from '../features/timetabling/pages/TimetablePage';
-import ComponentManagement from '../features/classComponents/pages';
+import ClassSessions from '../features/classSessions/pages/ClassSessionsPage';
+import TimetablePage from '../features/timetabling/pages/TimetablePage';
+import ComponentManagement from '../features/classSessionComponents/pages';
 import { ErrorBoundary } from '../components/ui';
 import ScheduleConfigPage from '../features/scheduleConfig/pages/ScheduleConfigPage';
 
@@ -30,7 +30,7 @@ export const ScheduleLessonsRoutes = (
       path="/scheduler"
       element={
         <PrivateRoute>
-          <Scheduler />
+          <TimetablePage />
         </PrivateRoute>
       }
     />
