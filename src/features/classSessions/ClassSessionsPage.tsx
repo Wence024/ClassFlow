@@ -8,7 +8,7 @@ import {
   useClassrooms,
   useCourses,
   useInstructors,
-} from '../classComponents/hooks';
+} from '../classSessionComponents/hooks';
 
 const ClassSessions: React.FC = () => {
   const {

@@ -4,7 +4,7 @@ import { ComponentList, ComponentForm } from './components';
 import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { Course, CourseInsert, CourseUpdate } from '../types/course';
-import { useClassSessions } from '../../classes/useClassSessions';
+import { useClassSessions } from '../../classSessions/useClassSessions';
 
 // Page for managing courses (list, add, edit, remove)
 // TODO: Add search/filter, aggregation, and multi-user support.

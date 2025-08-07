@@ -4,7 +4,7 @@ import { ComponentList, ComponentForm } from './components';
 import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
-import { useClassSessions } from '../../classes/useClassSessions';
+import { useClassSessions } from '../../classSessions/useClassSessions';
 
 // Page for managing classrooms (list, add, edit, remove)
 // Now fully async and backed by Supabase.

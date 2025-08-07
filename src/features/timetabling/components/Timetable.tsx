@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import type { DragSource } from '../types/DragSouuce';
 import { useScheduleConfig } from '../../scheduleConfig/useScheduleConfig';
 import { generateTimetableHeaders } from '../utils/timeLogic';
-import type { ClassGroup } from '../../classComponents/types';
-import type { ClassSession } from '../../classes/classSession';
+import type { ClassGroup } from '../../classSessionComponents/types';
+import type { ClassSession } from '../../classSessions/classSession';
 
 interface TimetableProps {
   groups: ClassGroup[];

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useTimetable } from './useTimetable';
 import { showNotification } from '../../../lib/notificationsService';
 import type { DragSource } from '../types/DragSouuce';
-import { useClassSessions } from '../../classes/useClassSessions';
+import { useClassSessions } from '../../classSessions/useClassSessions';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -23,7 +23,11 @@ export const useTimetableDnd = () => {
       if (source.from === 'drawer') {
         const classSessionToAssign = classSessions.find((cs) => cs.id === source.class_session_id);
         if (classSessionToAssign) {
-          const error = await assignClassSession(class_group_id, period_index, classSessionToAssign);
+          const error = await assignClassSession(
+            class_group_id,
+            period_index,
+            classSessionToAssign
+          );
           if (error) {
             showNotification(error);
           }

@@ -1,13 +1,13 @@
 # ScheduleLessons Todo
 
-- [ ] Check for any Data anomalies (insert, update, delete)
+- [ ] Check for any potential Data anomalies (insert, update, delete)
 - [ ] ComponentInsert/Update type has been created. Where is ComponentDelete?
 - [ ] Support multi-user (sync with backend, not just localStorage).
 - [ ] Add aggregation/stats for class groups.
 - [ ] Add search/filter, aggregation, and multi-user support.
 - [ ] Should have commit/rollback functionality for services to prevent partial data.
 
-- [ ] Transition from context+providers into react query (useClassSessions.ts hook is already implemented)
+- [ ] Transition from context+viders into react query (useClassSessions.ts hook is already implemented)
 
 - [ ] UI issue: separate submit loading in forms vs fetching loading in lists.
 - [ ] Verify loading state in timetable again.

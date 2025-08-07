@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import checkConflicts, { type TimetableGrid } from './checkConflicts';
-import type { Instructor, Classroom, ClassGroup, Course } from '../../classComponents/types';
-import type { ClassSession } from '../../classes/classSession';
+import type { Instructor, Classroom, ClassGroup, Course } from '../../classSessionComponents/types';
+import type { ClassSession } from '../../classSessions/classSession';
 
 // --- Mock Data Setup ---
 

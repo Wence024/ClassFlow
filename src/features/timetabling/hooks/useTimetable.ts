@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/useAuth';
-import { useClassGroups } from '../../classComponents/hooks/';
+import { useClassGroups } from '../../classSessionComponents/hooks/';
 import * as timetableService from '../services/timetableService';
 import checkConflicts from '../utils/checkConflicts';
 import { buildTimetableGrid } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../scheduleConfig/useScheduleConfig'; // Import the new hook
-import type { ClassSession } from '../../classes/classSession';
+import type { ClassSession } from '../../classSessions/classSession';
 import type { HydratedTimetableAssignment } from '../types/timetable';
 
 export function useTimetable() {
@@ -197,7 +197,10 @@ export function useTimetable() {
     }
   };
 
-  const removeClassSession = async (class_group_id: string, period_index: number): Promise<void> => {
+  const removeClassSession = async (
+    class_group_id: string,
+    period_index: number
+  ): Promise<void> => {
     try {
       await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
     } catch {
@@ -210,7 +213,13 @@ export function useTimetable() {
     to: { class_group_id: string; period_index: number },
     classSession: ClassSession
   ): Promise<string> => {
-    const conflict = checkConflicts(timetable, classSession, to.class_group_id, to.period_index, from);
+    const conflict = checkConflicts(
+      timetable,
+      classSession,
+      to.class_group_id,
+      to.period_index,
+      from
+    );
     if (conflict) return conflict;
     try {
       await moveClassSessionMutation.mutateAsync({ from, to, classSession: classSession });

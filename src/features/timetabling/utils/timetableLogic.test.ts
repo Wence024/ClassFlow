@@ -4,11 +4,11 @@ import { buildTimetableGrid } from './timetableLogic';
 // --- Mock Data Setup ---
 
 // Minimal valid mocks for hydrated ClassSession
-import type { Course } from '../../classComponents/types/course';
-import type { Instructor } from '../../classComponents/types/instructor';
-import type { Classroom } from '../../classComponents/types/classroom';
-import type { ClassSession } from '../../classes/classSession';
-import type { ClassGroup } from '../../classComponents/types';
+import type { Course } from '../../classSessionComponents/types/course';
+import type { Instructor } from '../../classSessionComponents/types/instructor';
+import type { Classroom } from '../../classSessionComponents/types/classroom';
+import type { ClassSession } from '../../classSessions/classSession';
+import type { ClassGroup } from '../../classSessionComponents/types';
 import type { HydratedTimetableAssignment } from '../types/timetable';
 
 const mockCourse: Course = {
