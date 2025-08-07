@@ -39,8 +39,8 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
         </h3>
       </div>
       <div className="overflow-x-auto p-2">
-        {/* We remove min-w from the table itself, letting the column widths dictate the total width */}
         <table className="w-full border-separate border-spacing-0">
+          {/* ... thead remains the same ... */}
           <thead>
             <tr>
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-white z-20">
@@ -62,10 +62,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                 timeHeaders.map((time, timeIndex) => (
                   <th
                     key={timeIndex}
-                    // --- THIS IS THE KEY CHANGE ---
-                    // We set a minimum width for each column header.
-                    // 140px is a good starting point, you can adjust as needed.
-                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[4rem]"
+                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px]"
                   >
                     {time.label}
                   </th>
@@ -83,16 +80,18 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                   const classSession = timetable.get(group.id)?.[periodIndex] || null;
                   return (
                     <td key={periodIndex} className="p-1 align-top">
+                      {/* --- CELL IMPLEMENTATION WITH TOOLTIP --- */}
                       <div
                         onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
                         onDragOver={handleDragOver}
+                        // Add 'group' to enable group-hover on child elements
                         className={`
-                          h-24 rounded-md transition-all duration-200
-                          flex flex-col items-center justify-center
-                          p-1 text-center 
+                          group relative
+                          h-16 rounded-md transition-colors duration-200
+                          flex items-center justify-center p-2 text-center
                           ${
                             classSession
-                              ? 'bg-teal-100 text-teal-900 shadow-sm'
+                              ? 'bg-blue-100' // No hover color change on the cell itself
                               : 'bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200'
                           }
                         `}
@@ -108,11 +107,28 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                                 period_index: periodIndex,
                               })
                             }
-                            className="w-full h-full cursor-grab flex flex-col justify-center p-1 hover:shadow-lg transition-shadow rounded-md"
+                            className="w-full h-full cursor-grab flex items-center justify-center"
                           >
-                            <p className="font-bold text-xs">{classSession.course.name}</p>
-                            <p className="text-xs mt-1 text-gray-600">{classSession.instructor.name}</p>
-                            <p className="text-xs text-gray-500">({classSession.classroom.name})</p>
+                            {/* Default Visible Content */}
+                            <p className="font-bold text-xs text-blue-900">
+                              {classSession.course.name}
+                            </p>
+
+                            {/* --- TOOLTIP --- */}
+                            {/* This is positioned relative to the 'group' parent */}
+                            <div
+                              className="absolute bottom-full mb-2 w-max max-w-xs
+                                         bg-gray-800 text-white text-xs rounded-md shadow-lg p-3
+                                         opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                                         invisible group-hover:visible pointer-events-none z-10"
+                            >
+                              <p className="font-bold text-sm">{classSession.course.name}</p>
+                              <p className="mt-1">Instructor: {classSession.instructor.name}</p>
+                              <p>Classroom: {classSession.classroom.name}</p>
+                              <p>Group: {classSession.group.name}</p>
+                              {/* Arrow pointing down */}
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-[6px] border-t-gray-800"></div>
+                            </div>
                           </div>
                         ) : (
                           <span className="text-gray-400 text-2xl font-light"></span>
