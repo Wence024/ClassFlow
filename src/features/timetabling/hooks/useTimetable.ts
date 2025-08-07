@@ -193,7 +193,7 @@ export function useTimetable() {
       });
       return '';
     } catch {
-      return 'Failed to assign class session.';
+      return 'Failed to assign class.';
     }
   };
 
@@ -201,7 +201,7 @@ export function useTimetable() {
     try {
       await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
     } catch {
-      console.error('Failed to remove class session.');
+      console.error('Failed to remove class.');
     }
   };
 
@@ -216,7 +216,7 @@ export function useTimetable() {
       await moveClassSessionMutation.mutateAsync({ from, to, classSession: classSession });
       return '';
     } catch {
-      return 'Failed to move class session.';
+      return 'Failed to move class.';
     }
   };
 

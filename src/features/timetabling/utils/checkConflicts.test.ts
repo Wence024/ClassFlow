@@ -153,7 +153,7 @@ describe('checkConflicts', () => {
     expect(result).toBe('');
   });
 
-  it('should NOT return an instructor/classroom conflict with the source cell when moving a session', () => {
+  it('should NOT return an instructor/classroom conflict with the source cell when moving a class session', () => {
     timetable.get(mockGroup2.id)![1] = classSession2;
     const source = { class_group_id: mockGroup1.id, period_index: 0 };
     const result = checkConflicts(timetable, classSession1, mockGroup1.id, 2, source);

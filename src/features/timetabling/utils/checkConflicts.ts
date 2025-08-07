@@ -23,7 +23,7 @@ export default function checkConflicts(
       targetGroupId !== source.class_group_id ||
       targetPeriodIndex !== source.period_index)
   ) {
-    return `Group conflict: A class session is already scheduled in this slot for ${classSessionToCheck.group.name}.`;
+    return `Group conflict: A class is already scheduled in this slot for ${classSessionToCheck.group.name}.`;
   }
 
   // 2. Check for instructor and classroom conflicts across all groups at the target time

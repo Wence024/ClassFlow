@@ -33,7 +33,7 @@ const ClassroomManagement: React.FC = () => {
     if (isUsed) {
       const classroomName = classrooms.find((c) => c.id === id)?.name || 'the selected classroom';
       showNotification(
-        `Cannot delete "${classroomName}". It is currently used in one or more class sessions.`
+        `Cannot delete "${classroomName}". It is currently used in one or more classes.`
       );
       return;
     }

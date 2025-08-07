@@ -107,13 +107,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   return (
     <div className="bg-white p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4 text-center">
-        {editingClassSession ? 'Edit Class Session' : 'Create Class Session'}
+        {editingClassSession ? 'Edit Class' : 'Create Class'}
       </h2>
       <form
         onSubmit={handleSubmit}
         noValidate
         role="form"
-        aria-label={editingClassSession ? 'Edit Class Session Form' : 'Create Class Session Form'}
+        aria-label={editingClassSession ? 'Edit Class Form' : 'Create Class Form'}
       >
         <fieldset disabled={loading}>
           <FormField
@@ -162,7 +162,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
           <div className="flex gap-2 mt-4">
             <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
-              {editingClassSession ? 'Save Changes' : 'Create Class Session'}
+              {editingClassSession ? 'Save Changes' : 'Create Class'}
             </ActionButton>
 
             {onCancel && (

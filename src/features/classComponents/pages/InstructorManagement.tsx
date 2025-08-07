@@ -34,7 +34,7 @@ const InstructorManagement: React.FC = () => {
       const instructorName =
         instructors.find((i) => i.id === id)?.name || 'the selected instructor';
       showNotification(
-        `Cannot delete "${instructorName}". It is currently used in one or more class sessions.`
+        `Cannot delete "${instructorName}". It is currently used in one or more classes.`
       );
       return;
     }

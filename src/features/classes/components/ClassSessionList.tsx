@@ -13,7 +13,7 @@ const ClassSessionList: React.FC<ClassSessionListProps> = ({
   classSessions: classSessions,
   onEdit,
   onDelete,
-  emptyMessage = 'No class sessions created yet.',
+  emptyMessage = 'No classes created yet.',
 }) => {
   if (classSessions.length === 0) {
     return (

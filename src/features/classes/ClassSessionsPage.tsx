@@ -55,9 +55,9 @@ const ClassSessions: React.FC = () => {
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
       <div className="flex-1 min-w-0">
-        <h1 className="text-3xl font-bold text-center mb-6">Class classSession Management</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Class Management</h1>
         <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-4">Class Sessions</h2>
+          <h2 className="text-xl font-semibold mb-4">Classes</h2>
           {classSessionsLoading && <LoadingSpinner text="Loading sessions..." />}
           {error && <ErrorMessage message={error} />}
           {!classSessionsLoading && !error && (

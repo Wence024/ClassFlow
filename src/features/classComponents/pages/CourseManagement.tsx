@@ -32,7 +32,7 @@ const CourseManagement: React.FC = () => {
     if (isUsed) {
       const courseName = courses.find((c) => c.id === id)?.name || 'the selected course';
       showNotification(
-        `Cannot delete "${courseName}". It is currently used in one or more class sessions.`
+        `Cannot delete "${courseName}". It is currently used in one or more classes.`
       );
       return;
     }

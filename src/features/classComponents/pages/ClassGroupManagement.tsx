@@ -33,7 +33,7 @@ const ClassGroupManagement: React.FC = () => {
     if (isUsed) {
       const groupName = classGroups.find((g) => g.id === id)?.name || 'the selected group';
       showNotification(
-        `Cannot delete "${groupName}". It is currently used in one or more class sessions.`
+        `Cannot delete "${groupName}". It is currently used in one or more classes.`
       );
       return;
     }
