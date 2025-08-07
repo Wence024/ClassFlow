@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Notification, TabNavigation } from '../../../components/ui';
-import CourseManagement from './CourseManagement';
-import ClassGroupManagement from './ClassGroupManagement';
-import ClassroomManagement from './ClassroomManagement';
-import InstructorManagement from './InstructorManagement';
+import CourseManagement from './CourseTab';
+import ClassGroupManagement from './ClassGroupTab';
+import ClassroomManagement from './ClassroomTab';
+import InstructorManagement from './InstructorTab';
 
 const TABS = [
   { id: 'course', label: 'Courses' },
