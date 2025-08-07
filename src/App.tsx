@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
-import { AuthRoutes } from './features/auth/routes/AuthRoutes';
+import { AuthRoutes } from './routes/AuthRoutes';
 import { ScheduleLessonsRoutes } from './routes/scheduleLessonsRoutes';
 
 import { AuthProvider } from './features/auth/contexts/AuthProvider';

@@ -27,3 +27,6 @@
    - Add or update unit tests for hooks and context logic.
 
 This plan will make your codebase more modular, easier to test, and ready for future scaling. Once you are ready to implement, please toggle to Act mode.
+
+Tasks for next batch:
+- Two-period subjects
