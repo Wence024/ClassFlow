@@ -36,14 +36,14 @@ const mockClassroom: Classroom = {
   created_at: null,
 };
 
-const mockSession1: ClassSession = {
+const mockClassSession1: ClassSession = {
   id: 'session1',
   course: mockCourse,
   group: mockGroup1,
   instructor: mockInstructor,
   classroom: mockClassroom,
 };
-const mockSession2: ClassSession = {
+const mockClassSession2: ClassSession = {
   id: 'session2',
   course: mockCourse,
   group: mockGroup2,
@@ -57,7 +57,7 @@ const mockAssignment1: HydratedTimetableAssignment = {
   class_group_id: 'group1',
   period_index: 0,
   created_at: '',
-  class_session: mockSession1,
+  class_session: mockClassSession1,
 };
 
 const mockAssignment2: HydratedTimetableAssignment = {
@@ -66,7 +66,7 @@ const mockAssignment2: HydratedTimetableAssignment = {
   class_group_id: 'group2',
   period_index: 3,
   created_at: '',
-  class_session: mockSession2,
+  class_session: mockClassSession2,
 };
 
 describe('buildTimetableGrid', () => {

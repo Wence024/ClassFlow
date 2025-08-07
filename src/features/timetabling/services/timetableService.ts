@@ -48,11 +48,11 @@ export async function getTimetableAssignments(
 }
 
 /**
- * Assign a session to a group/period (insert or upsert) in Supabase.
+ * Assign a class session to a group/period (insert or upsert) in Supabase.
  * @param assignment TimetableAssignmentInsert object.
  * @returns The upserted TimetableAssignment object.
  */
-export async function assignSessionToTimetable(
+export async function assignClassSessionToTimetable(
   assignment: TimetableAssignmentInsert
 ): Promise<TimetableAssignment> {
   // REMOVED: data_version logic is no longer needed.
@@ -66,12 +66,12 @@ export async function assignSessionToTimetable(
 }
 
 /**
- * Remove a session from a group/period in Supabase.
+ * Remove a class session from a group/period in Supabase.
  * @param user_id The user's unique ID.
  * @param class_group_id The class group ID.
  * @param period_index The period index.
  */
-export async function removeSessionFromTimetable(
+export async function removeClassSessionFromTimetable(
   user_id: string,
   class_group_id: string,
   period_index: number
@@ -86,20 +86,20 @@ export async function removeSessionFromTimetable(
 }
 
 /**
- * Move a session from one cell to another (delete old, upsert new) in Supabase.
+ * Move a class session from one cell to another (delete old, upsert new) in Supabase.
  * @param user_id The user's unique ID.
  * @param from The source cell ({ class_group_id, period_index }).
  * @param to The destination cell ({ class_group_id, period_index }).
  * @param assignment TimetableAssignmentInsert for the new cell.
  * @returns The upserted TimetableAssignment object for the new cell.
  */
-export async function moveSessionInTimetable(
+export async function moveClassSessionInTimetable(
   user_id: string,
   from: { class_group_id: string; period_index: number },
   _to: { class_group_id: string; period_index: number },
   assignment: TimetableAssignmentInsert
 ): Promise<TimetableAssignment> {
-  await removeSessionFromTimetable(user_id, from.class_group_id, from.period_index);
+  await removeClassSessionFromTimetable(user_id, from.class_group_id, from.period_index);
   // REMOVED: data_version logic is no longer needed.
-  return assignSessionToTimetable(assignment);
+  return assignClassSessionToTimetable(assignment);
 }

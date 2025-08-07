@@ -38,9 +38,9 @@ export function buildTimetableGrid(
   for (const assignment of assignments) {
     const row = grid.get(assignment.class_group_id);
     // The full session object is directly on the assignment.
-    const session = assignment.class_session || null;
-    if (row && session) {
-      row[assignment.period_index] = session;
+    const classSession = assignment.class_session || null;
+    if (row && classSession) {
+      row[assignment.period_index] = classSession;
     }
   }
 

@@ -3,24 +3,28 @@ import { ItemCard } from '../../../components/ui';
 import type { ClassSession } from '../classSession';
 
 interface ClassSessionCardProps {
-  session: ClassSession;
-  onEdit: (session: ClassSession) => void;
+  classSession: ClassSession;
+  onEdit: (classSession: ClassSession) => void;
   onDelete: (id: string) => void;
 }
 
-const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ session, onEdit, onDelete }) => {
+const ClassSessionCard: React.FC<ClassSessionCardProps> = ({
+  classSession: classSession,
+  onEdit,
+  onDelete,
+}) => {
   const details = [
-    { label: 'Instructor', value: session.instructor.name },
-    { label: 'Classroom', value: session.classroom.name },
+    { label: 'Instructor', value: classSession.instructor.name },
+    { label: 'Classroom', value: classSession.classroom.name },
   ];
 
   return (
     <ItemCard
-      title={`${session.course.name} - ${session.group.name}`}
-      subtitle={session.course.code}
+      title={`${classSession.course.name} - ${classSession.group.name}`}
+      subtitle={classSession.course.code}
       details={details}
-      onEdit={() => onEdit(session)}
-      onDelete={() => onDelete(session.id)}
+      onEdit={() => onEdit(classSession)}
+      onDelete={() => onDelete(classSession.id)}
       editLabel="Edit"
       deleteLabel="Remove"
     />

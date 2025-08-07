@@ -1,16 +1,14 @@
 import { vi } from 'vitest';
 // Import the actual types from the application code
-import type {
-  TimetableAssignment,
-  HydratedTimetableAssignment,
-  ClassSession,
-} from '../../scheduleLessons/types';
+
 import {
-  assignSessionToTimetable,
+  assignClassSessionToTimetable,
   getTimetableAssignments,
-  removeSessionFromTimetable,
-  moveSessionInTimetable,
+  removeClassSessionFromTimetable,
+  moveClassSessionInTimetable,
 } from './timetableService';
+import type { HydratedTimetableAssignment, TimetableAssignment } from '../types/timetable';
+import type { ClassSession } from '../../classes/classSession';
 
 // Supabase response types for mocking
 type SupabaseError = { message: string };
@@ -84,7 +82,7 @@ describe('TimetableService', () => {
         error: null,
       });
 
-      const result = await assignSessionToTimetable(mockAssignmentInput);
+      const result = await assignClassSessionToTimetable(mockAssignmentInput);
 
       // Test that the raw input is passed directly to upsert
       expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
@@ -99,7 +97,7 @@ describe('TimetableService', () => {
         error: { message: 'fail' },
       });
 
-      await expect(assignSessionToTimetable(mockAssignmentInput)).rejects.toThrow('fail');
+      await expect(assignClassSessionToTimetable(mockAssignmentInput)).rejects.toThrow('fail');
     });
 
     test('should add data_version before upsert', async () => {
@@ -108,7 +106,7 @@ describe('TimetableService', () => {
         error: null,
       });
 
-      await assignSessionToTimetable(mockAssignmentInput);
+      await assignClassSessionToTimetable(mockAssignmentInput);
 
       expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
         onConflict: 'user_id,class_group_id,period_index',
@@ -162,7 +160,9 @@ describe('TimetableService', () => {
       // Final eq call returns the result of the delete operation
       mockSupabaseQueryBuilder.eq.mockResolvedValueOnce({ error: null });
 
-      await expect(removeSessionFromTimetable('user-id', 'group-id', 1)).resolves.toBeUndefined();
+      await expect(
+        removeClassSessionFromTimetable('user-id', 'group-id', 1)
+      ).resolves.toBeUndefined();
     });
 
     test('should throw if Supabase delete returns error', async () => {
@@ -172,7 +172,9 @@ describe('TimetableService', () => {
         .mockImplementationOnce(() => mockSupabaseQueryBuilder)
         .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
 
-      await expect(removeSessionFromTimetable('user-id', 'group-id', 1)).rejects.toThrow('fail');
+      await expect(removeClassSessionFromTimetable('user-id', 'group-id', 1)).rejects.toThrow(
+        'fail'
+      );
     });
   });
 
@@ -192,7 +194,7 @@ describe('TimetableService', () => {
         error: null,
       });
 
-      const result = await moveSessionInTimetable(
+      const result = await moveClassSessionInTimetable(
         'user-id',
         { class_group_id: 'A', period_index: 1 },
         { class_group_id: 'B', period_index: 2 },
@@ -214,7 +216,7 @@ describe('TimetableService', () => {
         .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
 
       await expect(
-        moveSessionInTimetable(
+        moveClassSessionInTimetable(
           'user-id',
           { class_group_id: 'A', period_index: 1 },
           { class_group_id: 'B', period_index: 2 },

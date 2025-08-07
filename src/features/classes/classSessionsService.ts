@@ -3,7 +3,7 @@ import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from './cla
 
 const TABLE = 'class_sessions';
 
-// The columns to select to get the fully hydrated session object.
+// The columns to select to get the fully hydrated classSession object.
 const SELECT_COLUMNS = `
   id,
   course:courses(*),
@@ -36,7 +36,7 @@ export async function getClassSessions(user_id: string): Promise<ClassSession[]>
  *
  * @param id The unique identifier of the class session to retrieve.
  * @returns A promise that resolves to the fully-hydrated ClassSession object.
- * @throws An error if the session is not found or if the Supabase query fails.
+ * @throws An error if the class session is not found or if the Supabase query fails.
  */
 export async function getClassSession(id: string): Promise<ClassSession> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('id', id).single();
@@ -48,14 +48,14 @@ export async function getClassSession(id: string): Promise<ClassSession> {
 /**
  * Adds a new class session to the database.
  * The input object must contain the foreign keys for the related components.
- * @param session The ClassSessionInsert object containing the foreign keys for the new session.
+ * @param classSession The ClassSessionInsert object containing the foreign keys for the new classSession.
  * @returns A promise that resolves to the newly created, fully-hydrated ClassSession object.
  * @throws An error if the Supabase insert fails.
  */
-export async function addClassSession(session: ClassSessionInsert): Promise<ClassSession> {
+export async function addClassSession(classSession: ClassSessionInsert): Promise<ClassSession> {
   const { data, error } = await supabase
     .from(TABLE)
-    .insert([session])
+    .insert([classSession])
     .select(SELECT_COLUMNS)
     .single();
 
@@ -68,17 +68,17 @@ export async function addClassSession(session: ClassSessionInsert): Promise<Clas
  * This function relies on Supabase's Row-Level Security (RLS) to ensure
  * that users can only update their own records.
  * @param id The unique identifier of the class session to update.
- * @param session The ClassSessionUpdate object containing the fields to update.
+ * @param classSession The ClassSessionUpdate object containing the fields to update.
  * @returns A promise that resolves to the updated, fully-hydrated ClassSession object.
  * @throws An error if the Supabase update fails or the record is not found.
  */
 export async function updateClassSession(
   id: string,
-  session: ClassSessionUpdate
+  classSession: ClassSessionUpdate
 ): Promise<ClassSession> {
   const { data, error } = await supabase
     .from(TABLE)
-    .update(session)
+    .update(classSession)
     .eq('id', id)
     .select(SELECT_COLUMNS)
     .single();

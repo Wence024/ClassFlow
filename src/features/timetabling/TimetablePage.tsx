@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
-import { useClassSessions } from '../classes/useClassSessions';
-// REMOVED: TimetableProvider is no longer needed
 import { useTimetable } from './hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from './hooks/useTimetableDnd';
 import { LoadingSpinner, Notification } from '../../components/ui';
-import type { ClassSession } from '../scheduleLessons/types';
+import { useClassSessions } from '../classes/useClassSessions';
+import type { ClassSession } from '../classes/classSession';
 
 // SchedulerApp no longer needs to be a separate component
 const Scheduler: React.FC = () => {
@@ -14,10 +13,10 @@ const Scheduler: React.FC = () => {
   const { timetable, groups, loading } = useTimetable();
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
-  const unassignedSessions = useMemo(() => {
+  const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
-    for (const sessions of timetable.values()) {
-      for (const session of sessions) {
+    for (const classSessions of timetable.values()) {
+      for (const session of classSessions) {
         if (session) {
           assignedIds.add(session.id);
         }
@@ -26,7 +25,7 @@ const Scheduler: React.FC = () => {
     return classSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
   }, [timetable, classSessions]);
 
-  const drawerSessions = unassignedSessions.map((cs: ClassSession) => ({
+  const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
@@ -36,7 +35,7 @@ const Scheduler: React.FC = () => {
       <Notification />
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
         <Drawer
-          drawerSessions={drawerSessions}
+          drawerClassSessions={drawerClassSessions}
           onDragStart={handleDragStart}
           onDropToDrawer={handleDropToDrawer}
         />

@@ -1,4 +1,4 @@
-import type { ClassSession } from '../../scheduleLessons/types';
+import type { ClassSession } from "../../classes/classSession";
 
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
@@ -10,7 +10,7 @@ export type TimetableGrid = Map<string, (ClassSession | null)[]>;
  */
 export default function checkConflicts(
   timetable: TimetableGrid,
-  sessionToCheck: ClassSession,
+  classSessionToCheck: ClassSession,
   targetGroupId: string,
   targetPeriodIndex: number,
   source?: { class_group_id: string; period_index: number }
@@ -23,14 +23,14 @@ export default function checkConflicts(
       targetGroupId !== source.class_group_id ||
       targetPeriodIndex !== source.period_index)
   ) {
-    return `Group conflict: A session is already scheduled in this slot for ${sessionToCheck.group.name}.`;
+    return `Group conflict: A class session is already scheduled in this slot for ${classSessionToCheck.group.name}.`;
   }
 
   // 2. Check for instructor and classroom conflicts across all groups at the target time
-  for (const [groupId, sessions] of timetable.entries()) {
-    const existingSession = sessions[targetPeriodIndex];
+  for (const [groupId, classSessions] of timetable.entries()) {
+    const existingClassSession = classSessions[targetPeriodIndex];
 
-    if (existingSession) {
+    if (existingClassSession) {
       if (
         source &&
         groupId === source.class_group_id &&
@@ -39,11 +39,11 @@ export default function checkConflicts(
         continue;
       }
 
-      if (existingSession.instructor.id === sessionToCheck.instructor.id) {
-        return `Instructor conflict: ${existingSession.instructor.name} is already scheduled in this period for group ${existingSession.group.name}.`;
+      if (existingClassSession.instructor.id === classSessionToCheck.instructor.id) {
+        return `Instructor conflict: ${existingClassSession.instructor.name} is already scheduled in this period for group ${existingClassSession.group.name}.`;
       }
-      if (existingSession.classroom.id === sessionToCheck.classroom.id) {
-        return `Classroom conflict: ${existingSession.classroom.name} is already in use during this period by group ${existingSession.group.name}.`;
+      if (existingClassSession.classroom.id === classSessionToCheck.classroom.id) {
+        return `Classroom conflict: ${existingClassSession.classroom.name} is already in use during this period by group ${existingClassSession.group.name}.`;
       }
     }
   }

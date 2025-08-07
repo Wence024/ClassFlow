@@ -3,19 +3,19 @@ import ClassSessionCard from './ClassSessionCard';
 import type { ClassSession } from '../classSession';
 
 interface ClassSessionListProps {
-  sessions: ClassSession[];
-  onEdit: (session: ClassSession) => void;
+  classSessions: ClassSession[];
+  onEdit: (classSession: ClassSession) => void;
   onDelete: (id: string) => void;
   emptyMessage?: string;
 }
 
 const ClassSessionList: React.FC<ClassSessionListProps> = ({
-  sessions,
+  classSessions: classSessions,
   onEdit,
   onDelete,
   emptyMessage = 'No class sessions created yet.',
 }) => {
-  if (sessions.length === 0) {
+  if (classSessions.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">{emptyMessage}</p>
@@ -25,8 +25,13 @@ const ClassSessionList: React.FC<ClassSessionListProps> = ({
 
   return (
     <div className="space-y-4">
-      {sessions.map((session) => (
-        <ClassSessionCard key={session.id} session={session} onEdit={onEdit} onDelete={onDelete} />
+      {classSessions.map((session) => (
+        <ClassSessionCard
+          key={session.id}
+          classSession={session}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
       ))}
     </div>
   );

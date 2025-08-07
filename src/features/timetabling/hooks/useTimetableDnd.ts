@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
 import { useTimetable } from './useTimetable';
-import { useClassSessions } from '../../classes/useClassSessions';
 import { showNotification } from '../../../lib/notificationsService';
 import type { DragSource } from '../types/DragSouuce';
+import { useClassSessions } from '../../classes/useClassSessions';
 
 const DRAG_DATA_KEY = 'application/json';
 
 export const useTimetableDnd = () => {
-  const { assignSession, removeSession, moveSession } = useTimetable();
+  const { assignClassSession, removeClassSession, moveClassSession } = useTimetable();
   const { classSessions } = useClassSessions();
 
   const handleDragStart = useCallback((e: React.DragEvent, source: DragSource) => {
@@ -21,15 +21,15 @@ export const useTimetableDnd = () => {
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
       if (source.from === 'drawer') {
-        const sessionToAssign = classSessions.find((cs) => cs.id === source.class_session_id);
-        if (sessionToAssign) {
-          const error = await assignSession(class_group_id, period_index, sessionToAssign);
+        const classSessionToAssign = classSessions.find((cs) => cs.id === source.class_session_id);
+        if (classSessionToAssign) {
+          const error = await assignClassSession(class_group_id, period_index, classSessionToAssign);
           if (error) {
             showNotification(error);
           }
         }
       } else if (source.from === 'timetable') {
-        const error = await moveSession(
+        const error = await moveClassSession(
           { class_group_id: source.class_group_id, period_index: source.period_index },
           { class_group_id, period_index },
           classSessions.find((cs) => cs.id === source.class_session_id)!
@@ -39,7 +39,7 @@ export const useTimetableDnd = () => {
         }
       }
     },
-    [classSessions, assignSession, moveSession]
+    [classSessions, assignClassSession, moveClassSession]
   );
 
   const handleDropToDrawer = useCallback(
@@ -48,10 +48,10 @@ export const useTimetableDnd = () => {
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
       if (source.from === 'timetable') {
-        await removeSession(source.class_group_id, source.period_index);
+        await removeClassSession(source.class_group_id, source.period_index);
       }
     },
-    [removeSession]
+    [removeClassSession]
   );
 
   return {

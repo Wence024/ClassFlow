@@ -69,30 +69,30 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
               </td>
               {/* Data Cells */}
               {Array.from({ length: dayHeaders.length * timeHeaders.length }, (_, periodIndex) => {
-                const session = timetable.get(group.id)?.[periodIndex] || null;
+                const classSession = timetable.get(group.id)?.[periodIndex] || null;
                 return (
                   <td
                     key={periodIndex}
-                    className={`p-2 border text-center min-w-[120px] ${session ? 'bg-green-400 text-white font-bold' : 'bg-gray-50'}`}
+                    className={`p-2 border text-center min-w-[120px] ${classSession ? 'bg-green-400 text-white font-bold' : 'bg-gray-50'}`}
                     onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
                     onDragOver={handleDragOver}
                   >
-                    {session ? (
+                    {classSession ? (
                       <div
                         draggable
                         onDragStart={(e) =>
                           onDragStart(e, {
                             from: 'timetable',
-                            class_session_id: session.id,
+                            class_session_id: classSession.id,
                             class_group_id: group.id,
                             period_index: periodIndex,
                           })
                         }
                         className="cursor-grab"
                       >
-                        <p>{session.course.name}</p>
-                        <p className="text-xs">{session.instructor.name}</p>
-                        <p className="text-xs">{session.classroom.name}</p>
+                        <p>{classSession.course.name}</p>
+                        <p className="text-xs">{classSession.instructor.name}</p>
+                        <p className="text-xs">{classSession.classroom.name}</p>
                       </div>
                     ) : (
                       '—'

@@ -24,46 +24,47 @@ const ClassSessions: React.FC = () => {
   const { classrooms, loading: classroomsLoading } = useClassrooms();
   const { instructors, loading: instructorsLoading } = useInstructors();
 
-  const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
+  const [editingSession, setEditingClassSession] = useState<ClassSession | null>(null);
 
-  // Add new session
-  const handleAddSession = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
+  // Add new classSession
+  const handleAddClassSession = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
     await addClassSession(sessionData as ClassSessionInsert);
-    setEditingSession(null);
+    setEditingClassSession(null);
   };
 
-  // Edit session
-  const handleEditSession = (session: ClassSession) => setEditingSession(session);
+  // Edit classSession
+  const handleEditClassSession = (classSession: ClassSession) =>
+    setEditingClassSession(classSession);
 
-  // Save changes to session
-  const handleSaveSession = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
+  // Save changes to classSession
+  const handleSaveClassSession = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
     if (!editingSession) return;
     await updateClassSession(editingSession.id, sessionData as ClassSessionUpdate);
-    setEditingSession(null);
+    setEditingClassSession(null);
   };
 
-  // Remove session
-  const handleRemoveSession = async (id: string) => {
+  // Remove classSession
+  const handleRemoveClassSession = async (id: string) => {
     await removeClassSession(id);
-    setEditingSession(null);
+    setEditingClassSession(null);
   };
 
   // Cancel editing
-  const handleCancel = () => setEditingSession(null);
+  const handleCancel = () => setEditingClassSession(null);
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
       <div className="flex-1 min-w-0">
-        <h1 className="text-3xl font-bold text-center mb-6">Class Session Management</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Class classSession Management</h1>
         <div className="mt-4">
           <h2 className="text-xl font-semibold mb-4">Class Sessions</h2>
           {classSessionsLoading && <LoadingSpinner text="Loading sessions..." />}
           {error && <ErrorMessage message={error} />}
           {!classSessionsLoading && !error && (
             <ClassSessionList
-              sessions={classSessions}
-              onEdit={handleEditSession}
-              onDelete={handleRemoveSession}
+              classSessions={classSessions}
+              onEdit={handleEditClassSession}
+              onDelete={handleRemoveClassSession}
             />
           )}
         </div>
@@ -74,9 +75,9 @@ const ClassSessions: React.FC = () => {
           classGroups={classGroups}
           instructors={instructors}
           classrooms={classrooms}
-          editingSession={editingSession}
+          editingClassSession={editingSession}
           onCancel={editingSession ? handleCancel : undefined}
-          onSubmit={editingSession ? handleSaveSession : handleAddSession}
+          onSubmit={editingSession ? handleSaveClassSession : handleAddClassSession}
           loading={
             classSessionsLoading ||
             coursesLoading ||

@@ -73,18 +73,18 @@ export function useTimetable() {
   }, [user, queryClient, queryKey, channelId]);
 
   // ... (The rest of the file - mutations, returned object, etc. - is unchanged) ...
-  const moveSessionMutation = useMutation({
+  const moveClassSessionMutation = useMutation({
     mutationFn: (variables: {
       from: { class_group_id: string; period_index: number };
       to: { class_group_id: string; period_index: number };
-      session: ClassSession;
+      classSession: ClassSession;
     }) => {
       if (!user) throw new Error('User not authenticated');
-      return timetableService.moveSessionInTimetable(user.id, variables.from, variables.to, {
+      return timetableService.moveClassSessionInTimetable(user.id, variables.from, variables.to, {
         user_id: user.id,
         class_group_id: variables.to.class_group_id,
         period_index: variables.to.period_index,
-        class_session_id: variables.session.id,
+        class_session_id: variables.classSession.id,
       });
     },
     onMutate: async (movedItem) => {
@@ -125,10 +125,10 @@ export function useTimetable() {
     },
   });
 
-  const removeSessionMutation = useMutation({
+  const removeClassSessionMutation = useMutation({
     mutationFn: (variables: { class_group_id: string; period_index: number }) => {
       if (!user) throw new Error('User not authenticated');
-      return timetableService.removeSessionFromTimetable(
+      return timetableService.removeClassSessionFromTimetable(
         user.id,
         variables.class_group_id,
         variables.period_index
@@ -159,18 +159,18 @@ export function useTimetable() {
     },
   });
 
-  const assignSessionMutation = useMutation({
+  const assignClassSessionMutation = useMutation({
     mutationFn: (variables: {
       class_group_id: string;
       period_index: number;
-      session: ClassSession;
+      classSession: ClassSession;
     }) => {
       if (!user) throw new Error('User not authenticated');
-      return timetableService.assignSessionToTimetable({
+      return timetableService.assignClassSessionToTimetable({
         user_id: user.id,
         class_group_id: variables.class_group_id,
         period_index: variables.period_index,
-        class_session_id: variables.session.id,
+        class_session_id: variables.classSession.id,
       });
     },
     onSuccess: () => {
@@ -178,56 +178,60 @@ export function useTimetable() {
     },
   });
 
-  const assignSession = async (
+  const assignClassSession = async (
     class_group_id: string,
     period_index: number,
-    session: ClassSession
+    classSession: ClassSession
   ): Promise<string> => {
-    const conflict = checkConflicts(timetable, session, class_group_id, period_index);
+    const conflict = checkConflicts(timetable, classSession, class_group_id, period_index);
     if (conflict) return conflict;
     try {
-      await assignSessionMutation.mutateAsync({ class_group_id, period_index, session });
+      await assignClassSessionMutation.mutateAsync({
+        class_group_id,
+        period_index,
+        classSession: classSession,
+      });
       return '';
     } catch {
-      return 'Failed to assign session.';
+      return 'Failed to assign class session.';
     }
   };
 
-  const removeSession = async (class_group_id: string, period_index: number): Promise<void> => {
+  const removeClassSession = async (class_group_id: string, period_index: number): Promise<void> => {
     try {
-      await removeSessionMutation.mutateAsync({ class_group_id, period_index });
+      await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
     } catch {
-      console.error('Failed to remove session.');
+      console.error('Failed to remove class session.');
     }
   };
 
-  const moveSession = async (
+  const moveClassSession = async (
     from: { class_group_id: string; period_index: number },
     to: { class_group_id: string; period_index: number },
-    session: ClassSession
+    classSession: ClassSession
   ): Promise<string> => {
-    const conflict = checkConflicts(timetable, session, to.class_group_id, to.period_index, from);
+    const conflict = checkConflicts(timetable, classSession, to.class_group_id, to.period_index, from);
     if (conflict) return conflict;
     try {
-      await moveSessionMutation.mutateAsync({ from, to, session });
+      await moveClassSessionMutation.mutateAsync({ from, to, classSession: classSession });
       return '';
     } catch {
-      return 'Failed to move session.';
+      return 'Failed to move class session.';
     }
   };
 
   const loading =
     isFetching ||
-    assignSessionMutation.isPending ||
-    removeSessionMutation.isPending ||
-    moveSessionMutation.isPending;
+    assignClassSessionMutation.isPending ||
+    removeClassSessionMutation.isPending ||
+    moveClassSessionMutation.isPending;
 
   return {
     groups: classGroups,
     timetable,
-    assignSession,
-    removeSession,
-    moveSession,
+    assignClassSession,
+    removeClassSession,
+    moveClassSession,
     loading,
     error: errorAssignments,
   };

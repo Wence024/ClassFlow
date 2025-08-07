@@ -1,13 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import checkConflicts, { type TimetableGrid } from './checkConflicts';
-// Import all the necessary types to build our mock data
-import type {
-  ClassSession,
-  Course,
-  ClassGroup,
-  Instructor,
-  Classroom,
-} from '../../scheduleLessons/types';
+import type { Instructor, Classroom, ClassGroup, Course } from '../../classComponents/types';
+import type { ClassSession } from '../../classes/classSession';
 
 // --- Mock Data Setup ---
 
@@ -75,7 +69,7 @@ const mockCourse2: Course = {
 };
 
 // Create fully-hydrated mock ClassSession objects. These are now type-safe.
-const session1: ClassSession = {
+const classSession1: ClassSession = {
   id: 'session1',
   course: mockCourse1,
   group: mockGroup1,
@@ -83,7 +77,7 @@ const session1: ClassSession = {
   classroom: mockClassroom1,
 };
 
-const session2: ClassSession = {
+const classSession2: ClassSession = {
   id: 'session2',
   course: mockCourse2,
   group: mockGroup2,
@@ -91,7 +85,7 @@ const session2: ClassSession = {
   classroom: mockClassroom2,
 };
 
-const conflictingSession: ClassSession = {
+const conflictingClassSession: ClassSession = {
   id: 'session3',
   course: mockCourse2,
   group: mockGroup2,
@@ -99,7 +93,7 @@ const conflictingSession: ClassSession = {
   classroom: mockClassroom2,
 };
 
-const classroomConflictSession: ClassSession = {
+const classroomConflictClassSession: ClassSession = {
   id: 'session4',
   course: mockCourse2,
   group: mockGroup2,
@@ -116,53 +110,53 @@ describe('checkConflicts', () => {
     timetable.set(mockGroup1.id, Array(16).fill(null));
     timetable.set(mockGroup2.id, Array(16).fill(null));
 
-    // Pre-populate the timetable with an existing session
-    timetable.get(mockGroup1.id)![0] = session1;
+    // Pre-populate the timetable with an existing class session
+    timetable.get(mockGroup1.id)![0] = classSession1;
   });
 
   // --- Test Scenarios (No changes needed in the test logic itself) ---
 
   it('should return an empty string when there are no conflicts', () => {
-    const result = checkConflicts(timetable, session2, mockGroup2.id, 1);
+    const result = checkConflicts(timetable, classSession2, mockGroup2.id, 1);
     expect(result).toBe('');
   });
 
   it('should return a group conflict message if the target cell is already occupied', () => {
-    const result = checkConflicts(timetable, session2, mockGroup1.id, 0);
+    const result = checkConflicts(timetable, classSession2, mockGroup1.id, 0);
     expect(result).toContain('Group conflict');
-    expect(result).toContain(session2.group.name);
+    expect(result).toContain(classSession2.group.name);
   });
 
   it('should return an instructor conflict message if the same instructor is scheduled at the same time in a different group', () => {
-    const result = checkConflicts(timetable, conflictingSession, mockGroup2.id, 0);
+    const result = checkConflicts(timetable, conflictingClassSession, mockGroup2.id, 0);
     expect(result).toContain('Instructor conflict');
     expect(result).toContain(mockInstructor1.name);
-    expect(result).toContain(session1.group.name);
+    expect(result).toContain(classSession1.group.name);
   });
 
   it('should return a classroom conflict message if the same classroom is in use at the same time', () => {
-    const result = checkConflicts(timetable, classroomConflictSession, mockGroup2.id, 0);
+    const result = checkConflicts(timetable, classroomConflictClassSession, mockGroup2.id, 0);
     expect(result).toContain('Classroom conflict');
     expect(result).toContain(mockClassroom1.name);
-    expect(result).toContain(session1.group.name);
+    expect(result).toContain(classSession1.group.name);
   });
 
-  it('should NOT return a conflict when moving a session to an empty cell', () => {
+  it('should NOT return a conflict when moving a class session to an empty cell', () => {
     const source = { class_group_id: mockGroup1.id, period_index: 0 };
-    const result = checkConflicts(timetable, session1, mockGroup1.id, 1, source);
+    const result = checkConflicts(timetable, classSession1, mockGroup1.id, 1, source);
     expect(result).toBe('');
   });
 
-  it('should NOT return a self-conflict when a session is moved to its own original spot', () => {
+  it('should NOT return a self-conflict when a class session is moved to its own original spot', () => {
     const source = { class_group_id: mockGroup1.id, period_index: 0 };
-    const result = checkConflicts(timetable, session1, mockGroup1.id, 0, source);
+    const result = checkConflicts(timetable, classSession1, mockGroup1.id, 0, source);
     expect(result).toBe('');
   });
 
   it('should NOT return an instructor/classroom conflict with the source cell when moving a session', () => {
-    timetable.get(mockGroup2.id)![1] = session2;
+    timetable.get(mockGroup2.id)![1] = classSession2;
     const source = { class_group_id: mockGroup1.id, period_index: 0 };
-    const result = checkConflicts(timetable, session1, mockGroup1.id, 2, source);
+    const result = checkConflicts(timetable, classSession1, mockGroup1.id, 2, source);
     expect(result).toBe('');
   });
 });

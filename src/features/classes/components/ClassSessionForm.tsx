@@ -13,8 +13,8 @@ interface ClassSessionFormProps {
   classGroups: ClassGroup[];
   instructors: Instructor[];
   classrooms: Classroom[];
-  editingSession?: ClassSession | null;
-  onSubmit: (sessionData: ClassSessionInsert | ClassSessionUpdate) => void;
+  editingClassSession?: ClassSession | null;
+  onSubmit: (classSessionData: ClassSessionInsert | ClassSessionUpdate) => void;
   onCancel?: () => void;
   loading?: boolean;
 }
@@ -31,7 +31,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   classGroups,
   instructors,
   classrooms,
-  editingSession,
+  editingClassSession: editingClassSession,
   onSubmit,
   onCancel,
   loading = false,
@@ -47,12 +47,12 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
   // Populate form when editing
   useEffect(() => {
-    if (editingSession) {
+    if (editingClassSession) {
       setFormData({
-        courseId: editingSession.course?.id || '',
-        groupId: editingSession.group?.id || '',
-        instructorId: editingSession.instructor?.id || '',
-        classroomId: editingSession.classroom?.id || '',
+        courseId: editingClassSession.course?.id || '',
+        groupId: editingClassSession.group?.id || '',
+        instructorId: editingClassSession.instructor?.id || '',
+        classroomId: editingClassSession.classroom?.id || '',
       });
     } else {
       setFormData({
@@ -63,7 +63,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       });
     }
     setErrors({});
-  }, [editingSession]);
+  }, [editingClassSession]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,13 +107,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   return (
     <div className="bg-white p-6 rounded-lg shadow">
       <h2 className="text-xl font-semibold mb-4 text-center">
-        {editingSession ? 'Edit Class Session' : 'Create Class Session'}
+        {editingClassSession ? 'Edit Class Session' : 'Create Class Session'}
       </h2>
       <form
         onSubmit={handleSubmit}
         noValidate
         role="form"
-        aria-label={editingSession ? 'Edit Class Session Form' : 'Create Class Session Form'}
+        aria-label={editingClassSession ? 'Edit Class Session Form' : 'Create Class Session Form'}
       >
         <fieldset disabled={loading}>
           <FormField
@@ -162,7 +162,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
           <div className="flex gap-2 mt-4">
             <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
-              {editingSession ? 'Save Changes' : 'Create Class Session'}
+              {editingClassSession ? 'Save Changes' : 'Create Class Session'}
             </ActionButton>
 
             {onCancel && (
