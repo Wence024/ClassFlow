@@ -4,8 +4,23 @@ import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
  * Represents a single time header in the timetable.
  */
 export interface TimeHeader {
-  label: string; // e.g., "7:30 AM - 9:00 AM"
+  label: string; // e.g., "7:30-9:00"
 }
+
+/**
+ * Helper function to format a Date object into hh:mm format (12-hour, no AM/PM).
+ * @param date The date to format.
+ * @returns A string in "h:mm" format.
+ */
+const formatTimeHHMM = (date: Date): string => {
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+
+  // Convert 24-hour to 12-hour format
+  hours = hours % 12 || 12; // Converts 0 to 12, 13 to 1, etc.
+
+  return `${hours}:${minutes}`;
+};
 
 /**
  * Pure business logic to generate headers for the timetable UI
@@ -29,11 +44,9 @@ export function generateTimetableHeaders(settings: ScheduleConfig): {
     const startTime = new Date(currentTime);
     const endTime = new Date(startTime.getTime() + settings.period_duration_mins * 60000);
 
-    const formatTime = (date: Date) =>
-      date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
     timeHeaders.push({
-      label: `${formatTime(startTime)} - ${formatTime(endTime)}`,
+      // Use the new, cleaner format
+      label: `${formatTimeHHMM(startTime)}-${formatTimeHHMM(endTime)}`,
     });
 
     currentTime = endTime; // Set up for the next loop
