@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import { LoadingSpinner, Notification } from '../../../components/ui';
+import { LoadingSpinner } from '../../../components/ui';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import {
@@ -89,20 +89,29 @@ const TimetablePage: React.FC = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 flex flex-col">
       <Header />
-      <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex gap-6">
+      <div className="flex-grow max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+        {/* Main layout container */}
+        <div className="flex gap-6 h-full">
           <Sidebar />
-          <main className="flex-1 space-y-6">
-            {/* You can add the Views and Management buttons here as a new component */}
+          <Drawer
+            drawerClassSessions={drawerClassSessions}
+            onDragStart={handleDragStart}
+            onDropToDrawer={handleDropToDrawer}
+          />
 
-            <div className="relative w-full">
+          {/* --- KEY CHANGE IS HERE --- */}
+          <main className="flex-1 space-y-6 min-w-0">
+            {/* The relative positioning is for the loading spinner */}
+            <div className="relative w-full h-full">
               {loading && (
-                <div className="absolute right-1/2 top-4 -translate-x-1/2 z-10">
-                  <LoadingSpinner size={'md'} text="" />
+                <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-30">
+                  <LoadingSpinner size={'md'} text="Loading..." />
                 </div>
               )}
+              {/* The Timetable component itself does not need to change.
+                  It is already set up to scroll internally. */}
               <Timetable
                 groups={groups}
                 timetable={timetable}
@@ -110,27 +119,8 @@ const TimetablePage: React.FC = () => {
                 onDropToGrid={handleDropToGrid}
               />
             </div>
-            <Drawer
-              drawerClassSessions={drawerClassSessions}
-              onDragStart={handleDragStart}
-              onDropToDrawer={handleDropToDrawer}
-            />
-            <div className="flex justify-end">
-              <button className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm">
-                Submit
-              </button>
-            </div>
           </main>
         </div>
-      </div>
-
-      {/* Notifications Area */}
-      <div className="fixed bottom-4 right-4 space-y-2 z-50">
-        {notifications.map((notification) => (
-          <div key={notification.id} className={`p-4 rounded-lg shadow-lg max-w-sm ...`}>
-            <Notification />
-          </div>
-        ))}
       </div>
     </div>
   );

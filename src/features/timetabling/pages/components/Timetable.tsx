@@ -31,19 +31,19 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
       <div className="p-4 bg-gray-50 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
           <Clock className="w-5 h-5" />
           Timetable Grid
         </h3>
       </div>
-      <div className="overflow-x-auto p-2">
-        <table className="w-full border-separate border-spacing-0">
+      <div className="overflow-x-auto">
+        <table className="w-full border-separate">
           {/* ... thead remains the same ... */}
-          <thead>
+          <thead className="bg-gray-50">
             <tr>
-              <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-white z-20">
+              <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-5">
                 Class Group
               </th>
               {dayHeaders.map((dayLabel) => (
@@ -57,12 +57,12 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
               ))}
             </tr>
             <tr>
-              <th className="p-2 sticky left-0 bg-white z-20"></th>
+              <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-20"></th>
               {Array.from({ length: dayHeaders.length }).flatMap(() =>
                 timeHeaders.map((time, timeIndex) => (
                   <th
                     key={timeIndex}
-                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px]"
+                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px] bg-gray-50"
                   >
                     {time.label}
                   </th>
@@ -73,7 +73,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
           <tbody>
             {groups.map((group) => (
               <tr key={group.id}>
-                <td className="p-2 font-semibold text-sm text-gray-700 bg-white sticky left-0 z-10 whitespace-nowrap align-top">
+                <td className="p-2 font-semibold text-sm text-gray-700 bg-gray-50 sticky left-0 z-10 whitespace-nowrap align-top">
                   {group.name}
                 </td>
                 {Array.from({ length: totalPeriods }, (_, periodIndex) => {
@@ -119,7 +119,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                             <div
                               className="absolute bottom-full mb-2 w-max max-w-xs
                                          bg-gray-800 text-white text-xs rounded-md shadow-lg p-3
-                                         opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                                         opacity-0 group-hover:opacity-85 transition-opacity duration-300
                                          invisible group-hover:visible pointer-events-none z-10"
                             >
                               <p className="font-bold text-sm">{classSession.course.name}</p>
