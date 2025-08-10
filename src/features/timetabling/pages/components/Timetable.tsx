@@ -40,10 +40,11 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-separate">
-          {/* ... thead remains the same ... */}
+          {/* Thead remains the same */}
           <thead className="bg-gray-50">
             <tr>
-              <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-5">
+              {/* Adjusted for sticky column with wider width */}
+              <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-5 min-w-[7em]">
                 Class Group
               </th>
               {dayHeaders.map((dayLabel) => (
@@ -73,7 +74,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
           <tbody>
             {groups.map((group) => (
               <tr key={group.id}>
-                <td className="p-2 font-semibold text-sm text-gray-700 bg-gray-50 sticky left-0 z-10 whitespace-nowrap align-top">
+                <td className="p-2 font-semibold text-sm text-gray-700 bg-gray-50 sticky left-0 z-10 whitespace-nowrap align-top min-w-[7em]">
                   {group.name}
                 </td>
                 {Array.from({ length: totalPeriods }, (_, periodIndex) => {

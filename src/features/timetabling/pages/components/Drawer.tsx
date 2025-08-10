@@ -25,11 +25,11 @@ const Drawer: React.FC<DrawerProps> = ({
 
   return (
     <div
-      className="w-full bg-white p-6 rounded-lg shadow mb-6 md:mb-0"
+      className="w-full bg-white p-3 rounded-lg shadow my-6 md:mb-0"
       onDrop={onDropToDrawer}
       onDragOver={handleDragOver}
     >
-      <h3 className="text-xl font-semibold mb-4 text-center">Available Classes</h3>
+      <h3 className="text-xl font-semibold mb-2  line-h text-center">Available Classes</h3>
       <ul className="space-y-2 flex">
         {drawerClassSessions.map((session) => (
           <li
