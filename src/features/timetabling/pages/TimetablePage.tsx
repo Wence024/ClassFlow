@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
@@ -8,19 +8,6 @@ import type { ClassSession } from '../../classSessions/types/classSession';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 
-import {
-  Bell,
-  User,
-  LogOut,
-  Calendar,
-  Clock,
-  Users,
-  Settings,
-  FileText,
-  Eye,
-  Plus,
-} from 'lucide-react'; // Import icons from lucide-react
-
 const TimetablePage: React.FC = () => {
   // --- Existing Hooks ---
   const { classSessions } = useClassSessions();
@@ -28,14 +15,14 @@ const TimetablePage: React.FC = () => {
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
 
   // --- UI State from Draft ---
-  const [selectedView, setSelectedView] = useState('Draft');
-  const [notifications, setNotifications] = useState([
-    { id: 1, message: 'Your schedule has been approved by Dean', type: 'success' },
-    { id: 2, message: 'Conflict detected in Room 201', type: 'error' },
-  ]);
-  const dismissNotification = (id) => {
-    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-  };
+  // const [selectedView, setSelectedView] = useState('Draft');
+  // const [notifications, setNotifications] = useState([
+  //   { id: 1, message: 'Your schedule has been approved by Dean', type: 'success' },
+  //   { id: 2, message: 'Conflict detected in Room 201', type: 'error' },
+  // ]);
+  // const dismissNotification = (id) => {
+  //   setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+  // };
 
   // --- Memoized Data for Drawer (from your existing code) ---
   const unassignedClassSessions = useMemo(() => {
