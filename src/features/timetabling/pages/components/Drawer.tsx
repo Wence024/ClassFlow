@@ -25,18 +25,18 @@ const Drawer: React.FC<DrawerProps> = ({
 
   return (
     <div
-      className="w-full md:w-1/4 bg-white p-6 rounded-lg shadow mb-6 md:mb-0"
+      className="w-full bg-white p-3 rounded-lg shadow my-6 md:mb-0"
       onDrop={onDropToDrawer}
       onDragOver={handleDragOver}
     >
-      <h3 className="text-xl font-semibold mb-4 text-center">Available Classes</h3>
-      <ul className="space-y-2">
+      <h3 className="text-xl font-semibold mb-2  line-h text-center">Available Classes</h3>
+      <ul className="space-y-2 flex">
         {drawerClassSessions.map((session) => (
           <li
             key={session.id}
             draggable
             onDragStart={(e) => onDragStart(e, { from: 'drawer', class_session_id: session.id })}
-            className="p-2 bg-gray-100 rounded cursor-grab text-center hover:bg-gray-200 text-gray-900"
+            className="p-2 m-2 md:w-1/4 bg-gray-100 rounded cursor-grab text-center hover:bg-gray-200 text-gray-900"
           >
             {session.displayName}
           </li>
