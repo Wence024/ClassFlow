@@ -29,6 +29,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
 
   const periodsPerDay = settings.periods_per_day;
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
+  const newBorderStyle = 'border-r-2 border-dashed border-gray-300'; // Define the consistent style
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
@@ -40,18 +41,18 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-separate [border-spacing:0_4px]">
-          {/* Thead remains the same */}
           <thead className="bg-gray-50">
             <tr>
-              {/* Adjusted for sticky column with wider width */}
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-5 min-w-[7em]">
                 Class Group
               </th>
-              {dayHeaders.map((dayLabel) => (
+              {dayHeaders.map((dayLabel, dayIndex) => (
                 <th
                   key={dayLabel}
                   colSpan={periodsPerDay}
-                  className="p-2 text-center text-sm font-medium text-gray-600"
+                  className={`p-2 text-center text-sm font-medium text-gray-600 ${
+                    dayIndex < dayHeaders.length - 1 ? newBorderStyle : ''
+                  }`}
                 >
                   {dayLabel}
                 </th>
@@ -59,17 +60,21 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
             </tr>
             <tr>
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-20"></th>
-              {/* THIS IS THE FIX: We get the dayIndex from flatMap */}
               {Array.from({ length: dayHeaders.length }).flatMap((_, dayIndex) =>
-                timeHeaders.map((time, timeIndex) => (
-                  <th
-                    // Create a unique composite key from both indices
-                    key={`d${dayIndex}-t${timeIndex}`}
-                    className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px] bg-gray-50"
-                  >
-                    {time.label}
-                  </th>
-                ))
+                timeHeaders.map((time, timeIndex) => {
+                  const isLastInDay = (timeIndex + 1) % periodsPerDay === 0;
+                  const isNotLastInTable = dayIndex + 1 < dayHeaders.length;
+                  const borderClass = isLastInDay && isNotLastInTable ? newBorderStyle : '';
+
+                  return (
+                    <th
+                      key={`d${dayIndex}-t${timeIndex}`}
+                      className={`p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px] bg-gray-50 ${borderClass}`}
+                    >
+                      {time.label}
+                    </th>
+                  );
+                })
               )}
             </tr>
           </thead>
@@ -83,7 +88,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                   </td>
                   {Array.from({ length: totalPeriods }, (_, periodIndex) => {
                     if (assignedPeriods.has(periodIndex)) {
-                      return null; // This period is already covered by a colSpan
+                      return null;
                     }
 
                     const classSession = timetable.get(group.id)?.[periodIndex] || null;
@@ -95,8 +100,18 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                       }
                     }
 
+                    // THIS IS THE FIX (Part 3): Update style for data cells
+                    const endPeriodIndex = periodIndex + numberOfPeriods - 1;
+                    const isLastInDay = (endPeriodIndex + 1) % periodsPerDay === 0;
+                    const isNotLastInTable = endPeriodIndex + 1 < totalPeriods;
+                    const borderClass = isLastInDay && isNotLastInTable ? newBorderStyle : '';
+
                     return (
-                      <td key={periodIndex} className="p-1 align-top" colSpan={numberOfPeriods}>
+                      <td
+                        key={periodIndex}
+                        className={`p-1 align-top ${borderClass}`}
+                        colSpan={numberOfPeriods}
+                      >
                         <div
                           onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
                           onDragOver={handleDragOver}
