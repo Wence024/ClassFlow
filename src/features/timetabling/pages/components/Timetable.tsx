@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react'; // Import useState
 import { Clock } from 'lucide-react';
 import type { DragSource } from '../../types/DragSouuce';
 import { useScheduleConfig } from '../../../scheduleConfig/hooks/useScheduleConfig';
@@ -16,12 +16,37 @@ interface TimetableProps {
 const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
   const { settings } = useScheduleConfig();
 
+  // Add state to track the cell being dragged over.
+  const [dragOverCell, setDragOverCell] = useState<{
+    groupId: string;
+    periodIndex: number;
+  } | null>(null);
+
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
     return generateTimetableHeaders(settings);
   }, [settings]);
 
+  // Original handleDragOver prevents default behavior.
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+
+  // New handlers to manage the drag-over state.
+  const handleDragEnter = (groupId: string, periodIndex: number) => {
+    setDragOverCell({ groupId, periodIndex });
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Check if the new target is outside the cell before clearing state.
+    if (e.relatedTarget === null || !e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDragOverCell(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, groupId: string, periodIndex: number) => {
+    onDropToGrid(e, groupId, periodIndex);
+    // Clear the overlay after dropping.
+    setDragOverCell(null);
+  };
 
   if (!settings) {
     return <div className="text-center p-4">Loading configuration...</div>;
@@ -29,7 +54,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
 
   const periodsPerDay = settings.periods_per_day;
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
-  const newBorderStyle = 'border-r-2 border-dashed border-gray-300'; // Define the consistent style
+  const newBorderStyle = 'border-r-2 border-dashed border-gray-300';
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
@@ -100,23 +125,29 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                       }
                     }
 
-                    // THIS IS THE FIX (Part 3): Update style for data cells
                     const endPeriodIndex = periodIndex + numberOfPeriods - 1;
                     const isLastInDay = (endPeriodIndex + 1) % periodsPerDay === 0;
                     const isNotLastInTable = endPeriodIndex + 1 < totalPeriods;
                     const borderClass = isLastInDay && isNotLastInTable ? newBorderStyle : '';
 
+                    const isDragOver =
+                      dragOverCell?.groupId === group.id &&
+                      dragOverCell?.periodIndex === periodIndex;
+
                     return (
                       <td
                         key={periodIndex}
-                        className={`p-1 align-top ${borderClass}`}
+                        className={`p-1 align-top relative ${borderClass}`} // Add relative positioning here
                         colSpan={numberOfPeriods}
+                        // Add drag event handlers to the cell itself
+                        onDragEnter={() => handleDragEnter(group.id, periodIndex)}
+                        onDragLeave={handleDragLeave}
+                        onDrop={(e) => handleDrop(e, group.id, periodIndex)}
+                        onDragOver={handleDragOver}
                       >
                         <div
-                          onDrop={(e) => onDropToGrid(e, group.id, periodIndex)}
-                          onDragOver={handleDragOver}
                           className={`
-                            group relative
+                            group
                             h-16 rounded-md transition-colors duration-200
                             flex items-center justify-center p-2 text-center
                             ${
@@ -159,6 +190,10 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                             <span className="text-gray-400 text-2xl font-light"></span>
                           )}
                         </div>
+                        {/* The Drag Overlay */}
+                        {isDragOver && (
+                          <div className="absolute inset-0 bg-blue-200 bg-opacity-50 z-20 rounded-md pointer-events-none"></div>
+                        )}
                       </td>
                     );
                   })}
