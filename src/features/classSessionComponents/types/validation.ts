@@ -8,6 +8,12 @@ const baseSchema = z.object({
 // Schemas for each specific component type
 export const courseSchema = baseSchema.extend({
   code: z.string().min(1, { message: 'Course code is required' }),
+  number_of_periods: z
+    .string()
+    .refine((val) => !isNaN(Number(val)), { message: 'Must be a number' })
+    .transform((val) => Number(val))
+    .refine((val) => Number.isInteger(val), { message: 'Must be a whole number' })
+    .refine((val) => val >= 1, { message: 'Duration must be at least 1 period' }),
 });
 
 export const classGroupSchema = baseSchema; // Only needs a name
