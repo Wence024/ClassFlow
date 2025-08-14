@@ -9,11 +9,47 @@ const baseSchema = z.object({
 export const courseSchema = baseSchema.extend({
   code: z.string().min(1, { message: 'Course code is required' }),
   number_of_periods: z
-    .string()
-    .refine((val) => !isNaN(Number(val)), { message: 'Must be a number' })
-    .transform((val) => Number(val))
-    .refine((val) => Number.isInteger(val), { message: 'Must be a whole number' })
-    .refine((val) => val >= 1, { message: 'Duration must be at least 1 period' }),
+    .any()
+    .superRefine((val, ctx) => {
+      // 1. Check for required field
+      if (val === null || val === undefined || val === '') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Number of Periods is required',
+        });
+        return;
+      }
+
+      const num = Number(val);
+
+      // 2. Check for valid number type
+      if (isNaN(num)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Must be a number',
+        });
+        return;
+      }
+
+      // 3. Check for integer
+      if (!Number.isInteger(num)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Must be a whole number',
+        });
+        return;
+      }
+
+      // 4. Check for minimum value
+      if (num <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Duration must be at least 1 period',
+        });
+        return;
+      }
+    })
+    .transform(Number), // Ensure the final output type is a number
 });
 
 export const classGroupSchema = baseSchema; // Only needs a name
