@@ -59,10 +59,12 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
             </tr>
             <tr>
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-20"></th>
-              {Array.from({ length: dayHeaders.length }).flatMap(() =>
+              {/* THIS IS THE FIX: We get the dayIndex from flatMap */}
+              {Array.from({ length: dayHeaders.length }).flatMap((_, dayIndex) =>
                 timeHeaders.map((time, timeIndex) => (
                   <th
-                    key={timeIndex}
+                    // Create a unique composite key from both indices
+                    key={`d${dayIndex}-t${timeIndex}`}
                     className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px] bg-gray-50"
                   >
                     {time.label}
