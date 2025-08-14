@@ -1,8 +1,16 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, mergeConfig } from 'vitest/config';
+import viteConfig from './vite.config';
 
-export default defineConfig({
-  test: {
-    globals: true, // Optional if using `vitest/globals`
-    environment: 'node'
-  }
-});
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      //
+      // THIS IS THE FIX:
+      //
+      globals: true, // Optional: makes expect, describe, etc. available globally
+      environment: 'jsdom', // Use a simulated DOM environment
+      setupFiles: './src/setupTests.ts', // Your existing setup file
+    },
+  })
+);
