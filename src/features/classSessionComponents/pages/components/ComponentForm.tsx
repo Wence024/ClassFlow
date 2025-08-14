@@ -40,6 +40,7 @@ type ComponentFormProps = (
 interface FormData {
   name: string;
   code?: string;
+  number_of_periods?: number | string;
   location?: string;
   email?: string;
 }
@@ -54,6 +55,7 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
   const [formData, setFormData] = useState<FormData>({
     name: '',
     code: '',
+    number_of_periods: 1,
     location: '',
     email: '',
   });
@@ -69,6 +71,12 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
           fields: [
             { key: 'name' as keyof FormData, label: 'Course Name', required: true },
             { key: 'code' as keyof FormData, label: 'Course Code', required: true },
+            {
+              key: 'number_of_periods' as keyof FormData,
+              label: 'Number of Periods',
+              required: true,
+              type: 'number' as const,
+            },
           ],
         };
       case 'classGroup':
@@ -110,6 +118,8 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
       setFormData({
         name: editingItem.name || '',
         code: 'code' in editingItem ? editingItem.code || '' : '',
+        number_of_periods:
+          'number_of_periods' in editingItem ? editingItem.number_of_periods || 1 : 1,
         location: 'location' in editingItem ? editingItem.location || '' : '',
         email: 'email' in editingItem ? editingItem.email || '' : '',
       });
@@ -117,6 +127,7 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
       setFormData({
         name: '',
         code: '',
+        number_of_periods: 1,
         location: '',
         email: '',
       });
@@ -131,6 +142,7 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
     const dataToValidate = {
       name: formData.name,
       code: formData.code,
+      number_of_periods: formData.number_of_periods,
       location: formData.location,
       email: formData.email,
     };
@@ -174,7 +186,7 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
               id={field.key} // Pass the key as the id
               label={field.label}
               type={field.type || 'text'}
-              value={formData[field.key] || ''}
+              value={String(formData[field.key] || '')}
               onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
               required={field.required}
               error={errors[field.key]}

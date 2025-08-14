@@ -23,7 +23,7 @@ const ComponentCard = <T extends ComponentItem>({
     if ('code' in item && item.code) {
       details.push({ label: 'Code', value: item.code });
     }
-    if ('number_of_periods' in item && item.number_of_periods) {
+    if ('number_of_periods' in item && typeof item.number_of_periods === 'number') {
       details.push({
         label: 'Duration',
         value: `${item.number_of_periods} ${item.number_of_periods > 1 ? 'periods' : 'period'}`,
