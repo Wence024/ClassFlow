@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-
-import type { Course } from '../../../types';
+import type { Course } from '../../../types/';
+import type { Instructor } from '../../../types/';
 import ComponentCard from '../ComponentCard';
 
 // Base mock course, satisfying the type
@@ -11,7 +11,7 @@ const baseMockCourse: Course = {
   code: 'T101',
   user_id: 'u1',
   created_at: new Date().toISOString(),
-  number_of_periods: 1, // Default
+  number_of_periods: 1,
 };
 
 describe('ComponentCard', () => {
@@ -28,14 +28,14 @@ describe('ComponentCard', () => {
   });
 
   it('should gracefully handle a course where number_of_periods is null', () => {
-    // This tests for data anomalies
-    const course: Course = { ...baseMockCourse, number_of_periods: null as any };
+    // @ts-expect-error This tests for data anomalies. The Course type allows null, so we test that the component renders correctly without a type error directive.
+    const course: Course = { ...baseMockCourse, number_of_periods: null };
     render(<ComponentCard item={course} onEdit={() => {}} onDelete={() => {}} />);
     expect(screen.queryByText(/Duration/i)).not.toBeInTheDocument();
   });
 
   it('should not display duration for non-course components', () => {
-    const instructor = {
+    const instructor: Instructor = {
       id: 'i1',
       name: 'Dr. Jones',
       email: 'j@j.com',
