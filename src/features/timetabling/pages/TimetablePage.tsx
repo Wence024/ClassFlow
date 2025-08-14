@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import { LoadingSpinner } from '../../../components/ui';
+import { LoadingSpinner, Notification } from '../../../components/ui'; // Import Notification
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import Header from './components/Header';
@@ -13,16 +13,6 @@ const TimetablePage: React.FC = () => {
   const { classSessions } = useClassSessions();
   const { timetable, groups, loading } = useTimetable();
   const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
-
-  // --- UI State from Draft ---
-  // const [selectedView, setSelectedView] = useState('Draft');
-  // const [notifications, setNotifications] = useState([
-  //   { id: 1, message: 'Your schedule has been approved by Dean', type: 'success' },
-  //   { id: 2, message: 'Conflict detected in Room 201', type: 'error' },
-  // ]);
-  // const dismissNotification = (id) => {
-  //   setNotifications((prev) => prev.filter((notif) => notif.id !== id));
-  // };
 
   // --- Memoized Data for Drawer (from your existing code) ---
   const unassignedClassSessions = useMemo(() => {
@@ -44,6 +34,7 @@ const TimetablePage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      <Notification />
       <Header />
       <div className="flex-grow max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         {/* Main layout container */}
