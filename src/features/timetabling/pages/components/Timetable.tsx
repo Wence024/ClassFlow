@@ -39,7 +39,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
         </h3>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full border-separate" style={{ borderSpacing: '0 4px' }}>
+        <table className="w-full border-separate [border-spacing:0_4px]">
           {/* Thead remains the same */}
           <thead className="bg-gray-50">
             <tr>

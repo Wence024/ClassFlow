@@ -4,7 +4,7 @@ import React from 'react';
 interface FormFieldProps {
   id: string; // Make id mandatory for accessibility
   label: string;
-  type?: 'text' | 'email' | 'password' | 'select' | 'time';
+  type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number';
   value: string;
   onChange: (value: string) => void;
   options?: Array<{ id: string; name: string }>;

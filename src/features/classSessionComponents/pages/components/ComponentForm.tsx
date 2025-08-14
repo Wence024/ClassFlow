@@ -189,7 +189,7 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
               value={String(formData[field.key] || '')}
               onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
               required={field.required}
-              error={errors[field.key]}
+              error={errors[field.key] ? String(errors[field.key]) : undefined}
               autoComplete={field.key === 'email' ? 'email' : 'off'}
             />
           ))}
