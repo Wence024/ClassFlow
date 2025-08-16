@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react'; // Import useState
+// Old Timetable.tsx
+import React, { useMemo, useState } from 'react';
 import { Clock } from 'lucide-react';
 import type { DragSource } from '../../types/DragSouuce';
 import { useScheduleConfig } from '../../../scheduleConfig/hooks/useScheduleConfig';
@@ -16,35 +17,49 @@ interface TimetableProps {
 const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
   const { settings } = useScheduleConfig();
 
-  // Add state to track the cell being dragged over.
+  /**
+   * State to track which cell the user is currently dragging over.
+   */
   const [dragOverCell, setDragOverCell] = useState<{
     groupId: string;
     periodIndex: number;
   } | null>(null);
 
+  /**
+   * Generate headers for timetable (days and time slots).
+   */
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
     return generateTimetableHeaders(settings);
   }, [settings]);
 
-  // Original handleDragOver prevents default behavior.
+  /**
+   * Enables dropping by preventing the default behavior.
+   */
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
-  // New handlers to manage the drag-over state.
+  /**
+   * When dragging enters a cell, update dragOver state.
+   */
   const handleDragEnter = (groupId: string, periodIndex: number) => {
     setDragOverCell({ groupId, periodIndex });
   };
 
+  /**
+   * Clears the drag-over state if dragging leaves a cell.
+   * Uses DOM checks for whether the mouse has truly left the cell.
+   */
   const handleDragLeave = (e: React.DragEvent) => {
-    // Check if the new target is outside the cell before clearing state.
     if (e.relatedTarget === null || !e.currentTarget.contains(e.relatedTarget as Node)) {
       setDragOverCell(null);
     }
   };
 
+  /**
+   * Handles dropping a session into a cell and clears drag-over state.
+   */
   const handleDrop = (e: React.DragEvent, groupId: string, periodIndex: number) => {
     onDropToGrid(e, groupId, periodIndex);
-    // Clear the overlay after dropping.
     setDragOverCell(null);
   };
 
@@ -58,15 +73,18 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+      {/* Section Header */}
       <div className="p-4 bg-gray-50 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
           <Clock className="w-5 h-5" />
           Timetable Grid
         </h3>
       </div>
+
       <div className="overflow-x-auto">
         <table className="w-full border-separate [border-spacing:0_4px]">
           <thead className="bg-gray-50">
+            {/* Top Row: Day Headers */}
             <tr>
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-5 min-w-[7em]">
                 Class Group
@@ -83,6 +101,8 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                 </th>
               ))}
             </tr>
+
+            {/* Second Row: Time Slot Headers */}
             <tr>
               <th className="p-2 text-left text-sm font-medium text-gray-600 sticky left-0 bg-gray-50 z-20"></th>
               {Array.from({ length: dayHeaders.length }).flatMap((_, dayIndex) =>
@@ -103,31 +123,33 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
               )}
             </tr>
           </thead>
+
           <tbody>
+            {/* Rows for each Class Group */}
             {groups.map((group) => {
               const assignedPeriods = new Set<number>();
+
               return (
                 <tr key={group.id}>
                   <td className="p-2 font-semibold text-sm text-gray-700 bg-gray-50 sticky left-0 z-10 whitespace-nowrap align-top min-w-[7em]">
                     {group.name}
                   </td>
                   {Array.from({ length: totalPeriods }, (_, periodIndex) => {
-                    if (assignedPeriods.has(periodIndex)) {
-                      return null;
-                    }
+                    // Skip over spanned periods.
+                    if (assignedPeriods.has(periodIndex)) return null;
 
                     const classSession = timetable.get(group.id)?.[periodIndex] || null;
                     const numberOfPeriods = classSession?.course.number_of_periods || 1;
 
+                    // Mark spanned periods as assigned.
                     if (classSession && numberOfPeriods > 1) {
                       for (let i = 1; i < numberOfPeriods; i++) {
                         assignedPeriods.add(periodIndex + i);
                       }
                     }
 
-                    const endPeriodIndex = periodIndex + numberOfPeriods - 1;
-                    const isLastInDay = (endPeriodIndex + 1) % periodsPerDay === 0;
-                    const isNotLastInTable = endPeriodIndex + 1 < totalPeriods;
+                    const isLastInDay = (periodIndex + numberOfPeriods) % periodsPerDay === 0;
+                    const isNotLastInTable = periodIndex + numberOfPeriods < totalPeriods;
                     const borderClass = isLastInDay && isNotLastInTable ? newBorderStyle : '';
 
                     const isDragOver =
@@ -137,9 +159,8 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                     return (
                       <td
                         key={periodIndex}
-                        className={`p-1 align-top relative ${borderClass}`} // Add relative positioning here
+                        className={`p-1 align-top relative ${borderClass}`}
                         colSpan={numberOfPeriods}
-                        // Add drag event handlers to the cell itself
                         onDragEnter={() => handleDragEnter(group.id, periodIndex)}
                         onDragLeave={handleDragLeave}
                         onDrop={(e) => handleDrop(e, group.id, periodIndex)}
@@ -173,6 +194,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                               <p className="font-bold text-xs text-blue-900">
                                 {classSession.course.name}
                               </p>
+                              {/* Hover tooltip with session details */}
                               <div
                                 className="absolute bottom-full mb-2 w-max max-w-xs
                                            bg-gray-800 text-white text-xs rounded-md shadow-lg p-3
@@ -190,7 +212,8 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                             <span className="text-gray-400 text-2xl font-light"></span>
                           )}
                         </div>
-                        {/* The Drag Overlay */}
+
+                        {/* Overlay if drag-over */}
                         {isDragOver && (
                           <div className="absolute inset-0 bg-blue-200 bg-opacity-50 z-20 rounded-md pointer-events-none"></div>
                         )}
