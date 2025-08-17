@@ -124,9 +124,10 @@ describe('TimetableService', () => {
       ];
 
       // Mock the final chained call (.eq) to resolve with our data
-      (
-        mockSupabaseQueryBuilder.eq as ReturnType<typeof vi.fn>
-      ).mockResolvedValueOnce({ data: mockHydratedRows, error: null });
+      (mockSupabaseQueryBuilder.eq as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        data: mockHydratedRows,
+        error: null,
+      });
 
       const result = await getTimetableAssignments('user-id');
 

@@ -30,12 +30,12 @@ const mockInstructor: Instructor = {
   created_at: null,
 };
 const mockClassroom: Classroom = {
-        id: 'classroom1',
-        name: 'Room 101',
-        location: 'Building A',
-        capacity: null,
-        user_id: 'user1',
-        created_at: null,
+  id: 'classroom1',
+  name: 'Room 101',
+  location: 'Building A',
+  capacity: null,
+  user_id: 'user1',
+  created_at: null,
 };
 
 const mockClassSession1: ClassSession = {
