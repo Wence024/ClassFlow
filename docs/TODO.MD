@@ -20,7 +20,7 @@ This new list merges duplicates, removes tasks that are already completed by you
     * **Task:** `Add confirm Delete modal for every remove/delete action.`
     * **Action:** Create a reusable confirmation modal. Implement logic in your UI to show this modal before any `remove...` mutation is called to prevent accidental data loss.
 
-4. **[UI] Fix Tooltip Truncation**
+4. [x] **[UI] Fix Tooltip Truncation**
     * **Task:** `Timetabling: Fix tooltip truncating outside timetable area`
     * **Action:** Adjust the CSS for the tooltip in `Timetable.tsx`. This might involve ensuring the timetable's container doesn't have `overflow: hidden` or using a portal-based tooltip library that renders at the root of the document.
 
@@ -110,3 +110,6 @@ This new list merges duplicates, removes tasks that are already completed by you
 * ✅ **[Architecture] ComponentInsert/Update type has been created. Where is ComponentDelete?:** Your current pattern of passing an `id` to the remove mutation is correct and sufficient.
 * ✅ **[Architecture] Support multi-user:** Your hooks and query keys are already user-specific.
 * ✅ **[UI] Verify loading state in timetable again:** The loading overlay in `TimetablePage.tsx` is correctly implemented.
+
+Other tasks:
+- [ ] Add a zoom feature to timetable

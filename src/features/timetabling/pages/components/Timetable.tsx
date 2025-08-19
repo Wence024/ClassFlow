@@ -12,22 +12,25 @@ interface TimetableProps {
   timetable: Map<string, (ClassSession | null)[]>;
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
+  /** Callback to show the tooltip. */
+  onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
+  /** Callback to hide the tooltip. */
+  onHideTooltip: () => void;
 }
 
 /**
  * A component that renders the main interactive timetable grid.
- *
- * This is a highly complex presentational component. Its responsibilities include:
- * - Calculating and rendering table headers based on schedule settings.
- * - Rendering a row for each class group.
- * - Rendering cells for each period, correctly handling multi-period spanning for longer sessions.
- * - Rendering assigned class sessions with a sophisticated two-layer system for robust drag-and-drop.
- * - Providing droppable zones for empty cells.
- * - Managing local UI state for visual feedback during drag-over events.
- *
- * @param {TimetableProps} props - The props for the component.
+ * It no longer renders a tooltip directly but fires callbacks (`onShowTooltip`, `onHideTooltip`)
+ * on mouse events to allow a parent component to manage a portal-based tooltip.
  */
-const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
+const Timetable: React.FC<TimetableProps> = ({
+  groups,
+  timetable,
+  onDragStart,
+  onDropToGrid,
+  onShowTooltip,
+  onHideTooltip,
+}) => {
   const { settings } = useScheduleConfig();
   const [dragOverCell, setDragOverCell] = useState<{ groupId: string; periodIndex: number } | null>(
     null
@@ -85,6 +88,17 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
   const periodsPerDay = settings.periods_per_day;
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
   const dayBoundaryStyle = 'border-r-2 border-dashed border-gray-300';
+
+  /** A helper function to build the JSX content for the tooltip. */
+  const buildTooltipContent = (session: ClassSession) => (
+    <>
+      <p className="font-bold text-sm">{session.course.name}</p>
+      <p className="text-gray-300">{session.course.code}</p>
+      <p className="mt-1">Instructor: {session.instructor.name}</p>
+      <p>Classroom: {session.classroom.name}</p>
+      <p>Group: {session.group.name}</p>
+    </>
+  );
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
@@ -175,16 +189,21 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                                   period_index: periodIndex,
                                 })
                               }
-                              className="group relative w-full h-full cursor-grab"
+                              // Add mouse events to trigger the tooltip state changes in the parent
+                              onMouseEnter={(e) =>
+                                onShowTooltip(buildTooltipContent(classSession), e.currentTarget)
+                              }
+                              onMouseLeave={onHideTooltip}
+                              className="relative w-full h-full cursor-grab"
                             >
-                              {/* Layer 1: The Visible Block (for visuals) */}
+                              {/* Layer 1: The Visible Block */}
                               <div className="absolute inset-0 rounded-md bg-blue-100 flex items-center justify-center p-1 text-center z-10">
                                 <p className="font-bold text-xs text-blue-900 pointer-events-none">
                                   {classSession.course.name}
                                 </p>
                               </div>
 
-                              {/* Layer 2: The Invisible, Granular Drop Zones (for functionality) */}
+                              {/* Layer 2: The Invisible Drop Zones */}
                               <div className="absolute inset-0 flex z-20">
                                 {Array.from({ length: numberOfPeriods }).map((_, i) => {
                                   const currentSubPeriodIndex = periodIndex + i;
@@ -207,16 +226,6 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                                     </div>
                                   );
                                 })}
-                              </div>
-
-                              {/* Tooltip (attached to the visual group) */}
-                              <div className="absolute bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-md shadow-lg p-3 opacity-0 group-hover:opacity-90 transition-opacity duration-300 invisible group-hover:visible pointer-events-none z-30">
-                                <p className="font-bold text-sm">{classSession.course.name}</p>
-                                <p className="text-gray-300">{classSession.course.code}</p>
-                                <p className="mt-1">Instructor: {classSession.instructor.name}</p>
-                                <p>Classroom: {classSession.classroom.name}</p>
-                                <p>Group: {classSession.group.name}</p>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-[6px] border-t-gray-800"></div>
                               </div>
                             </div>
                           ) : (
