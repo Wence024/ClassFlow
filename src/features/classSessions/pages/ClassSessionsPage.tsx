@@ -9,66 +9,75 @@ import {
   useCourses,
   useInstructors,
 } from '../../classSessionComponents/hooks';
+import { showNotification } from '../../../lib/notificationsService';
 
-const ClassSessions: React.FC = () => {
+/**
+ * The main page for managing Class Sessions.
+ *
+ * This page serves as the primary orchestrator for the class session feature.
+ * It fetches all necessary data from multiple custom hooks (class sessions, courses,
+ * instructors, etc.), manages the combined loading state, and handles the UI state
+ * for editing sessions. It then passes the data and callbacks down to the
+ * `ClassSessionList` and `ClassSessionForm` components.
+ */
+const ClassSessionsPage: React.FC = () => {
+  // Fetch class sessions and their mutation functions.
   const {
     classSessions,
     addClassSession,
     updateClassSession,
     removeClassSession,
-    loading: classSessionsLoading, // Standardize to 'loading'
+    loading: classSessionsLoading,
     error,
   } = useClassSessions();
+
+  // Fetch all the component data needed for the form dropdowns.
   const { courses, loading: coursesLoading } = useCourses();
   const { classGroups, loading: groupsLoading } = useClassGroups();
   const { classrooms, loading: classroomsLoading } = useClassrooms();
   const { instructors, loading: instructorsLoading } = useInstructors();
 
-  const [editingSession, setEditingClassSession] = useState<ClassSession | null>(null);
+  /** The local state for the session currently being edited. */
+  const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
 
-  // Add new classSession
-  const handleAddClassSession = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
+  /** Handles the creation of a new class session. */
+  const handleAdd = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
     await addClassSession(sessionData as ClassSessionInsert);
-    setEditingClassSession(null);
+    showNotification('Class session created successfully!');
   };
 
-  // Edit classSession
-  const handleEditClassSession = (classSession: ClassSession) =>
-    setEditingClassSession(classSession);
+  /** Sets a session into the form for editing. */
+  const handleEdit = (classSession: ClassSession) => setEditingSession(classSession);
 
-  // Save changes to classSession
-  const handleSaveClassSession = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
+  /** Handles saving changes to an existing class session. */
+  const handleSave = async (sessionData: ClassSessionInsert | ClassSessionUpdate) => {
     if (!editingSession) return;
     await updateClassSession(editingSession.id, sessionData as ClassSessionUpdate);
-    setEditingClassSession(null);
+    setEditingSession(null);
+    showNotification('Class session updated successfully!');
   };
 
-  // Remove classSession
-  const handleRemoveClassSession = async (id: string) => {
+  /** Handles the deletion of a class session. */
+  const handleRemove = async (id: string) => {
     await removeClassSession(id);
-    setEditingClassSession(null);
+    setEditingSession(null); // Clear form if the deleted item was being edited.
+    showNotification('Class session removed successfully.');
   };
 
-  // Cancel editing
-  const handleCancel = () => setEditingClassSession(null);
+  /** Clears the form and cancels the editing state. */
+  const handleCancel = () => setEditingSession(null);
+
+  /** A combined loading state that is true if any of the required data is being fetched. */
+  const isLoading =
+    classSessionsLoading ||
+    coursesLoading ||
+    groupsLoading ||
+    classroomsLoading ||
+    instructorsLoading;
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8 mt-8">
-      <div className="flex-1 min-w-0">
-        <h1 className="text-3xl font-bold text-center mb-6">Class Management</h1>
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-4">Classes</h2>
-          {classSessionsLoading && <LoadingSpinner text="Loading sessions..." />}
-          {error && <ErrorMessage message={error} />}
-          {!classSessionsLoading && !error && (
-            <ClassSessionList
-              classSessions={classSessions}
-              onEdit={handleEditClassSession}
-              onDelete={handleRemoveClassSession}
-            />
-          )}
-        </div>
-      </div>
+    <div className="container mx-auto p-4 flex flex-col md:flex-row-reverse gap-8">
+      {/* Form Section */}
       <div className="w-full md:w-96">
         <ClassSessionForm
           courses={courses}
@@ -77,18 +86,26 @@ const ClassSessions: React.FC = () => {
           classrooms={classrooms}
           editingClassSession={editingSession}
           onCancel={editingSession ? handleCancel : undefined}
-          onSubmit={editingSession ? handleSaveClassSession : handleAddClassSession}
-          loading={
-            classSessionsLoading ||
-            coursesLoading ||
-            groupsLoading ||
-            classroomsLoading ||
-            instructorsLoading
-          }
+          onSubmit={editingSession ? handleSave : handleAdd}
+          loading={isLoading}
         />
+      </div>
+
+      {/* List Section */}
+      <div className="flex-1 min-w-0">
+        <h1 className="text-3xl font-bold mb-6">Class Session Management</h1>
+        {isLoading && !classSessions.length && <LoadingSpinner text="Loading sessions..." />}
+        {error && <ErrorMessage message={error} />}
+        {!isLoading && !error && (
+          <ClassSessionList
+            classSessions={classSessions}
+            onEdit={handleEdit}
+            onDelete={handleRemove}
+          />
+        )}
       </div>
     </div>
   );
 };
 
-export default ClassSessions;
+export default ClassSessionsPage;
