@@ -10,10 +10,9 @@ import type { ScheduleConfig, ScheduleConfigUpdate } from '../types/scheduleConf
  * This will be replaced by a single global configuration row (id = 1),
  * centrally managed by admin users only. All user schedules will reference this shared configuration.
  *
- * @param userId The ID of the user.
  * @returns The user's schedule configuration (currently), or global config (in future).
  */
-export async function getScheduleConfig(_userId: string): Promise<ScheduleConfig | null> {
+export async function getScheduleConfig(): Promise<ScheduleConfig | null> {
   const { data, error } = await supabase
     .from('schedule_configuration')
     .select('*')
