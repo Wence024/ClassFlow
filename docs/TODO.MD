@@ -12,11 +12,11 @@ This new list merges duplicates, removes tasks that are already completed by you
     * **Task:** `UI issue: separate submit loading in forms vs fetching loading in lists.`
     * **Action:** Modify your data hooks (`useClassGroups`, `useCourses`, etc.) to return distinct loading states (e.g., `isListLoading`, `isAdding`, `isUpdating`). Update UI components to use these for more granular feedback.
 
-2. **[UI] Enhance Timetable Tooltip**
+2. [x] **[UI] Enhance Timetable Tooltip**
     * **Task:** `Tooltip shall have course code. (panel priority ML)`
     * **Action:** In `Timetable.tsx`, add the `course.code` to the tooltip's display string.
 
-3. **[UX] Implement Confirmation Modals for Deletion**
+3. [x] **[UX] Implement Confirmation Modals for Deletion**
     * **Task:** `Add confirm Delete modal for every remove/delete action.`
     * **Action:** Create a reusable confirmation modal. Implement logic in your UI to show this modal before any `remove...` mutation is called to prevent accidental data loss.
 

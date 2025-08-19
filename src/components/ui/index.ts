@@ -18,3 +18,4 @@ export { default as TabNavigation } from './TabNavigation';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ErrorMessage } from './ErrorMessage';
 export { default as Notification } from './Notification';
+export { default as ConfirmModal } from './ConfirmModal';

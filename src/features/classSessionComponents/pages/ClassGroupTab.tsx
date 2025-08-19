@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ComponentList, ComponentForm } from './components';
-import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
+import { LoadingSpinner, ErrorMessage, ConfirmModal } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/classGroup';
 
@@ -10,9 +10,9 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/cl
  * A component that provides the UI for managing Class Groups.
  *
  * This component orchestrates the display, creation, updating, and deletion of class groups.
-
-* It uses a two-column layout on desktop (form on the right) and a single-column layout
- * on mobile (form on top) for an optimal user experience on all devices.
+ *
+ * It uses a two-column layout on desktop and a single-column on mobile.
+ * It handles all CRUD operations for courses, including a confirmation step for deletion.
  */
 const ClassGroupManagement: React.FC = () => {
   const {
@@ -22,10 +22,12 @@ const ClassGroupManagement: React.FC = () => {
     removeClassGroup,
     isLoading,
     isSubmitting,
+    isRemoving,
     error,
   } = useClassGroups();
   const { classSessions } = useClassSessions();
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<ClassGroup | null>(null);
 
   /** Handles adding a new group. */
   const handleAdd = async (data: ClassGroupInsert | ClassGroupUpdate) => {
@@ -44,52 +46,78 @@ const ClassGroupManagement: React.FC = () => {
     showNotification('Class group updated successfully!');
   };
 
-  /** Handles removing a group, with a check to prevent deleting used items. */
-  const handleRemove = async (id: string) => {
-    const isUsed = classSessions.some((session) => session.group?.id === id);
+  /** Opens the delete confirmation modal for the selected group. */
+  const handleDeleteRequest = (id: string) => {
+    const group = classGroups.find((g) => g.id === id);
+    if (group) {
+      setGroupToDelete(group);
+    }
+  };
+
+  /** Executes the deletion after confirmation. */
+  const handleConfirmDelete = async () => {
+    if (!groupToDelete) return;
+
+    const isUsed = classSessions.some((session) => session.group?.id === groupToDelete.id);
     if (isUsed) {
-      const groupName = classGroups.find((g) => g.id === id)?.name || 'the selected group';
       showNotification(
-        `Cannot delete "${groupName}". It is currently used in one or more classes.`
+        `Cannot delete "${groupToDelete.name}". It is currently used in one or more classes.`
       );
+      setGroupToDelete(null);
       return;
     }
-    await removeClassGroup(id);
-    setEditingGroup(null);
+
+    await removeClassGroup(groupToDelete.id);
     showNotification('Class group removed successfully.');
+    setGroupToDelete(null);
+    if (editingGroup?.id === groupToDelete.id) {
+      setEditingGroup(null);
+    }
   };
 
   /** Clears the form and cancels editing. */
   const handleCancel = () => setEditingGroup(null);
 
   return (
-    <div className="flex flex-col md:flex-row-reverse gap-8">
-      {/* Form Section */}
-      <div className="w-full md:w-96">
-        <ComponentForm
-          type="classGroup"
-          editingItem={editingGroup}
-          onSubmit={editingGroup ? handleSave : handleAdd}
-          onCancel={editingGroup ? handleCancel : undefined}
-          loading={isSubmitting}
-        />
+    <>
+      <div className="flex flex-col md:flex-row-reverse gap-8">
+        <div className="w-full md:w-96">
+          <ComponentForm
+            type="classGroup"
+            editingItem={editingGroup}
+            onSubmit={editingGroup ? handleSave : handleAdd}
+            onCancel={editingGroup ? handleCancel : undefined}
+            loading={isSubmitting}
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
+          {isLoading && <LoadingSpinner text="Loading class groups..." />}
+          {error && <ErrorMessage message={error} />}
+          {!isLoading && !error && (
+            <ComponentList<ClassGroup>
+              items={classGroups}
+              onEdit={handleEdit}
+              onDelete={handleDeleteRequest}
+              emptyMessage="No class groups created yet."
+            />
+          )}
+        </div>
       </div>
 
-      {/* List Section */}
-      <div className="flex-1 min-w-0">
-        <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
-        {isLoading && <LoadingSpinner text="Loading class groups..." />}
-        {error && <ErrorMessage message={error} />}
-        {!isLoading && !error && (
-          <ComponentList<ClassGroup>
-            items={classGroups}
-            onEdit={handleEdit}
-            onDelete={handleRemove}
-            emptyMessage="No class groups created yet."
-          />
-        )}
-      </div>
-    </div>
+      <ConfirmModal
+        isOpen={!!groupToDelete}
+        title="Confirm Deletion"
+        onClose={() => setGroupToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        isLoading={isRemoving}
+        confirmText="Delete"
+      >
+        Are you sure you want to delete the class group "{groupToDelete?.name}"? This action cannot
+        be undone.
+      </ConfirmModal>
+    </>
   );
 };
 
