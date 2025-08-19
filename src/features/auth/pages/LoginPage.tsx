@@ -1,156 +1,105 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { z } from 'zod';
 import { loginSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
-import { ActionButton } from '../../../components/ui';
+import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
 
-const EyeIcon = ({ open }: { open: boolean }) =>
-  open ? (
-    // Eye open SVG
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  ) : (
-    // Eye off SVG (fixed)
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
-      <path d="M1 1l22 22" />
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-
+/**
+ * A page component for user login.
+ * It provides a form for email and password entry, handles client-side validation,
+ * and uses the `useAuth` hook to perform the login operation.
+ */
 const LoginPage: React.FC = () => {
   const { login, loading, error: apiError, user, clearError } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const clearErrorRef = useRef(clearError);
 
+  // Ensure the ref always has the latest version of the clearError function.
   useEffect(() => {
     clearErrorRef.current = clearError;
   }, [clearError]);
+
+  // If a user is already authenticated, redirect them to the main application.
   useEffect(() => {
-    if (user) navigate('/class-sessions');
+    if (user) {
+      navigate('/class-sessions');
+    }
   }, [user, navigate]);
+
+  // Clear any existing API errors when the component unmounts.
   useEffect(() => {
     return () => {
       clearErrorRef.current();
     };
   }, []);
 
+  /**
+   * Handles the login form submission.
+   * Validates the form data and calls the login function from the AuthContext.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
     clearError();
 
-    try {
-      const validatedData = loginSchema.parse(formData);
-      await login(validatedData.email, validatedData.password);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errors: Record<string, string> = {};
-        err.issues.forEach((e) => {
-          const key = e.path[0];
-          if (typeof key === 'string') errors[key] = e.message;
-        });
-        setFormErrors(errors);
-      }
+    // 1. Validate form data using Zod schema.
+    const validationResult = loginSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        const key = issue.path[0];
+        if (typeof key === 'string') errors[key] = issue.message;
+      });
+      setFormErrors(errors);
+      return;
     }
+
+    // 2. Call the login function from the auth context.
+    await login(validationResult.data.email, validationResult.data.password);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  /**
+   * Updates the form state when an input value changes.
+   * @param {string} fieldName - The name of the field being updated.
+   * @param {string} value - The new value of the field.
+   */
+  const handleChange = (fieldName: 'email' | 'password', value: string) => {
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-      <form onSubmit={handleSubmit} noValidate role="form" aria-label="Login form">
-        <fieldset disabled={loading}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block font-semibold mb-1">
-              Email:
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              autoComplete="username"
-              aria-describedby={formErrors.email ? 'email-error' : undefined}
-              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            {formErrors.email && (
-              <p id="email-error" className="text-red-600 text-sm mt-1">
-                {formErrors.email}
-              </p>
-            )}
-          </div>
-          <div className="mb-4">
-            <label htmlFor="password" className="block font-semibold mb-1">
-              Password:
-            </label>
-            <div className="relative">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={handleChange}
-                required
-                autoComplete="current-password"
-                aria-describedby={formErrors.password ? 'password-error' : undefined}
-                className="w-full p-2 pr-10 border border-gray-300 rounded"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-0"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                <EyeIcon open={showPassword} />
-              </button>
-            </div>
-            {formErrors.password && (
-              <p id="password-error" className="text-red-600 text-sm mt-1">
-                {formErrors.password}
-              </p>
-            )}
-          </div>
+      <form onSubmit={handleSubmit} noValidate>
+        <fieldset disabled={loading} className="space-y-4">
+          <FormField
+            id="email"
+            label="Email"
+            type="email"
+            value={formData.email}
+            onChange={(val) => handleChange('email', val)}
+            error={formErrors.email}
+            required
+            autoComplete="username"
+          />
+          <FormField
+            id="password"
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChange={(val) => handleChange('password', val)}
+            error={formErrors.password}
+            required
+            autoComplete="current-password"
+          />
           <ActionButton type="submit" loading={loading} className="w-full">
             Login
           </ActionButton>
         </fieldset>
-        {apiError && (
-          <div className="text-red-600 mt-3 text-center" role="alert" aria-live="assertive">
-            {apiError}
-          </div>
-        )}
+        {apiError && <ErrorMessage message={apiError} onDismiss={clearError} className="mt-4" />}
       </form>
       <div className="mt-6 text-center space-y-2">
         <Link to="/register" className="text-blue-600 hover:underline block">

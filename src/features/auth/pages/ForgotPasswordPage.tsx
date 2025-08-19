@@ -1,36 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { z } from 'zod';
 import { forgotPasswordSchema } from '../types/validation';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
+import { FormField, ActionButton, ErrorMessage } from '../../../components/ui';
 
+/**
+ * A page component that allows users to request a password reset link.
+ * Users enter their email address, and upon submission, a reset link is sent
+ * via the authentication provider (Supabase).
+ */
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null); // For Zod validation error
-  const [apiError, setApiError] = useState<string | null>(null); // For Supabase API error
+  const [formError, setFormError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
 
+  // Pre-fill the email field if an 'email' query parameter is present in the URL.
   useEffect(() => {
     const emailParam = searchParams.get('email');
-    if (emailParam) setEmail(emailParam);
+    if (emailParam) {
+      setEmail(emailParam);
+    }
   }, [searchParams]);
 
+  /**
+   * Handles the form submission for requesting a password reset.
+   * It performs client-side validation before sending the request to Supabase.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
     setApiError(null);
 
-    try {
-      forgotPasswordSchema.parse({ email });
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        setFormError(err.issues[0].message);
-      }
+    // 1. Validate form data using Zod schema.
+    const validationResult = forgotPasswordSchema.safeParse({ email });
+    if (!validationResult.success) {
+      setFormError(validationResult.error.issues[0].message);
       return;
     }
 
+    // 2. Send the password reset request to the auth service.
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
@@ -39,14 +51,17 @@ const ForgotPasswordPage: React.FC = () => {
     if (error) {
       setApiError(error.message);
     } else {
+      // 3. On success, update the state to show a confirmation message.
       setSent(true);
     }
     setLoading(false);
   };
 
+  // If the email has been sent, display a success message.
   if (sent) {
     return (
       <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-center">
+        <h2 className="text-2xl font-bold mb-4">Check your inbox</h2>
         <p className="mb-4">
           A password reset link has been sent to <span className="font-semibold">{email}</span>.
         </p>
@@ -57,33 +72,27 @@ const ForgotPasswordPage: React.FC = () => {
     );
   }
 
+  // Otherwise, display the password reset request form.
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Forgot Password</h2>
       <form onSubmit={handleSubmit} noValidate>
-        <div className="mb-4">
-          <label htmlFor="email" className="block font-semibold mb-1">
-            Email:
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="email"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          {formError && <p className="text-red-600 text-sm mt-1">{formError}</p>}
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
-        >
-          {loading ? 'Sending...' : 'Send Reset Link'}
-        </button>
-        {apiError && <div className="text-red-600 mt-3 text-center">{apiError}</div>}
+        <FormField
+          id="email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          error={formError ?? undefined}
+          required
+          autoComplete="email"
+        />
+        <ActionButton type="submit" loading={loading} className="w-full">
+          Send Reset Link
+        </ActionButton>
+        {apiError && (
+          <ErrorMessage message={apiError} onDismiss={() => setApiError(null)} className="mt-4" />
+        )}
       </form>
       <div className="mt-6 text-center">
         <Link to="/login" className="text-blue-600 hover:underline">
