@@ -1,0 +1,86 @@
+# Getting Started Guide
+
+Welcome to the UniScheduleWeave development team! This guide will walk you through setting up your local environment and running the application.
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [npm](https://www.npmjs.com/) (usually comes with Node.js)
+- [Git](https://git-scm.com/) for version control
+- A [Supabase](https://supabase.com/) account (the free tier is sufficient)
+
+## 1. Supabase Project Setup
+
+This application uses Supabase for its database, authentication, and real-time features.
+
+### Database Schema
+
+1. **Create a New Project**: Log in to your Supabase account and create a new project.
+2. **Run the Schema Script**: Navigate to the **SQL Editor** in your Supabase project dashboard. Copy the entire contents of the `supabase/schema.sql` file from this repository and run it. This script will:
+    - Create all necessary tables (`courses`, `instructors`, `class_sessions`, `timetable_assignments`, etc.).
+    - Define relationships and foreign key constraints.
+    - Enable **Row Level Security (RLS)** on all tables.
+    - Set up RLS policies to ensure users can only access and modify their own data.
+
+### Get Your Credentials
+
+1. After setting up the project, navigate to **Project Settings > API**.
+2. You will need two values from this page:
+    - The **Project URL**.
+    - The **Project API Key** (the `anon` `public` key).
+
+## 2. Local Environment Setup
+
+Now, let's get the application code running on your machine.
+
+### Clone and Install
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/uni-schedule-weave.git
+
+# Navigate into the project directory
+cd uni-schedule-weave
+
+# Install all dependencies
+npm install
+```
+
+### Configure Environment Variables
+
+1. In the project's root directory, find the `.env.example` file.
+2. Create a copy of this file and name it `.env`.
+3. Open the new `.env` file and paste in the credentials you copied from your Supabase project:
+
+    ```env
+    VITE_SUPABASE_URL=your_supabase_project_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+## 3. Running the Application
+
+With your environment configured, you can now start the development server.
+
+```bash
+npm run dev
+```
+
+The application should now be running, typically at `http://localhost:5173`. The terminal will display the exact address. You can now register a new user account and begin using the application.
+
+## Development Workflow
+
+- **Branching**: Follow a standard feature-branching model (e.g., `feature/add-new-sidebar`, `fix/login-bug`).
+- **Linting & Formatting**: Before committing, it's a good practice to run the linter and formatter:
+
+    ```bash
+    npm run lint
+    npm run format
+    ```
+
+- **Testing**: Run unit tests to ensure your changes haven't broken any core business logic:
+
+    ```bash
+    npm run test
+    ```
+
+- **Pull Requests**: All new code should be submitted via a Pull Request for review.
