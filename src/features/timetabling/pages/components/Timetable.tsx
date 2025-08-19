@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, RefreshCw } from 'lucide-react'; // Import RefreshCw for syncing icon
 import type { DragSource } from '../../types/DragSource';
 import { useScheduleConfig } from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../utils/timeLogic';
@@ -10,22 +10,24 @@ import type { ClassSession } from '../../../classSessions/types/classSession';
 interface TimetableProps {
   groups: ClassGroup[];
   timetable: Map<string, (ClassSession | null)[]>;
+  isLoading: boolean;
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
-  /** Callback to show the tooltip. */
   onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
-  /** Callback to hide the tooltip. */
   onHideTooltip: () => void;
 }
 
 /**
  * A component that renders the main interactive timetable grid.
- * It no longer renders a tooltip directly but fires callbacks (`onShowTooltip`, `onHideTooltip`)
+ * It fires callbacks (`onShowTooltip`, `onHideTooltip`)
  * on mouse events to allow a parent component to manage a portal-based tooltip.
+ * It includes a non-intrusive indicator in its header to show when
+ * background data synchronization is in progress.
  */
 const Timetable: React.FC<TimetableProps> = ({
   groups,
   timetable,
+  isLoading,
   onDragStart,
   onDropToGrid,
   onShowTooltip,
@@ -102,11 +104,18 @@ const Timetable: React.FC<TimetableProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
-      <div className="p-4 bg-gray-50 border-b border-gray-200">
+      <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
           <Clock className="w-5 h-5" />
           Timetable Grid
         </h3>
+        {/* The non-blocking sync indicator */}
+        {isLoading && (
+          <div className="flex items-center gap-2 text-sm text-gray-500 animate-pulse">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span>Syncing...</span>
+          </div>
+        )}
       </div>
       <div className="overflow-x-auto" onDragLeave={handleGlobalDragLeave}>
         <table className="w-full border-separate [border.spacing:0.5px]">
