@@ -14,7 +14,7 @@ export function useScheduleConfig() {
     error,
   } = useQuery({
     queryKey,
-    queryFn: () => (user ? scheduleConfigService.getScheduleConfig(user.id) : null),
+    queryFn: () => (user ? scheduleConfigService.getScheduleConfig() : null),
     enabled: !!user,
   });
 
