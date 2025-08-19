@@ -1,34 +1,56 @@
-# User Guide & FAQ
+# ClassFlow User Guide
 
-Welcome to ClassFlow! This guide covers basic usage and answers common questions for both end users and new developers.
+Welcome to UniScheduleWeave! This guide will help you get started with creating and organizing your class schedule.
 
-## Getting Started
+## Core Concepts
 
-- **Sign Up:** Register with your email and verify your address.
-- **Login:** Use your credentials to access the app.
-- **Create Sessions:** Go to Class Session Management to add, edit, or remove sessions.
-- **Manage Components:** Use the Component Management tab to add courses, groups, classrooms, and instructors.
-- **Schedule:** Drag and drop sessions onto the timetable. Conflicts will show a notification.
+- **Components**: These are the building blocks of your schedule. There are four types:
+  - **Courses**: The subjects being taught (e.g., "Introduction to Programming").
+  - **Class Groups**: The group of students taking the class (e.g., "Section A").
+  - **Instructors**: The people teaching the courses.
+  - **Classrooms**: The physical locations where classes are held.
+- **Class Sessions**: A "Class Session" is a specific combination of one Course, one Group, one Instructor, and one Classroom. These are the items you will place on the timetable.
+- **Timetable**: The main grid where you can visually schedule your Class Sessions.
 
-## Common Questions
+## How to Build Your Schedule: A Step-by-Step Guide
 
-- **Why can’t I assign a session?**
-  - There may be a conflict (instructor, classroom, or group). Check the notification for details.
-- **How is my data saved?**
-  - Your data is securely saved to your account in the cloud. This means you can log in and access your timetable from any device!
-- **How do I reset my password?**
-  - Use the Forgot Password link on the login page.
-- **How do I report a bug or contribute?**
-  - See the GitHub repo for issues and contribution guidelines.
+### Step 1: Add Your Components
 
-## Troubleshooting
+Before you can schedule anything, you need to define your building blocks.
 
-- **I see an error notification:**
-  - Read the message for details. Most errors are due to missing fields or scheduling conflicts.
-- **My data disappeared:**
-  - This should no longer be an issue. Since your data is stored securely in your cloud account, it is not affected by clearing your browser's local storage.
+1. Navigate to the **Manage Classes** page from the sidebar.
+2. Use the tabs at the top (**Courses**, **Class Groups**, **Classrooms**, **Instructors**) to switch between component types.
+3. For each type, fill out the "Create" form and add all the components you will need for your schedule. They will appear in the list below the form.
 
-## More Help
+### Step 2: Create Your Class Sessions
 
-- For technical details, see the [System Architecture](architecture.md) and [Testing Guide](testing.md).
-- For development philosophy, see `Remember_when_Coding.md`
+Now, combine your components into schedulable classes.
+
+1. On the **Manage Classes** page, create the combinations you need. For example, you might create a session for:
+    - "Intro to Programming" (Course)
+    - For "Section A" (Group)
+    - Taught by "Dr. Smith" (Instructor)
+    - In "Room 101" (Classroom)
+
+### Step 3: Schedule on the Timetable
+
+This is where you visually build your schedule.
+
+1. Navigate to the **Timetable** page from the sidebar.
+2. You will see all the Class Sessions you created in the **"Available Classes"** drawer at the bottom.
+3. Simply **drag** a class from the drawer and **drop** it onto an empty, dashed slot in the timetable grid.
+4. The system will automatically prevent you from creating conflicts (like scheduling the same instructor in two places at once).
+
+## Frequently Asked Questions (FAQ)
+
+- **Why can’t I drop a class in a certain spot?**
+    If a red notification appears, it means there is a conflict. The message will tell you if it's an instructor, classroom, or group conflict. Try a different time slot.
+
+- **How do I move a scheduled class?**
+    Just drag the class from its current position on the grid and drop it into a new, valid time slot.
+
+- **How do I remove a class from the schedule?**
+    Drag the class from the timetable grid and drop it back into the "Available Classes" drawer at the bottom.
+
+- **Is my data saved automatically?**
+    Yes. All changes you make are saved instantly and securely. You can log out and log back in from any device, and your schedule will be there.
