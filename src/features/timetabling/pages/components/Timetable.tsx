@@ -212,7 +212,8 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                               {/* Tooltip (attached to the visual group) */}
                               <div className="absolute bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-md shadow-lg p-3 opacity-0 group-hover:opacity-90 transition-opacity duration-300 invisible group-hover:visible pointer-events-none z-30">
                                 <p className="font-bold text-sm">{classSession.course.name}</p>
-                                <p>Instructor: {classSession.instructor.name}</p>
+                                <p className="text-gray-300">{classSession.course.code}</p>
+                                <p className="mt-1">Instructor: {classSession.instructor.name}</p>
                                 <p>Classroom: {classSession.classroom.name}</p>
                                 <p>Group: {classSession.group.name}</p>
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-[6px] border-t-gray-800"></div>
