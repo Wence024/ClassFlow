@@ -5,6 +5,7 @@ import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, Notification, Tooltip } from '../../../components/ui';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import type { ClassSession } from '../../classSessions/types/classSession';
+import type { DragSource } from '../types/DragSource'; // Import DragSource
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 
@@ -23,7 +24,11 @@ interface TooltipState {
 const TimetablePage: React.FC = () => {
   const { classSessions } = useClassSessions();
   const { timetable, groups, loading } = useTimetable();
-  const { handleDragStart, handleDropToGrid, handleDropToDrawer } = useTimetableDnd();
+  const {
+    handleDragStart: dndHandleDragStart,
+    handleDropToGrid,
+    handleDropToDrawer,
+  } = useTimetableDnd();
 
   /** State for managing the tooltip's visibility, content, and position. */
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
@@ -50,6 +55,17 @@ const TimetablePage: React.FC = () => {
     setTooltip(null);
   };
 
+  /**
+   * A wrapper for the onDragStart event that hides the tooltip before initiating the drag.
+   * This improves the UX by removing the tooltip as soon as a drag action begins.
+   * @param {React.DragEvent} e - The drag event.
+   * @param {DragSource} source - An object describing the drag source.
+   */
+  const handleDragStart = (e: React.DragEvent, source: DragSource) => {
+    handleHideTooltip(); // Hide the tooltip immediately
+    dndHandleDragStart(e, source); // Call the original drag start handler
+  };
+
   /** Memoized calculation to determine which class sessions are unassigned. */
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
@@ -72,9 +88,7 @@ const TimetablePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Notification />
-      {/* The Tooltip is rendered here at the page level, outside of any clipping containers. */}
       {tooltip && <Tooltip content={tooltip.content} position={tooltip.position} />}
-
       <Header />
       <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <div className="flex flex-col lg:flex-row gap-6 h-full">
