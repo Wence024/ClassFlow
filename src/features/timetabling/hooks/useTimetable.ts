@@ -4,23 +4,41 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassGroups } from '../../classSessionComponents/hooks/';
 import * as timetableService from '../services/timetableService';
 import checkConflicts from '../utils/checkConflicts';
-import { buildTimetableGrid } from '../utils/timetableLogic';
+import { buildTimetableGrid, type TimetableGrid } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
-import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig'; // Import the new hook
+import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment } from '../types/timetable';
 
+/**
+ * A comprehensive hook for managing the state and logic of the entire timetable.
+ *
+ * This hook is the central point for the timetabling feature. It is responsible for:
+ * - Fetching the user's schedule configuration and class groups.
+ * - Fetching all timetable assignments from the server.
+ * - Transforming the flat assignment data into a UI-friendly grid structure.
+ * - Setting up a real-time subscription via Supabase to listen for database changes.
+ * - Providing mutation functions (`assign`, `remove`, `move`) that perform conflict checks
+ *   before interacting with the server.
+ * - Handling optimistic updates for a smooth UI experience during mutations.
+ *
+ * @returns An object containing the timetable grid, class groups, loading/error states,
+ *          and functions to manipulate the timetable.
+ */
 export function useTimetable() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { classGroups } = useClassGroups();
-  const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
-  const [channelId] = useState(() => Math.random().toString(36).slice(2));
   const { settings } = useScheduleConfig();
+  const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
 
-  // Define a default to prevent crashes while settings are loading
-  const totalPeriods = settings ? settings.periods_per_day * settings.class_days_per_week : 8;
+  // A random, unique ID for the Supabase real-time channel to prevent conflicts between browser tabs.
+  const [channelId] = useState(() => Math.random().toString(36).slice(2));
 
+  // Calculate total periods from settings, with a fallback to prevent crashes during initial load.
+  const totalPeriods = settings ? settings.periods_per_day * settings.class_days_per_week : 0;
+
+  // --- DATA FETCHING ---
   const {
     data: assignments = [],
     isFetching,
@@ -28,51 +46,103 @@ export function useTimetable() {
   } = useQuery<HydratedTimetableAssignment[]>({
     queryKey,
     queryFn: () => (user ? timetableService.getTimetableAssignments(user.id) : Promise.resolve([])),
+    // This query is only enabled when all its dependencies (user, groups, settings) are loaded.
     enabled: !!user && classGroups.length > 0 && !!settings,
   });
 
-  const timetable = useMemo(
-    // Pass the dynamic totalPeriods to our logic function
+  // Memoize the timetable grid so it's only rebuilt when its source data changes.
+  const timetable: TimetableGrid = useMemo(
     () => buildTimetableGrid(assignments, classGroups, totalPeriods),
     [assignments, classGroups, totalPeriods]
   );
 
-  // --- Real-time Subscription Logic (CORRECTED) ---
+  // --- REAL-TIME SUBSCRIPTION ---
   useEffect(() => {
     if (!user) return;
 
-    // Use the unique channelId to ensure no conflicts between tabs/clients.
     const channel = supabase
       .channel(`timetable-realtime-${channelId}`)
-      .on(
+      .on<HydratedTimetableAssignment>(
         'postgres_changes',
         {
-          event: '*',
+          event: '*', // Listen for INSERT, UPDATE, DELETE
           schema: 'public',
           table: 'timetable_assignments',
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${user.id}`, // Only listen for changes owned by the current user.
         },
-        (payload) => {
-          console.log('Real-time change received!', payload);
+        () => {
+          // When a change is detected, invalidate the query to trigger a refetch.
           queryClient.invalidateQueries({ queryKey });
         }
       )
-      .subscribe((status, err) => {
-        if (status === 'SUBSCRIBED') {
-          console.log(`Successfully subscribed to channel: timetable-realtime-${channelId}`);
-        }
-        if (status === 'CHANNEL_ERROR') {
-          console.error('Real-time channel error:', err);
-        }
-      });
+      .subscribe();
 
+    // Clean up the subscription when the component unmounts.
     return () => {
       supabase.removeChannel(channel);
     };
-    // The dependency array is now stable.
   }, [user, queryClient, queryKey, channelId]);
 
-  // ... (The rest of the file - mutations, returned object, etc. - is unchanged) ...
+  // --- MUTATIONS ---
+
+  /** Mutation for adding a new class session assignment to the timetable. */
+  const assignClassSessionMutation = useMutation({
+    mutationFn: (variables: {
+      class_group_id: string;
+      period_index: number;
+      classSession: ClassSession;
+    }) => {
+      if (!user) throw new Error('User not authenticated');
+      return timetableService.assignClassSessionToTimetable({
+        user_id: user.id,
+        class_group_id: variables.class_group_id,
+        period_index: variables.period_index,
+        class_session_id: variables.classSession.id,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  /** Mutation for removing a class session assignment from the timetable. */
+  const removeClassSessionMutation = useMutation({
+    mutationFn: (variables: { class_group_id: string; period_index: number }) => {
+      if (!user) throw new Error('User not authenticated');
+      return timetableService.removeClassSessionFromTimetable(
+        user.id,
+        variables.class_group_id,
+        variables.period_index
+      );
+    },
+    // Optimistic update: remove the item from the cache immediately.
+    onMutate: async (removedItem) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousAssignments = queryClient.getQueryData<HydratedTimetableAssignment[]>(queryKey);
+      queryClient.setQueryData<HydratedTimetableAssignment[]>(queryKey, (old) =>
+        old
+          ? old.filter(
+              (a) =>
+                !(
+                  a.class_group_id === removedItem.class_group_id &&
+                  a.period_index === removedItem.period_index
+                )
+            )
+          : []
+      );
+      return { previousAssignments };
+    },
+    onError: (_err, _removedItem, context) => {
+      // Rollback on error
+      queryClient.setQueryData(queryKey, context?.previousAssignments);
+    },
+    onSettled: () => {
+      // Refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  /** Mutation for moving an existing class session assignment to a new location. */
   const moveClassSessionMutation = useMutation({
     mutationFn: (variables: {
       from: { class_group_id: string; period_index: number };
@@ -87,10 +157,10 @@ export function useTimetable() {
         class_session_id: variables.classSession.id,
       });
     },
+    // Optimistic update: move the item in the cache immediately.
     onMutate: async (movedItem) => {
       await queryClient.cancelQueries({ queryKey });
       const previousAssignments = queryClient.getQueryData<HydratedTimetableAssignment[]>(queryKey);
-
       queryClient.setQueryData<HydratedTimetableAssignment[]>(queryKey, (old) => {
         if (!old) return [];
         const assignmentToMove = old.find(
@@ -118,66 +188,18 @@ export function useTimetable() {
       return { previousAssignments };
     },
     onError: (_err, _movedItem, context) => {
+      // Rollback on error
       queryClient.setQueryData(queryKey, context?.previousAssignments);
     },
     onSettled: () => {
+      // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey });
     },
   });
 
-  const removeClassSessionMutation = useMutation({
-    mutationFn: (variables: { class_group_id: string; period_index: number }) => {
-      if (!user) throw new Error('User not authenticated');
-      return timetableService.removeClassSessionFromTimetable(
-        user.id,
-        variables.class_group_id,
-        variables.period_index
-      );
-    },
-    onMutate: async (removedItem) => {
-      await queryClient.cancelQueries({ queryKey });
-      const previousAssignments = queryClient.getQueryData<HydratedTimetableAssignment[]>(queryKey);
+  // --- PUBLIC API ---
 
-      queryClient.setQueryData<HydratedTimetableAssignment[]>(queryKey, (old) =>
-        old
-          ? old.filter(
-              (a) =>
-                !(
-                  a.class_group_id === removedItem.class_group_id &&
-                  a.period_index === removedItem.period_index
-                )
-            )
-          : []
-      );
-      return { previousAssignments };
-    },
-    onError: (_err, _removedItem, context) => {
-      queryClient.setQueryData(queryKey, context?.previousAssignments);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
-  });
-
-  const assignClassSessionMutation = useMutation({
-    mutationFn: (variables: {
-      class_group_id: string;
-      period_index: number;
-      classSession: ClassSession;
-    }) => {
-      if (!user) throw new Error('User not authenticated');
-      return timetableService.assignClassSessionToTimetable({
-        user_id: user.id,
-        class_group_id: variables.class_group_id,
-        period_index: variables.period_index,
-        class_session_id: variables.classSession.id,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-    },
-  });
-
+  /** Assigns a class session after performing a conflict check. Returns an error message string on failure. */
   const assignClassSession = async (
     class_group_id: string,
     period_index: number,
@@ -192,29 +214,19 @@ export function useTimetable() {
       period_index
     );
     if (conflict) return conflict;
-    try {
-      await assignClassSessionMutation.mutateAsync({
-        class_group_id,
-        period_index,
-        classSession: classSession,
-      });
-      return '';
-    } catch {
-      return 'Failed to assign class.';
-    }
+    await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
+    return '';
   };
 
+  /** Removes a class session from the timetable. */
   const removeClassSession = async (
     class_group_id: string,
     period_index: number
   ): Promise<void> => {
-    try {
-      await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
-    } catch {
-      console.error('Failed to remove class.');
-    }
+    await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
   };
 
+  /** Moves a class session after performing a conflict check. Returns an error message string on failure. */
   const moveClassSession = async (
     from: { class_group_id: string; period_index: number },
     to: { class_group_id: string; period_index: number },
@@ -230,20 +242,12 @@ export function useTimetable() {
       from
     );
     if (conflict) return conflict;
-    try {
-      await moveClassSessionMutation.mutateAsync({ from, to, classSession: classSession });
-      return '';
-    } catch {
-      return 'Failed to move class.';
-    }
+    await moveClassSessionMutation.mutateAsync({ from, to, classSession });
+    return '';
   };
 
-  const loading =
-    isFetching ||
-    !settings ||
-    assignClassSessionMutation.isPending ||
-    removeClassSessionMutation.isPending ||
-    moveClassSessionMutation.isPending;
+  /** A consolidated loading state that is true if settings are missing or any data is being fetched. */
+  const loading = isFetching || !settings;
 
   return {
     groups: classGroups,
