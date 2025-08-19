@@ -114,3 +114,14 @@ This new list merges duplicates, removes tasks that are already completed by you
 Other tasks:
 
 * [ ] Add a zoom feature to timetable
+* [ ] Merge class session code and management with its components, though more distinct.
+* [ ] Give option to Reduce/expand details in class sessions and components, or remove entirely and either tooltip or click for more info.
+* [ ] Consolidate class sessions, components and timetabling into a single ui.
+* [ ] Implement captcha in login
+* [ ] Implement light/dark mode theme
+
+AI-recommended tasks:
+
+* [ ] Decouple ClassSessionForm: This is a major architectural cleanup that simplifies your most complex page.
+* [ ] Standardize Error Handling: This improves code consistency and developer experience.
+* [ ] Memoize Timetable: This is a quick performance win.
