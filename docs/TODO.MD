@@ -112,4 +112,5 @@ This new list merges duplicates, removes tasks that are already completed by you
 * ✅ **[UI] Verify loading state in timetable again:** The loading overlay in `TimetablePage.tsx` is correctly implemented.
 
 Other tasks:
-- [ ] Add a zoom feature to timetable
+
+* [ ] Add a zoom feature to timetable
