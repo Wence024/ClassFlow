@@ -1,16 +1,50 @@
 import React from 'react';
 
+/**
+ * Props for the ActionButton component.
+ */
 interface ActionButtonProps {
+  /** The content to be displayed inside the button. */
   children: React.ReactNode;
+  /** Optional click handler. */
   onClick?: () => void;
+  /** The visual style of the button.
+   * @default 'primary'
+   */
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  /** The size of the button.
+   * @default 'md'
+   */
   size?: 'sm' | 'md' | 'lg';
+  /** If true, the button will be disabled.
+   * @default false
+   */
   disabled?: boolean;
+  /** If true, a loading indicator will be shown.
+   * @default false
+   */
   loading?: boolean;
+  /** The native button type.
+   * @default 'button'
+   */
   type?: 'button' | 'submit' | 'reset';
+  /** Additional CSS classes to apply to the button. */
   className?: string;
 }
 
+/**
+ * A versatile button component with consistent styling for various actions.
+ * It supports different visual variants, sizes, and loading/disabled states.
+ *
+ * @example
+ * <ActionButton
+ *   onClick={() => console.log('Clicked!')}
+ *   variant="primary"
+ *   size="lg"
+ * >
+ *   Confirm
+ * </ActionButton>
+ */
 const ActionButton: React.FC<ActionButtonProps> = ({
   children,
   onClick,

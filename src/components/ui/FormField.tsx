@@ -1,19 +1,51 @@
-// Note: Only pass a valid, non-empty autocomplete string to the input for accessibility compliance.
 import React from 'react';
 
+/**
+ * Represents a single option for a select input.
+ */
+interface SelectOption {
+  /** The unique identifier for the option (used as the value). */
+  id: string;
+  /** The human-readable text for the option. */
+  name: string;
+}
+
+/**
+ * Props for the FormField component.
+ */
 interface FormFieldProps {
-  id: string; // Make id mandatory for accessibility
+  /** A unique identifier for the input, used for the `id` and `name` attributes. Essential for accessibility. */
+  id: string;
+  /** The text label displayed above the form field. */
   label: string;
+  /** The type of the input field. 'select' renders a dropdown.
+   * @default 'text'
+   */
   type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number';
+  /** The current value of the form field. */
   value: string;
+  /** A callback function that is invoked when the field's value changes. */
   onChange: (value: string) => void;
-  options?: Array<{ id: string; name: string }>;
+  /** An array of options for select inputs. Each option should have an `id` and `name`. */
+  options?: SelectOption[];
+  /** Placeholder text for the input field. */
   placeholder?: string;
+  /** Whether the field is required. Adds a visual indicator and the `required` attribute.
+   * @default false
+   */
   required?: boolean;
+  /** An error message to display below the field. If present, the field will be styled to indicate an error. */
   error?: string;
+  /** The `autocomplete` attribute for the input, to help with browser autofill.
+   * Note: Only pass a valid, non-empty autocomplete string for accessibility compliance.
+   */
   autoComplete?: string;
 }
 
+/**
+ * A standardized component for creating labeled form inputs, including text, password, select, and more.
+ * It handles displaying labels, validation errors, and required field indicators.
+ */
 const FormField: React.FC<FormFieldProps> = ({
   id,
   label,

@@ -1,18 +1,48 @@
 import React from 'react';
 import ActionButton from './ActionButton';
 
+/**
+ * Represents a key-value pair to be displayed as a detail line in the card.
+ */
+interface CardDetail {
+  /** The label for the detail (e.g., "Instructor"). */
+  label: string;
+  /** The value of the detail (e.g., "Dr. Smith"). */
+  value: string;
+}
+
+/**
+ * Props for the ItemCard component.
+ */
 interface ItemCardProps {
+  /** The main title of the card. */
   title: string;
+  /** An optional subtitle displayed below the title. */
   subtitle?: string;
-  details?: Array<{ label: string; value: string }>;
+  /** An array of details to display as key-value pairs. */
+  details?: CardDetail[];
+  /** A callback function for the edit action. If not provided, the edit button is not rendered. */
   onEdit?: () => void;
+  /** A callback function for the delete action. If not provided, the delete button is not rendered. */
   onDelete?: () => void;
+  /** Custom text for the edit button.
+   * @default 'Edit'
+   */
   editLabel?: string;
+  /** Custom text for the delete button.
+   * @default 'Remove'
+   */
   deleteLabel?: string;
+  /** Additional CSS classes to apply to the card's root element. */
   className?: string;
+  /** Optional children to render within the main content area of the card. */
   children?: React.ReactNode;
 }
 
+/**
+ * A card component designed to display information about an item (e.g., a course, instructor).
+ * It includes slots for a title, subtitle, a list of details, and optional edit/delete action buttons.
+ */
 const ItemCard: React.FC<ItemCardProps> = ({
   title,
   subtitle,
