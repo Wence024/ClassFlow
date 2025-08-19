@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { Notification } from './components/ui';
 import { useState } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
@@ -77,6 +78,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <Notification />
           <NavBar onLogout={handleLogout} />
           {toast && (
             <div

@@ -1,135 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { z } from 'zod';
 import { resetPasswordSchema } from '../types/validation';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
+import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
 
-// Helper to parse tokens and errors from hash
-function parseHash(hash: string) {
-  const params = new URLSearchParams(hash.replace(/^#/, ''));
-  return {
-    accessToken: params.get('access_token'),
-    refreshToken: params.get('refresh_token'),
-    error: params.get('error'),
-    errorDescription: params.get('error_description'),
-  };
-}
-
+/**
+ * A page component for users to set a new password.
+ * This page is accessed via the link sent to the user's email. It extracts
+ * authentication tokens from the URL, sets the user's session, and allows them
+ * to submit a new password.
+ */
 const ResetPasswordPage: React.FC = () => {
   const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Store tokens and errors from hash or query
-  const [tokens, setTokens] = useState<{
-    accessToken: string | null;
-    refreshToken: string | null;
-    error: string | null;
-    errorDescription: string | null;
-  }>({ accessToken: null, refreshToken: null, error: null, errorDescription: null });
-
+  // This effect runs once on mount to parse the access token from the URL fragment.
+  // Supabase puts the auth tokens in the URL hash after a password reset redirect.
   useEffect(() => {
-    // Parse tokens/errors from hash and query string
     const hash = window.location.hash;
-    const hashTokens = parseHash(hash);
-    const accessToken = hashTokens.accessToken || searchParams.get('access_token');
-    const refreshToken = hashTokens.refreshToken || searchParams.get('refresh_token');
-    const error = hashTokens.error;
-    const errorDescription = hashTokens.errorDescription;
-    setTokens({ accessToken, refreshToken, error, errorDescription });
+    const params = new URLSearchParams(hash.substring(1)); // Remove the '#'
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const errorDescription = params.get('error_description');
 
-    // Show error if present in hash
     if (errorDescription) {
       setApiError(decodeURIComponent(errorDescription));
     } else if (!accessToken || !refreshToken) {
       setApiError(
         'Invalid or missing reset link parameters. Please request a new password reset link.'
       );
+    } else {
+      // If tokens are present, set the session. This authenticates the user for the password update.
+      supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
     }
-  }, [searchParams]);
+  }, []);
 
+  /**
+   * Handles the form submission for resetting the password.
+   * Validates the new password and updates it using the Supabase client.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
     setApiError(null);
 
-    try {
-      resetPasswordSchema.parse(formData);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errors: Record<string, string> = {};
-        err.issues.forEach((e) => {
-          const key = e.path[0];
-          if (typeof key === 'string') errors[key] = e.message;
-        });
-        setFormErrors(errors);
-      }
+    // 1. Client-side validation.
+    const validationResult = resetPasswordSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        const key = issue.path[0];
+        if (typeof key === 'string') errors[key] = issue.message;
+      });
+      setFormErrors(errors);
       return;
     }
 
     setLoading(true);
+    // 2. Update the user's password. The session should already be set from the useEffect hook.
+    const { error } = await supabase.auth.updateUser({
+      password: formData.password,
+    });
 
-    try {
-      const { accessToken, refreshToken } = tokens;
-      if (!accessToken || !refreshToken) {
-        throw new Error('Invalid reset link');
-      }
-
-      // Set the session with the tokens from the reset link
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
-
-      if (sessionError) {
-        throw new Error('Invalid or expired reset link');
-      }
-
-      // Update the password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: formData.password,
-      });
-
-      if (updateError) {
-        throw new Error(updateError.message);
-      }
-
+    if (error) {
+      setApiError(error.message);
+    } else {
       setSuccess(true);
-      // Redirect to login after a short delay
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to reset password';
-      setApiError(errorMessage);
-    } finally {
-      setLoading(false);
+      setTimeout(() => navigate('/login'), 3000); // Redirect to login after 3 seconds.
     }
+    setLoading(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (fieldName: 'password' | 'confirmPassword', value: string) => {
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
+  // Display a success message after the password has been reset.
   if (success) {
     return (
       <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-center">
-        <h2 className="text-2xl font-bold mb-6">Password Reset Successful</h2>
-        <p className="mb-4">
-          Your password has been successfully reset. You are now logged in.
-          <br />
-          You can continue to your dashboard.
-        </p>
-        <button
-          onClick={() => navigate('/class-sessions')}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors mt-2"
-        >
-          Go to Dashboard
-        </button>
+        <h2 className="text-2xl font-bold mb-4">Password Reset Successful</h2>
+        <p>Your password has been updated. Redirecting you to the login page...</p>
       </div>
     );
   }
@@ -137,62 +96,36 @@ const ResetPasswordPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Reset Password</h2>
-      <form onSubmit={handleSubmit} noValidate role="form" aria-label="Reset password form">
-        <div className="mb-4">
-          <label htmlFor="password">New Password:</label>
-          <input
+      <form onSubmit={handleSubmit} noValidate>
+        <fieldset disabled={loading} className="space-y-4">
+          <FormField
             id="password"
-            name="password"
+            label="New Password"
             type="password"
             value={formData.password}
-            onChange={handleChange}
+            onChange={(val) => handleChange('password', val)}
+            error={formErrors.password}
             required
             autoComplete="new-password"
-            aria-label="New password"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {formErrors.password && (
-            <p className="text-red-600 text-sm mt-1">{formErrors.password}</p>
-          )}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="confirmPassword">Confirm New Password:</label>
-          <input
+          <FormField
             id="confirmPassword"
-            name="confirmPassword"
+            label="Confirm New Password"
             type="password"
             value={formData.confirmPassword}
-            onChange={handleChange}
+            onChange={(val) => handleChange('confirmPassword', val)}
+            error={formErrors.confirmPassword}
             required
             autoComplete="new-password"
-            aria-label="Confirm new password"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {formErrors.confirmPassword && (
-            <p className="text-red-600 text-sm mt-1">{formErrors.confirmPassword}</p>
-          )}
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
-        >
-          {loading ? 'Resetting...' : 'Reset Password'}
-        </button>
+          <ActionButton type="submit" loading={loading} className="w-full">
+            Reset Password
+          </ActionButton>
+        </fieldset>
         {apiError && (
-          <div className="text-red-600 mt-3 text-center" role="alert" aria-live="assertive">
-            {apiError}
-          </div>
+          <ErrorMessage message={apiError} onDismiss={() => setApiError(null)} className="mt-4" />
         )}
       </form>
-      <div className="mt-6 text-center">
-        <button
-          onClick={() => navigate('/login')}
-          className="bg-transparent border-none text-blue-600 hover:underline cursor-pointer"
-        >
-          Back to Login
-        </button>
-      </div>
     </div>
   );
 };

@@ -1,28 +1,36 @@
 import React, { useState, useRef, useEffect } from 'react';
-// Import the subscribe function from our new service
 import { subscribe } from '../../lib/notificationsService';
 
+/** The duration in milliseconds for which the notification is visible before auto-dismissing. */
 const AUTO_DISMISS_MS = 4000;
 
-// This component now has a single responsibility: displaying the notification UI.
+/**
+ * A global notification component that displays messages from the `notificationsService`.
+ * It automatically subscribes to the service on mount and displays notifications
+ * as they are published. It is designed to be placed once in the root layout (e.g., App.tsx).
+ */
 const Notification: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Subscribe to the notification service when the component mounts.
-    // The subscribe function returns a cleanup function (unsubscribe).
+    // The subscribe function returns an unsubscribe function for cleanup.
     const unsubscribe = subscribe(setMessage);
 
-    // The cleanup function will be called when the component unmounts.
+    // The returned function will be called when the component unmounts.
     return unsubscribe;
-  }, []); // The empty dependency array ensures this runs only once.
+  }, []); // The empty dependency array ensures this effect runs only once.
 
+  // Effect to handle auto-dismissal of the notification.
   useEffect(() => {
     if (message) {
+      // Clear any existing timeout.
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      // Set a new timeout to clear the message.
       timeoutRef.current = setTimeout(() => setMessage(null), AUTO_DISMISS_MS);
     }
+    // Cleanup function to clear the timeout if the component unmounts or the message changes.
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
@@ -38,6 +46,7 @@ const Notification: React.FC = () => {
     >
       <span>{message}</span>
       <button
+        type="button"
         className="ml-4 text-white font-bold text-lg focus:outline-none"
         onClick={() => setMessage(null)}
         aria-label="Dismiss notification"

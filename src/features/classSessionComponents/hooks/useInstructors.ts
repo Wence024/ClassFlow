@@ -3,6 +3,14 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import * as instructorsService from '../services/instructorsService';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
 
+/**
+ * Custom hook to manage instructors data.
+ *
+ * This hook abstracts the logic for fetching, adding, updating, and removing instructors
+ * for the currently authenticated user. It uses React Query for server state management.
+ *
+ * @returns An object containing the instructors data, loading and error states, and mutation functions.
+ */
 export function useInstructors() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -36,6 +44,7 @@ export function useInstructors() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  /** A consolidated loading state that is true if any query or mutation is in progress. */
   const loading =
     isLoading ||
     isFetching ||
@@ -44,12 +53,18 @@ export function useInstructors() {
     removeMutation.isPending;
 
   return {
+    /** The cached array of instructors for the current user. Defaults to an empty array. */
     instructors,
+    /** A boolean indicating if any data fetching or mutation is in progress. */
     loading,
+    /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
+    /** An async function to add a new instructor. */
     addInstructor: addMutation.mutateAsync,
+    /** An async function to update an instructor. */
     updateInstructor: (id: string, data: InstructorUpdate) =>
       updateMutation.mutateAsync({ id, data }),
+    /** An async function to remove an instructor. */
     removeInstructor: removeMutation.mutateAsync,
   };
 }

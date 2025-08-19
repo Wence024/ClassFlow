@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { z } from 'zod';
 import { registerSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
 
+/**
+ * A page component for new user registration.
+ * It provides a form for name, email, and password, performs client-side validation,
+ * and uses the `useAuth` hook to handle the registration process.
+ */
 const RegisterPage: React.FC = () => {
-  const { register, loading, error, clearError } = useAuth();
+  const { register, loading, error: apiError, clearError } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,140 +20,106 @@ const RegisterPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const clearErrorRef = useRef(clearError);
 
-  // Update ref when clearError changes
+  // Ensure the ref has the latest clearError function.
   useEffect(() => {
     clearErrorRef.current = clearError;
   }, [clearError]);
 
-  // Clear error when component unmounts
+  // Clear any existing API errors when the component unmounts.
   useEffect(() => {
     return () => {
       clearErrorRef.current();
     };
   }, []);
 
+  /**
+   * Handles the registration form submission.
+   * Validates form data and calls the register function from the AuthContext.
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+    clearError();
 
-    try {
-      const validatedData = registerSchema.parse(formData);
-      setFormErrors({}); // Clear previous errors
-      await register(validatedData.name, validatedData.email, validatedData.password);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        const errors: Record<string, string> = {};
-        err.issues.forEach((e) => {
-          const key = e.path[0];
-          if (typeof key === 'string') errors[key] = e.message;
-        });
-        setFormErrors(errors);
-      }
-      // The useAuth hook will handle API errors
+    // 1. Validate form data using Zod schema.
+    const validationResult = registerSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const errors: Record<string, string> = {};
+      validationResult.error.issues.forEach((issue) => {
+        const key = issue.path[0];
+        if (typeof key === 'string') errors[key] = issue.message;
+      });
+      setFormErrors(errors);
+      return;
     }
+
+    // 2. Call the register function from the auth context.
+    const { name, email, password } = validationResult.data;
+    await register(name, email, password);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    const key = id.replace('register-', ''); // 'register-name' -> 'name'
-    setFormData((prev) => ({ ...prev, [key]: value }));
+  /**
+   * A generic handler to update form state.
+   * @param {string} fieldName - The name of the form field to update.
+   * @param {string} value - The new value.
+   */
+  const handleChange = (
+    fieldName: 'name' | 'email' | 'password' | 'confirmPassword',
+    value: string
+  ) => {
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
   };
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label htmlFor="register-name" className="block font-semibold mb-1">
-            Name:
-          </label>
-          <input
-            id="register-name"
-            type="text"
+      <form onSubmit={handleSubmit} noValidate>
+        <fieldset disabled={loading} className="space-y-4">
+          <FormField
+            id="name"
+            label="Name"
             value={formData.name}
-            onChange={handleChange}
+            onChange={(val) => handleChange('name', val)}
+            error={formErrors.name}
             required
             autoComplete="name"
-            aria-label="Name"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {formErrors.name && (
-            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
-              {formErrors.name}
-            </div>
-          )}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="register-email" className="block font-semibold mb-1">
-            Email:
-          </label>
-          <input
-            id="register-email"
+          <FormField
+            id="email"
+            label="Email"
             type="email"
             value={formData.email}
-            onChange={handleChange}
+            onChange={(val) => handleChange('email', val)}
+            error={formErrors.email}
             required
             autoComplete="email"
-            aria-label="Email address"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {formErrors.email && (
-            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
-              {formErrors.email}
-            </div>
-          )}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="register-password" className="block font-semibold mb-1">
-            Password:
-          </label>
-          <input
-            id="register-password"
+          <FormField
+            id="password"
+            label="Password"
             type="password"
             value={formData.password}
-            onChange={handleChange}
+            onChange={(val) => handleChange('password', val)}
+            error={formErrors.password}
             required
             autoComplete="new-password"
-            aria-label="Password"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {formErrors.password && (
-            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
-              {formErrors.password}
-            </div>
-          )}
-        </div>
-        <div className="mb-4">
-          <label htmlFor="register-confirm-password" className="block font-semibold mb-1">
-            Confirm Password:
-          </label>
-          <input
-            id="register-confirm-password"
+          <FormField
+            id="confirmPassword"
+            label="Confirm Password"
             type="password"
             value={formData.confirmPassword}
-            onChange={handleChange}
+            onChange={(val) => handleChange('confirmPassword', val)}
+            error={formErrors.confirmPassword}
             required
             autoComplete="new-password"
-            aria-label="Confirm password"
-            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          {formErrors.confirmPassword && (
-            <div className="text-red-600 text-sm mt-1" role="alert" aria-live="assertive">
-              {formErrors.confirmPassword}
-            </div>
-          )}
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-60"
-        >
-          {loading ? 'Registering...' : 'Register'}
-        </button>
-        {error && (
-          <div className="text-red-600 mt-3 text-center" role="alert" aria-live="assertive">
-            {error}
-          </div>
-        )}
+          <ActionButton type="submit" loading={loading} className="w-full">
+            Register
+          </ActionButton>
+        </fieldset>
+        {apiError && <ErrorMessage message={apiError} onDismiss={clearError} className="mt-4" />}
       </form>
       <div className="mt-6 text-center">
         <Link to="/login" className="text-blue-600 hover:underline block">

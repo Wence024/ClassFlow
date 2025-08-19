@@ -1,27 +1,46 @@
-import { useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { User } from '../types/auth';
 import * as authService from '../services/authService';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './AuthContext';
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+/**
+ * Props for the AuthProvider component.
+ */
+interface AuthProviderProps {
+  /** The child components that will have access to the authentication context. */
+  children: ReactNode;
+}
+
+/**
+ * Provides authentication state and actions to its children.
+ *
+ * This component manages the user's authentication session, including state for
+ * the current user, loading status, and any authentication errors. It also exposes
+ * functions to handle login, registration, logout, and other auth-related actions.
+ * It should wrap the entire application or the parts that need access to authentication.
+ *
+ * @param {AuthProviderProps} props The component props.
+ */
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true); // Start with loading true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Load user from service on mount
+  // On initial mount, check for an existing user session.
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const storedUser = await authService.getStoredUser();
-        setUser(storedUser);
+        if (storedUser) {
+          setUser(storedUser);
+          setRole(storedUser.role);
+        }
       } catch (err) {
         console.error('Failed to initialize auth:', err);
-        // Clear any invalid stored data
-        localStorage.removeItem('authUser');
+        setUser(null); // Ensure user state is cleared on error
       } finally {
         setLoading(false);
       }
@@ -30,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
   }, []);
 
+  /** Handles user login. */
   const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -37,15 +57,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { user } = await authService.login(email, password);
       setUser(user);
       setRole(user.role);
+      navigate('/class-sessions'); // Redirect on successful login
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
       setUser(null);
-      // Check for email verification errors
-      if (
-        errorMessage.includes('Email not confirmed') ||
-        errorMessage.includes('Email not verified')
-      ) {
+      // If login fails due to unverified email, navigate to the verification page.
+      if (errorMessage.includes('verify your email')) {
         navigate('/verify-email');
       }
     } finally {
@@ -53,16 +71,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /** Handles new user registration. */
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     setError(null);
     try {
       const { user, needsVerification } = await authService.register(name, email, password);
       if (needsVerification) {
+        // If email verification is required, guide the user to the verification page.
         setUser(null);
         navigate('/verify-email');
       } else {
+        // Otherwise, log them in and redirect.
         setUser(user);
+        setRole(user.role);
         navigate('/class-sessions');
       }
     } catch (err: unknown) {
@@ -74,24 +96,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /** Handles user logout. */
   const logout = async () => {
     setLoading(true);
     try {
       await authService.logout();
-      setUser(null);
-      // Redirect to home page after logout
-      navigate('/');
     } catch (err: unknown) {
       console.error('Logout error:', err);
-      // Still clear user even if logout fails
-      setUser(null);
-      // Still redirect to home page
-      navigate('/');
+      // Even if the remote logout fails, we clear the session locally.
     } finally {
+      setUser(null);
+      setRole(null);
       setLoading(false);
+      navigate('/'); // Redirect to home page after logout.
     }
   };
 
+  /** Triggers the resending of a verification email. */
   const resendVerificationEmail = async (email: string) => {
     setLoading(true);
     setError(null);
@@ -101,31 +122,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to resend verification email';
       setError(errorMessage);
-      throw err; // Re-throw so the component can handle it
+      throw err; // Re-throw so the UI component can handle it (e.g., show a notification).
     } finally {
       setLoading(false);
     }
   };
 
+  /** Clears any existing authentication error message. */
   const clearError = () => {
     setError(null);
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        role,
-        login,
-        register,
-        logout,
-        resendVerificationEmail,
-        loading,
-        error,
-        clearError,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const authContextValue = {
+    user,
+    role,
+    login,
+    register,
+    logout,
+    resendVerificationEmail,
+    loading,
+    error,
+    clearError,
+  };
+
+  return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;
 };

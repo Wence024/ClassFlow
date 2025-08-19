@@ -1,22 +1,37 @@
 import React from 'react';
 
+/**
+ * Props for the ErrorMessage component.
+ */
 interface ErrorMessageProps {
+  /** The error message to display. */
   message: string;
+  /** An optional callback to be executed when the user clicks the retry button. */
   onRetry?: () => void;
+  /** An optional callback to be executed when the user clicks the dismiss button. */
   onDismiss?: () => void;
+  /** Additional CSS classes to apply to the component's root element. */
   className?: string;
 }
 
+/**
+ * A component to display a standardized error message.
+ * It can optionally include "Retry" and "Dismiss" actions.
+ */
 const ErrorMessage: React.FC<ErrorMessageProps> = ({
   message,
   onRetry,
   onDismiss,
   className = '',
 }) => {
+  // If no message is provided, render nothing.
+  if (!message) return null;
+
   return (
     <div className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}>
       <div className="flex items-start">
         <div className="flex-shrink-0">
+          {/* Error Icon */}
           <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"
@@ -35,8 +50,9 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
                 type="button"
                 className="bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 onClick={onRetry}
+                aria-label="Retry"
               >
-                <span className="sr-only">Retry</span>
+                {/* Retry Icon */}
                 <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fillRule="evenodd"
@@ -51,8 +67,9 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
                 type="button"
                 className="bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                 onClick={onDismiss}
+                aria-label="Dismiss"
               >
-                <span className="sr-only">Dismiss</span>
+                {/* Dismiss Icon */}
                 <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fillRule="evenodd"

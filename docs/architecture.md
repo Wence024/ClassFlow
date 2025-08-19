@@ -1,57 +1,106 @@
-# System Architecture Overview
+# Architecture Overview
 
-Welcome to ClassFlow! This document provides a high-level overview of the system for new developers and maintainers.
+This document provides a deep dive into the system architecture of ClassFlow. It explains the core design principles, folder structure, data flow, and key technologies used.
 
-## Philosophy
+## Core Principles
 
-- **MVP First:** Build for clarity and maintainability, then scale. See `Remember_when_Coding.md` for the full roadmap.
-- **Feature Modularity:** Each major feature (auth, scheduling, components) is isolated for testability and future backend migration.
-- **Type Safety:** TypeScript is enforced everywhere.
+- **Modularity (Feature-Sliced Design)**: The codebase is organized by features (e.g., `auth`, `classSessions`, `timetabling`). Each feature is a self-contained unit with its own UI, state, logic, and services. This makes the codebase easier to navigate, maintain, and test.
+- **Clear Separation of Concerns**: Within each feature, a strict separation is maintained between different layers:
+  - **UI Components (`pages`, `components`)**: Responsible only for rendering and capturing user events. They are kept as "dumb" as possible.
+  - **State Management (`hooks`)**: Custom hooks encapsulate all logic for fetching, caching, and mutating data. UI components consume these hooks to get state and action handlers.
+  - **Data Access (`services`)**: The service layer is the only part of the application that communicates directly with the backend (Supabase). It abstracts all data-fetching logic.
+- **Server State Authority**: We use **TanStack Query (React Query)** as the authority for server state. This eliminates the need for complex client-side state management for data that lives in the database. React Query handles caching, background refetching, and optimistic updates, leading to a simpler, more robust application.
+- **Type Safety**: TypeScript is used throughout the project. Types for the Supabase schema are auto-generated to ensure end-to-end type safety between the database and the frontend.
 
-## Main Flows
+## Technology Stack
 
-```mermaid
-graph TD;
-  User["User"] -->|Interacts| UI["React UI Components"]
-  UI -->|Uses| Contexts["React Contexts"]
-  Contexts -->|Calls| Services["Service Layer"]
-  Services -->|Reads/Writes| Storage["Supabase Backend"]
-  UI -->|Shows| Notification["Notification System"]
-```
-
-- **UI Components:** Present data, handle user input, and show notifications.
-- **Contexts:** Provide state and CRUD methods for features (auth, sessions, timetable, etc.).
-- **Hooks:** Custom hooks (e.g., `useClassSessions`) access context and encapsulate logic.
-- **Services:** Abstract data access by communicating directly with the Supabase backend.
-- **Notification:** All user-facing errors and important events use the notification system.
+- **Framework**: [Vite](https://vitejs.dev/) + [React](https://reactjs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Backend**: [Supabase](https://supabase.com/)
+  - **Database**: Supabase Postgres
+  - **Authentication**: Supabase Auth
+  - **Real-time**: Supabase Realtime Subscriptions
+- **State Management**: [TanStack Query (React Query)](https://tanstack.com/query/latest)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Routing**: [React Router](https://reactrouter.com/)
+- **Testing**: [Vitest](https://vitest.dev/)
 
 ## Folder Structure
 
+The `src` directory is organized using a feature-based approach:
+
 ```txt
 src/
-  features/
-    auth/                # Authentication (API, context, pages, routes)
-    scheduleLessons/     # Class/session/timetable management
-      contexts/          # Context providers for state
-      hooks/             # Custom hooks
-      pages/             # Page-level components
-      components/        # UI and feature components
-      services/          # Data access (communicates with Supabase)
-      types/             # TypeScript types
-      utils/             # Pure business logic (e.g., timetableLogic)
+├── components/         # 1. Global, Reusable UI Components (e.g., ActionButton, FormField)
+│   └── ui/
+├── features/           # 2. Application Features
+│   ├── auth/           # -- Authentication Feature
+│   │   ├── components/
+│   │   ├── contexts/   # (AuthProvider for session state)
+│   │   ├── hooks/      # (useAuth hook)
+│   │   ├── pages/
+│   │   └── services/   # (authService.ts)
+│   │
+│   ├── classSessions/  # -- Class Session Management Feature
+│   │   ├── hooks/      # (useClassSessions hook)
+│   │   ├── pages/
+│   │   └── services/   # (classSessionsService.ts)
+│   │
+│   └── timetabling/    # -- Timetabling Feature
+│       ├── hooks/      # (useTimetable, useTimetableDnd)
+│       ├── pages/
+│       ├── services/   # (timetableService.ts)
+│       └── utils/      # (checkConflicts.ts - Pure business logic)
+│
+├── lib/                # 3. Core Libraries & Singletons
+│   ├── supabase.ts     # (Supabase client instance)
+│   └── notificationsService.ts # (Global notification system)
+│
+└── routes/             # 4. Route Configuration
 ```
 
-## Data Flow Example
+1. **`/components/ui`**: Contains highly generic, application-agnostic UI components that could be used in any project.
+2. **`/features/*`**: The heart of the application. Each folder is a feature domain.
+3. **`/lib`**: Holds setup code for external libraries and core application services.
+4. **`/routes`**: Defines the application's URL structure and routing logic.
 
-1. **User** interacts with a form (e.g., create class session).
-2. **Component** calls a context method (e.g., `addClassSession`).
-3. **Context** delegates to a service (e.g., `classSessionsService`).
-4. **Service** sends a request to update the Supabase database.
-5. **Context** updates state (via React Query invalidation), and the UI re-renders.
-6. **Errors** are shown via the notification system.
+## Data Flow: An Example (Assigning a Session)
 
-## Extending & Scaling
+This flow demonstrates how the different layers interact, powered by React Query.
 
-- To add a new feature, create a new folder in `features/` and follow the modular pattern.
-- The service layer is designed to abstract all data-fetching logic, making it easy to manage and test API interactions.
-- For more, see `Remember_when_Coding.md`.
+```mermaid
+sequenceDiagram
+    participant User
+    participant TimetableCell
+    participant useTimetableDnd
+    participant useTimetable
+    participant timetableService
+    participant Supabase
+
+    User->>TimetableCell: Drags and drops a session
+    TimetableCell->>useTimetableDnd: Calls handleDropToGrid()
+    useTimetableDnd->>useTimetable: Calls assignClassSession() with session and location
+    useTimetable->>useTimetable: Runs checkConflicts() utility
+    Note right of useTimetable: If conflict, returns error string to UI.
+
+    alt No Conflict
+        useTimetable->>timetableService: Calls assignClassSessionToTimetable()
+        timetableService->>Supabase: Inserts new row into 'timetable_assignments'
+        Supabase-->>timetableService: Returns success
+        timetableService-->>useTimetable: Returns success
+        useTimetable->>useTimetable: React Query invalidates 'hydratedTimetable' query
+        Note right of useTimetable: The query automatically refetches the latest data.
+    end
+```
+
+### Real-time Updates
+
+The `useTimetable` hook also subscribes to changes in the `timetable_assignments` table in Supabase.
+
+1. Another user makes a change, which updates a row in the database.
+2. Supabase sends a real-time event to all subscribed clients.
+3. The `useEffect` in `useTimetable` receives the event.
+4. It calls `queryClient.invalidateQueries({ queryKey })`.
+5. React Query automatically refetches the data, ensuring the UI is always up-to-date without needing manual state management.
+
+This architecture creates a responsive, maintainable, and scalable application. To add a new data entity, a developer simply creates a new feature folder with its own service and hook, following the established pattern.

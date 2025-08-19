@@ -1,14 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Clock } from 'lucide-react';
-import type { DragSource } from '../../types/DragSouuce';
+import type { DragSource } from '../../types/DragSource';
 import { useScheduleConfig } from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../utils/timeLogic';
 import type { ClassGroup } from '../../../classSessionComponents/types';
 import type { ClassSession } from '../../../classSessions/types/classSession';
 
-/**
- * Props for the Timetable component.
- */
+/** Props for the Timetable component. */
 interface TimetableProps {
   groups: ClassGroup[];
   timetable: Map<string, (ClassSession | null)[]>;
@@ -18,24 +16,23 @@ interface TimetableProps {
 
 /**
  * A component that renders the main interactive timetable grid.
- * It handles the display of class sessions, including multi-period spanning,
- * and provides the necessary UI for drag-and-drop operations.
+ *
+ * This is a highly complex presentational component. Its responsibilities include:
+ * - Calculating and rendering table headers based on schedule settings.
+ * - Rendering a row for each class group.
+ * - Rendering cells for each period, correctly handling multi-period spanning for longer sessions.
+ * - Rendering assigned class sessions with a sophisticated two-layer system for robust drag-and-drop.
+ * - Providing droppable zones for empty cells.
+ * - Managing local UI state for visual feedback during drag-over events.
+ *
+ * @param {TimetableProps} props - The props for the component.
  */
 const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, onDropToGrid }) => {
   const { settings } = useScheduleConfig();
+  const [dragOverCell, setDragOverCell] = useState<{ groupId: string; periodIndex: number } | null>(
+    null
+  );
 
-  /**
-   * State to track which specific grid cell (group + period) the user is currently dragging over.
-   * This is used to provide visual feedback (a highlight overlay).
-   */
-  const [dragOverCell, setDragOverCell] = useState<{
-    groupId: string;
-    periodIndex: number;
-  } | null>(null);
-
-  /**
-   * Memoized calculation of day and time headers based on schedule settings.
-   */
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
     return generateTimetableHeaders(settings);
@@ -65,9 +62,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
    * Clears the visual highlight when the cursor leaves the entire table area.
    */
   const handleGlobalDragLeave = (e: React.DragEvent) => {
-    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-      setDragOverCell(null);
-    }
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverCell(null);
   };
 
   /**
@@ -89,7 +84,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
 
   const periodsPerDay = settings.periods_per_day;
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
-  const newBorderStyle = 'border-r-2 border-dashed border-gray-300';
+  const dayBoundaryStyle = 'border-r-2 border-dashed border-gray-300';
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
@@ -99,9 +94,8 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
           Timetable Grid
         </h3>
       </div>
-
       <div className="overflow-x-auto" onDragLeave={handleGlobalDragLeave}>
-        <table className="w-full border-separate [border.spacing:0.4px]">
+        <table className="w-full border-separate [border.spacing:0.5px]">
           {/* Table Head */}
           <thead className="bg-gray-50">
             <tr>
@@ -113,7 +107,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                   key={dayLabel}
                   colSpan={periodsPerDay}
                   className={`p-2 text-center text-sm font-medium text-gray-600 ${
-                    dayIndex < dayHeaders.length - 1 ? newBorderStyle : ''
+                    dayIndex < dayHeaders.length - 1 ? dayBoundaryStyle : ''
                   }`}
                 >
                   {dayLabel}
@@ -126,7 +120,7 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                 timeHeaders.map((time, timeIndex) => {
                   const isLastInDay = (timeIndex + 1) % periodsPerDay === 0;
                   const isNotLastInTable = dayIndex + 1 < dayHeaders.length;
-                  const borderClass = isLastInDay && isNotLastInTable ? newBorderStyle : '';
+                  const borderClass = isLastInDay && isNotLastInTable ? dayBoundaryStyle : '';
                   return (
                     <th
                       key={`d${dayIndex}-t${timeIndex}`}
@@ -139,44 +133,38 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
               )}
             </tr>
           </thead>
-
           {/* Table Body */}
           <tbody>
             {groups.map((group) => {
-              const assignedPeriods = new Set<number>();
+              const renderedPeriods = new Set<number>();
               return (
                 <tr key={group.id}>
-                  <td className="p-2 font-semibold text-sm text-gray-700 bg-gray-50 sticky left-0 z-10 whitespace-nowrap align-top min-w-[7em]">
+                  <td className="p-2 font-semibold text-sm text-gray-700 bg-gray-50 sticky left-0 z-20 whitespace-nowrap align-top min-w-[12rem]">
                     {group.name}
                   </td>
-                  {Array.from({ length: totalPeriods }, (_, periodIndex) => {
-                    if (assignedPeriods.has(periodIndex)) {
-                      return null;
-                    }
+                  {Array.from({ length: totalPeriods }).map((_, periodIndex) => {
+                    if (renderedPeriods.has(periodIndex)) return null;
 
                     const classSession = timetable.get(group.id)?.[periodIndex] || null;
                     const numberOfPeriods = classSession?.course.number_of_periods || 1;
 
                     if (classSession) {
-                      for (let i = 1; i < numberOfPeriods; i++) {
-                        assignedPeriods.add(periodIndex + i);
-                      }
+                      for (let i = 1; i < numberOfPeriods; i++)
+                        renderedPeriods.add(periodIndex + i);
                     }
 
-                    const endPeriodIndex = periodIndex + numberOfPeriods - 1;
-                    const isLastInDay = (endPeriodIndex + 1) % periodsPerDay === 0;
-                    const isNotLastInTable = endPeriodIndex + 1 < totalPeriods;
-                    const borderClass = isLastInDay && isNotLastInTable ? newBorderStyle : '';
+                    const isLastInDay = (periodIndex + numberOfPeriods) % periodsPerDay === 0;
+                    const isNotLastInTable = periodIndex + numberOfPeriods < totalPeriods;
 
                     return (
                       <td
                         key={periodIndex}
-                        className={`p-1 align-top relative ${borderClass}`}
                         colSpan={numberOfPeriods}
+                        className={`p-0.5 align-top relative ${isLastInDay && isNotLastInTable ? dayBoundaryStyle : ''}`}
                       >
-                        <div className="h-16">
+                        <div className="h-20">
                           {classSession ? (
-                            // --- RENDER AN ASSIGNED CLASS SESSION ---
+                            // --- RENDER AN ASSIGNED CLASS SESSION (WITH TWO-LAYER DND) ---
                             <div
                               draggable
                               onDragStart={(e) =>
@@ -187,10 +175,10 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                                   period_index: periodIndex,
                                 })
                               }
-                              className="group relative w-full h-full cursor-grab" // The relative parent for both layers
+                              className="group relative w-full h-full cursor-grab"
                             >
-                              {/* Layer 1: The Visible Block (for visuals and dragging) */}
-                              <div className="absolute inset-0 rounded-md bg-blue-100 flex items-center justify-center p-2 text-center z-10">
+                              {/* Layer 1: The Visible Block (for visuals) */}
+                              <div className="absolute inset-0 rounded-md bg-blue-100 flex items-center justify-center p-1 text-center z-10">
                                 <p className="font-bold text-xs text-blue-900 pointer-events-none">
                                   {classSession.course.name}
                                 </p>
@@ -222,16 +210,16 @@ const Timetable: React.FC<TimetableProps> = ({ groups, timetable, onDragStart, o
                               </div>
 
                               {/* Tooltip (attached to the visual group) */}
-                              <div className="absolute bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-md shadow-lg p-3 opacity-0 group-hover:opacity-85 transition-opacity duration-300 invisible group-hover:visible pointer-events-none z-30">
+                              <div className="absolute bottom-full mb-2 w-max max-w-xs bg-gray-800 text-white text-xs rounded-md shadow-lg p-3 opacity-0 group-hover:opacity-90 transition-opacity duration-300 invisible group-hover:visible pointer-events-none z-30">
                                 <p className="font-bold text-sm">{classSession.course.name}</p>
-                                <p className="mt-1">Instructor: {classSession.instructor.name}</p>
+                                <p>Instructor: {classSession.instructor.name}</p>
                                 <p>Classroom: {classSession.classroom.name}</p>
                                 <p>Group: {classSession.group.name}</p>
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-[6px] border-t-gray-800"></div>
                               </div>
                             </div>
                           ) : (
-                            // --- RENDER AN EMPTY, DASHED CELL ---
+                            // --- RENDER AN EMPTY, DROPPABLE CELL ---
                             <div
                               className="h-full rounded-md bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-200"
                               onDragEnter={(e) => handleDragEnter(e, group.id, periodIndex)}

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { z } from 'zod'; // Import Zod
 import { FormField, ActionButton } from '../../../../components/ui';
 import { showNotification } from '../../../../lib/notificationsService';
 import type { Course, CourseInsert, CourseUpdate } from '../../types/course';
@@ -8,11 +7,24 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../../types/cl
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../../types/instructor';
 import { componentSchemas } from '../../types/validation';
 
+/** A generic type representing the data needed to create or update any component. */
+type ComponentSubmitData =
+  | CourseInsert
+  | CourseUpdate
+  | ClassGroupInsert
+  | ClassGroupUpdate
+  | ClassroomInsert
+  | ClassroomUpdate
+  | InstructorInsert
+  | InstructorUpdate;
+
+/** Base props common to all form variations. */
 type BaseFormProps = {
   onCancel?: () => void;
   loading?: boolean;
 };
 
+/** Discriminated union of props for the ComponentForm. */
 type ComponentFormProps = (
   | {
       type: 'course';
@@ -37,6 +49,7 @@ type ComponentFormProps = (
 ) &
   BaseFormProps;
 
+/** Represents the universal shape of the form's state. */
 interface FormData {
   name: string;
   code?: string;
@@ -45,6 +58,24 @@ interface FormData {
   email?: string;
 }
 
+/** Defines the configuration structure for a single form field. */
+interface FieldConfig {
+  key: keyof FormData;
+  label: string;
+  required: boolean;
+  type?: 'text' | 'number' | 'email'; // This property is now explicitly optional.
+}
+
+/**
+ * A highly reusable and generic form component for creating and editing different types
+ * of schedulable components (Courses, Instructors, etc.).
+ *
+ * It dynamically renders the correct form fields based on the `type` prop.
+ * It handles its own state, validation (using Zod), and submission logic,
+ * delegating the final data persistence to the `onSubmit` prop provided by the parent.
+ *
+ * @param {ComponentFormProps} props The props for the component.
+ */
 const ComponentForm: React.FC<ComponentFormProps> = ({
   type,
   editingItem,
@@ -60,49 +91,44 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
     email: '',
   });
 
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
-  // Get form configuration based on type
-  const getFormConfig = () => {
+  /** Dynamically generates the configuration for the form fields based on the component `type`. */
+  const getFormConfig = (): { title: string; fields: FieldConfig[] } => {
     switch (type) {
       case 'course':
         return {
           title: 'Course',
           fields: [
-            { key: 'name' as keyof FormData, label: 'Course Name', required: true },
-            { key: 'code' as keyof FormData, label: 'Course Code', required: true },
+            { key: 'name', label: 'Course Name', required: true },
+            { key: 'code', label: 'Course Code', required: true },
             {
-              key: 'number_of_periods' as keyof FormData,
+              key: 'number_of_periods',
               label: 'Number of Periods',
               required: true,
-              type: 'number' as const,
+              type: 'number',
             },
           ],
         };
       case 'classGroup':
         return {
           title: 'Class Group',
-          fields: [{ key: 'name' as keyof FormData, label: 'Group Name', required: true }],
+          fields: [{ key: 'name', label: 'Group Name', required: true }],
         };
       case 'classroom':
         return {
           title: 'Classroom',
           fields: [
-            { key: 'name' as keyof FormData, label: 'Classroom Name', required: true },
-            { key: 'location' as keyof FormData, label: 'Location', required: true },
+            { key: 'name', label: 'Classroom Name', required: true },
+            { key: 'location', label: 'Location', required: true },
           ],
         };
       case 'instructor':
         return {
           title: 'Instructor',
           fields: [
-            { key: 'name' as keyof FormData, label: 'Instructor Name', required: true },
-            {
-              key: 'email' as keyof FormData,
-              label: 'Email',
-              required: true,
-              type: 'email' as const,
-            },
+            { key: 'name', label: 'Instructor Name', required: true },
+            { key: 'email', label: 'Email', required: true, type: 'email' },
           ],
         };
       default:
@@ -112,7 +138,7 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
 
   const config = getFormConfig();
 
-  // Populate form when editing
+  // Populate form when editing or reset when creating new.
   useEffect(() => {
     if (editingItem) {
       setFormData({
@@ -124,46 +150,29 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
         email: 'email' in editingItem ? editingItem.email || '' : '',
       });
     } else {
-      setFormData({
-        name: '',
-        code: '',
-        number_of_periods: 1,
-        location: '',
-        email: '',
-      });
+      setFormData({ name: '', code: '', number_of_periods: 1, location: '', email: '' });
     }
     setErrors({});
   }, [editingItem, type]);
 
+  /** Handles form submission, validation, and calling the parent's onSubmit. */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const schema = componentSchemas[type];
-    const dataToValidate = {
-      name: formData.name,
-      code: formData.code,
-      number_of_periods: formData.number_of_periods,
-      location: formData.location,
-      email: formData.email,
-    };
+    const validationResult = schema.safeParse(formData);
 
-    try {
-      // Zod validates the data
-      const validatedData = schema.parse(dataToValidate);
-      setErrors({}); // Clear errors on success
-      onSubmit(validatedData); // Submit the Zod-validated data
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        // Format Zod errors into a flat object for our state
-        const formattedErrors: Partial<FormData> = {};
-        error.issues.forEach((err: z.core.$ZodIssue) => {
-          if (err.path[0]) {
-            formattedErrors[err.path[0] as keyof FormData] = err.message;
-          }
-        });
-        setErrors(formattedErrors);
-        showNotification('Please fix the errors in the form.');
-      }
+    if (validationResult.success) {
+      setErrors({});
+      onSubmit(validationResult.data as ComponentSubmitData);
+    } else {
+      const formattedErrors: Partial<Record<keyof FormData, string>> = {};
+      validationResult.error.issues.forEach((issue) => {
+        const key = issue.path[0] as keyof FormData;
+        if (key) formattedErrors[key] = issue.message;
+      });
+      setErrors(formattedErrors);
+      showNotification('Please correct the errors in the form.');
     }
   };
 
@@ -172,33 +181,25 @@ const ComponentForm: React.FC<ComponentFormProps> = ({
       <h2 className="text-xl font-semibold mb-4 text-center">
         {editingItem ? `Edit ${config.title}` : `Create ${config.title}`}
       </h2>
-
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        role="form"
-        aria-label={`${editingItem ? 'Edit' : 'Create'} ${config.title}`}
-      >
-        <fieldset disabled={loading}>
+      <form onSubmit={handleSubmit} noValidate>
+        <fieldset disabled={loading} className="space-y-4">
           {config.fields.map((field) => (
             <FormField
               key={field.key}
-              id={field.key} // Pass the key as the id
+              id={field.key}
               label={field.label}
               type={field.type || 'text'}
-              value={String(formData[field.key] || '')}
+              value={String(formData[field.key] ?? '')}
               onChange={(value) => setFormData((prev) => ({ ...prev, [field.key]: value }))}
               required={field.required}
-              error={errors[field.key] ? String(errors[field.key]) : undefined}
+              error={errors[field.key]}
               autoComplete={field.key === 'email' ? 'email' : 'off'}
             />
           ))}
-
           <div className="flex gap-2 mt-4">
             <ActionButton type="submit" variant="primary" loading={loading} className="flex-1">
               {editingItem ? 'Save Changes' : `Create ${config.title}`}
             </ActionButton>
-
             {onCancel && (
               <ActionButton type="button" variant="secondary" onClick={onCancel}>
                 Cancel

@@ -1,33 +1,42 @@
 import React, { useState } from 'react';
 import { useInstructors } from '../hooks';
+import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ComponentList, ComponentForm } from './components';
 import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 
-// Page for managing instructors (list, add, edit, remove)
-// Now fully async and backed by Supabase.
+/**
+ * A component that provides the UI for managing Instructors.
+ *
+ * This component uses a two-column layout on desktop (form on the right) and a
+ * single-column layout on mobile (form on top) for an optimal user experience.
+ * It handles all CRUD operations for instructors.
+ */
 const InstructorManagement: React.FC = () => {
   const { instructors, addInstructor, updateInstructor, removeInstructor, loading, error } =
     useInstructors();
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
 
-  // Add new instructor
+  /** Handles adding a new instructor. */
   const handleAdd = async (data: InstructorInsert | InstructorUpdate) => {
     await addInstructor(data as InstructorInsert);
-    setEditingInstructor(null);
+    showNotification('Instructor added successfully!');
   };
-  // Edit instructor
+
+  /** Sets an instructor into the form for editing. */
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
-  // Save changes
+
+  /** Handles saving changes to an existing instructor. */
   const handleSave = async (data: InstructorInsert | InstructorUpdate) => {
     if (!editingInstructor) return;
     await updateInstructor(editingInstructor.id, data as InstructorUpdate);
     setEditingInstructor(null);
+    showNotification('Instructor updated successfully!');
   };
-  // Remove instructor
+
+  /** Handles removing an instructor, with a check to prevent deleting used items. */
   const handleRemove = async (id: string) => {
     const isUsed = classSessions.some((session) => session.instructor?.id === id);
     if (isUsed) {
@@ -40,15 +49,29 @@ const InstructorManagement: React.FC = () => {
     }
     await removeInstructor(id);
     setEditingInstructor(null);
+    showNotification('Instructor removed successfully.');
   };
-  // Cancel editing
+
+  /** Clears the form and cancels editing. */
   const handleCancel = () => setEditingInstructor(null);
 
   return (
-    <div className="flex flex-col md:flex-row gap-8 mt-8">
+    <div className="flex flex-col md:flex-row-reverse gap-8">
+      {/* Form Section */}
+      <div className="w-full md:w-96">
+        <ComponentForm
+          type="instructor"
+          editingItem={editingInstructor}
+          onCancel={editingInstructor ? handleCancel : undefined}
+          onSubmit={editingInstructor ? handleSave : handleAdd}
+          loading={loading}
+        />
+      </div>
+
+      {/* List Section */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Instructors</h2>
-        {loading && <LoadingSpinner text="Loading instructors..." />}
+        {loading && !instructors.length && <LoadingSpinner text="Loading instructors..." />}
         {error && <ErrorMessage message={error} />}
         {!loading && !error && (
           <ComponentList<Instructor>
@@ -58,15 +81,6 @@ const InstructorManagement: React.FC = () => {
             emptyMessage="No instructors created yet."
           />
         )}
-      </div>
-      <div className="w-full md:w-96">
-        <ComponentForm
-          type="instructor"
-          editingItem={editingInstructor}
-          onCancel={editingInstructor ? handleCancel : undefined}
-          onSubmit={editingInstructor ? handleSave : handleAdd}
-          loading={loading}
-        />
       </div>
     </div>
   );
