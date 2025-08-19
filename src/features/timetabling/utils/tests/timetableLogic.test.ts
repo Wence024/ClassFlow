@@ -15,6 +15,7 @@ const mockCourse: Course = {
   id: 'course1',
   name: 'Course 1',
   code: 'C101',
+  number_of_periods: 1,
   user_id: 'user1',
   created_at: null,
 };
@@ -32,6 +33,7 @@ const mockClassroom: Classroom = {
   id: 'classroom1',
   name: 'Room 101',
   location: 'Building A',
+  capacity: null,
   user_id: 'user1',
   created_at: null,
 };

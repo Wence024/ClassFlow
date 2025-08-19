@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:dev": "vite build --mode development",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest run --coverage",
@@ -19,6 +20,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
     "@tanstack/react-query": "^5.83.0",
+    "@testing-library/dom": "^10.4.1",
     "lucide-react": "^0.536.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

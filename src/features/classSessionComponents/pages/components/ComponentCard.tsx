@@ -23,6 +23,12 @@ const ComponentCard = <T extends ComponentItem>({
     if ('code' in item && item.code) {
       details.push({ label: 'Code', value: item.code });
     }
+    if ('number_of_periods' in item && typeof item.number_of_periods === 'number') {
+      details.push({
+        label: 'Duration',
+        value: `${item.number_of_periods} ${item.number_of_periods > 1 ? 'periods' : 'period'}`,
+      });
+    }
     if ('location' in item && item.location) {
       details.push({ label: 'Location', value: item.location });
     }

@@ -13,7 +13,7 @@ import type { ScheduleConfig, ScheduleConfigUpdate } from '../types/scheduleConf
  * @param userId The ID of the user.
  * @returns The user's schedule configuration (currently), or global config (in future).
  */
-export async function getScheduleConfig(userId: string): Promise<ScheduleConfig | null> {
+export async function getScheduleConfig(_userId: string): Promise<ScheduleConfig | null> {
   const { data, error } = await supabase
     .from('schedule_configuration')
     .select('*')

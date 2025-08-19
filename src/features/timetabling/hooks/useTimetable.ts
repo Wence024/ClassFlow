@@ -28,7 +28,7 @@ export function useTimetable() {
   } = useQuery<HydratedTimetableAssignment[]>({
     queryKey,
     queryFn: () => (user ? timetableService.getTimetableAssignments(user.id) : Promise.resolve([])),
-    enabled: !!user && classGroups.length > 0,
+    enabled: !!user && classGroups.length > 0 && !!settings,
   });
 
   const timetable = useMemo(
@@ -183,7 +183,14 @@ export function useTimetable() {
     period_index: number,
     classSession: ClassSession
   ): Promise<string> => {
-    const conflict = checkConflicts(timetable, classSession, class_group_id, period_index);
+    if (!settings) return 'Schedule settings are not loaded yet.';
+    const conflict = checkConflicts(
+      timetable,
+      classSession,
+      settings,
+      class_group_id,
+      period_index
+    );
     if (conflict) return conflict;
     try {
       await assignClassSessionMutation.mutateAsync({
@@ -213,9 +220,11 @@ export function useTimetable() {
     to: { class_group_id: string; period_index: number },
     classSession: ClassSession
   ): Promise<string> => {
+    if (!settings) return 'Schedule settings are not loaded yet.';
     const conflict = checkConflicts(
       timetable,
       classSession,
+      settings,
       to.class_group_id,
       to.period_index,
       from
@@ -231,6 +240,7 @@ export function useTimetable() {
 
   const loading =
     isFetching ||
+    !settings ||
     assignClassSessionMutation.isPending ||
     removeClassSessionMutation.isPending ||
     moveClassSessionMutation.isPending;

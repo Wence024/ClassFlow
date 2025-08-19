@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi, describe, test, expect, beforeEach } from 'vitest';
 // Import the actual types from the application code
 
 import {
@@ -11,13 +11,6 @@ import type { HydratedTimetableAssignment, TimetableAssignment } from '../types/
 import type { ClassSession } from '../../classSessions/types/classSession';
 
 // Supabase response types for mocking
-type SupabaseError = { message: string };
-type SupabaseSingleResponse = { data: TimetableAssignment | null; error: SupabaseError | null };
-// Correctly mock the hydrated response type
-type SupabaseHydratedListResponse = {
-  data: HydratedTimetableAssignment[] | null;
-  error: SupabaseError | null;
-};
 
 type ChainableMock = ReturnType<typeof vi.fn>;
 
@@ -27,7 +20,7 @@ interface MockSupabaseQueryBuilder {
   upsert: ChainableMock;
   delete: ChainableMock;
   from: ChainableMock;
-  single: vi.Mock<Promise<SupabaseSingleResponse>, []>;
+  single: ReturnType<typeof vi.fn>;
 }
 
 const mockSupabaseQueryBuilder: MockSupabaseQueryBuilder = {
@@ -131,9 +124,10 @@ describe('TimetableService', () => {
       ];
 
       // Mock the final chained call (.eq) to resolve with our data
-      (
-        mockSupabaseQueryBuilder.eq as vi.Mock<Promise<SupabaseHydratedListResponse>>
-      ).mockResolvedValueOnce({ data: mockHydratedRows, error: null });
+      (mockSupabaseQueryBuilder.eq as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        data: mockHydratedRows,
+        error: null,
+      });
 
       const result = await getTimetableAssignments('user-id');
 
