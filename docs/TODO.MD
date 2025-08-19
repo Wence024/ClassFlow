@@ -8,7 +8,7 @@ This new list merges duplicates, removes tasks that are already completed by you
 
 *This phase focuses on high-impact, quick wins that significantly improve the user experience and address direct panel feedback.*
 
-1. **[UI] Separate Loading States for Clarity**
+1. [x] **[UI] Separate Loading States for Clarity**
     * **Task:** `UI issue: separate submit loading in forms vs fetching loading in lists.`
     * **Action:** Modify your data hooks (`useClassGroups`, `useCourses`, etc.) to return distinct loading states (e.g., `isListLoading`, `isAdding`, `isUpdating`). Update UI components to use these for more granular feedback.
 

@@ -10,7 +10,7 @@ import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../ty
  * fetching, creating, updating, and deleting sessions using React Query for robust
  * server state management, including caching and automatic data refetching.
  *
- * @returns An object containing the class sessions data, loading and error states, and mutation functions.
+ * @returns An object containing the class sessions data, granular loading and error states, and mutation functions.
  *
  * @example
  * const { classSessions, loading, addClassSession } = useClassSessions();
@@ -35,7 +35,7 @@ export function useClassSessions() {
 
   const {
     data: classSessions = [],
-    isLoading,
+    isLoading: isListLoading,
     isFetching,
     error,
   } = useQuery<ClassSession[]>({
@@ -66,19 +66,15 @@ export function useClassSessions() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
-  /** A consolidated loading state that is true if any query or mutation is in progress. */
-  const loading =
-    isLoading ||
-    isFetching ||
-    addMutation.isPending ||
-    updateMutation.isPending ||
-    removeMutation.isPending;
-
   return {
     /** The cached array of the user's class sessions. Defaults to an empty array. */
     classSessions,
     /** A boolean indicating if any data fetching or mutation is currently active. */
-    loading,
+    isLoading: isListLoading || isFetching,
+    /** A boolean indicating if a create or update operation is in progress. */
+    isSubmitting: addMutation.isPending || updateMutation.isPending,
+    /** A boolean indicating if a delete operation is in progress. */
+    isRemoving: removeMutation.isPending,
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
     /** An async function to add a new class session. Requires an object with foreign keys. */

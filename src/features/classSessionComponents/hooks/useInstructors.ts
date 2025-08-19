@@ -9,7 +9,7 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
  * This hook abstracts the logic for fetching, adding, updating, and removing instructors
  * for the currently authenticated user. It uses React Query for server state management.
  *
- * @returns An object containing the instructors data, loading and error states, and mutation functions.
+ * @returns An object containing the instructors data, granular loading and error states, and mutation functions.
  */
 export function useInstructors() {
   const { user } = useAuth();
@@ -18,7 +18,7 @@ export function useInstructors() {
 
   const {
     data: instructors = [],
-    isLoading,
+    isLoading: isListLoading,
     isFetching,
     error,
   } = useQuery<Instructor[]>({
@@ -44,19 +44,15 @@ export function useInstructors() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
-  /** A consolidated loading state that is true if any query or mutation is in progress. */
-  const loading =
-    isLoading ||
-    isFetching ||
-    addMutation.isPending ||
-    updateMutation.isPending ||
-    removeMutation.isPending;
-
   return {
-    /** The cached array of instructors for the current user. Defaults to an empty array. */
+    /** The cached array of instructors for the current user. */
     instructors,
-    /** A boolean indicating if any data fetching or mutation is in progress. */
-    loading,
+    /** A boolean indicating if the list of instructors is currently being fetched. */
+    isLoading: isListLoading || isFetching,
+    /** A boolean indicating if a create or update operation is in progress. */
+    isSubmitting: addMutation.isPending || updateMutation.isPending,
+    /** A boolean indicating if a delete operation is in progress. */
+    isRemoving: removeMutation.isPending,
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
     /** An async function to add a new instructor. */

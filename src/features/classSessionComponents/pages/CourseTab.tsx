@@ -14,7 +14,8 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
  * It handles all CRUD operations for courses.
  */
 const CourseManagement: React.FC = () => {
-  const { courses, addCourse, updateCourse, removeCourse, loading, error } = useCourses();
+  const { courses, addCourse, updateCourse, removeCourse, isLoading, isSubmitting, error } =
+    useCourses();
   const { classSessions } = useClassSessions();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
@@ -62,16 +63,16 @@ const CourseManagement: React.FC = () => {
           editingItem={editingCourse}
           onCancel={editingCourse ? handleCancel : undefined}
           onSubmit={editingCourse ? handleSave : handleAdd}
-          loading={loading}
+          loading={isSubmitting}
         />
       </div>
 
       {/* List Section */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Courses</h2>
-        {loading && !courses.length && <LoadingSpinner text="Loading courses..." />}
+        {isLoading && <LoadingSpinner text="Loading courses..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<Course>
             items={courses}
             onEdit={handleEdit}

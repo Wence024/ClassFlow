@@ -14,8 +14,15 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
  * It handles all CRUD operations for classrooms.
  */
 const ClassroomManagement: React.FC = () => {
-  const { classrooms, addClassroom, updateClassroom, removeClassroom, loading, error } =
-    useClassrooms();
+  const {
+    classrooms,
+    addClassroom,
+    updateClassroom,
+    removeClassroom,
+    isLoading,
+    isSubmitting,
+    error,
+  } = useClassrooms();
   const { classSessions } = useClassSessions();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
 
@@ -63,16 +70,16 @@ const ClassroomManagement: React.FC = () => {
           editingItem={editingClassroom}
           onCancel={editingClassroom ? handleCancel : undefined}
           onSubmit={editingClassroom ? handleSave : handleAdd}
-          loading={loading}
+          loading={isSubmitting}
         />
       </div>
 
       {/* List Section */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-        {loading && !classrooms.length && <LoadingSpinner text="Loading classrooms..." />}
+        {isLoading && <LoadingSpinner text="Loading classrooms..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<Classroom>
             items={classrooms}
             onEdit={handleEdit}

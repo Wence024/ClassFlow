@@ -10,12 +10,20 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/cl
  * A component that provides the UI for managing Class Groups.
  *
  * This component orchestrates the display, creation, updating, and deletion of class groups.
- * It uses a two-column layout on desktop (form on the right) and a single-column layout
+
+* It uses a two-column layout on desktop (form on the right) and a single-column layout
  * on mobile (form on top) for an optimal user experience on all devices.
  */
 const ClassGroupManagement: React.FC = () => {
-  const { classGroups, addClassGroup, updateClassGroup, removeClassGroup, loading, error } =
-    useClassGroups();
+  const {
+    classGroups,
+    addClassGroup,
+    updateClassGroup,
+    removeClassGroup,
+    isLoading,
+    isSubmitting,
+    error,
+  } = useClassGroups();
   const { classSessions } = useClassSessions();
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
 
@@ -63,16 +71,16 @@ const ClassGroupManagement: React.FC = () => {
           editingItem={editingGroup}
           onSubmit={editingGroup ? handleSave : handleAdd}
           onCancel={editingGroup ? handleCancel : undefined}
-          loading={loading}
+          loading={isSubmitting}
         />
       </div>
 
       {/* List Section */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
-        {loading && !classGroups.length && <LoadingSpinner text="Loading class groups..." />}
+        {isLoading && <LoadingSpinner text="Loading class groups..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<ClassGroup>
             items={classGroups}
             onEdit={handleEdit}

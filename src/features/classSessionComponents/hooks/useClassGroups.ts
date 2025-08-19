@@ -38,8 +38,8 @@ export function useClassGroups() {
 
   const {
     data: classGroups = [],
-    isLoading, // True on initial fetch
-    isFetching, // True on any fetch (including background refetches)
+    isLoading: isListLoading, // isLoading is for the initial fetch
+    isFetching, // isFetching is for any fetch, including background refetches
     error,
   } = useQuery<ClassGroup[]>({
     queryKey,
@@ -68,27 +68,23 @@ export function useClassGroups() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
-  /** A consolidated loading state that is true if any query or mutation is in progress. */
-  const loading =
-    isLoading ||
-    isFetching ||
-    addMutation.isPending ||
-    updateMutation.isPending ||
-    removeMutation.isPending;
-
   return {
-    /** The cached array of class groups for the current user. Defaults to an empty array. */
+    /** The cached array of class groups for the current user. */
     classGroups,
-    /** A boolean indicating if any data fetching or mutation is in progress. */
-    loading,
+    /** A boolean indicating if the list of class groups is currently being fetched. */
+    isLoading: isListLoading || isFetching,
+    /** A boolean indicating if a create or update operation is in progress. */
+    isSubmitting: addMutation.isPending || updateMutation.isPending,
+    /** A boolean indicating if a delete operation is in progress. */
+    isRemoving: removeMutation.isPending,
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
-    /** An async function to add a new class group. Usage: `addClassGroup({ name: 'New' })` */
+    /** An async function to add a new class group. */
     addClassGroup: addMutation.mutateAsync,
-    /** An async function to update a class group. Usage: `updateClassGroup(id, { name: 'Updated' })` */
+    /** An async function to update a class group. */
     updateClassGroup: (id: string, data: ClassGroupUpdate) =>
       updateMutation.mutateAsync({ id, data }),
-    /** An async function to remove a class group. Usage: `removeClassGroup(id)` */
+    /** An async function to remove a class group. */
     removeClassGroup: removeMutation.mutateAsync,
   };
 }

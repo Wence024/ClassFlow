@@ -27,15 +27,16 @@ const ClassSessionsPage: React.FC = () => {
     addClassSession,
     updateClassSession,
     removeClassSession,
-    loading: classSessionsLoading,
+    isLoading: classSessionsLoading,
+    isSubmitting,
     error,
   } = useClassSessions();
 
   // Fetch all the component data needed for the form dropdowns.
-  const { courses, loading: coursesLoading } = useCourses();
-  const { classGroups, loading: groupsLoading } = useClassGroups();
-  const { classrooms, loading: classroomsLoading } = useClassrooms();
-  const { instructors, loading: instructorsLoading } = useInstructors();
+  const { courses, isLoading: coursesLoading } = useCourses();
+  const { classGroups, isLoading: groupsLoading } = useClassGroups();
+  const { classrooms, isLoading: classroomsLoading } = useClassrooms();
+  const { instructors, isLoading: instructorsLoading } = useInstructors();
 
   /** The local state for the session currently being edited. */
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
@@ -76,7 +77,7 @@ const ClassSessionsPage: React.FC = () => {
     instructorsLoading;
 
   return (
-    <div className="container mx-auto p-4 flex flex-col md:flex-row-reverse gap-8">
+    <div className="max-w-6xl mx-auto p-4 flex flex-col md:flex-row-reverse gap-8">
       {/* Form Section */}
       <div className="w-full md:w-96">
         <ClassSessionForm
@@ -87,14 +88,14 @@ const ClassSessionsPage: React.FC = () => {
           editingClassSession={editingSession}
           onCancel={editingSession ? handleCancel : undefined}
           onSubmit={editingSession ? handleSave : handleAdd}
-          loading={isLoading}
+          loading={isSubmitting}
         />
       </div>
 
       {/* List Section */}
       <div className="flex-1 min-w-0">
-        <h1 className="text-3xl font-bold mb-6">Class Session Management</h1>
-        {isLoading && !classSessions.length && <LoadingSpinner text="Loading sessions..." />}
+        <h1 className="text-3xl font-bold mb-6">Classes</h1>
+        {isLoading && <LoadingSpinner text="Loading classes..." />}
         {error && <ErrorMessage message={error} />}
         {!isLoading && !error && (
           <ClassSessionList

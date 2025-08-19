@@ -14,8 +14,15 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
  * It handles all CRUD operations for instructors.
  */
 const InstructorManagement: React.FC = () => {
-  const { instructors, addInstructor, updateInstructor, removeInstructor, loading, error } =
-    useInstructors();
+  const {
+    instructors,
+    addInstructor,
+    updateInstructor,
+    removeInstructor,
+    isLoading,
+    isSubmitting,
+    error,
+  } = useInstructors();
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
 
@@ -64,16 +71,16 @@ const InstructorManagement: React.FC = () => {
           editingItem={editingInstructor}
           onCancel={editingInstructor ? handleCancel : undefined}
           onSubmit={editingInstructor ? handleSave : handleAdd}
-          loading={loading}
+          loading={isSubmitting}
         />
       </div>
 
       {/* List Section */}
       <div className="flex-1 min-w-0">
         <h2 className="text-xl font-semibold mb-4">Instructors</h2>
-        {loading && !instructors.length && <LoadingSpinner text="Loading instructors..." />}
+        {isLoading && <LoadingSpinner text="Loading instructors..." />}
         {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
+        {!isLoading && !error && (
           <ComponentList<Instructor>
             items={instructors}
             onEdit={handleEdit}
