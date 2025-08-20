@@ -2,22 +2,32 @@ import React, { useState } from 'react';
 import { useClassrooms } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ComponentList, ComponentForm } from './components';
-import { LoadingSpinner, ErrorMessage } from '../../../components/ui';
+import { LoadingSpinner, ErrorMessage, ConfirmModal } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
 
 /**
  * A component that provides the UI for managing Classrooms.
  *
- * This component uses a two-column layout on desktop (form on the right) and a
- * single-column layout on mobile (form on top) for an optimal user experience.
- * It handles all CRUD operations for classrooms.
+ * This component uses a two-column layout on desktop and a single-column on mobile.
+ *
+ * This component handles all CRUD operations for classrooms, including a confirmation
+ * step for deletion.
  */
 const ClassroomManagement: React.FC = () => {
-  const { classrooms, addClassroom, updateClassroom, removeClassroom, loading, error } =
-    useClassrooms();
+  const {
+    classrooms,
+    addClassroom,
+    updateClassroom,
+    removeClassroom,
+    isLoading,
+    isSubmitting,
+    isRemoving,
+    error,
+  } = useClassrooms();
   const { classSessions } = useClassSessions();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
+  const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
 
   /** Handles adding a new classroom. */
   const handleAdd = async (data: ClassroomInsert | ClassroomUpdate) => {
@@ -36,52 +46,78 @@ const ClassroomManagement: React.FC = () => {
     showNotification('Classroom updated successfully!');
   };
 
-  /** Handles removing a classroom, with a check to prevent deleting used items. */
-  const handleRemove = async (id: string) => {
-    const isUsed = classSessions.some((session) => session.classroom?.id === id);
+  /** Opens the delete confirmation modal for the selected classroom. */
+  const handleDeleteRequest = (id: string) => {
+    const classroom = classrooms.find((c) => c.id === id);
+    if (classroom) {
+      setClassroomToDelete(classroom);
+    }
+  };
+
+  /** Executes the deletion after confirmation. */
+  const handleConfirmDelete = async () => {
+    if (!classroomToDelete) return;
+
+    const isUsed = classSessions.some((session) => session.classroom?.id === classroomToDelete.id);
     if (isUsed) {
-      const classroomName = classrooms.find((c) => c.id === id)?.name || 'the selected classroom';
       showNotification(
-        `Cannot delete "${classroomName}". It is currently used in one or more classes.`
+        `Cannot delete "${classroomToDelete.name}". It is currently used in one or more classes.`
       );
+      setClassroomToDelete(null);
       return;
     }
-    await removeClassroom(id);
-    setEditingClassroom(null);
+
+    await removeClassroom(classroomToDelete.id);
     showNotification('Classroom removed successfully.');
+    setClassroomToDelete(null);
+    if (editingClassroom?.id === classroomToDelete.id) {
+      setEditingClassroom(null);
+    }
   };
 
   /** Clears the form and cancels editing. */
   const handleCancel = () => setEditingClassroom(null);
 
   return (
-    <div className="flex flex-col md:flex-row-reverse gap-8">
-      {/* Form Section */}
-      <div className="w-full md:w-96">
-        <ComponentForm
-          type="classroom"
-          editingItem={editingClassroom}
-          onCancel={editingClassroom ? handleCancel : undefined}
-          onSubmit={editingClassroom ? handleSave : handleAdd}
-          loading={loading}
-        />
+    <>
+      <div className="flex flex-col md:flex-row-reverse gap-8">
+        <div className="w-full md:w-96">
+          <ComponentForm
+            type="classroom"
+            editingItem={editingClassroom}
+            onCancel={editingClassroom ? handleCancel : undefined}
+            onSubmit={editingClassroom ? handleSave : handleAdd}
+            loading={isSubmitting}
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
+          {isLoading && <LoadingSpinner text="Loading classrooms..." />}
+          {error && <ErrorMessage message={error} />}
+          {!isLoading && !error && (
+            <ComponentList<Classroom>
+              items={classrooms}
+              onEdit={handleEdit}
+              onDelete={handleDeleteRequest}
+              emptyMessage="No classrooms created yet."
+            />
+          )}
+        </div>
       </div>
 
-      {/* List Section */}
-      <div className="flex-1 min-w-0">
-        <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-        {loading && !classrooms.length && <LoadingSpinner text="Loading classrooms..." />}
-        {error && <ErrorMessage message={error} />}
-        {!loading && !error && (
-          <ComponentList<Classroom>
-            items={classrooms}
-            onEdit={handleEdit}
-            onDelete={handleRemove}
-            emptyMessage="No classrooms created yet."
-          />
-        )}
-      </div>
-    </div>
+      <ConfirmModal
+        isOpen={!!classroomToDelete}
+        title="Confirm Deletion"
+        onClose={() => setClassroomToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        isLoading={isRemoving}
+        confirmText="Delete"
+      >
+        Are you sure you want to delete the classroom "{classroomToDelete?.name}"? This action
+        cannot be undone.
+      </ConfirmModal>
+    </>
   );
 };
 

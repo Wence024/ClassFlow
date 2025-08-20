@@ -8,19 +8,19 @@ This new list merges duplicates, removes tasks that are already completed by you
 
 *This phase focuses on high-impact, quick wins that significantly improve the user experience and address direct panel feedback.*
 
-1. **[UI] Separate Loading States for Clarity**
+1. [x] **[UI] Separate Loading States for Clarity**
     * **Task:** `UI issue: separate submit loading in forms vs fetching loading in lists.`
     * **Action:** Modify your data hooks (`useClassGroups`, `useCourses`, etc.) to return distinct loading states (e.g., `isListLoading`, `isAdding`, `isUpdating`). Update UI components to use these for more granular feedback.
 
-2. **[UI] Enhance Timetable Tooltip**
+2. [x] **[UI] Enhance Timetable Tooltip**
     * **Task:** `Tooltip shall have course code. (panel priority ML)`
     * **Action:** In `Timetable.tsx`, add the `course.code` to the tooltip's display string.
 
-3. **[UX] Implement Confirmation Modals for Deletion**
+3. [x] **[UX] Implement Confirmation Modals for Deletion**
     * **Task:** `Add confirm Delete modal for every remove/delete action.`
     * **Action:** Create a reusable confirmation modal. Implement logic in your UI to show this modal before any `remove...` mutation is called to prevent accidental data loss.
 
-4. **[UI] Fix Tooltip Truncation**
+4. [x] **[UI] Fix Tooltip Truncation**
     * **Task:** `Timetabling: Fix tooltip truncating outside timetable area`
     * **Action:** Adjust the CSS for the tooltip in `Timetable.tsx`. This might involve ensuring the timetable's container doesn't have `overflow: hidden` or using a portal-based tooltip library that renders at the root of the document.
 
@@ -110,3 +110,18 @@ This new list merges duplicates, removes tasks that are already completed by you
 * ✅ **[Architecture] ComponentInsert/Update type has been created. Where is ComponentDelete?:** Your current pattern of passing an `id` to the remove mutation is correct and sufficient.
 * ✅ **[Architecture] Support multi-user:** Your hooks and query keys are already user-specific.
 * ✅ **[UI] Verify loading state in timetable again:** The loading overlay in `TimetablePage.tsx` is correctly implemented.
+
+Other tasks:
+
+* [ ] Add a zoom feature to timetable
+* [ ] Merge class session code and management with its components, though more distinct.
+* [ ] Give option to Reduce/expand details in class sessions and components, or remove entirely and either tooltip or click for more info.
+* [ ] Consolidate class sessions, components and timetabling into a single ui.
+* [ ] Implement captcha in login
+* [ ] Implement light/dark mode theme
+
+AI-recommended tasks:
+
+* [ ] Decouple ClassSessionForm: This is a major architectural cleanup that simplifies your most complex page.
+* [ ] Standardize Error Handling: This improves code consistency and developer experience.
+* [ ] Memoize Timetable: This is a quick performance win.

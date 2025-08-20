@@ -9,7 +9,7 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
  * This hook abstracts the logic for fetching, adding, updating, and removing classrooms
  * for the currently authenticated user. It uses React Query for server state management.
  *
- * @returns An object containing the classrooms data, loading and error states, and mutation functions.
+ * @returns An object containing the classrooms data, granular loading and error states, and mutation functions.
  */
 export function useClassrooms() {
   const { user } = useAuth();
@@ -18,7 +18,7 @@ export function useClassrooms() {
 
   const {
     data: classrooms = [],
-    isLoading,
+    isLoading: isListLoading,
     isFetching,
     error,
   } = useQuery<Classroom[]>({
@@ -44,19 +44,15 @@ export function useClassrooms() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
-  /** A consolidated loading state that is true if any query or mutation is in progress. */
-  const loading =
-    isLoading ||
-    isFetching ||
-    addMutation.isPending ||
-    updateMutation.isPending ||
-    removeMutation.isPending;
-
   return {
-    /** The cached array of classrooms for the current user. Defaults to an empty array. */
+    /** The cached array of classrooms for the current user. */
     classrooms,
-    /** A boolean indicating if any data fetching or mutation is in progress. */
-    loading,
+    /** A boolean indicating if the list of classrooms is currently being fetched. */
+    isLoading: isListLoading || isFetching,
+    /** A boolean indicating if a create or update operation is in progress. */
+    isSubmitting: addMutation.isPending || updateMutation.isPending,
+    /** A boolean indicating if a delete operation is in progress. */
+    isRemoving: removeMutation.isPending,
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
     /** An async function to add a new classroom. */
