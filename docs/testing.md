@@ -1,6 +1,6 @@
 # Testing Strategy and Plan
 
-This document outlines the testing strategy, tools, and a detailed plan for ensuring the quality and correctness of the UniScheduleWeave application.
+This document outlines the testing strategy, tools, and a detailed plan for ensuring the quality and correctness of the ClassFlow application.
 
 ## 1. Guiding Philosophy
 
