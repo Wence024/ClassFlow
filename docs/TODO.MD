@@ -36,6 +36,15 @@ This new list merges duplicates, removes tasks that are already completed by you
         2. Regenerate Supabase types.
         3. Update Zod schemas in `validation.ts`.
         4. Add the new fields to the `ComponentForm.tsx`.
+        5. Make other fields optional
+        6. Add color assignment to all components.
+        7. Create shortform code for class groups, classrooms and instructors
+        8. For instructors:
+          a.  Differentiate name into Last name and first name;
+          b.  Auto-generated but customizable short (i.e., First name and last name initials);
+          c. teacher's contract (flexible/free-form) in a single line;
+          d. email; phone;
+          e. title; prefix and suffix for name (not strictly profession but can be for now)
 
 2. **[Logic] Implement Advanced Conflict Detection**
     * **Task:** `Conflict: Implement advanced conflict detection logic`
@@ -119,9 +128,22 @@ Other tasks:
 * [ ] Consolidate class sessions, components and timetabling into a single ui.
 * [ ] Implement captcha in login
 * [ ] Implement light/dark mode theme
+* [ ] Keyboard shortcuts and navigation
+* [ ] Interface for showing component details
+  * and link to class sessions/periods
+* [ ] Allow classrooms and instructors to be optional in class sessions.
 
 AI-recommended tasks:
 
 * [ ] Decouple ClassSessionForm: This is a major architectural cleanup that simplifies your most complex page.
 * [ ] Standardize Error Handling: This improves code consistency and developer experience.
 * [ ] Memoize Timetable: This is a quick performance win.
+
+Less-priority features:
+
+* [ ] Study Custom fields in all class session components
+* [ ] Learn about predefined selections
+  * For courses: preselected classroom/s
+  * For class groups: preselected instructor/s
+  * For instructors: preselected class groups and classrooms
+* [ ] See the value of time-offs
