@@ -1,6 +1,6 @@
 import React from 'react';
-import { ItemCard } from '../../../../components/ui';
-import type { Instructor } from '../../types';
+import { ItemCard } from '../../../../../components/ui';
+import type { Instructor } from '../../../types';
 
 interface InstructorCardProps {
   instructor: Instructor;

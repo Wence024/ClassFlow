@@ -19,7 +19,7 @@ export async function getInstructors(user_id: string): Promise<Instructor[]> {
     .from(TABLE)
     .select('*')
     .eq('user_id', user_id)
-    .order('name');
+    .order('first_name');
   if (error) throw error;
   return data || [];
 }

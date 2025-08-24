@@ -29,6 +29,7 @@ const InstructorManagement: React.FC = () => {
     isRemoving,
     error,
   } = useInstructors();
+  showNotification(error || '');
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
