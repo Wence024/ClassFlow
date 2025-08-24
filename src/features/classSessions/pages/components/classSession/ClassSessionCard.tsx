@@ -43,7 +43,7 @@ const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ classSession, onEdi
     { label: 'Classroom', value: classSession.classroom.name },
     {
       label: 'Duration',
-      value: `${classSession.periodCount} ${classSession.periodCount > 1 ? 'periods' : 'period'}`,
+      value: `${classSession.period_count} ${classSession.period_count > 1 ? 'periods' : 'period'}`,
     },
   ];
 

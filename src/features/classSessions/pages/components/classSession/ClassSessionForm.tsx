@@ -60,7 +60,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
         <fieldset disabled={loading}>
           {/* FIXED: All 'name' props now use snake_case to match the Zod schema */}
           <Controller
-            name="courseId"
+            name="course_id"
             control={control}
             render={({ field }) => (
               <FormField
@@ -68,14 +68,14 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                 id="course_id"
                 label="Course"
                 type="select"
-                error={errors.courseId?.message}
+                error={errors.course_id?.message}
                 options={courses.map((c) => ({ id: c.id, name: `${c.name} (${c.code})` }))}
                 required
               />
             )}
           />
           <Controller
-            name="instructorId"
+            name="instructor_id"
             control={control}
             render={({ field }) => (
               <FormField
@@ -83,7 +83,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                 id="instructor_id"
                 label="Instructor"
                 type="select"
-                error={errors.instructorId?.message}
+                error={errors.instructor_id?.message}
                 options={instructors.map((i) => ({
                   id: i.id,
                   name: `${i.first_name} ${i.last_name}`,
@@ -93,7 +93,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
             )}
           />
           <Controller
-            name="groupId"
+            name="class_group_id"
             control={control}
             render={({ field }) => (
               <FormField
@@ -101,14 +101,14 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                 id="class_group_id"
                 label="Class Group"
                 type="select"
-                error={errors.groupId?.message}
+                error={errors.class_group_id?.message}
                 options={classGroups}
                 required
               />
             )}
           />
           <Controller
-            name="classroomId"
+            name="classroom_id"
             control={control}
             render={({ field }) => (
               <FormField
@@ -116,7 +116,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                 id="classroom_id"
                 label="Classroom"
                 type="select"
-                error={errors.classroomId?.message}
+                error={errors.classroom_id?.message}
                 options={classrooms}
                 required
               />

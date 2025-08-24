@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+// Import hooks from react-hook-form
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
+// Import hooks for fetching data
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassSessions } from '../hooks/useClassSessions';
 import {
@@ -12,14 +14,19 @@ import {
   useInstructors,
 } from '../../classSessionComponents/hooks';
 
-// Import the specific card and the form directly
-import { ClassSessionForm, ClassSessionCard } from './components';
+// FIXED: Corrected import paths for the refactored components
+import { ClassSessionForm } from './components/classSession';
+import { ClassSessionCard } from './components/classSession';
 
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
-import { classSessionSchema } from '../../classSessionComponents/types/validation';
-import { LoadingSpinner, ErrorMessage, ConfirmModal, ActionButton } from '../../../components/ui';
+// Import the specific type for a class session
+import type { ClassSession } from '../types/classSession';
+// FIXED: Import the schema from its correct, new location
+import { classSessionSchema } from '../types/validation';
+// Import all necessary UI components
+import { LoadingSpinner, ErrorMessage, ConfirmModal } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 
+// Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
 /**
@@ -48,7 +55,7 @@ const ClassSessionsPage: React.FC = () => {
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<ClassSession | null>(null);
 
-  // Form management is now handled here, at the page level.
+  // Form management is now handled here, at the page level
   const formMethods = useForm<ClassSessionFormData>({
     resolver: zodResolver(classSessionSchema),
     defaultValues: {
@@ -67,10 +74,18 @@ const ClassSessionsPage: React.FC = () => {
         instructor_id: editingSession.instructor.id,
         class_group_id: editingSession.group.id,
         classroom_id: editingSession.classroom.id,
-        period_count: editingSession.periodCount ?? 1,
+        // FIXED: Corrected property name from periodCount to period_count
+        period_count: editingSession.period_count ?? 1,
       });
     } else {
-      formMethods.reset();
+      // Reset to default values when not editing
+      formMethods.reset({
+        course_id: '',
+        instructor_id: '',
+        class_group_id: '',
+        classroom_id: '',
+        period_count: 1,
+      });
     }
   }, [editingSession, formMethods]);
 
@@ -115,17 +130,19 @@ const ClassSessionsPage: React.FC = () => {
       <div className="max-w-6xl mx-auto p-4 flex flex-col md:flex-row-reverse gap-8">
         <div className="w-full md:w-96">
           {/* We now pass the form methods directly to the form component */}
-          <ClassSessionForm
-            formMethods={formMethods}
-            onSubmit={editingSession ? handleSave : handleAdd}
-            onCancel={editingSession ? handleCancel : undefined}
-            loading={isSubmitting}
-            courses={courses}
-            classGroups={classGroups}
-            instructors={instructors}
-            classrooms={classrooms}
-            isEditing={!!editingSession}
-          />
+          <FormProvider {...formMethods}>
+            <ClassSessionForm
+              formMethods={formMethods}
+              onSubmit={editingSession ? handleSave : handleAdd}
+              onCancel={editingSession ? handleCancel : undefined}
+              loading={isSubmitting}
+              courses={courses}
+              classGroups={classGroups}
+              instructors={instructors}
+              classrooms={classrooms}
+              isEditing={!!editingSession}
+            />
+          </FormProvider>
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold mb-6">Classes</h1>

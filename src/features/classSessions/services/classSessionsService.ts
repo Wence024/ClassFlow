@@ -22,7 +22,8 @@ const SELECT_COLUMNS = `
   course:courses(*),
   group:class_groups(*),
   instructor:instructors(*),
-  classroom:classrooms(*)
+  classroom:classrooms(*),
+  period_count
 `;
 
 /**

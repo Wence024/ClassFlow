@@ -26,5 +26,5 @@ export type ClassSession = {
   group: ClassGroup;
   instructor: Instructor;
   classroom: Classroom;
-  periodCount: number;
+  period_count: number;
 };

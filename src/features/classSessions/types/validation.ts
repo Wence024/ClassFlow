@@ -1,12 +1,13 @@
-import z from 'zod';
+import { z } from 'zod';
 
-// Schema for the Class Session form
+/**
+ * Schema for validating the Class Session form.
+ */
 export const classSessionSchema = z.object({
-  courseId: z.string().min(1, { message: 'Course must be selected' }),
-  groupId: z.string().min(1, { message: 'Class group must be selected' }),
-  instructorId: z.string().min(1, { message: 'Instructor must be selected' }),
-  classroomId: z.string().min(1, { message: 'Classroom must be selected' }),
-
+  course_id: z.string().min(1, 'A course must be selected'),
+  class_group_id: z.string().min(1, 'A class group must be selected'),
+  classroom_id: z.string().min(1, 'A classroom must be selected'),
+  instructor_id: z.string().min(1, 'An instructor must be selected'),
   period_count: z
     .any()
     .superRefine((val, ctx) => {
