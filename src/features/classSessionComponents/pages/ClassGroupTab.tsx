@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// Import UseFormReturn to explicitly type the form methods
-import { useForm, FormProvider, type UseFormReturn } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -34,15 +33,19 @@ const ClassGroupManagement: React.FC = () => {
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<ClassGroup | null>(null);
 
-  // FIXED: Explicitly type the `formMethods` constant.
-  const formMethods: UseFormReturn<ClassGroupFormData> = useForm<ClassGroupFormData>({
+  // The hook can now correctly infer the type without extra help
+  const formMethods = useForm<ClassGroupFormData>({
     resolver: zodResolver(componentSchemas.classGroup),
     defaultValues: { name: '', code: '', student_count: 0, color: '#6B7280' },
   });
 
   useEffect(() => {
     if (editingGroup) {
-      formMethods.reset(editingGroup);
+      formMethods.reset({
+        ...editingGroup,
+        // Ensure the value passed to the form is a number, not null
+        student_count: editingGroup.student_count ?? 0,
+      });
     } else {
       formMethods.reset({ name: '', code: '', student_count: 0, color: '#6B7280' });
     }

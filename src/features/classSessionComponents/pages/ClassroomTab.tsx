@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, FormProvider, type UseFormReturn } from 'react-hook-form';
+// No longer need UseFormReturn
+import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -33,15 +34,19 @@ const ClassroomManagement: React.FC = () => {
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
 
-  // FIXED: Explicitly type the `formMethods` constant.
-  const formMethods: UseFormReturn<ClassroomFormData> = useForm<ClassroomFormData>({
+  // The hook can now correctly infer the type without extra help
+  const formMethods = useForm<ClassroomFormData>({
     resolver: zodResolver(componentSchemas.classroom),
     defaultValues: { name: '', code: '', capacity: 0, color: '#6B7280' },
   });
 
   useEffect(() => {
     if (editingClassroom) {
-      formMethods.reset(editingClassroom);
+      formMethods.reset({
+        ...editingClassroom,
+        // Ensure the value passed to the form is a number, not null
+        capacity: editingClassroom.capacity ?? 0,
+      });
     } else {
       formMethods.reset({ name: '', code: '', capacity: 0, color: '#6B7280' });
     }

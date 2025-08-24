@@ -17,24 +17,16 @@ export const courseSchema = z.object({
 
 export const classGroupSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  student_count: z.coerce
-    .number()
-    .int('Must be a whole number')
-    .min(0, 'Cannot be negative')
-    .nullable()
-    .optional(),
+  // FIXED: Changed from z.coerce.number() to a simpler number schema.
+  student_count: z.number().int().min(0, 'Cannot be negative').nullable().optional(),
   code: z.string().max(10, 'Cannot exceed 10 characters').nullable().optional(),
   color: hexColorSchema,
 });
 
 export const classroomSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  capacity: z.coerce
-    .number()
-    .int('Must be a whole number')
-    .min(0, 'Cannot be negative')
-    .nullable()
-    .optional(),
+  // FIXED: Changed from z.coerce.number() to a simpler number schema.
+  capacity: z.number().int().min(0, 'Cannot be negative').nullable().optional(),
   code: z.string().max(10, 'Cannot exceed 10 characters').nullable().optional(),
   color: hexColorSchema,
 });
