@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { InstructorFields, InstructorCard } from './components';
+import { InstructorFields, InstructorCard } from './components/instructor';
 import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Instructor } from '../types';
@@ -35,14 +35,28 @@ const InstructorManagement: React.FC = () => {
 
   const formMethods = useForm<InstructorFormData>({
     resolver: zodResolver(componentSchemas.instructor),
-    defaultValues: { first_name: '', last_name: '', color: '#6B7280' },
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      color: '#6B7280',
+      prefix: '',
+      suffix: '',
+      title: '',
+      code: '',
+      contract_type: '',
+      email: '',
+      phone: '',
+    },
   });
 
   useEffect(() => {
     if (editingInstructor) {
-      formMethods.reset(editingInstructor);
+      formMethods.reset({
+        ...editingInstructor,
+        last_name: editingInstructor.last_name ?? '', // Ensure last_name is not null for the form
+      });
     } else {
-      formMethods.reset({ first_name: '', last_name: '', color: '#6B7280' });
+      formMethods.reset();
     }
   }, [editingInstructor, formMethods]);
 

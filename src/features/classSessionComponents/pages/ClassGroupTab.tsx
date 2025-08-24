@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+// Import UseFormReturn to explicitly type the form methods
+import { useForm, FormProvider, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { ClassGroupFields, ClassGroupCard } from './components';
+import { ClassGroupFields, ClassGroupCard } from './components/classGroup';
 import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { ClassGroup } from '../types';
@@ -33,7 +34,8 @@ const ClassGroupManagement: React.FC = () => {
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<ClassGroup | null>(null);
 
-  const formMethods = useForm<ClassGroupFormData>({
+  // FIXED: Explicitly type the `formMethods` constant.
+  const formMethods: UseFormReturn<ClassGroupFormData> = useForm<ClassGroupFormData>({
     resolver: zodResolver(componentSchemas.classGroup),
     defaultValues: { name: '', code: '', student_count: 0, color: '#6B7280' },
   });

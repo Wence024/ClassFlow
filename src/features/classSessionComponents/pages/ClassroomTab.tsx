@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassrooms } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { ClassroomFields, ClassroomCard } from './components';
+import { ClassroomFields, ClassroomCard } from './components/classroom';
 import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Classroom } from '../types';
@@ -33,7 +33,8 @@ const ClassroomManagement: React.FC = () => {
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
 
-  const formMethods = useForm<ClassroomFormData>({
+  // FIXED: Explicitly type the `formMethods` constant.
+  const formMethods: UseFormReturn<ClassroomFormData> = useForm<ClassroomFormData>({
     resolver: zodResolver(componentSchemas.classroom),
     defaultValues: { name: '', code: '', capacity: 0, color: '#6B7280' },
   });
