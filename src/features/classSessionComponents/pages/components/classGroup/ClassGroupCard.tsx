@@ -1,6 +1,6 @@
 import React from 'react';
-import { ItemCard } from '../../../../components/ui';
-import type { ClassGroup } from '../../types';
+import { ItemCard } from '../../../../../components/ui';
+import type { ClassGroup } from '../../../types';
 
 interface ClassGroupCardProps {
   classGroup: ClassGroup;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ItemCard } from '../../../../components/ui';
-import type { Course } from '../../types';
+import { ItemCard } from '../../../../../components/ui';
+import type { Course } from '../../../types';
 
 /**
  * Props for the CourseCard component.
