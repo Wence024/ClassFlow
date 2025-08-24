@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassrooms } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { ComponentList, ComponentForm } from './components';
-import { LoadingSpinner, ErrorMessage, ConfirmModal } from '../../../components/ui';
+import { ClassroomFields, ClassroomCard } from './components';
+import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
+import { componentSchemas } from '../types/validation';
+import type { Classroom } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
-import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
+
+type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
 
 /**
- * A component that provides the UI for managing Classrooms.
- *
- * This component uses a two-column layout on desktop and a single-column on mobile.
- *
- * This component handles all CRUD operations for classrooms, including a confirmation
- * step for deletion.
+ * Renders the UI for managing Classrooms.
+ * Orchestrates the `useClassrooms` hook with the `ClassroomFields` form and `ClassroomCard` list.
  */
 const ClassroomManagement: React.FC = () => {
+  const { user } = useAuth();
   const {
     classrooms,
     addClassroom,
@@ -29,44 +33,48 @@ const ClassroomManagement: React.FC = () => {
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
 
-  /** Handles adding a new classroom. */
-  const handleAdd = async (data: ClassroomInsert | ClassroomUpdate) => {
-    await addClassroom(data as ClassroomInsert);
+  const formMethods = useForm<ClassroomFormData>({
+    resolver: zodResolver(componentSchemas.classroom),
+    defaultValues: { name: '', code: '', capacity: 0, color: '#6B7280' },
+  });
+
+  useEffect(() => {
+    if (editingClassroom) {
+      formMethods.reset(editingClassroom);
+    } else {
+      formMethods.reset({ name: '', code: '', capacity: 0, color: '#6B7280' });
+    }
+  }, [editingClassroom, formMethods]);
+
+  const handleAdd = async (data: ClassroomFormData) => {
+    if (!user) return;
+    await addClassroom({ ...data, user_id: user.id });
+    formMethods.reset();
     showNotification('Classroom created successfully!');
   };
 
-  /** Sets a classroom into the form for editing. */
-  const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
-
-  /** Handles saving changes to an existing classroom. */
-  const handleSave = async (data: ClassroomInsert | ClassroomUpdate) => {
+  const handleSave = async (data: ClassroomFormData) => {
     if (!editingClassroom) return;
-    await updateClassroom(editingClassroom.id, data as ClassroomUpdate);
+    await updateClassroom(editingClassroom.id, data);
     setEditingClassroom(null);
     showNotification('Classroom updated successfully!');
   };
 
-  /** Opens the delete confirmation modal for the selected classroom. */
-  const handleDeleteRequest = (id: string) => {
-    const classroom = classrooms.find((c) => c.id === id);
-    if (classroom) {
-      setClassroomToDelete(classroom);
-    }
-  };
+  const handleCancel = () => setEditingClassroom(null);
+  const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
+  const handleDeleteRequest = (id: string) =>
+    setClassroomToDelete(classrooms.find((c) => c.id === id) || null);
 
-  /** Executes the deletion after confirmation. */
   const handleConfirmDelete = async () => {
     if (!classroomToDelete) return;
-
     const isUsed = classSessions.some((session) => session.classroom?.id === classroomToDelete.id);
     if (isUsed) {
       showNotification(
-        `Cannot delete "${classroomToDelete.name}". It is currently used in one or more classes.`
+        `Cannot delete "${classroomToDelete.name}". It is used in one or more classes.`
       );
       setClassroomToDelete(null);
       return;
     }
-
     await removeClassroom(classroomToDelete.id);
     showNotification('Classroom removed successfully.');
     setClassroomToDelete(null);
@@ -75,37 +83,62 @@ const ClassroomManagement: React.FC = () => {
     }
   };
 
-  /** Clears the form and cancels editing. */
-  const handleCancel = () => setEditingClassroom(null);
-
   return (
     <>
       <div className="flex flex-col md:flex-row-reverse gap-8">
         <div className="w-full md:w-96">
-          <ComponentForm
-            type="classroom"
-            editingItem={editingClassroom}
-            onCancel={editingClassroom ? handleCancel : undefined}
-            onSubmit={editingClassroom ? handleSave : handleAdd}
-            loading={isSubmitting}
-          />
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {editingClassroom ? 'Edit Classroom' : 'Create Classroom'}
+            </h2>
+            <FormProvider {...formMethods}>
+              <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
+                <fieldset disabled={isSubmitting} className="space-y-1">
+                  <ClassroomFields
+                    control={formMethods.control}
+                    errors={formMethods.formState.errors}
+                  />
+                  <div className="flex gap-2 pt-4">
+                    <ActionButton type="submit" loading={isSubmitting} className="flex-1">
+                      {editingClassroom ? 'Save Changes' : 'Create'}
+                    </ActionButton>
+                    {editingClassroom && (
+                      <ActionButton type="button" variant="secondary" onClick={handleCancel}>
+                        Cancel
+                      </ActionButton>
+                    )}
+                  </div>
+                </fieldset>
+              </form>
+            </FormProvider>
+          </div>
         </div>
-
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
           {isLoading && <LoadingSpinner text="Loading classrooms..." />}
           {error && <ErrorMessage message={error} />}
           {!isLoading && !error && (
-            <ComponentList<Classroom>
-              items={classrooms}
-              onEdit={handleEdit}
-              onDelete={handleDeleteRequest}
-              emptyMessage="No classrooms created yet."
-            />
+            <>
+              {classrooms.length === 0 ? (
+                <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500">No classrooms created yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {classrooms.map((classroom) => (
+                    <ClassroomCard
+                      key={classroom.id}
+                      classroom={classroom}
+                      onEdit={handleEdit}
+                      onDelete={handleDeleteRequest}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
-
       <ConfirmModal
         isOpen={!!classroomToDelete}
         title="Confirm Deletion"
@@ -114,8 +147,7 @@ const ClassroomManagement: React.FC = () => {
         isLoading={isRemoving}
         confirmText="Delete"
       >
-        Are you sure you want to delete the classroom "{classroomToDelete?.name}"? This action
-        cannot be undone.
+        Are you sure you want to delete the classroom "{classroomToDelete?.name}"?
       </ConfirmModal>
     </>
   );

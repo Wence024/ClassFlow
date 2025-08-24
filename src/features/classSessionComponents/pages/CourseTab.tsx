@@ -1,126 +1,154 @@
-import React, { useState } from 'react';
-import { useCourses } from '../hooks';
+import React, { useState, useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useAuth } from '../../auth/hooks/useAuth';
+import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { ComponentList, ComponentForm } from './components';
-import { LoadingSpinner, ErrorMessage, ConfirmModal } from '../../../components/ui';
+import { ClassGroupFields, ClassGroupCard } from './components';
+import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
+import { componentSchemas } from '../types/validation';
+import type { ClassGroup } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
-import type { Course, CourseInsert, CourseUpdate } from '../types/course';
+
+type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;
 
 /**
- * A component that provides the UI for managing Courses.
- *
- * This component uses a two-column layout on desktop and a single-column on mobile.
- * It handles all CRUD operations for courses, including a confirmation step for deletion.
+ * Renders the UI for managing Class Groups.
+ * Orchestrates the `useClassGroups` hook with the `ClassGroupFields` form and `ClassGroupCard` list.
  */
-const CourseManagement: React.FC = () => {
+const ClassGroupManagement: React.FC = () => {
+  const { user } = useAuth();
   const {
-    courses,
-    addCourse,
-    updateCourse,
-    removeCourse,
+    classGroups,
+    addClassGroup,
+    updateClassGroup,
+    removeClassGroup,
     isLoading,
     isSubmitting,
     isRemoving,
     error,
-  } = useCourses();
+  } = useClassGroups();
   const { classSessions } = useClassSessions();
-  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  /** State to manage the course targeted for deletion and control the confirmation modal. */
-  const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+  const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<ClassGroup | null>(null);
 
-  /** Handles adding a new course. */
-  const handleAdd = async (data: CourseInsert | CourseUpdate) => {
-    await addCourse(data as CourseInsert);
-    showNotification('Course created successfully!');
-  };
+  const formMethods = useForm<ClassGroupFormData>({
+    resolver: zodResolver(componentSchemas.classGroup),
+    defaultValues: { name: '', code: '', student_count: 0, color: '#6B7280' },
+  });
 
-  /** Sets a course into the form for editing. */
-  const handleEdit = (course: Course) => setEditingCourse(course);
-
-  /** Handles saving changes to an existing course. */
-  const handleSave = async (data: CourseInsert | CourseUpdate) => {
-    if (!editingCourse) return;
-    await updateCourse(editingCourse.id, data as CourseUpdate);
-    setEditingCourse(null);
-    showNotification('Course updated successfully!');
-  };
-
-  /** Opens the delete confirmation modal for the selected course. */
-  const handleDeleteRequest = (id: string) => {
-    const course = courses.find((c) => c.id === id);
-    if (course) {
-      setCourseToDelete(course);
+  useEffect(() => {
+    if (editingGroup) {
+      formMethods.reset(editingGroup);
+    } else {
+      formMethods.reset({ name: '', code: '', student_count: 0, color: '#6B7280' });
     }
+  }, [editingGroup, formMethods]);
+
+  const handleAdd = async (data: ClassGroupFormData) => {
+    if (!user) return;
+    await addClassGroup({ ...data, user_id: user.id });
+    formMethods.reset();
+    showNotification('Class group created successfully!');
   };
 
-  /** Executes the deletion after confirmation. */
-  const handleConfirmDelete = async () => {
-    if (!courseToDelete) return;
+  const handleSave = async (data: ClassGroupFormData) => {
+    if (!editingGroup) return;
+    await updateClassGroup(editingGroup.id, data);
+    setEditingGroup(null);
+    showNotification('Class group updated successfully!');
+  };
 
-    const isUsed = classSessions.some((session) => session.course?.id === courseToDelete.id);
+  const handleCancel = () => setEditingGroup(null);
+  const handleEdit = (group: ClassGroup) => setEditingGroup(group);
+  const handleDeleteRequest = (id: string) =>
+    setGroupToDelete(classGroups.find((g) => g.id === id) || null);
+
+  const handleConfirmDelete = async () => {
+    if (!groupToDelete) return;
+    const isUsed = classSessions.some((session) => session.group?.id === groupToDelete.id);
     if (isUsed) {
-      showNotification(
-        `Cannot delete "${courseToDelete.name}". It is currently used in one or more classes.`
-      );
-      setCourseToDelete(null); // Close the modal
+      showNotification(`Cannot delete "${groupToDelete.name}". It is used in one or more classes.`);
+      setGroupToDelete(null);
       return;
     }
-
-    await removeCourse(courseToDelete.id);
-    showNotification('Course removed successfully.');
-    setCourseToDelete(null); // Close the modal
-    if (editingCourse?.id === courseToDelete.id) {
-      setEditingCourse(null); // Clear form if the deleted item was being edited.
+    await removeClassGroup(groupToDelete.id);
+    showNotification('Class group removed successfully.');
+    setGroupToDelete(null);
+    if (editingGroup?.id === groupToDelete.id) {
+      setEditingGroup(null);
     }
   };
-
-  /** Clears the form and cancels editing. */
-  const handleCancel = () => setEditingCourse(null);
 
   return (
     <>
       <div className="flex flex-col md:flex-row-reverse gap-8">
-        {/* Form Section */}
         <div className="w-full md:w-96">
-          <ComponentForm
-            type="course"
-            editingItem={editingCourse}
-            onCancel={editingCourse ? handleCancel : undefined}
-            onSubmit={editingCourse ? handleSave : handleAdd}
-            loading={isSubmitting}
-          />
+          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              {editingGroup ? 'Edit Class Group' : 'Create Class Group'}
+            </h2>
+            <FormProvider {...formMethods}>
+              <form onSubmit={formMethods.handleSubmit(editingGroup ? handleSave : handleAdd)}>
+                <fieldset disabled={isSubmitting} className="space-y-1">
+                  <ClassGroupFields
+                    control={formMethods.control}
+                    errors={formMethods.formState.errors}
+                  />
+                  <div className="flex gap-2 pt-4">
+                    <ActionButton type="submit" loading={isSubmitting} className="flex-1">
+                      {editingGroup ? 'Save Changes' : 'Create'}
+                    </ActionButton>
+                    {editingGroup && (
+                      <ActionButton type="button" variant="secondary" onClick={handleCancel}>
+                        Cancel
+                      </ActionButton>
+                    )}
+                  </div>
+                </fieldset>
+              </form>
+            </FormProvider>
+          </div>
         </div>
-
-        {/* List Section */}
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-semibold mb-4">Courses</h2>
-          {isLoading && <LoadingSpinner text="Loading courses..." />}
+          <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
+          {isLoading && <LoadingSpinner text="Loading class groups..." />}
           {error && <ErrorMessage message={error} />}
           {!isLoading && !error && (
-            <ComponentList<Course>
-              items={courses}
-              onEdit={handleEdit}
-              onDelete={handleDeleteRequest}
-              emptyMessage="No courses created yet."
-            />
+            <>
+              {classGroups.length === 0 ? (
+                <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-500">No class groups created yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {classGroups.map((group) => (
+                    <ClassGroupCard
+                      key={group.id}
+                      classGroup={group}
+                      onEdit={handleEdit}
+                      onDelete={handleDeleteRequest}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
-
-      {/* Confirmation Modal */}
       <ConfirmModal
-        isOpen={!!courseToDelete}
+        isOpen={!!groupToDelete}
         title="Confirm Deletion"
-        onClose={() => setCourseToDelete(null)}
+        onClose={() => setGroupToDelete(null)}
         onConfirm={handleConfirmDelete}
         isLoading={isRemoving}
         confirmText="Delete"
       >
-        Are you sure you want to delete the course "{courseToDelete?.name}"? This action cannot be
-        undone.
+        Are you sure you want to delete the class group "{groupToDelete?.name}"?
       </ConfirmModal>
     </>
   );
 };
 
-export default CourseManagement;
+export default ClassGroupManagement;
