@@ -96,7 +96,9 @@ const Timetable: React.FC<TimetableProps> = ({
     <>
       <p className="font-bold text-sm">{session.course.name}</p>
       <p className="text-gray-300">{session.course.code}</p>
-      <p className="mt-1">Instructor: {session.instructor.name}</p>
+      <p className="mt-1">
+        Instructor: {session.instructor.first_name} {session.instructor.last_name}
+      </p>
       <p>Classroom: {session.classroom.name}</p>
       <p>Group: {session.group.name}</p>
     </>
@@ -169,7 +171,7 @@ const Timetable: React.FC<TimetableProps> = ({
                     if (renderedPeriods.has(periodIndex)) return null;
 
                     const classSession = timetable.get(group.id)?.[periodIndex] || null;
-                    const numberOfPeriods = classSession?.course.number_of_periods || 1;
+                    const numberOfPeriods = classSession?.period_count || 1;
 
                     if (classSession) {
                       for (let i = 1; i < numberOfPeriods; i++)

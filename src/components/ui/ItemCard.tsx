@@ -2,10 +2,7 @@ import React from 'react';
 import { Edit, Trash2 } from 'lucide-react'; // Optional: for better button visuals
 import ActionButton from './ActionButton';
 
-/**
- * Represents a key-value pair to be displayed as a detail line in the card.
- * The value can be a string or a number for flexibility.
- */
+/** Represents a key-value pair for display. */
 interface CardDetail {
   /** The label for the detail (e.g., "Instructor"). */
   label: string;
@@ -13,9 +10,7 @@ interface CardDetail {
   value: string | number;
 }
 
-/**
- * Props for the ItemCard component.
- */
+/** Props for the ItemCard component. */
 interface ItemCardProps {
   /** The main title of the card. */
   title: string;
@@ -39,11 +34,7 @@ interface ItemCardProps {
   className?: string;
 }
 
-/**
- * A highly reusable, presentation-only card component for displaying item information.
- * It is completely decoupled from any specific data model and is configured via props.
- * It handles its own layout, including title, details, action buttons, and an optional color swatch.
- */
+/** A highly reusable, presentation-only card for displaying item information. */
 const ItemCard: React.FC<ItemCardProps> = ({
   title,
   subtitle,
@@ -57,10 +48,11 @@ const ItemCard: React.FC<ItemCardProps> = ({
     <div
       className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center gap-4 ${className}`}
     >
-      {/* Optional Color Bar */}
+      {/* THIS IS THE NEW PART: Render a color swatch if a color is provided */}
       {color && (
         <div
-          className={`w-1.5 h-12 rounded-full bg-${color}`}
+          className="w-1.5 h-12 rounded-full"
+          style={{ backgroundColor: color }}
           aria-label={`Color swatch ${color}`}
         />
       )}

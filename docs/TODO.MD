@@ -45,6 +45,18 @@ This new list merges duplicates, removes tasks that are already completed by you
           c. teacher's contract (flexible/free-form) in a single line;
           d. email; phone;
           e. title; prefix and suffix for name (not strictly profession but can be for now)
+    * Encountered problems:
+        * [ ] UX: Course form is disorganized linearly.
+        * [ ] UX: Missing search and filter.
+        * [ x] UX: Color isn't showing.
+        * [ ] FormFields: Assess react-hook-forms usage (e.g., Controller/FormFields repeated usage) if optimal.
+        * [ ] Make color generate randomly initially for class session components.
+        * [ ] Remove color appearance in classSession cards.
+    * Finishing touches:
+        * [ ] Check doc comments
+        * [ ] Write test files
+        * [ ] Centralize error handling.
+        * [ ] Update documentation
 
 2. **[Logic] Implement Advanced Conflict Detection**
     * **Task:** `Conflict: Implement advanced conflict detection logic`
