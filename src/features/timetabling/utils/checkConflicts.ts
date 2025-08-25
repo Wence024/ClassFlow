@@ -34,8 +34,7 @@ export default function checkConflicts(
   targetPeriodIndex: number,
   source?: { class_group_id: string; period_index: number }
 ): string {
-  const { course } = classSessionToCheck;
-  const numberOfPeriods = course.number_of_periods || 1;
+  const numberOfPeriods = classSessionToCheck.period_count || 1;
   const periodsPerDay = settings.periods_per_day;
 
   // Iterate through each period the new session would occupy.
@@ -85,7 +84,7 @@ export default function checkConflicts(
 
         // Check for instructor conflict.
         if (existingClassSession.instructor.id === classSessionToCheck.instructor.id) {
-          return `Instructor conflict: ${existingClassSession.instructor.name} is already scheduled in this period for group ${existingClassSession.group.name}.`;
+          return `Instructor conflict: ${existingClassSession.instructor.first_name} is already scheduled in this period for group ${existingClassSession.group.name}.`;
         }
         // Check for classroom conflict.
         if (existingClassSession.classroom.id === classSessionToCheck.classroom.id) {

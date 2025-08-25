@@ -35,7 +35,6 @@ export const instructorSchema = z.object({
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
   prefix: z.string().nullable().optional(),
-  title: z.string().nullable().optional(),
   suffix: z.string().nullable().optional(),
   code: z.string().max(10, 'Cannot exceed 10 characters').nullable().optional(),
   contract_type: z.string().nullable().optional(),
