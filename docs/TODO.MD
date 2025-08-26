@@ -46,13 +46,14 @@ This new list merges duplicates, removes tasks that are already completed by you
           d. email; phone;
           e. title; prefix and suffix for name (not strictly profession but can be for now)
     * Encountered problems:
-        * [ ] UX: Course form is disorganized linearly.
-        * [ ] UX: Missing search and filter.
+        * [x] UX: Course form is still disorganized linearly, but adjusted for instructors.
+        * [x] UX: Dearch and filter.
         * [x] UX: Color isn't showing.
-        * [ ] FormFields: Assess react-hook-forms usage (e.g., Controller/FormFields repeated usage) if optimal.
+        * [x] ~~FormFields: Assess react-hook-forms usage (e.g., Controller/FormFields repeated usage) if optimal.~~
         * [ ] Make color generate randomly initially for class session components.
-        * [ ] Remove color appearance in classSession cards.
-        * [ ] Data model: remove "title" from instructors
+        * [x] Color shows in component forms
+          * [ ] Instruc not show in class sessions.
+        * [x] Data model: remove "title" from instructors
     * Finishing touches:
         * [ ] Check doc comments
         * [ ] Write test files
@@ -146,6 +147,8 @@ Other tasks:
   * and link to class sessions/periods
 * [ ] Allow classrooms and instructors to be optional in class sessions.
 * [ ] Add tooltips and placeholder hints for component form fields.
+* [ ] Postpone dealing with linear monotonous style
+* [ ] Show assigned instructor Color shows in timetable class session box
 
 AI-recommended tasks:
 

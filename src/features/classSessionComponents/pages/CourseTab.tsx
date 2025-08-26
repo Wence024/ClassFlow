@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,7 +6,13 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { useCourses } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { CourseFields, CourseCard } from './components/course';
-import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
+import {
+  ActionButton,
+  ConfirmModal,
+  ErrorMessage,
+  FormField,
+  LoadingSpinner,
+} from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Course } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
@@ -33,6 +39,7 @@ const CourseManagement: React.FC = () => {
   const { classSessions } = useClassSessions();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
+  const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
 
   const formMethods = useForm<CourseFormData>({
     resolver: zodResolver(componentSchemas.course),
@@ -46,6 +53,16 @@ const CourseManagement: React.FC = () => {
       formMethods.reset({ name: '', code: '', color: '#6B7280' });
     }
   }, [editingCourse, formMethods]);
+
+  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  const filteredCourses = useMemo(() => {
+    if (!searchTerm) return courses;
+    return courses.filter(
+      (course) =>
+        course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.code.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [courses, searchTerm]);
 
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
@@ -116,17 +133,32 @@ const CourseManagement: React.FC = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Courses</h2>
+
+          {/* NEW: Search input */}
+          <div className="mb-4">
+            <FormField
+              id="search-courses"
+              label="Search Courses"
+              placeholder="Search by name or code..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
+
           {isLoading && <LoadingSpinner text="Loading courses..." />}
           {error && <ErrorMessage message={error} />}
           {!isLoading && !error && (
             <>
-              {courses.length === 0 ? (
+              {/* Use the filtered list for rendering */}
+              {filteredCourses.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
-                  <p className="text-gray-500">No courses created yet.</p>
+                  <p className="text-gray-500">
+                    {searchTerm ? 'No courses match your search.' : 'No courses created yet.'}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {courses.map((course) => (
+                  {filteredCourses.map((course) => (
                     <CourseCard
                       key={course.id}
                       course={course}

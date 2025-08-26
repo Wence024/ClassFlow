@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,7 +6,13 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ClassGroupFields, ClassGroupCard } from './components/classGroup';
-import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
+import {
+  ActionButton,
+  ConfirmModal,
+  ErrorMessage,
+  FormField,
+  LoadingSpinner,
+} from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { ClassGroup } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
@@ -32,6 +38,7 @@ const ClassGroupManagement: React.FC = () => {
   const { classSessions } = useClassSessions();
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<ClassGroup | null>(null);
+  const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
 
   // The hook can now correctly infer the type without extra help
   const formMethods = useForm<ClassGroupFormData>({
@@ -50,6 +57,16 @@ const ClassGroupManagement: React.FC = () => {
       formMethods.reset({ name: '', code: '', student_count: 0, color: '#6B7280' });
     }
   }, [editingGroup, formMethods]);
+
+  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  const filteredClassGroups = useMemo(() => {
+    if (!searchTerm) return classGroups;
+    return classGroups.filter(
+      (classGroup) =>
+        classGroup.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classGroup.code?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [classGroups, searchTerm]);
 
   const handleAdd = async (data: ClassGroupFormData) => {
     if (!user) return;
@@ -118,17 +135,30 @@ const ClassGroupManagement: React.FC = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Class Groups</h2>
+
+          {/* NEW: Search input */}
+          <div className="mb-4">
+            <FormField
+              id="search-class-groups"
+              label="Search Class Groups"
+              placeholder="Search by name or code..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
+
           {isLoading && <LoadingSpinner text="Loading class groups..." />}
           {error && <ErrorMessage message={error} />}
           {!isLoading && !error && (
             <>
-              {classGroups.length === 0 ? (
+              {/* Use the filtered list for rendering */}
+              {filteredClassGroups.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
                   <p className="text-gray-500">No class groups created yet.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {classGroups.map((group) => (
+                  {filteredClassGroups.map((group) => (
                     <ClassGroupCard
                       key={group.id}
                       classGroup={group}

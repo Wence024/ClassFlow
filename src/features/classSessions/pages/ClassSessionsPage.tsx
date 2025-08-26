@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 // Import hooks from react-hook-form
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,7 +23,7 @@ import type { ClassSession } from '../types/classSession';
 // FIXED: Import the schema from its correct, new location
 import { classSessionSchema } from '../types/validation';
 // Import all necessary UI components
-import { LoadingSpinner, ErrorMessage, ConfirmModal } from '../../../components/ui';
+import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 
 // Define the form data type directly from the Zod schema
@@ -54,6 +54,7 @@ const ClassSessionsPage: React.FC = () => {
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<ClassSession | null>(null);
+  const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
 
   // Form management is now handled here, at the page level
   const formMethods = useForm<ClassSessionFormData>({
@@ -88,6 +89,18 @@ const ClassSessionsPage: React.FC = () => {
       });
     }
   }, [editingSession, formMethods]);
+
+  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  const filteredClassSessions = useMemo(() => {
+    if (!searchTerm) return classSessions;
+    return classSessions.filter(
+      (classSession) =>
+        classSession.course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classSession.course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classSession.group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classSession.course.code.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [classSessions, searchTerm]);
 
   const handleAdd = async (data: ClassSessionFormData) => {
     if (!user) return;
@@ -146,17 +159,30 @@ const ClassSessionsPage: React.FC = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-bold mb-6">Classes</h1>
+
+          {/* NEW: Search input */}
+          <div className="mb-4">
+            <FormField
+              id="search-classSessions"
+              label="Search Classes"
+              placeholder="Search by course or class group..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
+
           {isDataLoading && <LoadingSpinner text="Loading classes..." />}
           {error && <ErrorMessage message={error} />}
           {!isDataLoading && !error && (
             <>
-              {classSessions.length === 0 ? (
+              {/* Use the filtered list for rendering */}
+              {filteredClassSessions.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
                   <p className="text-gray-500">No classes created yet.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {classSessions.map((session) => (
+                  {filteredClassSessions.map((session) => (
                     <ClassSessionCard
                       key={session.id}
                       classSession={session}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 // No longer need UseFormReturn
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -7,7 +7,13 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassrooms } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
-import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
+import {
+  ActionButton,
+  ConfirmModal,
+  ErrorMessage,
+  FormField,
+  LoadingSpinner,
+} from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Classroom } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
@@ -33,6 +39,7 @@ const ClassroomManagement: React.FC = () => {
   const { classSessions } = useClassSessions();
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
+  const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
 
   // The hook can now correctly infer the type without extra help
   const formMethods = useForm<ClassroomFormData>({
@@ -51,6 +58,16 @@ const ClassroomManagement: React.FC = () => {
       formMethods.reset({ name: '', code: '', capacity: 0, color: '#6B7280' });
     }
   }, [editingClassroom, formMethods]);
+
+  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  const filteredClassrooms = useMemo(() => {
+    if (!searchTerm) return classrooms;
+    return classrooms.filter(
+      (classroom) =>
+        classroom.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classroom.code?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [classrooms, searchTerm]);
 
   const handleAdd = async (data: ClassroomFormData) => {
     if (!user) return;
@@ -121,17 +138,30 @@ const ClassroomManagement: React.FC = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
+
+          {/* NEW: Search input */}
+          <div className="mb-4">
+            <FormField
+              id="search-classrooms"
+              label="Search Classrooms"
+              placeholder="Search by name or code..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
+
           {isLoading && <LoadingSpinner text="Loading classrooms..." />}
           {error && <ErrorMessage message={error} />}
           {!isLoading && !error && (
             <>
-              {classrooms.length === 0 ? (
+              {filteredClassrooms.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
                   <p className="text-gray-500">No classrooms created yet.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {classrooms.map((classroom) => (
+                  {/* Use the filtered list for rendering */}
+                  {filteredClassrooms.map((classroom) => (
                     <ClassroomCard
                       key={classroom.id}
                       classroom={classroom}

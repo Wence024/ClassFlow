@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,7 +6,13 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { useInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { InstructorFields, InstructorCard } from './components/instructor';
-import { ActionButton, ConfirmModal, ErrorMessage, LoadingSpinner } from '../../../components/ui';
+import {
+  ActionButton,
+  ConfirmModal,
+  ErrorMessage,
+  FormField,
+  LoadingSpinner,
+} from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Instructor } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
@@ -33,6 +39,7 @@ const InstructorManagement: React.FC = () => {
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
+  const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
 
   const formMethods = useForm<InstructorFormData>({
     resolver: zodResolver(componentSchemas.instructor),
@@ -42,7 +49,6 @@ const InstructorManagement: React.FC = () => {
       color: '#6B7280',
       prefix: '',
       suffix: '',
-      title: '',
       code: '',
       contract_type: '',
       email: '',
@@ -60,6 +66,17 @@ const InstructorManagement: React.FC = () => {
       formMethods.reset();
     }
   }, [editingInstructor, formMethods]);
+
+  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  const filteredInstructors = useMemo(() => {
+    if (!searchTerm) return instructors;
+    return instructors.filter(
+      (instructor) =>
+        instructor.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        instructor.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        instructor.code?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [instructors, searchTerm]);
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
@@ -132,17 +149,30 @@ const InstructorManagement: React.FC = () => {
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Instructors</h2>
+
+          {/* NEW: Search input */}
+          <div className="mb-4">
+            <FormField
+              id="search-instructors"
+              label="Search Instructors"
+              placeholder="Search by name or code..."
+              value={searchTerm}
+              onChange={setSearchTerm}
+            />
+          </div>
+
           {isLoading && <LoadingSpinner text="Loading instructors..." />}
           {error && <ErrorMessage message={error} />}
           {!isLoading && !error && (
             <>
-              {instructors.length === 0 ? (
+              {/* Use the filtered list for rendering */}
+              {filteredInstructors.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-gray-50 rounded-lg">
                   <p className="text-gray-500">No instructors created yet.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {instructors.map((instructor) => (
+                  {filteredInstructors.map((instructor) => (
                     <InstructorCard
                       key={instructor.id}
                       instructor={instructor}
