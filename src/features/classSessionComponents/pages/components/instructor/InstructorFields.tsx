@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useFormContext, type Control, type FieldErrors } from 'react-hook-form';
 import { z } from 'zod';
-import { FormField } from '../../../../../components/ui';
+import { ColorPicker, FormField } from '../../../../../components/ui';
 import { componentSchemas } from '../../../types/validation';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
@@ -176,12 +176,11 @@ export const InstructorFields: React.FC<{
           name="color"
           control={control}
           render={({ field }) => (
-            <FormField
-              {...field}
-              value={field.value ?? ''}
+            <ColorPicker
               id="color"
-              label="Color Assigned"
-              type="color"
+              label="Color"
+              value={field.value ?? '#FFFFFF'} // Provide a fallback for the value
+              onChange={field.onChange}
               error={errors.color?.message}
             />
           )}

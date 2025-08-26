@@ -1,6 +1,6 @@
 import { type Control, type FieldErrors, Controller } from 'react-hook-form';
 import type z from 'zod';
-import { FormField } from '../../../../../components/ui';
+import { ColorPicker, FormField } from '../../../../../components/ui';
 import type { componentSchemas } from '../../../types/validation';
 
 // Define the precise form data types from our Zod schemas
@@ -63,12 +63,11 @@ export const ClassroomFields: React.FC<{
       name="color"
       control={control}
       render={({ field }) => (
-        <FormField
-          {...field}
-          value={field.value ?? ''}
+        <ColorPicker
           id="color"
           label="Color"
-          type="color"
+          value={field.value ?? '#FFFFFF'} // Provide a fallback for the value
+          onChange={field.onChange}
           error={errors.color?.message}
         />
       )}

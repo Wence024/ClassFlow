@@ -50,7 +50,7 @@ This new list merges duplicates, removes tasks that are already completed by you
         * [x] UX: Dearch and filter.
         * [x] UX: Color isn't showing.
         * [x] ~~FormFields: Assess react-hook-forms usage (e.g., Controller/FormFields repeated usage) if optimal.~~
-        * [ ] Make color generate randomly initially for class session components.
+        * [x] Make color generate randomly initially for class session components.
         * [x] Color shows in component forms
           * [ ] Instruc not show in class sessions.
         * [x] Data model: remove "title" from instructors

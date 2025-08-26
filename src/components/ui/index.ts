@@ -11,6 +11,7 @@
  */
 
 export { default as ActionButton } from './ActionButton';
+export { default as ColorPicker } from './ColorPicker';
 export { default as ConfirmModal } from './ConfirmModal';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ErrorMessage } from './ErrorMessage';
