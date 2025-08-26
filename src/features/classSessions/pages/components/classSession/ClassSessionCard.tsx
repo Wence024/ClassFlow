@@ -52,7 +52,7 @@ const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ classSession, onEdi
       title={`${classSession.course.name} - ${classSession.group.name}`}
       subtitle={`Course Code: ${classSession.course.code}`}
       details={details}
-      color={classSession.course.color} // Use the course color for the session card
+      color={classSession.instructor.color} // Use the instructor color for the session card
       onEdit={() => onEdit(classSession)}
       onDelete={() => onDelete(classSession.id)}
     />
