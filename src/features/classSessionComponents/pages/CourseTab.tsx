@@ -16,6 +16,7 @@ import {
 import { componentSchemas } from '../types/validation';
 import type { Course } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
+import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type CourseFormData = z.infer<typeof componentSchemas.course>;
 
@@ -40,19 +41,20 @@ const CourseManagement: React.FC = () => {
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
+  const [presetColor, setRandomPresetColor] = useState(getRandomPresetColor());
 
   const formMethods = useForm<CourseFormData>({
     resolver: zodResolver(componentSchemas.course),
-    defaultValues: { name: '', code: '', color: '#6B7280' },
+    defaultValues: { name: '', code: '', color: presetColor },
   });
 
   useEffect(() => {
     if (editingCourse) {
       formMethods.reset(editingCourse);
     } else {
-      formMethods.reset({ name: '', code: '', color: '#6B7280' });
+      formMethods.reset({ name: '', code: '', color: presetColor });
     }
-  }, [editingCourse, formMethods]);
+  }, [editingCourse, formMethods, presetColor]);
 
   // NEW: Memoize the filtered list to avoid re-calculating on every render
   const filteredCourses = useMemo(() => {
@@ -69,6 +71,7 @@ const CourseManagement: React.FC = () => {
     await addCourse({ ...data, user_id: user.id });
     formMethods.reset();
     showNotification('Course created successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
   const handleSave = async (data: CourseFormData) => {
@@ -76,9 +79,13 @@ const CourseManagement: React.FC = () => {
     await updateCourse(editingCourse.id, data);
     setEditingCourse(null);
     showNotification('Course updated successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
-  const handleCancel = () => setEditingCourse(null);
+  const handleCancel = () => {
+    setEditingCourse(null);
+    setRandomPresetColor(getRandomPresetColor());
+  };
   const handleEdit = (course: Course) => setEditingCourse(course);
   const handleDeleteRequest = (id: string) =>
     setCourseToDelete(courses.find((c) => c.id === id) || null);

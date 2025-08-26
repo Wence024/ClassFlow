@@ -16,6 +16,7 @@ import {
 import { componentSchemas } from '../types/validation';
 import type { Instructor } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
+import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 
@@ -40,13 +41,14 @@ const InstructorManagement: React.FC = () => {
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
+  const [presetColor, setRandomPresetColor] = useState(getRandomPresetColor());
 
   const formMethods = useForm<InstructorFormData>({
     resolver: zodResolver(componentSchemas.instructor),
     defaultValues: {
       first_name: '',
       last_name: '',
-      color: '#6B7280',
+      color: presetColor,
       prefix: '',
       suffix: '',
       code: '',
@@ -83,6 +85,7 @@ const InstructorManagement: React.FC = () => {
     await addInstructor({ ...data, user_id: user.id });
     formMethods.reset();
     showNotification('Instructor added successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
   const handleSave = async (data: InstructorFormData) => {
@@ -90,9 +93,13 @@ const InstructorManagement: React.FC = () => {
     await updateInstructor(editingInstructor.id, data);
     setEditingInstructor(null);
     showNotification('Instructor updated successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
-  const handleCancel = () => setEditingInstructor(null);
+  const handleCancel = () => {
+    setEditingInstructor(null);
+    setRandomPresetColor(getRandomPresetColor());
+  };
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
   const handleDeleteRequest = (id: string) =>
     setInstructorToDelete(instructors.find((i) => i.id === id) || null);

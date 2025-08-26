@@ -17,6 +17,7 @@ import {
 import { componentSchemas } from '../types/validation';
 import type { Classroom } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
+import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
 
@@ -40,11 +41,12 @@ const ClassroomManagement: React.FC = () => {
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
+  const [presetColor, setRandomPresetColor] = useState(getRandomPresetColor());
 
   // The hook can now correctly infer the type without extra help
   const formMethods = useForm<ClassroomFormData>({
     resolver: zodResolver(componentSchemas.classroom),
-    defaultValues: { name: '', code: '', capacity: 0, color: '#6B7280' },
+    defaultValues: { name: '', code: '', capacity: 0, color: presetColor },
   });
 
   useEffect(() => {
@@ -55,9 +57,9 @@ const ClassroomManagement: React.FC = () => {
         capacity: editingClassroom.capacity ?? 0,
       });
     } else {
-      formMethods.reset({ name: '', code: '', capacity: 0, color: '#6B7280' });
+      formMethods.reset({ name: '', code: '', capacity: 0, color: presetColor });
     }
-  }, [editingClassroom, formMethods]);
+  }, [editingClassroom, formMethods, presetColor]);
 
   // NEW: Memoize the filtered list to avoid re-calculating on every render
   const filteredClassrooms = useMemo(() => {
@@ -74,6 +76,7 @@ const ClassroomManagement: React.FC = () => {
     await addClassroom({ ...data, user_id: user.id });
     formMethods.reset();
     showNotification('Classroom created successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
   const handleSave = async (data: ClassroomFormData) => {
@@ -81,9 +84,13 @@ const ClassroomManagement: React.FC = () => {
     await updateClassroom(editingClassroom.id, data);
     setEditingClassroom(null);
     showNotification('Classroom updated successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
-  const handleCancel = () => setEditingClassroom(null);
+  const handleCancel = () => {
+    setEditingClassroom(null);
+    setRandomPresetColor(getRandomPresetColor());
+  };
   const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
   const handleDeleteRequest = (id: string) =>
     setClassroomToDelete(classrooms.find((c) => c.id === id) || null);

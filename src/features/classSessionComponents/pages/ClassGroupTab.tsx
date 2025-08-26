@@ -16,6 +16,7 @@ import {
 import { componentSchemas } from '../types/validation';
 import type { ClassGroup } from '../types';
 import { showNotification } from '../../../lib/notificationsService';
+import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;
 
@@ -39,11 +40,12 @@ const ClassGroupManagement: React.FC = () => {
   const [editingGroup, setEditingGroup] = useState<ClassGroup | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<ClassGroup | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
+  const [presetColor, setRandomPresetColor] = useState(getRandomPresetColor());
 
   // The hook can now correctly infer the type without extra help
   const formMethods = useForm<ClassGroupFormData>({
     resolver: zodResolver(componentSchemas.classGroup),
-    defaultValues: { name: '', code: '', student_count: 0, color: '#6B7280' },
+    defaultValues: { name: '', code: '', student_count: 0, color: presetColor },
   });
 
   useEffect(() => {
@@ -54,9 +56,9 @@ const ClassGroupManagement: React.FC = () => {
         student_count: editingGroup.student_count ?? 0,
       });
     } else {
-      formMethods.reset({ name: '', code: '', student_count: 0, color: '#6B7280' });
+      formMethods.reset({ name: '', code: '', student_count: 0, color: presetColor });
     }
-  }, [editingGroup, formMethods]);
+  }, [editingGroup, formMethods, presetColor]);
 
   // NEW: Memoize the filtered list to avoid re-calculating on every render
   const filteredClassGroups = useMemo(() => {
@@ -73,6 +75,7 @@ const ClassGroupManagement: React.FC = () => {
     await addClassGroup({ ...data, user_id: user.id });
     formMethods.reset();
     showNotification('Class group created successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
   const handleSave = async (data: ClassGroupFormData) => {
@@ -80,9 +83,13 @@ const ClassGroupManagement: React.FC = () => {
     await updateClassGroup(editingGroup.id, data);
     setEditingGroup(null);
     showNotification('Class group updated successfully!');
+    setRandomPresetColor(getRandomPresetColor());
   };
 
-  const handleCancel = () => setEditingGroup(null);
+  const handleCancel = () => {
+    setEditingGroup(null);
+    setRandomPresetColor(getRandomPresetColor());
+  };
   const handleEdit = (group: ClassGroup) => setEditingGroup(group);
   const handleDeleteRequest = (id: string) =>
     setGroupToDelete(classGroups.find((g) => g.id === id) || null);
