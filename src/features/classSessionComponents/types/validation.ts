@@ -1,3 +1,8 @@
+/**
+ * @file This file contains all Zod schemas for validating the forms used to
+ * create and update the core schedulable components (Courses, Instructors, etc.).
+ * It centralizes validation logic to ensure consistency across the application.
+ */
 import { z } from 'zod';
 
 // --- Reusable Schema Helpers ---

@@ -52,10 +52,10 @@ This new list merges duplicates, removes tasks that are already completed by you
         * [x] ~~FormFields: Assess react-hook-forms usage (e.g., Controller/FormFields repeated usage) if optimal.~~
         * [x] Make color generate randomly initially for class session components.
         * [x] Color shows in component forms
-          * [ ] Instruc not show in class sessions.
+          * [x] Instructor color shows in class sessions.
         * [x] Data model: remove "title" from instructors
     * Finishing touches:
-        * [ ] Check doc comments
+        * [x] Check doc comments
         * [ ] Write test files
         * [ ] Centralize error handling.
         * [ ] Update documentation
