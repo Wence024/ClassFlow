@@ -51,7 +51,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {/* THIS IS THE NEW PART: Render a color swatch if a color is provided */}
       {color && (
         <div
-          className="w-1.5 h-12 rounded-full"
+          className="w-2 h-8 rounded-lg"
           style={{ backgroundColor: color }}
           aria-label={`Color swatch ${color}`}
         />
