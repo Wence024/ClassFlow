@@ -5,8 +5,8 @@ export default mergeConfig(
   baseConfig,
   defineConfig({
     test: {
-      // This config includes ALL test files.
-      include: ['src/**/*.{test,integration.test}.{ts,tsx}'],
+      // This config ONLY includes unit tests.
+      include: ['src/**/*.test.{ts,tsx}'],
     },
   })
 );
