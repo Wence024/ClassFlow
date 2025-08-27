@@ -40,38 +40,35 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
     : 'border-gray-300 focus-within:ring-blue-400';
 
   return (
-    <div className={`mb-4 pt-3 ${className}`}>
+    <div className={`mb-4 ${className}`}>
       {/* This is the main, non-clickable label for the component */}
-      <label className="block font-semibold mb-1">{label}</label>
-
-      {/* This <label> IS the clickable button. It is associated with the hidden input via `htmlFor`. */}
-      <label
-        htmlFor={id}
-        className={`flex bg-[#222] items-center gap-3 p-2 border rounded-md cursor-pointer transition-shadow focus-within:ring-2 ${errorClasses}`}
-        aria-describedby={errorId}
-      >
-        {/* The visual swatch */}
-        <div
-          className="w-8 h-8 rounded-md border border-gray-600 flex-shrink-0 "
-          style={{ backgroundColor: value }}
-        />
-
-        {/* The text part of the clickable label */}
-        <span className="font-mono text-gray-200">{value.toUpperCase()}</span>
-
-        {/* The actual input, now functionally linked but visually hidden */}
-        <input
-          id={id}
-          type="color"
-          value={value}
-          // This combination of classes makes the input completely invisible
-          // and removes it from the layout flow, but keeps it functional for the label.
-          className="w-0 h-0 absolute opacity-0"
-          onChange={(e) => onChange(e.target.value)}
-        />
+      <label htmlFor={id} className="block font-semibold mb-1">
+        {label}
       </label>
 
-      {/* Error message display */}
+      {/* This second label remains as the large, clickable swatch area. */}
+      <label
+        htmlFor={id}
+        className={`flex items-center gap-3 p-2 border rounded-lg cursor-pointer transition-shadow focus-within:ring-2 ${errorClasses}`}
+      >
+        <div
+          className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
+          style={{ backgroundColor: value }}
+        />
+        <span className="font-mono text-gray-700">{value.toUpperCase()}</span>
+      </label>
+
+      {/* The input itself is hidden but now correctly associated with its visible text label. */}
+      <input
+        id={id}
+        type="color"
+        value={value}
+        className="w-0 h-0 absolute opacity-0"
+        onChange={(e) => onChange(e.target.value)}
+        // Associate the error message with the input for screen readers
+        aria-describedby={errorId}
+      />
+
       {error && (
         <p id={errorId} className="text-red-500 text-sm mt-1" role="alert">
           {error}
