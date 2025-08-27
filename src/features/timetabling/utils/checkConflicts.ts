@@ -4,27 +4,24 @@ import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 /**
  * A type representing the timetable's data structure.
  * It's a Map where keys are class group IDs and values are arrays representing periods.
- * The array contains either a `ClassSession` object or `null` for an empty slot.
  */
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
 /**
  * Checks for scheduling conflicts for a given class session at a target location in the timetable.
  *
- * This is a pure business logic function, free of UI or state management concerns. It can be reused
- * on the front-end for immediate user feedback or on a back-end for server-side validation.
- * It checks for three types of conflicts:
- * 1.  **Placement Conflicts:** Ensures a session doesn't extend beyond the timetable boundaries or span across multiple days.
- * 2.  **Group Conflicts:** Ensures the target group doesn't already have a session in any of the target periods.
- * 3.  **Resource Conflicts:** Ensures the session's assigned instructor and classroom are not already in use by any other group during any of the target periods.
+ * This pure function is the core of the scheduling validation logic. It checks for:
+ * 1.  **Boundary Conflicts:** Ensures a session doesn't extend beyond timetable limits or span across days.
+ * 2.  **Group Conflicts:** Ensures the target group's timeslot is free.
+ * 3.  **Resource Conflicts:** Ensures the session's instructor and classroom are not in use by any other group during the target timeslot.
  *
  * @param {TimetableGrid} timetable - The current state of the timetable grid.
  * @param {ClassSession} classSessionToCheck - The class session being placed or moved.
- * @param {ScheduleConfig} settings - The schedule configuration, providing rules like periods per day.
- * @param {string} targetGroupId - The ID of the class group (row) where the session is being placed.
+ * @param {ScheduleConfig} settings - The schedule configuration (periods per day, etc.).
+ * @param {string} targetGroupId - The ID of the class group (row) where the class session is being placed.
  * @param {number} targetPeriodIndex - The starting period index (column) for the placement.
- * @param {object} [source] - Optional. If the session is being *moved*, this object contains the original `class_group_id` and `period_index` to exclude from conflict checks.
- * @returns {string} An empty string if no conflicts are found, or a user-friendly error message describing the first conflict encountered.
+ * @param {object} [source] - Optional. If moving a class session, its original location is used to exclude the session from conflicting with itself.
+ * @returns {string} An empty string if no conflicts are found, or a user-friendly error message.
  */
 export default function checkConflicts(
   timetable: TimetableGrid,
@@ -36,59 +33,47 @@ export default function checkConflicts(
 ): string {
   const numberOfPeriods = classSessionToCheck.period_count || 1;
   const periodsPerDay = settings.periods_per_day;
+  const totalPeriods = settings.class_days_per_week * periodsPerDay;
 
-  // Iterate through each period the new session would occupy.
+  // --- 1. Boundary and Placement Pre-checks ---
+  if (targetPeriodIndex + numberOfPeriods > totalPeriods) {
+    return 'Placement conflict: Class extends beyond the available timetable days.';
+  }
+  const startDay = Math.floor(targetPeriodIndex / periodsPerDay);
+  const endDay = Math.floor((targetPeriodIndex + numberOfPeriods - 1) / periodsPerDay);
+  if (startDay !== endDay) {
+    return 'Placement conflict: Class cannot span across multiple days.';
+  }
+
+  // --- 2. Per-Period Conflict Loop ---
+  // Iterate through each period the new class session will occupy.
   for (let i = 0; i < numberOfPeriods; i++) {
     const currentPeriodIndex = targetPeriodIndex + i;
 
-    // --- BOUNDARY CHECKS ---
-    // Check if the session would extend beyond the total number of periods in the schedule.
-    if (currentPeriodIndex >= settings.class_days_per_week * periodsPerDay) {
-      return 'Placement conflict: Class extends beyond the available timetable days.';
+    // A. Check for conflicts within the target group's row
+    const classSessionAtTargetSlot = timetable.get(targetGroupId)?.[currentPeriodIndex];
+    if (classSessionAtTargetSlot && classSessionAtTargetSlot.id !== classSessionToCheck.id) {
+      return `Group conflict: ${classSessionAtTargetSlot.group.name} already has a class scheduled in this slot.`;
     }
 
-    // Check if the session would span across a day boundary.
-    const startDay = Math.floor(targetPeriodIndex / periodsPerDay);
-    const currentDay = Math.floor(currentPeriodIndex / periodsPerDay);
-    if (startDay !== currentDay) {
-      return 'Placement conflict: Class cannot span across multiple days.';
-    }
-
-    // --- CONFLICT CHECKS ---
-
-    // 1. Group Conflict Check: Is there already a session in the target cell for this group?
-    const targetGroupSessions = timetable.get(targetGroupId);
-    const isOccupied = !!targetGroupSessions?.[currentPeriodIndex];
-    const isNotSourceCell =
-      !source ||
-      targetGroupId !== source.class_group_id ||
-      currentPeriodIndex !== source.period_index;
-
-    if (isOccupied && isNotSourceCell) {
-      return `Group conflict: A class is already scheduled in this slot for ${classSessionToCheck.group.name}.`;
-    }
-
-    // 2. Resource Conflict Check: Iterate through all other groups at the same period.
+    // B. Check for resource conflicts across all other groups
     for (const [groupId, classSessions] of timetable.entries()) {
-      const existingClassSession = classSessions[currentPeriodIndex];
+      // No need to check the target group again
+      if (groupId === targetGroupId) continue;
 
-      if (existingClassSession) {
-        // Skip checking against the cell where the session is being moved FROM.
-        if (
-          source &&
-          groupId === source.class_group_id &&
-          currentPeriodIndex === source.period_index
-        ) {
-          continue;
+      const conflictingClassSession = classSessions[currentPeriodIndex];
+
+      // If there's a class session and it's not the one we're moving, check for conflicts.
+      if (conflictingClassSession && conflictingClassSession.id !== classSessionToCheck.id) {
+        // Check for instructor conflict
+        if (conflictingClassSession.instructor.id === classSessionToCheck.instructor.id) {
+          const instructorName = `${conflictingClassSession.instructor.first_name} ${conflictingClassSession.instructor.last_name}`;
+          return `Instructor conflict: ${instructorName} is already scheduled for ${conflictingClassSession.group.name} at this time.`;
         }
 
-        // Check for instructor conflict.
-        if (existingClassSession.instructor.id === classSessionToCheck.instructor.id) {
-          return `Instructor conflict: ${existingClassSession.instructor.first_name} is already scheduled in this period for group ${existingClassSession.group.name}.`;
-        }
-        // Check for classroom conflict.
-        if (existingClassSession.classroom.id === classSessionToCheck.classroom.id) {
-          return `Classroom conflict: ${existingClassSession.classroom.name} is already in use during this period by group ${existingClassSession.group.name}.`;
+        // Check for classroom conflict
+        if (conflictingClassSession.classroom.id === classSessionToCheck.classroom.id) {
+          return `Classroom conflict: ${conflictingClassSession.classroom.name} is already in use by ${conflictingClassSession.group.name} at this time.`;
         }
       }
     }

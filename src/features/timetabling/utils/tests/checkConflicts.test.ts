@@ -9,10 +9,11 @@ import type {
 import type { ClassSession } from '../../../classSessions/types/classSession';
 import type { ScheduleConfig } from '../../../scheduleConfig/types/scheduleConfig';
 
-// --- Mock Data Setup ---
+// --- FIXED: Updated Mock Data Setup ---
 const MOCK_USER_ID = 'user-mock-123';
 const MOCK_CREATED_AT = new Date().toISOString();
 
+// Mock Settings (no changes needed)
 const mockSettings: ScheduleConfig = {
   id: 'settings1',
   created_at: MOCK_CREATED_AT,
@@ -21,107 +22,141 @@ const mockSettings: ScheduleConfig = {
   start_time: '09:00',
   period_duration_mins: 90,
 };
-const totalPeriods = mockSettings.periods_per_day * mockSettings.class_days_per_week; // 20
+const totalPeriods = mockSettings.periods_per_day * mockSettings.class_days_per_week;
 
+// FIXED: Instructors now have the full set of properties
 const mockInstructor1: Instructor = {
   id: 'inst1',
-  name: 'Dr. Smith',
+  first_name: 'Jerry',
+  last_name: 'Smith',
   email: 'smith@test.com',
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
+  code: 'JS',
+  color: '#FF0000',
+  contract_type: null,
+  phone: null,
+  prefix: null,
+  suffix: null,
 };
 const mockInstructor2: Instructor = {
   id: 'inst2',
-  name: 'Prof. Jones',
+  first_name: 'Barney',
+  last_name: 'Jones',
   email: 'jones@test.com',
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
+  code: 'BJ',
+  color: '#00FF00',
+  contract_type: null,
+  phone: null,
+  prefix: null,
+  suffix: null,
 };
 
+// FIXED: Classrooms now have the full set of properties
 const mockClassroom1: Classroom = {
   id: 'room1',
   name: 'Room 101',
-  location: 'A',
   user_id: MOCK_USER_ID,
   capacity: 30,
   created_at: MOCK_CREATED_AT,
+  code: 'R101',
+  color: '#0000FF',
+  location: 'A',
 };
 const mockClassroom2: Classroom = {
   id: 'room2',
   name: 'Room 202',
-  location: 'B',
   user_id: MOCK_USER_ID,
   capacity: 30,
   created_at: MOCK_CREATED_AT,
+  code: 'R202',
+  color: '#FFFF00',
+  location: 'B',
 };
 
+// FIXED: Class Groups now have the full set of properties
 const mockGroup1: ClassGroup = {
   id: 'group1',
   name: 'CS-1A',
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
+  code: 'CS1A',
+  color: '#FF00FF',
+  student_count: 25,
 };
 const mockGroup2: ClassGroup = {
   id: 'group2',
   name: 'CS-1B',
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
+  code: 'CS1B',
+  color: '#00FFFF',
+  student_count: 28,
 };
 
-const mockCourse1Period: Course = {
+// FIXED: Courses no longer have number_of_periods
+const mockCourse1: Course = {
   id: 'course1',
   name: 'Intro to CS',
   code: 'CS101',
-  number_of_periods: 1,
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
+  color: '#C0C0C0',
 };
-const mockCourse2Periods: Course = {
+const mockCourse2: Course = {
   id: 'course2',
   name: 'Data Structures',
   code: 'CS201',
-  number_of_periods: 2,
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
+  color: '#808080',
 };
 
+// FIXED: Class Sessions now have the `period_count` property
 const classSession1: ClassSession = {
   id: 'session1',
-  course: mockCourse1Period,
+  course: mockCourse1,
   group: mockGroup1,
   instructor: mockInstructor1,
   classroom: mockClassroom1,
+  period_count: 1, // <-- Duration is here now
 };
 const classSession2: ClassSession = {
   id: 'session2',
-  course: mockCourse2Periods,
+  course: mockCourse2,
   group: mockGroup2,
   instructor: mockInstructor2,
   classroom: mockClassroom2,
+  period_count: 2, // <-- Duration is here now
 };
 const conflictingInstructorSession: ClassSession = {
   id: 'session3',
-  course: mockCourse2Periods,
+  course: mockCourse2,
   group: mockGroup2,
-  instructor: mockInstructor1,
+  instructor: mockInstructor1, // Same instructor as session1
   classroom: mockClassroom2,
+  period_count: 2,
 };
 const conflictingClassroomSession: ClassSession = {
   id: 'session4',
-  course: mockCourse2Periods,
+  course: mockCourse2,
   group: mockGroup2,
   instructor: mockInstructor2,
-  classroom: mockClassroom1,
+  classroom: mockClassroom1, // Same classroom as session1
+  period_count: 2,
 };
 
 describe('checkConflicts', () => {
   let timetable: TimetableGrid;
 
   beforeEach(() => {
-    timetable = new Map<string, (ClassSession | null)[]>();
+    timetable = new Map();
     timetable.set(mockGroup1.id, Array(totalPeriods).fill(null));
     timetable.set(mockGroup2.id, Array(totalPeriods).fill(null));
-    timetable.get(mockGroup1.id)![0] = classSession1; // Pre-populate with a 1-period class
+    // Pre-populate with a 1-period class
+    timetable.get(mockGroup1.id)![0] = classSession1;
   });
 
   describe('Multi-Period Conflict Logic', () => {
@@ -146,7 +181,7 @@ describe('checkConflicts', () => {
         mockGroup2.id,
         0
       );
-      expect(result).toContain('Instructor conflict: Dr. Smith');
+      expect(result).toContain('Instructor conflict: Jerry Smith');
     });
 
     it('should detect a classroom conflict in the second period of a multi-period class', () => {
