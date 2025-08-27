@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react'; // Optional: for better button visuals
+import { Edit, Trash2 } from 'lucide-react';
 import ActionButton from './ActionButton';
 
 /** Represents a key-value pair for display. */
@@ -78,16 +78,24 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         {onEdit && (
-          <ActionButton variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
+          // THIS IS THE FIX: Add a descriptive aria-label to the button.
+          // Now, the button has an accessible name, even though it only contains an icon.
+          <ActionButton
+            variant="secondary"
+            size="sm"
+            onClick={onEdit}
+            aria-label={`Edit ${title}`} // <-- THE FIX
+          >
             <Edit className="w-4 h-4" />
           </ActionButton>
         )}
         {onDelete && (
+          // THIS IS THE FIX: Add a descriptive aria-label to the button.
           <ActionButton
             variant="danger"
             size="sm"
             onClick={onDelete}
-            aria-label={`Delete ${title}`}
+            aria-label={`Delete ${title}`} // <-- THE FIX
           >
             <Trash2 className="w-4 h-4" />
           </ActionButton>
