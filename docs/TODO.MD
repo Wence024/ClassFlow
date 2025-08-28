@@ -56,8 +56,8 @@ This new list merges duplicates, removes tasks that are already completed by you
         * [x] Data model: remove "title" from instructors
     * Finishing touches:
         * [x] Check doc comments
-        * [ ] Write test files
-        * [ ] Centralize error handling.
+        * [-] Write some test files. Discontinued.
+        * [-] Centralize error handling. Postponed.
         * [ ] Update documentation
 
 2. **[Logic] Implement Advanced Conflict Detection**

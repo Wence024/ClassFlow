@@ -98,7 +98,7 @@ const ClassSessionsPage: React.FC = () => {
         classSession.course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         classSession.course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
         classSession.group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        classSession.course.code.toLowerCase().includes(searchTerm.toLowerCase())
+        classSession.group.code?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [classSessions, searchTerm]);
 
