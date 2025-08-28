@@ -31,7 +31,6 @@ export const InstructorCard: React.FC<InstructorCardProps> = ({ instructor, onEd
   return (
     <ItemCard
       title={fullName}
-      subtitle={instructor.title}
       details={details}
       color={instructor.color}
       onEdit={() => onEdit(instructor)}
