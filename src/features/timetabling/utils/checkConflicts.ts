@@ -35,6 +35,16 @@ export default function checkConflicts(
   const periodsPerDay = settings.periods_per_day;
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
 
+  console.log(
+    `--- Checking Conflicts for ${classSessionToCheck.course.code} (ID: ${classSessionToCheck.id}) ---`
+  );
+  console.log(
+    `Target: Group ${targetGroupId}, Start Period: ${targetPeriodIndex}, Duration: ${numberOfPeriods}p`
+  );
+  if (source) {
+    console.log(`Source: Group ${source.class_group_id}, Start Period: ${source.period_index}`);
+  }
+
   // --- 1. Boundary and Placement Pre-checks ---
   if (targetPeriodIndex + numberOfPeriods > totalPeriods) {
     return 'Placement conflict: Class extends beyond the available timetable days.';
@@ -45,39 +55,58 @@ export default function checkConflicts(
     return 'Placement conflict: Class cannot span across multiple days.';
   }
 
-  // --- 2. Per-Period Conflict Loop ---
-  // Iterate through each period the new class session will occupy.
+  // --- Main Loop: Check each period the new session will occupy for all conflicts ---
   for (let i = 0; i < numberOfPeriods; i++) {
     const currentPeriodIndex = targetPeriodIndex + i;
+    console.log(`\nChecking Period #${currentPeriodIndex}...`);
 
     // A. Check for conflicts within the target group's row
     const classSessionAtTargetSlot = timetable.get(targetGroupId)?.[currentPeriodIndex];
+
+    console.log(
+      ` -> Target Group (${targetGroupId}) Slot [${currentPeriodIndex}]:`,
+      classSessionAtTargetSlot
+        ? `${classSessionAtTargetSlot.course.code} (ID: ${classSessionAtTargetSlot.id})`
+        : 'Empty'
+    );
+
     if (classSessionAtTargetSlot && classSessionAtTargetSlot.id !== classSessionToCheck.id) {
+      console.error(
+        `   !! CONFLICT DETECTED (Group): Found ${classSessionAtTargetSlot.course.code} where we want to place ${classSessionToCheck.course.code}`
+      );
       return `Group conflict: ${classSessionAtTargetSlot.group.name} already has a class scheduled in this slot.`;
     }
 
     // B. Check for resource conflicts across all other groups
-    for (const [groupId, classSessions] of timetable.entries()) {
-      // No need to check the target group again
-      if (groupId === targetGroupId) continue;
+    for (const [classGroupId, classSessions] of timetable.entries()) {
+      if (classGroupId === targetGroupId) continue; // No need to check the target group again
 
       const conflictingClassSession = classSessions[currentPeriodIndex];
-
-      // If there's a class session and it's not the one we're moving, check for conflicts.
-      if (conflictingClassSession && conflictingClassSession.id !== classSessionToCheck.id) {
-        // Check for instructor conflict
-        if (conflictingClassSession.instructor.id === classSessionToCheck.instructor.id) {
-          const instructorName = `${conflictingClassSession.instructor.first_name} ${conflictingClassSession.instructor.last_name}`;
-          return `Instructor conflict: ${instructorName} is already scheduled for ${conflictingClassSession.group.name} at this time.`;
-        }
-
-        // Check for classroom conflict
-        if (conflictingClassSession.classroom.id === classSessionToCheck.classroom.id) {
-          return `Classroom conflict: ${conflictingClassSession.classroom.name} is already in use by ${conflictingClassSession.group.name} at this time.`;
+      if (conflictingClassSession) {
+        // Log only if there's a session to check
+        console.log(
+          ` -> Checking Other Group (${classGroupId}) Slot [${currentPeriodIndex}]:`,
+          `${conflictingClassSession.course.code} (ID: ${conflictingClassSession.id})`
+        );
+        if (conflictingClassSession.id !== classSessionToCheck.id) {
+          if (conflictingClassSession.instructor.id === classSessionToCheck.instructor.id) {
+            console.error(
+              `   !! CONFLICT DETECTED (Instructor): ${classSessionToCheck.instructor.first_name} is double-booked.`
+            );
+            const instructorName = `${conflictingClassSession.instructor.first_name} ${conflictingClassSession.instructor.last_name}`;
+            return `Instructor conflict: ${instructorName} is already scheduled for ${conflictingClassSession.group.name} at this time.`;
+          }
+          if (conflictingClassSession.classroom.id === classSessionToCheck.classroom.id) {
+            console.error(
+              `   !! CONFLICT DETECTED (Classroom): ${classSessionToCheck.classroom.name} is double-booked.`
+            );
+            return `Classroom conflict: ${conflictingClassSession.classroom.name} is already in use by ${conflictingClassSession.group.name} at this time.`;
+          }
         }
       }
     }
   }
 
+  console.log('--- No conflicts found. ---\n');
   return ''; // No conflicts found.
 }

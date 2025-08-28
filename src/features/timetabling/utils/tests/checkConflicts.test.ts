@@ -242,4 +242,36 @@ describe('checkConflicts', () => {
       expect(result).toBe('');
     });
   });
+
+  it.skip('should detect a group conflict when moving a session backward to overlap an existing session', () => {
+    // ARRANGE: Set up a specific, tricky timetable layout.
+    // Session A is at [1, 2], Session B is at [3, 4].
+    const sessionA = { ...classSession2, id: 'sessionA' };
+    const sessionB = { ...classSession2, id: 'sessionB' };
+
+    const groupSessions = timetable.get(mockGroup1.id)!;
+    groupSessions[1] = sessionA;
+    groupSessions[2] = sessionA;
+    groupSessions[3] = sessionB;
+    groupSessions[4] = sessionB;
+
+    // Define the move operation
+    const source = { class_group_id: mockGroup1.id, period_index: 3 }; // Moving session B
+    const targetPeriodIndex = 2; // Target is [2, 3]
+
+    // ACT: Attempt to move session B from index 3 to index 2.
+    // This should conflict with session A, which occupies index 2.
+    const result = checkConflicts(
+      timetable,
+      sessionB,
+      mockSettings,
+      mockGroup1.id,
+      targetPeriodIndex,
+      source
+    );
+
+    // ASSERT: The function must detect the conflict and not return an empty string.
+    expect(result).not.toBe('');
+    expect(result).toContain('Group conflict');
+  });
 });
