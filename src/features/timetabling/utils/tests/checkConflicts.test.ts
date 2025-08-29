@@ -243,7 +243,7 @@ describe('checkConflicts', () => {
     });
   });
 
-  it.skip('should detect a group conflict when moving a session backward to overlap an existing session', () => {
+  it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
     // ARRANGE: Set up a specific, tricky timetable layout.
     // Session A is at [1, 2], Session B is at [3, 4].
     const sessionA = { ...classSession2, id: 'sessionA' };

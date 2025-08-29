@@ -41,6 +41,8 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 2. **[Logic] Implement Advanced Conflict Detection**
     * **Task:** `Conflict: Implement advanced conflict detection logic`
     * **Action:** Update your `checkConflicts.ts` utility. The main conflict-checking function should now use the new `classroom.capacity` and `classgroup.student_count` to detect capacity-based conflicts.
+    * Observed problems:
+      * [ ] Conflict notification needs to indicate course conflict when class groups is the same instead of merely group conflict
 
 3. **[UI/UX] Visualize Timetabling Actions**
     * **Task:** `Timetabling: Red/green marks for moving class sessions across periods`

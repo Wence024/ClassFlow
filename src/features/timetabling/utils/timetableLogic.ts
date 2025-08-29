@@ -50,8 +50,18 @@ export function buildTimetableGrid(
     const classSession = assignment.class_session || null;
 
     if (row && classSession) {
-      // Place the session at its assigned period index.
-      row[assignment.period_index] = classSession;
+      // --- START OF FIX ---
+      // Instead of just placing the session at its start, fill all the slots
+      // that it occupies based on its duration (period_count).
+      const numberOfPeriods = classSession.period_count || 1;
+      for (let i = 0; i < numberOfPeriods; i++) {
+        const periodToFill = assignment.period_index + i;
+        // Boundary check to ensure we don't write outside the array
+        if (periodToFill < totalPeriods) {
+          row[periodToFill] = classSession;
+        }
+      }
+      // --- END OF FIX ---
     }
   }
 
