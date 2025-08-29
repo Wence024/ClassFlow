@@ -129,8 +129,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               <FormField
                 {...field}
                 value={String(field.value ?? '')}
-                // The form field expects a string, so we convert back to number on change
-                onChange={(val) => field.onChange(Number(val))}
+                onChange={(val) => field.onChange(parseInt(val, 10))}
                 id="period_count"
                 label="Duration (periods)"
                 type="number"
