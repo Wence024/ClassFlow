@@ -47,7 +47,7 @@ function checkGroupConflicts(
   for (let i = 0; i < period_count; i++) {
     const sessionInSlot = targetGroupSchedule[targetPeriodIndex + i];
     if (sessionInSlot && sessionInSlot.id !== sessionToCheck.id) {
-      return `Group conflict: ${sessionInSlot.group.name} already has a class scheduled in this slot.`;
+      return `Conflict within ${sessionInSlot.group.name}: This time slot is already occupied.`;
     }
   }
 
