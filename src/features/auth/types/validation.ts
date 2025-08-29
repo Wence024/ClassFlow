@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 // Schema for the login form
 export const loginSchema = z.object({
-  email: z.email({ message: 'Invalid email address' }),
+  email: z.string().regex(emailRegex, { message: 'Invalid email address' }),
   password: z.string().min(1, { message: 'Password is required' }),
 });
 
@@ -10,7 +12,7 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     name: z.string().min(1, { message: 'Name is required' }),
-    email: z.email({ message: 'Invalid email address' }),
+    email: z.string().regex(emailRegex, { message: 'Invalid email address' }),
     password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
     confirmPassword: z.string(),
   })
@@ -21,7 +23,7 @@ export const registerSchema = z
 
 // Schema for the "forgot password" email form
 export const forgotPasswordSchema = z.object({
-  email: z.email({ message: 'Invalid email address' }),
+  email: z.string().regex(emailRegex, { message: 'Invalid email address' }),
 });
 
 // Schema for the "reset password" form
