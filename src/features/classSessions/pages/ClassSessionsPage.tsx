@@ -61,9 +61,9 @@ const ClassSessionsPage: React.FC = () => {
     resolver: zodResolver(classSessionSchema),
     defaultValues: {
       course_id: '',
-      instructor_id: '',
       class_group_id: '',
       classroom_id: '',
+      instructor_id: '',
       period_count: 1,
     },
   });
