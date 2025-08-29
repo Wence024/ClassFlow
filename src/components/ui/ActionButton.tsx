@@ -2,32 +2,40 @@ import React from 'react';
 
 /**
  * Props for the ActionButton component.
+ * Extends standard HTML button attributes for maximum flexibility.
  */
-interface ActionButtonProps {
+interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** The content to be displayed inside the button. */
   children: React.ReactNode;
+
   /** Optional click handler. */
   onClick?: () => void;
+
   /** The visual style of the button.
    * @default 'primary'
    */
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
+
   /** The size of the button.
    * @default 'md'
    */
   size?: 'sm' | 'md' | 'lg';
+
   /** If true, the button will be disabled.
    * @default false
    */
   disabled?: boolean;
+
   /** If true, a loading indicator will be shown.
    * @default false
    */
   loading?: boolean;
+
   /** The native button type.
    * @default 'button'
    */
   type?: 'button' | 'submit' | 'reset';
+
   /** Additional CSS classes to apply to the button. */
   className?: string;
 }
@@ -35,15 +43,7 @@ interface ActionButtonProps {
 /**
  * A versatile button component with consistent styling for various actions.
  * It supports different visual variants, sizes, and loading/disabled states.
- *
- * @example
- * <ActionButton
- *   onClick={() => console.log('Clicked!')}
- *   variant="primary"
- *   size="lg"
- * >
- *   Confirm
- * </ActionButton>
+ * It also forwards all standard button attributes (e.g., `aria-label`) to the underlying button element.
  */
 const ActionButton: React.FC<ActionButtonProps> = ({
   children,
@@ -54,6 +54,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   loading = false,
   type = 'button',
   className = '',
+  ...props // <-- STEP 1: Capture all other props (like aria-label) into a `props` object.
 }) => {
   const baseClasses =
     'font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
@@ -79,9 +80,10 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       onClick={onClick}
       disabled={disabled || loading}
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses} ${className}`}
+      {...props} // <-- STEP 2: Spread the captured props onto the final <button> element.
     >
       {loading ? (
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
           Loading...
         </div>

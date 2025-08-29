@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 interface TooltipProps {
   /** The content to be displayed inside the tooltip. */
   content: React.ReactNode;
+
   /** The position object for placing the tooltip. */
   position: { top: number; left: number };
 }

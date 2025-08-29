@@ -6,6 +6,7 @@ import React from 'react';
 interface SelectOption {
   /** The unique identifier for the option (used as the value). */
   id: string;
+
   /** The human-readable text for the option. */
   name: string;
 }
@@ -16,26 +17,36 @@ interface SelectOption {
 interface FormFieldProps {
   /** A unique identifier for the input, used for the `id` and `name` attributes. Essential for accessibility. */
   id: string;
+
   /** The text label displayed above the form field. */
   label: string;
+
   /** The type of the input field. 'select' renders a dropdown.
    * @default 'text'
    */
-  type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number';
+  // ADD 'color' to the list of allowed types
+  type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number' | 'color';
+
   /** The current value of the form field. */
   value: string;
+
   /** A callback function that is invoked when the field's value changes. */
   onChange: (value: string) => void;
+
   /** An array of options for select inputs. Each option should have an `id` and `name`. */
   options?: SelectOption[];
+
   /** Placeholder text for the input field. */
   placeholder?: string;
+
   /** Whether the field is required. Adds a visual indicator and the `required` attribute.
    * @default false
    */
   required?: boolean;
+
   /** An error message to display below the field. If present, the field will be styled to indicate an error. */
   error?: string;
+
   /** The `autocomplete` attribute for the input, to help with browser autofill.
    * Note: Only pass a valid, non-empty autocomplete string for accessibility compliance.
    */

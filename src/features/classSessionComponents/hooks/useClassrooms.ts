@@ -47,19 +47,26 @@ export function useClassrooms() {
   return {
     /** The cached array of classrooms for the current user. */
     classrooms,
+
     /** A boolean indicating if the list of classrooms is currently being fetched. */
     isLoading: isListLoading || isFetching,
+
     /** A boolean indicating if a create or update operation is in progress. */
     isSubmitting: addMutation.isPending || updateMutation.isPending,
+
     /** A boolean indicating if a delete operation is in progress. */
     isRemoving: removeMutation.isPending,
+
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
+
     /** An async function to add a new classroom. */
     addClassroom: addMutation.mutateAsync,
+
     /** An async function to update a classroom. */
     updateClassroom: (id: string, data: ClassroomUpdate) =>
       updateMutation.mutateAsync({ id, data }),
+
     /** An async function to remove a classroom. */
     removeClassroom: removeMutation.mutateAsync,
   };

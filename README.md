@@ -9,12 +9,13 @@ Built with a focus on maintainability and developer experience, the project uses
 ## Key Features
 
 - 🔒 **Supabase Authentication**: Secure user registration, login, email verification, and password reset.
-- 🧩 **Component Management**: Full CRUD functionality for Courses, Class Groups, Classrooms, and Instructors.
-- 📅 **Class Session Creation**: Combine components to create schedulable class sessions.
+- 🧩 **Detailed Component Management**: Full CRUD functionality for Courses, Class Groups, Classrooms, and Instructors, with detailed attributes like capacity, student counts, and full contact info.
+- 🎨 **Visual Organization**: Components are automatically assigned a unique color for easy identification on cards and in the future timetable.
+- 🔍 **Search and Filtering**: Quickly find any component using the client-side search functionality on management pages.
+- 📅 **Class Session Creation**: Combine components to create schedulable class sessions with a specified duration.
 - ↔️ **Drag-and-Drop Timetable**: An interactive grid for assigning and moving class sessions with real-time conflict detection.
 - ⚡ **Real-time Collaboration**: Changes to the timetable are reflected across all connected clients instantly via Supabase subscriptions.
 - 🛡️ **Type-Safe & Scalable**: Built entirely with TypeScript and a modular feature architecture designed for growth.
-- 🎨 **Modern UI**: A responsive and accessible interface styled with Tailwind CSS.
 
 ---
 
@@ -65,7 +66,9 @@ This project includes comprehensive documentation to help developers understand 
 - `npm run dev`: Starts the Vite development server.
 - `npm run build`: Bundles the application for production.
 - `npm run lint`: Lints the codebase using ESLint.
-- `npm run test`: Runs unit tests with Vitest.
+- `npm run test:unit`: Runs all unit tests.
+- `npm run test:integration`: Runs all integration tests.
+- `npm run test:all`: Runs the complete test suite.
 
 ---
 

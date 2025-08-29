@@ -7,18 +7,25 @@ import { ActionButton } from './';
 interface ConfirmModalProps {
   /** A boolean to control the visibility of the modal. */
   isOpen: boolean;
+
   /** The title text displayed at the top of the modal. */
   title: string;
+
   /** The main content or question of the modal. Can be a string or any React node. */
   children: React.ReactNode;
+
   /** A boolean to show a loading state on the confirm button. */
   isLoading?: boolean;
+
   /** The text to display on the confirmation button. @default 'Confirm' */
   confirmText?: string;
+
   /** The text to display on the cancel button. @default 'Cancel' */
   cancelText?: string;
+
   /** A callback function executed when the confirmation button is clicked. */
   onConfirm: () => void;
+
   /** A callback function executed when the modal is closed (via cancel button or overlay click). */
   onClose: () => void;
 }

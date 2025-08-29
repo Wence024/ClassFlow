@@ -8,12 +8,15 @@ interface LoadingSpinnerProps {
    * @default 'md'
    */
   size?: 'sm' | 'md' | 'lg';
+
   /** The color of the spinner.
    * @default 'blue'
    */
   color?: 'blue' | 'gray' | 'white';
+
   /** Optional text to display below the spinner. */
   text?: string;
+
   /** Additional CSS classes to apply to the component's root element. */
   className?: string;
 }

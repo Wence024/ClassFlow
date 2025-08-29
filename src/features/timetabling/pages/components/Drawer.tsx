@@ -11,8 +11,10 @@ type DrawerClassSession = Pick<ClassSession, 'id'> & { displayName: string };
 interface DrawerProps {
   /** An array of unassigned class sessions to be displayed. */
   drawerClassSessions: DrawerClassSession[];
+
   /** The `onDragStart` handler from the `useTimetableDnd` hook. */
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
+
   /** The `onDrop` handler for the drawer area from the `useTimetableDnd` hook. */
   onDropToDrawer: (e: React.DragEvent) => void;
 }

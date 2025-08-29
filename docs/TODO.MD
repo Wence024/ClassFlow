@@ -2,8 +2,6 @@
 
 Here is a rearranged, consolidated, and prioritized to-do list.
 
-This new list merges duplicates, removes tasks that are already completed by your migration to React Query, and sequences everything for maximum impact and logical flow.
-
 ## **Phase 1: Polish the Core Experience (Immediate Sprint)**
 
 *This phase focuses on high-impact, quick wins that significantly improve the user experience and address direct panel feedback.*
@@ -24,37 +22,31 @@ This new list merges duplicates, removes tasks that are already completed by you
     * **Task:** `Timetabling: Fix tooltip truncating outside timetable area`
     * **Action:** Adjust the CSS for the tooltip in `Timetable.tsx`. This might involve ensuring the timetable's container doesn't have `overflow: hidden` or using a portal-based tooltip library that renders at the root of the document.
 
-## **Phase 2: Advanced Scheduling & Data Integrity (Next Sprint)**
+## **Phase 2: Advanced Scheduling & Data Integrity (Current Sprint)**
 
 *With the UI polished, this phase focuses on implementing the next major piece of core functionality: resource-aware conflict detection.*
 
-1. **[Data Model] Extend Core Data Models**
+1. [x] **[Data Model] Extend Core Data Models**
     * **Task:** `Component Details: Extend detail inputs for...`
-    * **Sub-task:** `Add classroom's size and classgroup's number of students (panel priority ML)`
     * **Action:**
-        1. Add `size` to the `classrooms` table and `student_count` to the `class_groups` table in Supabase.
-        2. Regenerate Supabase types.
-        3. Update Zod schemas in `validation.ts`.
-        4. Add the new fields to the `ComponentForm.tsx`.
-        5. Make other fields optional
-        6. Add color assignment to all components.
-        7. Create shortform code for class groups, classrooms and instructors
-        8. For instructors:
-          a.  Differentiate name into Last name and first name;
-          b.  Auto-generated but customizable short (i.e., First name and last name initials);
-          c. teacher's contract (flexible/free-form) in a single line;
-          d. email; phone;
-          e. title; prefix and suffix for name (not strictly profession but can be for now)
+        ✅ Add `size` and `student_count` to tables.
+        ✅ Regenerate Supabase types.
+        ✅ Update Zod schemas.
+        ✅ Refactor forms to a composable, type-safe architecture.
+        ✅ Add detailed fields for Instructors (first/last name, etc.).
+        ✅ Add color and short code fields to all components.
+        ✅ Implement random color generation for new items.
+        ✅ Implement client-side search/filter on management pages.
 
 2. **[Logic] Implement Advanced Conflict Detection**
     * **Task:** `Conflict: Implement advanced conflict detection logic`
-    * **Action:** Update your `checkConflicts.ts` utility. The main conflict-checking function should now accept the new `classroom.size` and `classgroup.student_count` to detect capacity-based conflicts.
+    * **Action:** Update your `checkConflicts.ts` utility. The main conflict-checking function should now use the new `classroom.capacity` and `classgroup.student_count` to detect capacity-based conflicts.
 
 3. **[UI/UX] Visualize Timetabling Actions**
     * **Task:** `Timetabling: Red/green marks for moving class sessions across periods`
-    * **Action:** In `Timetable.tsx`, use the `onDragEnter` or `onDragOver` events to call the advanced conflict detection logic. Conditionally apply a class (e.g., `bg-green-200` or `bg-red-200`) to the drop target cell to give the user instant feedback.
+    * **Action:** In `Timetable.tsx`, use the `onDragOver` event to call the conflict detection logic and conditionally apply a class to the target cell for instant feedback.
 
-4. **[Data Integrity] Restrict Invalid Timetable Moves**
+4. **[Data Integrity] Restrict Invalid Timetabling Moves**
     * **Task:** `Timetabling: Restrict moving Class sessions to other unintended class groups`
     * **Action:** In the `onDropToGrid` handler within `useTimetableDnd.ts`, check if the dragged `ClassSession`'s `group.id` matches the target `groupId`. If they don't match, show a notification and abort the update.
 
@@ -109,41 +101,18 @@ This new list merges duplicates, removes tasks that are already completed by you
 
 ---
 
-## **Completed / Superseded Tasks**
+## **Other Tasks & Ideas (Backlog)**
 
-*The following tasks from your original list are considered complete or have been made redundant by your technical choices.*
+*These items are valuable but are lower priority than the core roadmap.*
 
-* ✅ **[React Query] Transition from context+providers:** This is successfully done.
-* ✅ **[React Query] Caching / Memoization:** React Query handles this automatically.
-* ✅ **[React Query] Basic Fetch Retries:** React Query provides this by default for `useQuery`.
-* ✅ **[Architecture] ComponentInsert/Update type has been created. Where is ComponentDelete?:** Your current pattern of passing an `id` to the remove mutation is correct and sufficient.
-* ✅ **[Architecture] Support multi-user:** Your hooks and query keys are already user-specific.
-* ✅ **[UI] Verify loading state in timetable again:** The loading overlay in `TimetablePage.tsx` is correctly implemented.
-
-Other tasks:
-
-* [ ] Add a zoom feature to timetable
-* [ ] Merge class session code and management with its components, though more distinct.
-* [ ] Give option to Reduce/expand details in class sessions and components, or remove entirely and either tooltip or click for more info.
-* [ ] Consolidate class sessions, components and timetabling into a single ui.
+* **[UI]** Add a zoom feature to timetable.
+* **[UI]** Consolidate management pages into a single, more integrated UI.
 * [ ] Implement captcha in login
-* [ ] Implement light/dark mode theme
+* **[UI]** Implement a light/dark mode theme.
+* **[UX]** Add tooltips and placeholder hints for all form fields.
+* **[UX]** Show assigned component colors in the timetable class session box.
+* **[Auth]** Implement CAPTCHA in the login/register forms.
+* **[Data Model]** Allow classrooms and instructors to be optional in class sessions.
+* **[Architecture]** Centralize error handling with a `useApiMutation` hook.
 * [ ] Keyboard shortcuts and navigation
-* [ ] Interface for showing component details
-  * and link to class sessions/periods
 * [ ] Allow classrooms and instructors to be optional in class sessions.
-
-AI-recommended tasks:
-
-* [ ] Decouple ClassSessionForm: This is a major architectural cleanup that simplifies your most complex page.
-* [ ] Standardize Error Handling: This improves code consistency and developer experience.
-* [ ] Memoize Timetable: This is a quick performance win.
-
-Less-priority features:
-
-* [ ] Study Custom fields in all class session components
-* [ ] Learn about predefined selections
-  * For courses: preselected classroom/s
-  * For class groups: preselected instructor/s
-  * For instructors: preselected class groups and classrooms
-* [ ] See the value of time-offs

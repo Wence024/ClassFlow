@@ -46,18 +46,25 @@ export function useCourses() {
   return {
     /** The cached array of courses for the current user. */
     courses,
+
     /** A boolean indicating if the list of courses is currently being fetched. */
     isLoading: isListLoading || isFetching,
+
     /** A boolean indicating if a create or update operation is in progress. */
     isSubmitting: addMutation.isPending || updateMutation.isPending,
+
     /** A boolean indicating if a delete operation is in progress. */
     isRemoving: removeMutation.isPending,
+
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
+
     /** An async function to add a new course. */
     addCourse: addMutation.mutateAsync,
+
     /** An async function to update a course. */
     updateCourse: (id: string, data: CourseUpdate) => updateMutation.mutateAsync({ id, data }),
+
     /** An async function to remove a course. */
     removeCourse: removeMutation.mutateAsync,
   };

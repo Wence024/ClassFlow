@@ -1,90 +1,107 @@
 import React from 'react';
+import { Edit, Trash2 } from 'lucide-react';
 import ActionButton from './ActionButton';
 
-/**
- * Represents a key-value pair to be displayed as a detail line in the card.
- */
+/** Represents a key-value pair for display. */
 interface CardDetail {
   /** The label for the detail (e.g., "Instructor"). */
   label: string;
-  /** The value of the detail (e.g., "Dr. Smith"). */
-  value: string;
+
+  /** The value of the detail (e.g., "Dr. Smith" or 30 for capacity). */
+  value: string | number;
 }
 
-/**
- * Props for the ItemCard component.
- */
+/** Props for the ItemCard component. */
 interface ItemCardProps {
   /** The main title of the card. */
   title: string;
-  /** An optional subtitle displayed below the title. */
-  subtitle?: string;
+
+  /** An optional subtitle displayed below the title. Can be null. */
+  subtitle?: string | null;
+
   /** An array of details to display as key-value pairs. */
   details?: CardDetail[];
+
+  /** An optional hex color code to display as a small vertical bar. */
+  color?: string | null;
+
   /** A callback function for the edit action. If not provided, the edit button is not rendered. */
   onEdit?: () => void;
+
   /** A callback function for the delete action. If not provided, the delete button is not rendered. */
   onDelete?: () => void;
-  /** Custom text for the edit button.
-   * @default 'Edit'
-   */
-  editLabel?: string;
-  /** Custom text for the delete button.
-   * @default 'Remove'
-   */
-  deleteLabel?: string;
+
   /** Additional CSS classes to apply to the card's root element. */
   className?: string;
-  /** Optional children to render within the main content area of the card. */
-  children?: React.ReactNode;
 }
 
-/**
- * A card component designed to display information about an item (e.g., a course, instructor).
- * It includes slots for a title, subtitle, a list of details, and optional edit/delete action buttons.
- */
+/** A highly reusable, presentation-only card for displaying item information. */
 const ItemCard: React.FC<ItemCardProps> = ({
   title,
   subtitle,
   details = [],
+  color,
   onEdit,
   onDelete,
-  editLabel = 'Edit',
-  deleteLabel = 'Remove',
   className = '',
-  children,
 }) => {
   return (
     <div
-      className={`bg-gray-50 p-4 mb-4 rounded-lg shadow flex flex-col md:flex-row md:items-center md:justify-between ${className}`}
+      className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center gap-4 ${className}`}
     >
-      <div className="flex-1">
-        <h3 className="text-lg font-semibold text-blue-700">{title}</h3>
-        {subtitle && <p className="text-gray-600 text-sm">{subtitle}</p>}
+      {/* THIS IS THE NEW PART: Render a color swatch if a color is provided */}
+      {color && (
+        <div
+          className="w-2 h-8 rounded-lg"
+          style={{ backgroundColor: color }}
+          aria-label={`Color swatch ${color}`}
+        />
+      )}
 
-        {details.map((detail, index) => (
-          <p key={index} className="text-gray-700">
-            {detail.label}: {detail.value}
-          </p>
-        ))}
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0">
+        <h3 className="text-md font-semibold text-gray-800 truncate">{title}</h3>
+        {/* Render subtitle only if it's a non-empty string */}
+        {subtitle && <p className="text-gray-500 text-sm truncate">{subtitle}</p>}
 
-        {children}
+        {/* Render details only if the array is not empty */}
+        {details.length > 0 && (
+          <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+            {details.map((detail, index) => (
+              <p key={index}>
+                <span className="font-medium">{detail.label}:</span> {String(detail.value)}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
 
-      {(onEdit || onDelete) && (
-        <div className="flex gap-2 mt-4 md:mt-0">
-          {onDelete && (
-            <ActionButton variant="danger" size="sm" onClick={onDelete}>
-              {deleteLabel}
-            </ActionButton>
-          )}
-          {onEdit && (
-            <ActionButton variant="success" size="sm" onClick={onEdit}>
-              {editLabel}
-            </ActionButton>
-          )}
-        </div>
-      )}
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        {onEdit && (
+          // THIS IS THE FIX: Add a descriptive aria-label to the button.
+          // Now, the button has an accessible name, even though it only contains an icon.
+          <ActionButton
+            variant="secondary"
+            size="sm"
+            onClick={onEdit}
+            aria-label={`Edit ${title}`} // <-- THE FIX
+          >
+            <Edit className="w-4 h-4" />
+          </ActionButton>
+        )}
+        {onDelete && (
+          // THIS IS THE FIX: Add a descriptive aria-label to the button.
+          <ActionButton
+            variant="danger"
+            size="sm"
+            onClick={onDelete}
+            aria-label={`Delete ${title}`} // <-- THE FIX
+          >
+            <Trash2 className="w-4 h-4" />
+          </ActionButton>
+        )}
+      </div>
     </div>
   );
 };
