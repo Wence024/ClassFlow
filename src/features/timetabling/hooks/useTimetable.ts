@@ -239,8 +239,7 @@ export function useTimetable() {
       classSession,
       settings,
       to.class_group_id,
-      to.period_index,
-      from
+      to.period_index
     );
     if (conflict) return conflict;
     await moveClassSessionMutation.mutateAsync({ from, to, classSession });

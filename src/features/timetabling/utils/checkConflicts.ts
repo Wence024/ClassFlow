@@ -26,7 +26,7 @@ function checkBoundaryConflicts(
     return 'Placement conflict: Class cannot span across multiple days.';
   }
 
-  return ''; // No boundary conflicts
+  return '';
 }
 
 /**
@@ -42,7 +42,7 @@ function checkGroupConflicts(
   const period_count = sessionToCheck.period_count || 1;
   const targetGroupSchedule = timetable.get(targetGroupId);
 
-  if (!targetGroupSchedule) return ''; // Should not happen in practice
+  if (!targetGroupSchedule) return '';
 
   for (let i = 0; i < period_count; i++) {
     const sessionInSlot = targetGroupSchedule[targetPeriodIndex + i];
@@ -51,11 +51,12 @@ function checkGroupConflicts(
     }
   }
 
-  return ''; // No group conflicts
+  return '';
 }
 
 /**
  * Checks for resource (instructor, classroom) conflicts across all other groups.
+ * (Refactored to reduce complexity)
  * @returns An error message string or an empty string.
  */
 function checkResourceConflicts(
@@ -70,34 +71,38 @@ function checkResourceConflicts(
     const currentPeriod = targetPeriodIndex + i;
 
     for (const [groupId, schedule] of timetable.entries()) {
-      if (groupId === targetGroupId) continue; // We already checked the target group
+      // Skip checking against the target group itself
+      if (groupId === targetGroupId) continue;
 
       const conflictingSession = schedule[currentPeriod];
-      if (conflictingSession && conflictingSession.id !== sessionToCheck.id) {
-        if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
-          const instructorName = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
-          return `Instructor conflict: ${instructorName} is already scheduled for ${conflictingSession.group.name} at this time.`;
-        }
-        if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
-          return `Classroom conflict: ${conflictingSession.classroom.name} is already in use by ${conflictingSession.group.name} at this time.`;
-        }
+
+      // Skip if there's no session or it's the same session we're checking
+      if (!conflictingSession || conflictingSession.id === sessionToCheck.id) continue;
+
+      // Now check for actual resource conflicts
+      if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+        const instructorName = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
+        return `Instructor conflict: ${instructorName} is already scheduled for ${conflictingSession.group.name} at this time.`;
+      }
+      if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+        return `Classroom conflict: ${conflictingSession.classroom.name} is already in use by ${conflictingSession.group.name} at this time.`;
       }
     }
   }
 
-  return ''; // No resource conflicts
+  return '';
 }
 
 /**
- * Main conflict checking function (now much simpler).
+ * Main conflict checking function.
+ * (The unused 'source' parameter has been removed).
  */
 export default function checkConflicts(
   timetable: TimetableGrid,
   classSessionToCheck: ClassSession,
   settings: ScheduleConfig,
   targetGroupId: string,
-  targetPeriodIndex: number,
-  source?: { class_group_id: string; period_index: number } // 'source' is now implicitly handled by checking session IDs
+  targetPeriodIndex: number
 ): string {
   const period_count = classSessionToCheck.period_count || 1;
 
