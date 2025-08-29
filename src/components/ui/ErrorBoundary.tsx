@@ -7,6 +7,7 @@ import ActionButton from './ActionButton';
 interface Props {
   /** The child components that the error boundary will wrap. */
   children: ReactNode;
+
   /** A custom message to display in the fallback UI. */
   fallbackMessage?: string;
 }

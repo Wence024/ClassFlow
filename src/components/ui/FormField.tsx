@@ -6,6 +6,7 @@ import React from 'react';
 interface SelectOption {
   /** The unique identifier for the option (used as the value). */
   id: string;
+
   /** The human-readable text for the option. */
   name: string;
 }

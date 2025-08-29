@@ -6,14 +6,19 @@ import React from 'react';
 interface ColorPickerProps {
   /** A unique identifier for the input. Essential for accessibility. */
   id: string;
+
   /** The text label displayed above the color picker. */
   label: string;
+
   /** The current hex color value (e.g., '#4f46e5'). */
   value: string;
+
   /** A callback function that is invoked when the color value changes. */
   onChange: (value: string) => void;
+
   /** An optional error message to display. */
   error?: string;
+
   /** Additional CSS classes for the container. */
   className?: string;
 }

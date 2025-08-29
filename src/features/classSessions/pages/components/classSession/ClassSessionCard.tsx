@@ -8,8 +8,10 @@ import type { ClassSession } from '../../../types/classSession';
 interface ClassSessionCardProps {
   /** The fully hydrated class session object to display. */
   classSession: ClassSession;
+
   /** Callback function triggered when the edit button is clicked. */
   onEdit: (classSession: ClassSession) => void;
+
   /** Callback function triggered when the delete button is clicked. */
   onDelete: (id: string) => void;
 }

@@ -6,8 +6,10 @@ import React from 'react';
 interface Tab {
   /** A unique identifier for the tab. */
   id: string;
+
   /** The text to display on the tab. */
   label: string;
+
   /** If true, the tab will be visually disabled and cannot be clicked. */
   disabled?: boolean;
 }
@@ -18,10 +20,13 @@ interface Tab {
 interface TabNavigationProps {
   /** An array of tab objects to be rendered. */
   tabs: Tab[];
+
   /** The `id` of the currently active tab. */
   activeTab: string;
+
   /** A callback function that is invoked with the `id` of the tab when it is clicked. */
   onTabChange: (tabId: string) => void;
+
   /** Additional CSS classes to apply to the component's root element. */
   className?: string;
 }

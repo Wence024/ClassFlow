@@ -69,19 +69,26 @@ export function useClassSessions() {
   return {
     /** The cached array of the user's class sessions. Defaults to an empty array. */
     classSessions,
+
     /** A boolean indicating if any data fetching or mutation is currently active. */
     isLoading: isListLoading || isFetching,
+
     /** A boolean indicating if a create or update operation is in progress. */
     isSubmitting: addMutation.isPending || updateMutation.isPending,
+
     /** A boolean indicating if a delete operation is in progress. */
     isRemoving: removeMutation.isPending,
+
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
+
     /** An async function to add a new class session. Requires an object with foreign keys. */
     addClassSession: addMutation.mutateAsync,
+
     /** An async function to update a class session. Requires the session ID and the update data. */
     updateClassSession: (id: string, data: ClassSessionUpdate) =>
       updateMutation.mutateAsync({ id, data }),
+
     /** An async function to remove a class session by its ID. */
     removeClassSession: removeMutation.mutateAsync,
   };

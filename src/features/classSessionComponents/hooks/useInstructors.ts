@@ -47,19 +47,26 @@ export function useInstructors() {
   return {
     /** The cached array of instructors for the current user. */
     instructors,
+
     /** A boolean indicating if the list of instructors is currently being fetched. */
     isLoading: isListLoading || isFetching,
+
     /** A boolean indicating if a create or update operation is in progress. */
     isSubmitting: addMutation.isPending || updateMutation.isPending,
+
     /** A boolean indicating if a delete operation is in progress. */
     isRemoving: removeMutation.isPending,
+
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
+
     /** An async function to add a new instructor. */
     addInstructor: addMutation.mutateAsync,
+
     /** An async function to update an instructor. */
     updateInstructor: (id: string, data: InstructorUpdate) =>
       updateMutation.mutateAsync({ id, data }),
+
     /** An async function to remove an instructor. */
     removeInstructor: removeMutation.mutateAsync,
   };

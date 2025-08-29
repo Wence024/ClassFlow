@@ -6,6 +6,7 @@ import ActionButton from './ActionButton';
 interface CardDetail {
   /** The label for the detail (e.g., "Instructor"). */
   label: string;
+
   /** The value of the detail (e.g., "Dr. Smith" or 30 for capacity). */
   value: string | number;
 }

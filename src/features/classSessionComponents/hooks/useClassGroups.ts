@@ -71,19 +71,26 @@ export function useClassGroups() {
   return {
     /** The cached array of class groups for the current user. */
     classGroups,
+
     /** A boolean indicating if the list of class groups is currently being fetched. */
     isLoading: isListLoading || isFetching,
+
     /** A boolean indicating if a create or update operation is in progress. */
     isSubmitting: addMutation.isPending || updateMutation.isPending,
+
     /** A boolean indicating if a delete operation is in progress. */
     isRemoving: removeMutation.isPending,
+
     /** An error message string if the query fails, otherwise null. */
     error: error ? (error as Error).message : null,
+
     /** An async function to add a new class group. */
     addClassGroup: addMutation.mutateAsync,
+
     /** An async function to update a class group. */
     updateClassGroup: (id: string, data: ClassGroupUpdate) =>
       updateMutation.mutateAsync({ id, data }),
+
     /** An async function to remove a class group. */
     removeClassGroup: removeMutation.mutateAsync,
   };

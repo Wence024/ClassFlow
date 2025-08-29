@@ -6,10 +6,13 @@ import React from 'react';
 interface ErrorMessageProps {
   /** The error message to display. */
   message: string;
+
   /** An optional callback to be executed when the user clicks the retry button. */
   onRetry?: () => void;
+
   /** An optional callback to be executed when the user clicks the dismiss button. */
   onDismiss?: () => void;
+
   /** Additional CSS classes to apply to the component's root element. */
   className?: string;
 }
