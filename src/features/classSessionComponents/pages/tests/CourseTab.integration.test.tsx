@@ -38,18 +38,20 @@ vi.spyOn(courseHooks, 'useCourses').mockReturnValue({
   isRemoving: false,
 });
 
+type UseClassSessionsReturn = ReturnType<typeof sessionHooks.useClassSessions>;
 vi.spyOn(sessionHooks, 'useClassSessions').mockReturnValue({
   classSessions: [], // Assume no sessions are using these courses for deletion tests
   // Mock other return values as needed
-} as any);
+} as unknown as UseClassSessionsReturn);
 
 const queryClient = new QueryClient();
 
+type AuthContextType = React.ContextType<typeof AuthContext>;
 // A helper to render the component with all necessary providers
 const renderComponent = () => {
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ user: { id: 'u1' } } as any}>
+      <AuthContext.Provider value={{ user: { id: 'u1' } } as AuthContextType}>
         <CourseManagement />
       </AuthContext.Provider>
     </QueryClientProvider>
