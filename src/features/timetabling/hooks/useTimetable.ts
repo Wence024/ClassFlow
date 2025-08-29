@@ -33,6 +33,7 @@ export function useTimetable() {
   const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
 
   // A random, unique ID for the Supabase real-time channel to prevent conflicts between browser tabs.
+  // eslint-disable-next-line sonarjs/pseudo-random
   const [channelId] = useState(() => Math.random().toString(36).slice(2));
 
   // Calculate total periods from settings, with a fallback to prevent crashes during initial load.

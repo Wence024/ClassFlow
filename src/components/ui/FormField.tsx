@@ -74,6 +74,20 @@ const FormField: React.FC<FormFieldProps> = ({
     'w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100';
   const errorClasses = error ? 'border-red-500 focus:ring-red-400' : '';
 
+  const inputProps: React.InputHTMLAttributes<HTMLInputElement> = {
+    id,
+    type,
+    value,
+    onChange: (e) => onChange(e.target.value),
+    placeholder,
+    className: `${baseClasses} ${errorClasses}`,
+    required,
+    'aria-describedby': errorId,
+  };
+  if (autoComplete) {
+    inputProps.autoComplete = autoComplete;
+  }
+
   return (
     <div className="mb-4">
       <label htmlFor={id} className="block font-semibold mb-1">
@@ -108,7 +122,7 @@ const FormField: React.FC<FormFieldProps> = ({
           placeholder={placeholder}
           className={`${baseClasses} ${errorClasses}`}
           required={required}
-          {...(autoComplete ? { autoComplete } : {})}
+          {...inputProps}
           aria-describedby={errorId}
         />
       )}

@@ -3,6 +3,8 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
+import sonarjs from 'eslint-plugin-sonarjs';
+
 import { globalIgnores } from 'eslint/config'
 
 export default tseslint.config([
@@ -14,6 +16,7 @@ export default tseslint.config([
       tseslint.configs.recommended,
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
+      sonarjs.configs.recommended,
     ],
     languageOptions: {
       ecmaVersion: 2020,

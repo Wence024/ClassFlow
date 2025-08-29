@@ -19,6 +19,7 @@ const PRESET_COLORS = [
  * @returns {string} A random hex color code (e.g., '#4f46e5').
  */
 export const getRandomPresetColor = (): string => {
+  // eslint-disable-next-line sonarjs/pseudo-random
   const randomIndex = Math.floor(Math.random() * PRESET_COLORS.length);
   return PRESET_COLORS[randomIndex];
 };

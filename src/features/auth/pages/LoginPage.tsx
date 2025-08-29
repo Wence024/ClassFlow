@@ -105,12 +105,17 @@ const LoginPage: React.FC = () => {
         <Link to="/register" className="text-blue-600 hover:underline block">
           Don't have an account? Register
         </Link>
-        <Link
-          to={`/forgot-password${formData.email ? `?email=${encodeURIComponent(formData.email)}` : ''}`}
-          className="text-blue-600 hover:underline block"
-        >
-          Forgot Password?
-        </Link>
+        {(() => {
+          const emailQuery = formData.email ? `?email=${encodeURIComponent(formData.email)}` : '';
+          return (
+            <Link
+              to={`/forgot-password${emailQuery}`}
+              className="text-blue-600 hover:underline block"
+            >
+              Forgot Password?
+            </Link>
+          );
+        })()}
       </div>
     </div>
   );
