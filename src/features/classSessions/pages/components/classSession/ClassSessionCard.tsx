@@ -1,5 +1,6 @@
 import React from 'react';
-import { ItemCard } from '../../../../../components/ui';
+import { ItemCard, type ItemCardBadge } from '../../../../../components/ui';
+import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import type { ClassSession } from '../../../types/classSession';
 
 /**
@@ -49,12 +50,25 @@ const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ classSession, onEdi
     },
   ];
 
+  // Check for any "soft" conflicts associated with this session.
+  const softConflicts = checkSoftConflicts(classSession);
+
+  const conflictBadge: ItemCardBadge | null =
+    softConflicts.length > 0
+      ? {
+          text: softConflicts.length,
+          tooltip: softConflicts.join('\n'),
+          variant: 'warning',
+        }
+      : null;
+
   return (
     <ItemCard
       title={`${classSession.course.name} - ${classSession.group.name}`}
       subtitle={`Course Code: ${classSession.course.code}`}
       details={details}
       color={classSession.instructor.color} // Use the instructor color for the session card
+      badge={conflictBadge}
       onEdit={() => onEdit(classSession)}
       onDelete={() => onDelete(classSession.id)}
     />

@@ -1,5 +1,6 @@
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
+import type { ClassGroup, Classroom } from '../../classSessionComponents/types';
 
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
@@ -7,17 +8,37 @@ export type TimetableGrid = Map<string, (ClassSession | null)[]>;
  * Checks if the student count of a class group exceeds the capacity of the classroom.
  * @returns An error message string or an empty string.
  */
-function checkCapacityConflict(sessionToCheck: ClassSession): string {
-  const studentCount = sessionToCheck.group.student_count;
-  const classroomCapacity = sessionToCheck.classroom.capacity;
+export function checkCapacityConflict(group: ClassGroup, classroom: Classroom): string {
+  const studentCount = group.student_count;
+  const classroomCapacity = classroom.capacity;
 
   // Only check if both values are valid numbers
   if (typeof studentCount === 'number' && typeof classroomCapacity === 'number') {
     if (studentCount > classroomCapacity) {
-      return `Capacity conflict: The group "${sessionToCheck.group.name}" (${studentCount} students) exceeds the capacity of "${sessionToCheck.classroom.name}" (${classroomCapacity} seats).`;
+      return `Capacity conflict: The group "${group.name}" (${studentCount} students) exceeds the capacity of "${classroom.name}" (${classroomCapacity} seats).`;
     }
   }
   return ''; // No capacity conflict
+}
+
+/**
+ * Checks a class session for "soft" conflicts that don't prevent placement but should be flagged.
+ * These are issues that the user should be aware of, but which don't make a schedule invalid.
+ * @param session The class session to check.
+ * @returns An array of string messages describing each conflict. An empty array means no conflicts.
+ */
+export function checkSoftConflicts(session: ClassSession): string[] {
+  const conflicts: string[] = [];
+
+  // 1. Check for capacity conflicts
+  const capacityError = checkCapacityConflict(session.group, session.classroom);
+  if (capacityError) {
+    conflicts.push(capacityError);
+  }
+
+  // Future soft conflicts (e.g., instructor preferences, resource requirements) can be added here.
+
+  return conflicts;
 }
 
 /**
@@ -120,11 +141,6 @@ export default function checkConflicts(
   targetGroupId: string,
   targetPeriodIndex: number
 ): string {
-  // --- ADD THE NEW CHECK HERE, RIGHT AT THE TOP ---
-  const capacityError = checkCapacityConflict(classSessionToCheck);
-  if (capacityError) return capacityError;
-  // --- END OF ADDITION ---
-
   const period_count = classSessionToCheck.period_count || 1;
 
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);

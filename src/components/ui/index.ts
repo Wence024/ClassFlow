@@ -16,7 +16,7 @@ export { default as ConfirmModal } from './ConfirmModal';
 export { default as ErrorBoundary } from './ErrorBoundary';
 export { default as ErrorMessage } from './ErrorMessage';
 export { default as FormField } from './FormField';
-export { default as ItemCard } from './ItemCard';
+export { default as ItemCard, type ItemCardBadge } from './ItemCard'; // Default export
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Notification } from './Notification';
 export { default as TabNavigation } from './TabNavigation';

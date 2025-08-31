@@ -1,9 +1,7 @@
-import React from 'react';
-// FIXED: Removed unused imports: useEffect, useForm, zodResolver
+import React, { useMemo } from 'react'; // Import useMemo
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { ActionButton, FormField } from '../../../../../components/ui';
-// We now need the validation schema to infer the form's data type
 import { classSessionSchema } from '../../../../classSessions/types/validation';
 import type {
   Course,
@@ -11,8 +9,8 @@ import type {
   Instructor,
   Classroom,
 } from '../../../../classSessionComponents/types';
+import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 
-// The form's data shape is now inferred directly and correctly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
 interface ClassSessionFormProps {
@@ -20,7 +18,6 @@ interface ClassSessionFormProps {
   classGroups: ClassGroup[];
   instructors: Instructor[];
   classrooms: Classroom[];
-  // The form is now controlled by the parent page via this prop
   formMethods: UseFormReturn<ClassSessionFormData>;
   onSubmit: (data: ClassSessionFormData) => Promise<void>;
   onCancel?: () => void;
@@ -44,12 +41,47 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   loading,
   isEditing,
 }) => {
-  // Destructure the required methods and state from the passed-in form instance
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isDirty },
   } = formMethods;
+
+  // Watch all values that could affect soft conflicts
+  const watchedValues = watch([
+    'course_id',
+    'instructor_id',
+    'class_group_id',
+    'classroom_id',
+    'period_count',
+  ]);
+
+  // useMemo will re-calculate warning messages only when relevant fields change.
+  const conflictWarnings = useMemo(() => {
+    const [courseId, instructorId, groupId, classroomId, periodCount] = watchedValues;
+
+    const selectedGroup = classGroups.find((g) => g.id === groupId);
+    const selectedClassroom = classrooms.find((c) => c.id === classroomId);
+    const selectedCourse = courses.find((c) => c.id === courseId);
+    const selectedInstructor = instructors.find((i) => i.id === instructorId);
+
+    // We need all parts to build a temporary session to check for conflicts.
+    if (selectedGroup && selectedClassroom && selectedCourse && selectedInstructor) {
+      // We can construct a temporary ClassSession object to pass to the checker.
+      const tempSession = {
+        id: 'temp-id', // A dummy ID is fine here
+        group: selectedGroup,
+        classroom: selectedClassroom,
+        course: selectedCourse,
+        instructor: selectedInstructor,
+        period_count: periodCount || 1,
+      };
+      return checkSoftConflicts(tempSession);
+    }
+
+    return [];
+  }, [watchedValues, classGroups, classrooms, courses, instructors]);
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
@@ -58,7 +90,6 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       </h3>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <fieldset disabled={loading}>
-          {/* FIXED: All 'name' props now use snake_case to match the Zod schema */}
           <Controller
             name="course_id"
             control={control}
@@ -122,6 +153,16 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               />
             )}
           />
+          {conflictWarnings.length > 0 && (
+            <div className="p-3 my-2 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-md">
+              <ul className="list-disc list-inside space-y-1">
+                {conflictWarnings.map((warning, index) => (
+                  <li key={index}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <Controller
             name="period_count"
             control={control}
