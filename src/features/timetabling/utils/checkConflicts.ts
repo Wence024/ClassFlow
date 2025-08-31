@@ -4,6 +4,23 @@ import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
 /**
+ * Checks if the student count of a class group exceeds the capacity of the classroom.
+ * @returns An error message string or an empty string.
+ */
+function checkCapacityConflict(sessionToCheck: ClassSession): string {
+  const studentCount = sessionToCheck.group.student_count;
+  const classroomCapacity = sessionToCheck.classroom.capacity;
+
+  // Only check if both values are valid numbers
+  if (typeof studentCount === 'number' && typeof classroomCapacity === 'number') {
+    if (studentCount > classroomCapacity) {
+      return `Capacity conflict: The group "${sessionToCheck.group.name}" (${studentCount} students) exceeds the capacity of "${sessionToCheck.classroom.name}" (${classroomCapacity} seats).`;
+    }
+  }
+  return ''; // No capacity conflict
+}
+
+/**
  * Checks if a class session placement would violate timetable boundaries.
  * @returns An error message string or an empty string.
  */
@@ -95,7 +112,6 @@ function checkResourceConflicts(
 
 /**
  * Main conflict checking function.
- * (The unused 'source' parameter has been removed).
  */
 export default function checkConflicts(
   timetable: TimetableGrid,
@@ -104,6 +120,11 @@ export default function checkConflicts(
   targetGroupId: string,
   targetPeriodIndex: number
 ): string {
+  // --- ADD THE NEW CHECK HERE, RIGHT AT THE TOP ---
+  const capacityError = checkCapacityConflict(classSessionToCheck);
+  if (capacityError) return capacityError;
+  // --- END OF ADDITION ---
+
   const period_count = classSessionToCheck.period_count || 1;
 
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);
