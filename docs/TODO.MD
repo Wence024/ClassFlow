@@ -6,7 +6,7 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 
 *This phase focuses on high-impact, quick wins that significantly improve the user experience and address direct panel feedback.*
 
-1. [x] **[UI] Separate Loading States for Clarity**
+1. [x] **[UI] Separate Loading States for     Clarity**
     * **Task:** `UI issue: separate submit loading in forms vs fetching loading in lists.`
     * **Action:** Modify your data hooks (`useClassGroups`, `useCourses`, etc.) to return distinct loading states (e.g., `isListLoading`, `isAdding`, `isUpdating`). Update UI components to use these for more granular feedback.
 
@@ -39,13 +39,12 @@ Here is a rearranged, consolidated, and prioritized to-do list.
         ✅ Implement client-side search/filter on management pages.
 
 2. **[Logic] Implement Advanced Conflict Detection**
-    * **Task:** `Conflict: Implement advanced conflict detection logic`
+    * **Task:** `Conflict: ImplGement advanced conflict detection logic`
     * **Action:** Update your `checkConflicts.ts` utility. The main conflict-checking function should now use the new `classroom.capacity` and `classgroup.student_count` to detect capacity-based conflicts.
     * Observed problems:
-      * [ ] Conflict notification needs to indicate course conflict when class groups is the same instead of merely group conflict
 
 3. **[UI/UX] Visualize Timetabling Actions**
-    * **Task:** `Timetabling: Red/green marks for moving class sessions across periods`
+    * **Task:** `Timetabling: Availability marks for moving class sessions across periods`
     * **Action:** In `Timetable.tsx`, use the `onDragOver` event to call the conflict detection logic and conditionally apply a class to the target cell for instant feedback.
 
 4. **[Data Integrity] Restrict Invalid Timetabling Moves**
@@ -107,6 +106,7 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 
 *These items are valuable but are lower priority than the core roadmap.*
 
+* **[UX]** Fix: success update in forms has a red color instead of green.
 * **[UI]** Add a zoom feature to timetable.
 * **[UI]** Consolidate management pages into a single, more integrated UI.
 * [ ] Implement captcha in login
