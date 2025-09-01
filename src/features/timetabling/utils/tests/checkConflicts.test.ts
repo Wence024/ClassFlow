@@ -169,7 +169,21 @@ describe('checkConflicts', () => {
       timetable.get(mockGroup2.id)![2] = classSession1; // Existing class
       // Try to place a 2-period class at index 1, which overlaps at index 2
       const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 1);
-      expect(result).toContain('Group conflict');
+      expect(result).toContain('Conflict');
+      expect(result).toContain('CS-1A'); //Group Name
+    });
+
+    it('should detect a group conflict when a multi-period class completely overlaps an existing class', () => {
+      // ARRANGE
+      timetable.get(mockGroup2.id)![1] = classSession1;
+      timetable.get(mockGroup2.id)![2] = classSession1;
+
+      // ACT
+      const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 1);
+
+      // ASSERT
+      expect(result).toContain('Conflict');
+      expect(result).toContain('CS-1A'); //Group Name
     });
 
     it('should detect an instructor conflict in the second period of a multi-period class', () => {
@@ -229,16 +243,8 @@ describe('checkConflicts', () => {
     });
 
     it('should not report a conflict with itself when moving a multi-period class', () => {
-      const source = { class_group_id: mockGroup2.id, period_index: 5 };
       timetable.get(mockGroup2.id)![5] = classSession2;
-      const result = checkConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup2.id,
-        10,
-        source
-      );
+      const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 10);
       expect(result).toBe('');
     });
   });
@@ -256,7 +262,6 @@ describe('checkConflicts', () => {
     groupSessions[4] = sessionB;
 
     // Define the move operation
-    const source = { class_group_id: mockGroup1.id, period_index: 3 }; // Moving session B
     const targetPeriodIndex = 2; // Target is [2, 3]
 
     // ACT: Attempt to move session B from index 3 to index 2.
@@ -266,12 +271,12 @@ describe('checkConflicts', () => {
       sessionB,
       mockSettings,
       mockGroup1.id,
-      targetPeriodIndex,
-      source
+      targetPeriodIndex
     );
 
     // ASSERT: The function must detect the conflict and not return an empty string.
     expect(result).not.toBe('');
-    expect(result).toContain('Group conflict');
+    expect(result).toContain('Conflict');
+    expect(result).toContain('CS-1B');
   });
 });

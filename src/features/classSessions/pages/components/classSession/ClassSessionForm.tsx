@@ -9,6 +9,7 @@ import type {
   Instructor,
   Classroom,
 } from '../../../../classSessionComponents/types';
+import { AlertTriangle } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
@@ -154,12 +155,18 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
             )}
           />
           {conflictWarnings.length > 0 && (
-            <div className="p-3 my-2 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-md">
-              <ul className="list-disc list-inside space-y-1">
-                {conflictWarnings.map((warning, index) => (
-                  <li key={index}>{warning}</li>
-                ))}
-              </ul>
+            <div className="flex items-start gap-3 p-3 my-2 text-sm text-yellow-900 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 text-yellow-500" aria-hidden="true" />
+              </div>
+              <div>
+                <h4 className="font-bold">Potential Conflicts</h4>
+                <ul className="mt-1 list-disc list-inside space-y-1">
+                  {conflictWarnings.map((warning, index) => (
+                    <li key={index}>{warning}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
 

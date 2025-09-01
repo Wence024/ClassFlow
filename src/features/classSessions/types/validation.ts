@@ -1,15 +1,20 @@
 import { z } from 'zod';
 
 export const classSessionSchema = z.object({
-  course_id: z.string().min(1, 'A course must be selected'),
+  course_id: z.string({ error: 'A course must be selected' }).min(1, 'A course must be selected'),
   class_group_id: z.string().min(1, 'A class group must be selected'),
   classroom_id: z.string().min(1, 'A classroom must be selected'),
   instructor_id: z.string().min(1, 'An instructor must be selected'),
 
   period_count: z
-    .number({
-      error: 'Duration is required and must be a number',
-    })
-    .int()
-    .min(1, 'Duration must be at least 1 period'),
+    .union([
+      z.number().int().min(1, 'Duration must be at least 1 period'),
+      z
+        .string()
+        .min(1, 'Duration is required')
+        .regex(/^\d+$/, 'Duration must be a valid number')
+        .transform(Number)
+        .refine((val) => val >= 1, 'Duration must be at least 1 period'),
+    ])
+    .transform((val) => Number(val)),
 });
