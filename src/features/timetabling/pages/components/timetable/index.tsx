@@ -1,13 +1,15 @@
-import React, { useMemo, useState, type JSX } from 'react';
 import { Clock, RefreshCw } from 'lucide-react';
-import { useScheduleConfig } from '../../../scheduleConfig/hooks/useScheduleConfig';
-import { generateTimetableHeaders } from '../../utils/timeLogic';
-import { TimetableHeader, TimetableRow } from './timetable/index';
-import { LoadingSpinner } from '../../../../components/ui';
-import TimetableContext from './timetable/TimetableContext';
-import type { ClassGroup } from '../../../classSessionComponents/types';
-import type { ClassSession } from '../../../classSessions/types/classSession';
-import type { DragSource } from '../../types/DragSource';
+import React, { useMemo, useState, type JSX } from 'react';
+import { LoadingSpinner } from '../../../../../components/ui';
+import type { ClassGroup } from '../../../../classSessionComponents/types';
+import type { ClassSession } from '../../../../classSessions/types/classSession';
+import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
+import type { DragSource } from '../../../types/DragSource';
+import { generateTimetableHeaders } from '../../../utils/timeLogic';
+import TimetableContext from './TimetableContext';
+import TimetableHeader from './TimetableHeader';
+import TimetableRow from './TimetableRow';
+
 
 /**
  * Props for the Timetable component.
