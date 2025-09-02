@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTimetableContext } from './TimetableContext';
+import { useTimetableContext } from './useTimetableContext';
 
 interface EmptyCellProps {
   groupId: string;

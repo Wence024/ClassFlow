@@ -2,7 +2,7 @@ import type { ClassSession } from '../../classSessions/types/classSession';
 import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 import type { ClassGroup, Classroom } from '../../classSessionComponents/types';
 
-/** 
+/**
  * Type definition for a timetable grid, where each group has an array of class sessions.
  * The grid is indexed by group ID and stores either a class session or null for an empty slot.
  */
@@ -10,7 +10,7 @@ export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
 /**
  * Checks if the number of students in a class group exceeds the capacity of the assigned classroom.
- * 
+ *
  * @param group The class group that needs to be checked.
  * @param classroom The classroom that the group is scheduled in.
  * @returns A string error message if there is a conflict, or an empty string if there is no conflict.
@@ -27,13 +27,13 @@ export function checkCapacityConflict(group: ClassGroup, classroom: Classroom): 
   }
 
   // No conflict if student count is within capacity.
-  return ''; 
+  return '';
 }
 
 /**
  * Checks for "soft" conflicts within a class session that are not blocking but should be flagged.
  * Soft conflicts may include capacity issues or other future concerns (e.g., resource requirements).
- * 
+ *
  * @param session The class session to check for potential conflicts.
  * @returns An array of conflict messages, or an empty array if no conflicts are found.
  */
@@ -53,7 +53,7 @@ export function checkSoftConflicts(session: ClassSession): string[] {
 
 /**
  * Checks for boundary conflicts in the timetable, ensuring the session doesn't extend beyond the available time range.
- * 
+ *
  * @param period_count The number of periods the class session spans.
  * @param targetPeriodIndex The starting period index of the class session.
  * @param settings The timetable settings that define the schedule structure (e.g., periods per day, days per week).
@@ -86,7 +86,7 @@ function checkBoundaryConflicts(
 /**
  * Checks for conflicts within the target group's own row in the timetable.
  * Ensures that no other session is already occupying the same time slot.
- * 
+ *
  * @param timetable The full timetable grid.
  * @param sessionToCheck The class session to check for conflicts.
  * @param targetGroupId The ID of the target group that the session belongs to.
@@ -119,7 +119,7 @@ function checkGroupConflicts(
 /**
  * Checks for conflicts related to shared resources (instructors and classrooms).
  * Ensures no other session is using the same instructor or classroom at the same time.
- * 
+ *
  * @param timetable The full timetable grid.
  * @param sessionToCheck The class session to check for conflicts.
  * @param targetGroupId The ID of the target group.
@@ -165,7 +165,7 @@ function checkResourceConflicts(
 /**
  * Main function to check for all types of conflicts in a timetable.
  * It checks for boundary, group, and resource conflicts for the specified class session.
- * 
+ *
  * @param timetable The full timetable grid to check.
  * @param classSessionToCheck The class session to check for conflicts.
  * @param settings The timetable settings.

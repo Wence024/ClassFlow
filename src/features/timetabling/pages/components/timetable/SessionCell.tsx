@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
-import { useTimetableContext } from './TimetableContext';
+import { useTimetableContext } from './useTimetableContext';
 
 /**
  * Props for the SessionCell component.

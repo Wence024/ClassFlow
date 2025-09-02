@@ -109,13 +109,12 @@ const Timetable: React.FC<TimetableProps> = ({
           <Clock className="w-5 h-5" />
           Timetable Grid
         </h3>
-        <button
-          onClick={() => window.location.reload()}
-          className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          aria-label="Refresh Timetable"
-        >
-          <RefreshCw className="w-5 h-5" />
-        </button>
+        {isLoading && (
+          <div className="flex items-center gap-2 text-sm text-gray-500 animate-pulse">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span>Syncing...</span>
+          </div>
+        )}
       </div>
 
       <TimetableContext.Provider value={contextValue}>
@@ -127,24 +126,15 @@ const Timetable: React.FC<TimetableProps> = ({
               periodsPerDay={periodsPerDay}
             />
             <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={totalPeriods + 1} className="text-center p-8">
-                    <LoadingSpinner />
-                    <span className="ml-2">Loading timetable...</span>
-                  </td>
-                </tr>
-              ) : (
-                groups.map((group) => (
-                  <TimetableRow
-                    key={group.id}
-                    group={group}
-                    timetable={timetable}
-                    periodsPerDay={periodsPerDay}
-                    totalPeriods={totalPeriods}
-                  />
-                ))
-              )}
+              {groups.map((group) => (
+                <TimetableRow
+                  key={group.id}
+                  group={group}
+                  timetable={timetable}
+                  periodsPerDay={periodsPerDay}
+                  totalPeriods={totalPeriods}
+                />
+              ))}
             </tbody>
           </table>
         </div>
