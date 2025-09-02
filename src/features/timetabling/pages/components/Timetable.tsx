@@ -1,16 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, type JSX } from 'react';
 import { Clock, RefreshCw } from 'lucide-react';
-import type { DragSource } from '../../types/DragSource';
 import { useScheduleConfig } from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../utils/timeLogic';
-import type { ClassGroup } from '../../../classSessionComponents/types';
-import type { ClassSession } from '../../../classSessions/types/classSession';
 import { TimetableHeader, TimetableRow } from './timetable/index';
 import { LoadingSpinner } from '../../../../components/ui';
 import TimetableContext from './timetable/TimetableContext';
+import type { ClassGroup } from '../../../classSessionComponents/types';
+import type { ClassSession } from '../../../classSessions/types/classSession';
+import type { DragSource } from '../../types/DragSource';
 
 /**
  * Props for the Timetable component.
+ *
+ * @interface TimetableProps
+ * @prop {ClassGroup[]} groups - List of class groups to be displayed in the timetable.
+ * @prop {Map<string, (ClassSession | null)[]>} timetable - A map of time slots to ClassSessions.
+ * @prop {boolean} isLoading - Indicates if the timetable data is still being loaded.
+ * @prop {(e: React.DragEvent, source: DragSource) => void} onDragStart - Function for initiating drag events.
+ * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDropToGrid - Handler for dropping items onto the timetable.
+ * @prop {(content: React.ReactNode, target: HTMLElement) => void} onShowTooltip - Function to display a tooltip.
+ * @prop {() => void} onHideTooltip - Function to hide the tooltip.
  */
 interface TimetableProps {
   groups: ClassGroup[];
@@ -23,9 +32,23 @@ interface TimetableProps {
 }
 
 /**
- * A component that renders the main interactive timetable grid.
- * It provides a context for its children to avoid prop drilling drag-and-drop handlers.
- * @param {TimetableProps} props The props for the component.
+ * Renders an interactive timetable grid with drag-and-drop functionality.
+ * This component provides the timetable context to its child components to avoid prop drilling.
+ *
+ * @component
+ * @example
+ * // Example usage of the Timetable component
+ * <Timetable
+ *   groups={classGroups}
+ *   timetable={timetableData}
+ *   isLoading={false}
+ *   onDragStart={handleDragStart}
+ *   onDropToGrid={handleDropToGrid}
+ *   onShowTooltip={showTooltip}
+ *   onHideTooltip={hideTooltip}
+ * />
+ *
+ * @param {TimetableProps} props - The props for this component.
  * @returns {JSX.Element} The rendered component.
  */
 const Timetable: React.FC<TimetableProps> = ({
@@ -36,7 +59,7 @@ const Timetable: React.FC<TimetableProps> = ({
   onDropToGrid,
   onShowTooltip,
   onHideTooltip,
-}) => {
+}: TimetableProps): JSX.Element => {
   // --- State & Hooks ---
   const { settings, isLoading: isLoadingConfig } = useScheduleConfig();
   const [dragOverCell, setDragOverCell] = useState<{
@@ -51,22 +74,46 @@ const Timetable: React.FC<TimetableProps> = ({
 
   // --- Drag-and-Drop Event Handlers ---
 
+  /**
+   * Handles drag over events, allowing drag-and-drop interaction.
+   *
+   * @param {React.DragEvent} e - The drag event.
+   */
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
 
+  /**
+   * Handles the drag enter event for specific cells.
+   *
+   * @param {React.DragEvent} e - The drag event.
+   * @param {string} groupId - The ID of the group the event is associated with.
+   * @param {number} periodIndex - The index of the period within the group.
+   */
   const handleDragEnter = (e: React.DragEvent, groupId: string, periodIndex: number) => {
     e.stopPropagation();
     setDragOverCell({ groupId, periodIndex });
   };
 
+  /**
+   * Handles the global drag leave event.
+   *
+   * @param {React.DragEvent} e - The drag event.
+   */
   const handleGlobalDragLeave = (e: React.DragEvent) => {
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setDragOverCell(null);
     }
   };
 
+  /**
+   * Handles the drop event on the timetable grid.
+   *
+   * @param {React.DragEvent} e - The drop event.
+   * @param {string} groupId - The group ID for the drop target.
+   * @param {number} periodIndex - The period index for the drop target.
+   */
   const handleDrop = (e: React.DragEvent, groupId: string, periodIndex: number) => {
     e.preventDefault();
     e.stopPropagation();
