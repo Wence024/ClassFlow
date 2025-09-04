@@ -33,6 +33,7 @@ const buildTooltipContent = (session: ClassSession) => (
 /**
  * Renders a cell containing a class session in the timetable.
  * It is draggable and provides drop zones for moving items within it.
+ * Shows visual feedback during drag operations with availability indicators.
  * @param {SessionCellProps} props The props for the component.
  * @returns {JSX.Element} The rendered component.
  */
@@ -45,6 +46,8 @@ const SessionCell: React.FC<SessionCellProps> = ({
 }) => {
   const {
     dragOverCell,
+    currentDraggedSession,
+    isSlotAvailable,
     onDragStart,
     onShowTooltip,
     onHideTooltip,
@@ -56,6 +59,9 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const numberOfPeriods = session.period_count || 1;
   const borderClass =
     isLastInDay && isNotLastInTable ? 'border-r-2 border-dashed border-gray-300' : '';
+  
+  const isDragging = currentDraggedSession !== null;
+  const isDraggedSession = currentDraggedSession?.id === session.id;
 
   return (
     <td colSpan={numberOfPeriods} className={`p-0.5 align-top relative ${borderClass}`}>
@@ -72,10 +78,16 @@ const SessionCell: React.FC<SessionCellProps> = ({
           }
           onMouseEnter={(e) => onShowTooltip(buildTooltipContent(session), e.currentTarget)}
           onMouseLeave={onHideTooltip}
-          className="relative w-full h-full cursor-grab"
+          className={`relative w-full h-full cursor-grab ${
+            isDraggedSession ? 'opacity-50' : ''
+          }`}
         >
           {/* Layer 1: The Visible Block */}
-          <div className="absolute inset-0 rounded-md bg-blue-100 flex items-center justify-center p-1 text-center z-10">
+          <div className={`absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200 ${
+            isDraggedSession 
+              ? 'bg-blue-200 border-2 border-blue-400 border-dashed' 
+              : 'bg-blue-100'
+          }`}>
             <p className="font-bold text-xs text-blue-900 pointer-events-none">
               {session.course.name}
             </p>
@@ -88,6 +100,9 @@ const SessionCell: React.FC<SessionCellProps> = ({
               const isDragOver =
                 dragOverCell?.groupId === groupId &&
                 dragOverCell?.periodIndex === currentSubPeriodIndex;
+              const isSlotValidForDrop = isDragging && !isDraggedSession && 
+                isSlotAvailable(groupId, currentSubPeriodIndex);
+              
               return (
                 <div
                   key={currentSubPeriodIndex}
@@ -97,7 +112,14 @@ const SessionCell: React.FC<SessionCellProps> = ({
                   onDrop={(e) => onDropToGrid(e, groupId, currentSubPeriodIndex)}
                 >
                   {isDragOver && (
-                    <div className="w-full h-full bg-blue-200 bg-opacity-50 rounded-md"></div>
+                    <div className={`w-full h-full rounded-md ${
+                      isSlotValidForDrop ? 'bg-green-200 bg-opacity-50' : 'bg-red-200 bg-opacity-50'
+                    }`}></div>
+                  )}
+                  {isDragging && !isDraggedSession && isSlotValidForDrop && !isDragOver && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full opacity-60"></div>
+                    </div>
                   )}
                 </div>
               );

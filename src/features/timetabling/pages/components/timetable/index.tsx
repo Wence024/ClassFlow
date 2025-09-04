@@ -6,6 +6,7 @@ import type { ClassSession } from '../../../../classSessions/types/classSession'
 import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
 import type { DragSource } from '../../../types/DragSource';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
+import checkConflicts from '../../../utils/checkConflicts';
 import TimetableContext from './TimetableContext';
 import TimetableHeader from './TimetableHeader';
 import TimetableRow from './TimetableRow';
@@ -68,13 +69,61 @@ const Timetable: React.FC<TimetableProps> = ({
     groupId: string;
     periodIndex: number;
   } | null>(null);
+  const [currentDraggedSession, setCurrentDraggedSession] = useState<ClassSession | null>(null);
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
     return generateTimetableHeaders(settings);
   }, [settings]);
 
+  // --- Conflict Detection Logic ---
+
+  /**
+   * Checks if a slot is available for the currently dragged session without conflicts.
+   *
+   * @param {string} groupId - The ID of the group to check.
+   * @param {number} periodIndex - The period index to check.
+   * @returns {boolean} True if the slot is available, false otherwise.
+   */
+  const isSlotAvailable = (groupId: string, periodIndex: number): boolean => {
+    if (!currentDraggedSession || !settings) return false;
+    
+    const conflictMessage = checkConflicts(
+      timetable,
+      currentDraggedSession,
+      settings,
+      groupId,
+      periodIndex
+    );
+    
+    return conflictMessage === '';
+  };
+
   // --- Drag-and-Drop Event Handlers ---
+
+  /**
+   * Handles drag start events, tracking the currently dragged session.
+   * Searches for the session in both the timetable and from external sources.
+   *
+   * @param {React.DragEvent} e - The drag event.
+   * @param {DragSource} source - The drag source information.
+   */
+  const handleDragStart = (e: React.DragEvent, source: DragSource) => {
+    // Find the session being dragged from timetable
+    let draggedSession = Array.from(timetable.values())
+      .flat()
+      .find(session => session?.id === source.class_session_id);
+    
+    // If not found in timetable, it might be from sidebar - we'll get it during onDrop
+    // For now, just store the source info to enable conflict checking later
+    if (!draggedSession && source.from === 'drawer') {
+      // Create a placeholder session for conflict checking - will be resolved in drop handler
+      draggedSession = null;
+    }
+    
+    setCurrentDraggedSession(draggedSession || null);
+    onDragStart(e, source);
+  };
 
   /**
    * Handles drag over events, allowing drag-and-drop interaction.
@@ -121,6 +170,15 @@ const Timetable: React.FC<TimetableProps> = ({
     e.stopPropagation();
     onDropToGrid(e, groupId, periodIndex);
     setDragOverCell(null);
+    setCurrentDraggedSession(null);
+  };
+
+  /**
+   * Handles the global drag end event to clean up state.
+   */
+  const handleDragEnd = () => {
+    setCurrentDraggedSession(null);
+    setDragOverCell(null);
   };
 
   // --- Render Logic ---
@@ -140,7 +198,9 @@ const Timetable: React.FC<TimetableProps> = ({
   // The value provided to the context, combining state and handlers.
   const contextValue = {
     dragOverCell,
-    onDragStart,
+    currentDraggedSession,
+    isSlotAvailable,
+    onDragStart: handleDragStart,
     onDropToGrid: handleDrop,
     onShowTooltip,
     onHideTooltip,
@@ -152,6 +212,7 @@ const Timetable: React.FC<TimetableProps> = ({
     <div
       className="bg-white rounded-lg shadow-sm border border-gray-200"
       onDragLeave={handleGlobalDragLeave}
+      onDragEnd={handleDragEnd}
     >
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
