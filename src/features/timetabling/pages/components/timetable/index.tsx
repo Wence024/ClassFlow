@@ -27,6 +27,7 @@ import TimetableRow from './TimetableRow';
 interface TimetableProps {
   groups: ClassGroup[];
   timetable: Map<string, (ClassSession | null)[]>;
+  classSessions: ClassSession[];
   isLoading: boolean;
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
@@ -57,6 +58,7 @@ interface TimetableProps {
 const Timetable: React.FC<TimetableProps> = ({
   groups,
   timetable,
+  classSessions,
   isLoading,
   onDragStart,
   onDropToGrid,
@@ -109,19 +111,17 @@ const Timetable: React.FC<TimetableProps> = ({
    * @param {DragSource} source - The drag source information.
    */
   const handleDragStart = (e: React.DragEvent, source: DragSource) => {
-    // Find the session being dragged from timetable
+    // Find the session being dragged - check timetable first, then all sessions
     let draggedSession = Array.from(timetable.values())
       .flat()
       .find(session => session?.id === source.class_session_id);
     
-    // If not found in timetable, it might be from sidebar - we'll get it during onDrop
-    // For now, just store the source info to enable conflict checking later
-    if (!draggedSession && source.from === 'drawer') {
-      // Create a placeholder session for conflict checking - will be resolved in drop handler
-      draggedSession = null;
+    // If not found in timetable (dragging from drawer), find in classSessions
+    if (!draggedSession) {
+      draggedSession = classSessions.find(session => session.id === source.class_session_id) || null;
     }
     
-    setCurrentDraggedSession(draggedSession || null);
+    setCurrentDraggedSession(draggedSession);
     onDragStart(e, source);
   };
 
@@ -169,6 +169,7 @@ const Timetable: React.FC<TimetableProps> = ({
     e.preventDefault();
     e.stopPropagation();
     onDropToGrid(e, groupId, periodIndex);
+    // Clean up drag state after drop
     setDragOverCell(null);
     setCurrentDraggedSession(null);
   };
@@ -213,6 +214,7 @@ const Timetable: React.FC<TimetableProps> = ({
       className="bg-white rounded-lg shadow-sm border border-gray-200"
       onDragLeave={handleGlobalDragLeave}
       onDragEnd={handleDragEnd}
+      onDrop={handleDragEnd} // Also clean up on any drop to this container
     >
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">

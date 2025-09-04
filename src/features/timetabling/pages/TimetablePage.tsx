@@ -83,6 +83,7 @@ const TimetablePage: React.FC = () => {
                 <Timetable
                   groups={groups}
                   timetable={timetable}
+                  classSessions={classSessions}
                   isLoading={loading} // Pass the single loading state
                   onDragStart={handleDragStart}
                   onDropToGrid={handleDropToGrid}
