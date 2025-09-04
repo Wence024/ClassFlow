@@ -32,6 +32,7 @@ const TimetablePage: React.FC = () => {
   } = useTimetableDnd();
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [draggedSession, setDraggedSession] = useState<ClassSession | null>(null);
 
   // --- (Tooltip and DragStart handlers are unchanged) ---
   const handleShowTooltip = (content: React.ReactNode, target: HTMLElement) => {
@@ -41,9 +42,26 @@ const TimetablePage: React.FC = () => {
   const handleHideTooltip = () => setTooltip(null);
   const handleDragStart = (e: React.DragEvent, source: DragSource) => {
     handleHideTooltip();
+    // Ensure the timetable knows which session is being dragged (works for drawer and timetable)
+    const session = classSessions.find((cs) => cs.id === source.class_session_id) || null;
+    setDraggedSession(session);
     dndHandleDragStart(e, source);
   };
 
+  // Clear drag state after any drop (grid or drawer)
+  const handleDropToGridWrapped = async (
+    e: React.DragEvent,
+    groupId: string,
+    periodIndex: number
+  ) => {
+    await handleDropToGrid(e, groupId, periodIndex);
+    setDraggedSession(null);
+  };
+
+  const handleDropToDrawerWrapped = async (e: React.DragEvent) => {
+    await handleDropToDrawer(e);
+    setDraggedSession(null);
+  };
   // --- (Memoized calculations are unchanged) ---
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
@@ -86,14 +104,15 @@ const TimetablePage: React.FC = () => {
                   classSessions={classSessions}
                   isLoading={loading} // Pass the single loading state
                   onDragStart={handleDragStart}
-                  onDropToGrid={handleDropToGrid}
+                  onDropToGrid={handleDropToGridWrapped}
                   onShowTooltip={handleShowTooltip}
                   onHideTooltip={handleHideTooltip}
+                  externalDraggedSession={draggedSession}
                 />
                 <Drawer
                   drawerClassSessions={drawerClassSessions}
                   onDragStart={handleDragStart}
-                  onDropToDrawer={handleDropToDrawer}
+                  onDropToDrawer={handleDropToDrawerWrapped}
                 />
               </>
             )}

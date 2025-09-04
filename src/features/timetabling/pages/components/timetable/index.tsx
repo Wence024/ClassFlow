@@ -1,5 +1,5 @@
 import { Clock, RefreshCw } from 'lucide-react';
-import React, { useMemo, useState, type JSX } from 'react';
+import React, { useEffect, useMemo, useState, type JSX } from 'react';
 import { LoadingSpinner } from '../../../../../components/ui';
 import type { ClassGroup } from '../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
@@ -33,6 +33,8 @@ interface TimetableProps {
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
   onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
   onHideTooltip: () => void;
+  /** When dragging from outside the Timetable (e.g., Drawer), the active dragged session */
+  externalDraggedSession?: ClassSession | null;
 }
 
 /**
@@ -64,6 +66,7 @@ const Timetable: React.FC<TimetableProps> = ({
   onDropToGrid,
   onShowTooltip,
   onHideTooltip,
+  externalDraggedSession,
 }: TimetableProps): JSX.Element => {
   // --- State & Hooks ---
   const { settings, isLoading: isLoadingConfig } = useScheduleConfig();
@@ -78,6 +81,16 @@ const Timetable: React.FC<TimetableProps> = ({
     return generateTimetableHeaders(settings);
   }, [settings]);
 
+  // Determine which dragged session to use (external from Drawer or internal from grid)
+  const activeDraggedSession = externalDraggedSession ?? currentDraggedSession;
+
+  // If a drag operation ends outside the grid (e.g., dropped into the Drawer), clear hover state
+  useEffect(() => {
+    if (externalDraggedSession === null) {
+      setDragOverCell(null);
+    }
+  }, [externalDraggedSession]);
+
   // --- Conflict Detection Logic ---
 
   /**
@@ -88,11 +101,11 @@ const Timetable: React.FC<TimetableProps> = ({
    * @returns {boolean} True if the slot is available, false otherwise.
    */
   const isSlotAvailable = (groupId: string, periodIndex: number): boolean => {
-    if (!currentDraggedSession || !settings) return false;
+    if (!activeDraggedSession || !settings) return false;
     
     const conflictMessage = checkConflicts(
       timetable,
-      currentDraggedSession,
+      activeDraggedSession,
       settings,
       groupId,
       periodIndex
@@ -199,7 +212,7 @@ const Timetable: React.FC<TimetableProps> = ({
   // The value provided to the context, combining state and handlers.
   const contextValue = {
     dragOverCell,
-    currentDraggedSession,
+    currentDraggedSession: activeDraggedSession,
     isSlotAvailable,
     onDragStart: handleDragStart,
     onDropToGrid: handleDrop,
