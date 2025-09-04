@@ -11,7 +11,6 @@ import TimetableContext from './TimetableContext';
 import TimetableHeader from './TimetableHeader';
 import TimetableRow from './TimetableRow';
 
-
 /**
  * Props for the Timetable component.
  *
@@ -102,7 +101,7 @@ const Timetable: React.FC<TimetableProps> = ({
    */
   const isSlotAvailable = (groupId: string, periodIndex: number): boolean => {
     if (!activeDraggedSession || !settings) return false;
-    
+
     const conflictMessage = checkConflicts(
       timetable,
       activeDraggedSession,
@@ -110,7 +109,7 @@ const Timetable: React.FC<TimetableProps> = ({
       groupId,
       periodIndex
     );
-    
+
     return conflictMessage === '';
   };
 
@@ -127,13 +126,14 @@ const Timetable: React.FC<TimetableProps> = ({
     // Find the session being dragged - check timetable first, then all sessions
     let draggedSession = Array.from(timetable.values())
       .flat()
-      .find(session => session?.id === source.class_session_id);
-    
+      .find((session) => session?.id === source.class_session_id);
+
     // If not found in timetable (dragging from drawer), find in classSessions
     if (!draggedSession) {
-      draggedSession = classSessions.find(session => session.id === source.class_session_id) || null;
+      draggedSession =
+        classSessions.find((session) => session.id === source.class_session_id) || null;
     }
-    
+
     setCurrentDraggedSession(draggedSession);
     onDragStart(e, source);
   };
@@ -158,6 +158,15 @@ const Timetable: React.FC<TimetableProps> = ({
   const handleDragEnter = (e: React.DragEvent, groupId: string, periodIndex: number) => {
     e.stopPropagation();
     setDragOverCell({ groupId, periodIndex });
+  };
+
+  /**
+   * Handles the drag leave event for specific cells.
+   *
+   * @param {React.DragEvent} e - The drag event.
+   */
+  const handleDragLeave = (e: React.DragEvent) => {
+    setDragOverCell(null);
   };
 
   /**
@@ -219,6 +228,7 @@ const Timetable: React.FC<TimetableProps> = ({
     onShowTooltip,
     onHideTooltip,
     onDragEnter: handleDragEnter,
+    onDragLeave: handleDragLeave,
     onDragOver: handleDragOver,
   };
 

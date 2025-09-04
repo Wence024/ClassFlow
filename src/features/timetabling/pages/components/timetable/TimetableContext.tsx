@@ -12,6 +12,7 @@ export interface TimetableContextType {
   onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
   onHideTooltip: () => void;
   onDragEnter: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
+  onDragLeave: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
 }
 
@@ -28,6 +29,7 @@ export interface TimetableContextType {
  * @prop {(content: React.ReactNode, target: HTMLElement) => void} onShowTooltip - Function to show tooltips.
  * @prop {() => void} onHideTooltip - Function to hide tooltips.
  * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDragEnter - Handler for drag enter events on grid cells.
+ * @prop {(e: React.DragEvent) => void} onDragLeave - Handler for drag leave events on grid cells.
  * @prop {(e: React.DragEvent) => void} onDragOver - Handler for drag over events.
  */
 
