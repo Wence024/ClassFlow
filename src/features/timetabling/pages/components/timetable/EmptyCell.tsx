@@ -54,13 +54,13 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
       >
         {isDragOver && (
           <div
-            className={`w-full h-full rounded-md ${
+            className={`w-full h-full rounded-md pointer-events-none ${
               isAvailable ? 'bg-green-200/50' : 'bg-red-200/50'
             }`}
           ></div>
         )}
         {isDragging && isAvailable && !isDragOver && (
-          <div className="w-2 h-2 bg-green-500 rounded-full opacity-60"></div>
+          <div className="w-2 h-2 bg-green-500 rounded-full opacity-60 pointer-events-none"></div>
         )}
       </div>
     </td>

@@ -74,6 +74,7 @@ const Timetable: React.FC<TimetableProps> = ({
     periodIndex: number;
   } | null>(null);
   const [currentDraggedSession, setCurrentDraggedSession] = useState<ClassSession | null>(null);
+  const [draggedFromGroupId, setDraggedFromGroupId] = useState<string | null>(null);
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
@@ -101,6 +102,10 @@ const Timetable: React.FC<TimetableProps> = ({
    */
   const isSlotAvailable = (groupId: string, periodIndex: number): boolean => {
     if (!activeDraggedSession || !settings) return false;
+    // Disallow moving a session to a different group row when dragging from the grid
+    if (draggedFromGroupId && draggedFromGroupId !== groupId) {
+      return false;
+    }
 
     const conflictMessage = checkConflicts(
       timetable,
@@ -135,6 +140,12 @@ const Timetable: React.FC<TimetableProps> = ({
     }
 
     setCurrentDraggedSession(draggedSession);
+    // Track origin group only when dragging from the timetable grid
+    if (source.from === 'timetable' && 'class_group_id' in source) {
+      setDraggedFromGroupId(source.class_group_id as string);
+    } else {
+      setDraggedFromGroupId(null);
+    }
     onDragStart(e, source);
   };
 
@@ -166,7 +177,12 @@ const Timetable: React.FC<TimetableProps> = ({
    * @param {React.DragEvent} e - The drag event.
    */
   const handleDragLeave = (e: React.DragEvent) => {
-    setDragOverCell(null);
+    const currentTarget = e.currentTarget as HTMLElement;
+    const related = e.relatedTarget as Node | null;
+    // Only clear if the drag actually left this element and not moved to a child
+    if (!related || !currentTarget.contains(related)) {
+      setDragOverCell(null);
+    }
   };
 
   /**
@@ -194,6 +210,7 @@ const Timetable: React.FC<TimetableProps> = ({
     // Clean up drag state after drop
     setDragOverCell(null);
     setCurrentDraggedSession(null);
+    setDraggedFromGroupId(null);
   };
 
   /**
@@ -202,6 +219,7 @@ const Timetable: React.FC<TimetableProps> = ({
   const handleDragEnd = () => {
     setCurrentDraggedSession(null);
     setDragOverCell(null);
+    setDraggedFromGroupId(null);
   };
 
   // --- Render Logic ---

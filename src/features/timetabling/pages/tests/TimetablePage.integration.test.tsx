@@ -140,7 +140,7 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
     } as UseScheduleConfigReturn);
   });
 
-  it('shows a green background on an available cell when dragging from the drawer', async () => {
+  it('shows a green overlay on an available empty cell when dragging over it', async () => {
     renderComponent();
 
     const draggable = screen.getByText('Another Course - Group 2');
@@ -161,11 +161,12 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
     fireEvent.dragEnter(dropTargetDiv);
 
     await waitFor(() => {
-      expect(dropTargetDiv).toHaveClass('bg-green-50');
+      const overlay = dropTargetDiv.querySelector('div');
+      expect(overlay).toHaveClass('bg-green-200/50');
     });
   });
 
-  it('shows a red background on a cell with a conflict when dragging from the drawer', async () => {
+  it('shows a red overlay on a cell with a conflict when dragging from the drawer', async () => {
     renderComponent();
 
     const draggable = screen.getByText('Another Course - Group 2');
@@ -191,11 +192,11 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
 
     await waitFor(() => {
       const overlay = dropZone?.querySelector('div');
-      expect(overlay).toHaveClass('bg-red-200');
+      expect(overlay).toHaveClass('bg-red-200', 'bg-opacity-50');
     });
   });
 
-  it('shows a green background on an available cell when moving an existing session', async () => {
+  it('shows a green overlay on an available empty cell when moving an existing session', async () => {
     renderComponent();
 
     const draggable = screen.getByTestId('session-card-session1');
@@ -220,11 +221,12 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
     fireEvent.dragEnter(dropTargetDiv);
 
     await waitFor(() => {
-      expect(dropTargetDiv).toHaveClass('bg-green-50');
+      const overlay = dropTargetDiv.querySelector('div');
+      expect(overlay).toHaveClass('bg-green-200/50');
     });
   });
 
-  it('shows a red background on a conflicting cell when moving an existing session', async () => {
+  it('shows a red overlay on a conflicting cell when moving an existing session', async () => {
     // This test needs careful setup for the conflict
     const customTimetable = new Map([
       ['group1', [mockSession1, null, null, null]],
@@ -271,11 +273,11 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
 
     await waitFor(() => {
       const overlay = dropZone?.querySelector('div');
-      expect(overlay).toHaveClass('bg-red-200');
+      expect(overlay).toHaveClass('bg-red-200', 'bg-opacity-50');
     });
   });
 
-  it('removes the green background when the dragged item leaves an available cell', async () => {
+  it('removes the overlay when the dragged item leaves an available cell', async () => {
     renderComponent();
 
     const draggable = screen.getByText('Another Course - Group 2');
@@ -296,7 +298,8 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
     });
     fireEvent.dragEnter(dropTargetDiv);
     await waitFor(() => {
-      expect(dropTargetDiv).toHaveClass('bg-green-50');
+      const overlay = dropTargetDiv.querySelector('div');
+      expect(overlay).toHaveClass('bg-green-200/50');
     });
 
     // Leave the cell
@@ -308,7 +311,7 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
     });
   });
 
-  it('shows a red background when attempting to move a session to a different group row', async () => {
+  it('shows a red overlay when attempting to move a session to a different group row', async () => {
     renderComponent();
 
     const draggable = screen.getByTestId('session-card-session1'); // Belongs to group1
@@ -334,7 +337,7 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
 
     await waitFor(() => {
       const overlay = dropZone.querySelector('div');
-      expect(overlay).toHaveClass('bg-green-200');
+      expect(overlay).toHaveClass('bg-red-200/50');
     });
   });
 });

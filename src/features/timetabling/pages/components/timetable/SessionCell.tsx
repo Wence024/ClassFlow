@@ -120,7 +120,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
                 >
                   {isDragOver && (
                     <div
-                      className={`w-full h-full rounded-md ${
+                      className={`w-full h-full rounded-md pointer-events-none ${
                         isSlotValidForDrop
                           ? 'bg-green-200 bg-opacity-50'
                           : 'bg-red-200 bg-opacity-50'
@@ -128,7 +128,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
                     ></div>
                   )}
                   {isDragging && !isDraggedSession && isSlotValidForDrop && !isDragOver && (
-                    <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-full h-full flex items-center justify-center pointer-events-none">
                       <div className="w-2 h-2 bg-green-500 rounded-full opacity-60"></div>
                     </div>
                   )}
