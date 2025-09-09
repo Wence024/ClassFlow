@@ -37,19 +37,21 @@ Now, combine your components into schedulable classes.
     - **Instructor:** "Dr. Jane Doe"
     - **Classroom:** "Room 101"
     - **Duration:** 2 periods
+3. As you select a class group and classroom, the form will **instantly warn you** if there is a potential conflict, such as the number of students exceeding the room's capacity.
 
 ### Step 3: Schedule on the Timetable
 
 This is where you visually build your schedule.
 
 1. Navigate to the **Timetable** page from the sidebar.
+   - **Note:** Class sessions in the drawer with a yellow warning badge have a potential issue (like a capacity conflict) that you should review.
 2. You will see all the Class Sessions you created in the **"Available Classes"** drawer at the bottom.
 3. Simply **drag** a class from the drawer and **drop** it onto an empty, dashed slot in the timetable grid. The system will automatically prevent you from creating conflicts.
 
 ## Frequently Asked Questions (FAQ)
 
 - **Why can’t I drop a class in a certain spot?**
-    If a red notification appears, it means there is a conflict. The message will tell you if it's an instructor, classroom, or group conflict. Try a different time slot.
+    As you drag a session over the grid, available slots will be marked with a **green highlight**. If a slot shows a **red highlight**, it means there is a conflict (e.g., the instructor is already busy). You can only drop sessions on green slots. After an invalid drop, a notification will provide more details.
 
 - **How do I move a scheduled class?**
     Just drag the class from its current position on the grid and drop it into a new, valid time slot.

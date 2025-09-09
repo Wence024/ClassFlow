@@ -101,7 +101,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
     <div
       className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center gap-4 ${className}`}
     >
-      {/* THIS IS THE NEW PART: Render a color swatch if a color is provided */}
+      {/* Render a color swatch if a color is provided */}
       {color && (
         <div
           className="w-2 h-8 rounded-lg"
@@ -134,19 +134,12 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         {onEdit && (
-          // THIS IS THE FIX: Add a descriptive aria-label to the button.
-          // Now, the button has an accessible name, even though it only contains an icon.
-          <ActionButton
-            variant="secondary"
-            size="sm"
-            onClick={onEdit}
-            aria-label={`Edit ${title}`} // <-- THE FIX
-          >
+          <ActionButton variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
             <Edit className="w-4 h-4" />
           </ActionButton>
         )}
         {onDelete && (
-          // THIS IS THE FIX: Add a descriptive aria-label to the button.
+          // Add a descriptive aria-label to the button.
           <ActionButton
             variant="danger"
             size="sm"
