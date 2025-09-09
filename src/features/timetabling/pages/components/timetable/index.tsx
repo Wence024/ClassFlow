@@ -1,5 +1,5 @@
 import { Clock, RefreshCw } from 'lucide-react';
-import React, { useEffect, useMemo, useState, type JSX } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, type JSX } from 'react';
 import { LoadingSpinner } from '../../../../../components/ui';
 import type { ClassGroup } from '../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
@@ -215,12 +215,27 @@ const Timetable: React.FC<TimetableProps> = ({
 
   /**
    * Handles the global drag end event to clean up state.
+   * Memoized with useCallback to maintain a stable reference for useEffect.
    */
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     setCurrentDraggedSession(null);
     setDragOverCell(null);
     setDraggedFromGroupId(null);
-  };
+  }, []);
+
+  // This effect adds a global event listener for 'dragend'.
+  // This is necessary to catch the end of a drag operation that originates
+  // from outside this component (e.g., the sidebar). The component's own
+  // onDragEnd handler only catches events for drags starting within it.
+  useEffect(() => {
+    // handleDragEnd is memoized and safe to use here.
+    document.addEventListener('dragend', handleDragEnd);
+
+    // Cleanup the event listener when the Timetable component unmounts.
+    return () => {
+      document.removeEventListener('dragend', handleDragEnd);
+    };
+  }, [handleDragEnd]);
 
   // --- Render Logic ---
 
