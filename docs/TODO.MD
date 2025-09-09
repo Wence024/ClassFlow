@@ -118,3 +118,9 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 * **[Architecture]** Centralize error handling with a `useApiMutation` hook.
 * [ ] Keyboard shortcuts and navigation
 * [ ] Allow classrooms and instructors to be optional in class sessions.
+* [ ] Add program assignment: Create an instructor entity to be assigned temporarily to another program
+* [ ] Add location field to classroom component UI
+* [ ] Add keyboard input in class session assignment UI
+* [ ] Sort/filter issue in class sessions and components
+  * Majors vs general subjects
+  * Teachers in program/department vs other programs/departments

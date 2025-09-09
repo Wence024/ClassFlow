@@ -1,28 +1,35 @@
 // src/features/timetabling/pages/components/timetable/TimetableContext.tsx
 import React, { createContext } from 'react';
 import type { DragSource } from '../../../types/DragSource';
+import type { ClassSession } from '../../../../classSessions/types/classSession';
 
 export interface TimetableContextType {
   dragOverCell: { groupId: string; periodIndex: number } | null;
+  currentDraggedSession: ClassSession | null;
+  isSlotAvailable: (groupId: string, periodIndex: number) => boolean;
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
   onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
   onHideTooltip: () => void;
   onDragEnter: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
+  onDragLeave: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
 }
 
 /**
  * Defines the shape of the data and handlers shared across the timetable components.
- * These include drag-and-drop events, tooltip handlers, and the current dragged cell.
+ * These include drag-and-drop events, tooltip handlers, conflict detection, and visual feedback.
  *
  * @interface TimetableContextType
  * @prop {Object} dragOverCell - The cell currently being dragged over for visual feedback.
+ * @prop {ClassSession | null} currentDraggedSession - The session currently being dragged.
+ * @prop {(groupId: string, periodIndex: number) => boolean} isSlotAvailable - Function to check if a slot is available for placement.
  * @prop {(e: React.DragEvent, source: DragSource) => void} onDragStart - Function for starting a drag event.
  * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDropToGrid - Function for handling drop events.
  * @prop {(content: React.ReactNode, target: HTMLElement) => void} onShowTooltip - Function to show tooltips.
  * @prop {() => void} onHideTooltip - Function to hide tooltips.
  * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDragEnter - Handler for drag enter events on grid cells.
+ * @prop {(e: React.DragEvent) => void} onDragLeave - Handler for drag leave events on grid cells.
  * @prop {(e: React.DragEvent) => void} onDragOver - Handler for drag over events.
  */
 
