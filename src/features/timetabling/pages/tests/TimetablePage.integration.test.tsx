@@ -340,4 +340,41 @@ describe('TimetablePage Drag and Drop Visual Feedback', () => {
       expect(overlay).toHaveClass('bg-red-200/50');
     });
   });
+
+  it('should clear available slot indicators when drag is canceled with Escape key', async () => {
+    renderComponent();
+
+    const draggable = screen.getByText('Another Course - Group 2');
+    const dropTargetCell = screen.getByTestId('cell-group2-1');
+    const dropTargetDiv = dropTargetCell.firstChild as HTMLElement;
+
+    // 1. Start dragging a session
+    fireEvent.dragStart(draggable, {
+      dataTransfer: {
+        setData: vi.fn(),
+        getData: vi.fn((type) => {
+          return type === 'text/plain'
+            ? JSON.stringify({ class_session_id: 'session2', source: 'drawer' })
+            : '';
+        }),
+        effectAllowed: 'move',
+      },
+    });
+
+    // 2. Enter a valid drop target to show the green overlay
+    fireEvent.dragEnter(dropTargetDiv);
+    await waitFor(() => {
+      const overlay = dropTargetDiv.querySelector('div');
+      expect(overlay).toHaveClass('bg-green-200/50');
+    });
+
+    // 3. Simulate pressing the Escape key
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    // 4. Assert that the overlay is removed
+    await waitFor(() => {
+      const overlay = dropTargetDiv.querySelector('[class*="bg-green-200"], [class*="bg-red-200"]');
+      expect(overlay).toBeNull();
+    });
+  });
 });
