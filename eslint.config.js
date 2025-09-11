@@ -25,12 +25,42 @@ export default tseslint.config([
 
     ],
     rules: {
-    // Disable sonarjs duplicate of no-unused-vars
-    "sonarjs/no-unused-vars": "off",
+      // Overrides to prevent conflicts between linting tools
+      'sonarjs/no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
 
-    // Disable ts-eslint duplicate of no-unused-vars 
-    "@typescript-eslint/no-unused-vars": "off",
-  },
+      // Enforce the presence of JSDoc comments
+      'jsdoc/require-jsdoc': [
+        'warn',
+        {
+          // Require JSDoc for all common function and class types
+          require: {
+            FunctionDeclaration: true,
+            MethodDefinition: true,
+            ClassDeclaration: true,
+            ArrowFunctionExpression: true,
+            FunctionExpression: true,
+          },
+          // Only enforce for exported items
+          publicOnly: true,
+        },
+      ],
+
+      // Forbid adding types to JSDoc in TypeScript files
+      'jsdoc/no-types': 'error',
+
+      // Ensure consistent spacing and formatting
+      "jsdoc/tag-lines": ["warn", "always", {
+        "startLines": 1, 
+        "count": 0, 
+      }],
+      'jsdoc/multiline-blocks': 'warn',
+      'jsdoc/require-description': 'warn',
+      'jsdoc/require-param-description': 'warn',
+      'jsdoc/require-returns-description': 'warn',
+      'jsdoc/no-multi-asterisks': 'warn',
+      'jsdoc/require-description-complete-sentence': 'warn'
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
