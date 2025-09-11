@@ -12,7 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "precommit": "npm run format && git update-index --again && cls && git log --oneline -5 && git diff --staged",
+    "prep-commit": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
     "preview": "vite preview",
     "test": "vitest",
     "test:unit": "vitest run -c vitest.unit.config.ts",
