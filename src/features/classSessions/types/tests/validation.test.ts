@@ -35,7 +35,6 @@ describe('classSessionSchema', () => {
 
   describe('foreign key validation', () => {
     it('should fail if course_id is missing', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { course_id, ...rest } = baseValidSession; // Omit course_id
       const result = classSessionSchema.safeParse({ ...rest, period_count: 1 });
       expect(result.success).toBe(false);
