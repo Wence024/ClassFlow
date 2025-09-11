@@ -11,7 +11,6 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/cl
  * providing caching, automatic refetching, and mutation handling.
  *
  * @returns An object containing the class groups data, loading and error states, and mutation functions.
- *
  * @example
  * const { classGroups, loading, addClassGroup, removeClassGroup } = useClassGroups();
  *
@@ -87,7 +86,13 @@ export function useClassGroups() {
     /** An async function to add a new class group. */
     addClassGroup: addMutation.mutateAsync,
 
-    /** An async function to update a class group. */
+    /**
+     * An async function to update a class group.
+     *
+     * @param {string} id The ID of the class group to update.
+     * @param {ClassGroupUpdate} data The data to update the class group with.
+     * @returns {Promise<void>} A Promise that resolves when the update is complete.
+     */
     updateClassGroup: (id: string, data: ClassGroupUpdate) =>
       updateMutation.mutateAsync({ id, data }),
 

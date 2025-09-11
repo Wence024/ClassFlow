@@ -21,7 +21,9 @@ interface FormFieldProps {
   /** The text label displayed above the form field. */
   label: string;
 
-  /** The type of the input field. 'select' renders a dropdown.
+  /**
+   * The type of the input field. 'select' renders a dropdown.
+   *
    * @default 'text'
    */
   // ADD 'color' to the list of allowed types
@@ -39,7 +41,9 @@ interface FormFieldProps {
   /** Placeholder text for the input field. */
   placeholder?: string;
 
-  /** Whether the field is required. Adds a visual indicator and the `required` attribute.
+  /**
+   * Whether the field is required. Adds a visual indicator and the `required` attribute.
+   *
    * @default false
    */
   required?: boolean;
@@ -47,7 +51,8 @@ interface FormFieldProps {
   /** An error message to display below the field. If present, the field will be styled to indicate an error. */
   error?: string;
 
-  /** The `autocomplete` attribute for the input, to help with browser autofill.
+  /**
+   * The `autocomplete` attribute for the input, to help with browser autofill.
    * Note: Only pass a valid, non-empty autocomplete string for accessibility compliance.
    */
   autoComplete?: string;
@@ -56,6 +61,19 @@ interface FormFieldProps {
 /**
  * A standardized component for creating labeled form inputs, including text, password, select, and more.
  * It handles displaying labels, validation errors, and required field indicators.
+ *
+ * @param f The props for the component.
+ * @param f.id A unique identifier for the input, used for the `id` and `name` attributes. Essential for accessibility.
+ * @param f.label The text label displayed above the form field.
+ * @param f.type The type of the input field. 'select' renders a dropdown.
+ * @param f.value The current value of the form field.
+ * @param f.onChange A callback function that is invoked when the field's value changes.
+ * @param f.options An array of options for select inputs. Each option should have an `id` and `name`.
+ * @param f.placeholder Placeholder text for the input field.
+ * @param f.required Whether the field is required. Adds a visual indicator and the `required` attribute.
+ * @param f.error An error message to display below the field. If present, the field will be styled to indicate an error.
+ * @param f.autoComplete The `autocomplete` attribute for the input, to help with browser autofill.
+ * @returns A form field component.
  */
 const FormField: React.FC<FormFieldProps> = ({
   id,

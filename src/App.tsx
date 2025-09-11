@@ -66,6 +66,11 @@ function NavBar({ onLogout }: { onLogout?: () => void }) {
   );
 }
 
+/**
+ * Main application component.
+ *
+ * @returns {JSX.Element} The main application component.
+ */
 function App() {
   const [toast, setToast] = useState<string | null>(null);
 

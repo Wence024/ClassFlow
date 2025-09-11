@@ -24,6 +24,7 @@ type CourseFormData = z.infer<typeof componentSchemas.course>;
  * Renders the UI for managing Courses.
  * This component handles fetching, displaying, creating, editing, and deleting courses
  * by orchestrating the `useCourses` hook with the `CourseFields` form and `CourseCard` list.
+ * @returns The CourseManagement component.
  */
 const CourseManagement: React.FC = () => {
   const { user } = useAuth();

@@ -8,6 +8,7 @@ import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
  * A page component for new user registration.
  * It provides a form for name, email, and password, performs client-side validation,
  * and uses the `useAuth` hook to handle the registration process.
+ * @returns A register page component.
  */
 const RegisterPage: React.FC = () => {
   const { register, loading, error: apiError, clearError } = useAuth();
@@ -35,7 +36,8 @@ const RegisterPage: React.FC = () => {
   /**
    * Handles the registration form submission.
    * Validates form data and calls the register function from the AuthContext.
-   * @param {React.FormEvent} e - The form event.
+   *
+   * @param e - The form event.
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,8 +63,9 @@ const RegisterPage: React.FC = () => {
 
   /**
    * A generic handler to update form state.
-   * @param {string} fieldName - The name of the form field to update.
-   * @param {string} value - The new value.
+   *
+   * @param fieldName - The name of the form field to update.
+   * @param value - The new value.
    */
   const handleChange = (
     fieldName: 'name' | 'email' | 'password' | 'confirmPassword',

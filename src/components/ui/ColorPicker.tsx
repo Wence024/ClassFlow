@@ -30,6 +30,15 @@ interface ColorPickerProps {
  *
  * This is achieved by wrapping the visual elements in a `<label>` tag that is
  * associated with a visually hidden but functional `<input type="color">`.
+ *
+ * @param c The props for the component.
+ * @param c.id A unique identifier for the input. Essential for accessibility.
+ * @param c.label The text label displayed above the color picker.
+ * @param c.value The current hex color value (e.g., '#4f46e5').
+ * @param c.onChange A callback function that is invoked when the color value changes.
+ * @param c.error An optional error message to display.
+ * @param c.className Additional CSS classes for the container.
+ * @returns A color picker component.
  */
 const ColorPicker: React.FC<ColorPickerProps> = ({
   id,

@@ -7,7 +7,7 @@
  * import { ActionButton } from '../components/ui/ActionButton';
  *
  * You can do:
- * import { FormField, ActionButton } from '../components/ui';
+ * import { FormField, ActionButton } from '../components/ui';.
  */
 
 export { default as ActionButton } from './ActionButton';

@@ -35,6 +35,12 @@ interface TabNavigationProps {
  * A component that renders a set of clickable tabs for navigation.
  * It manages the visual state of active and disabled tabs.
  *
+ * @param t The props for the component.
+ * @param t.tabs An array of tab objects to be rendered.
+ * @param t.activeTab The `id` of the currently active tab.
+ * @param t.onTabChange A callback function that is invoked with the `id` of the tab when it is clicked.
+ * @param t.className Additional CSS classes to apply to the component's root element.
+ * @returns A tab navigation component.
  * @example
  * const [currentTab, setCurrentTab] = useState('profile');
  * const TABS = [

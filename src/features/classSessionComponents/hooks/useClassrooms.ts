@@ -63,7 +63,13 @@ export function useClassrooms() {
     /** An async function to add a new classroom. */
     addClassroom: addMutation.mutateAsync,
 
-    /** An async function to update a classroom. */
+    /**
+     * An async function to update a classroom.
+     *
+     * @param {string} id The ID of the classroom to update.
+     * @param {ClassroomUpdate} data The data to update the classroom with.
+     * @returns {Promise<void>} A Promise that resolves when the update is complete.
+     */
     updateClassroom: (id: string, data: ClassroomUpdate) =>
       updateMutation.mutateAsync({ id, data }),
 

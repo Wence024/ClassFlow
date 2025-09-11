@@ -9,9 +9,9 @@ import type { AuthResponse, User } from '../types/auth';
 /**
  * Logs in a user using their email and password.
  *
- * @param {string} email - The user's email address.
- * @param {string} password - The user's password.
- * @returns {Promise<AuthResponse>} A promise that resolves to an object containing the user and session token.
+ * @param email - The user's email address.
+ * @param password - The user's password.
+ * @returns A promise that resolves to an object containing the user and session token.
  * @throws {Error} Throws a user-friendly error message if login fails.
  */
 export async function login(email: string, password: string): Promise<AuthResponse> {
@@ -50,10 +50,10 @@ export async function login(email: string, password: string): Promise<AuthRespon
 /**
  * Registers a new user with their name, email, and password.
  *
- * @param {string} name - The user's full name.
- * @param {string} email - The user's email address.
- * @param {string} password - The desired password for the new account.
- * @returns {Promise<{ user: User; token: string; needsVerification: boolean }>} A promise that resolves to an object containing the new user, a token (if available), and a flag indicating if email verification is needed.
+ * @param name - The user's full name.
+ * @param email - The user's email address.
+ * @param password - The desired password for the new account.
+ * @returns A promise that resolves to an object containing the new user, a token (if available), and a flag indicating if email verification is needed.
  * @throws {Error} Throws an error if registration fails.
  */
 export async function register(
@@ -97,8 +97,8 @@ export async function register(
 /**
  * Resends the verification email to the specified email address.
  *
- * @param {string} email - The email address to which the verification link should be sent.
- * @returns {Promise<void>} A promise that resolves when the email has been sent.
+ * @param email - The email address to which the verification link should be sent.
+ * @returns A promise that resolves when the email has been sent.
  * @throws {Error} Throws an error if the request fails.
  */
 export async function resendVerificationEmail(email: string): Promise<void> {
@@ -112,7 +112,7 @@ export async function resendVerificationEmail(email: string): Promise<void> {
  * Retrieves the currently authenticated user from the active session.
  * This is typically used to check for an existing session when the application loads.
  *
- * @returns {Promise<User | null>} A promise that resolves to a User object if a session exists, otherwise null.
+ * @returns A promise that resolves to a User object if a session exists, otherwise null.
  */
 export async function getStoredUser(): Promise<User | null> {
   const {
@@ -135,7 +135,7 @@ export async function getStoredUser(): Promise<User | null> {
 /**
  * Signs out the currently authenticated user.
  *
- * @returns {Promise<void>} A promise that resolves when the user has been signed out.
+ * @returns A promise that resolves when the user has been signed out.
  * @throws {Error} Throws an error if sign-out fails.
  */
 export async function logout(): Promise<void> {

@@ -53,7 +53,20 @@ interface ItemCardProps {
   className?: string;
 }
 
-/** A highly reusable, presentation-only card for displaying item information. */
+/**
+ * A highly reusable, presentation-only card for displaying item information.
+ *
+ * @param i The props for the component.
+ * @param i.title The main title of the card.
+ * @param i.subtitle An optional subtitle displayed below the title. Can be null.
+ * @param i.details An array of details to display as key-value pairs.
+ * @param i.color An optional hex color code to display as a small vertical bar.
+ * @param i.badge An optional badge to display next to the title for warnings or info.
+ * @param i.onEdit A callback function for the edit action. If not provided, the edit button is not rendered.
+ * @param i.onDelete A callback function for the delete action. If not provided, the delete button is not rendered.
+ * @param i.className Additional CSS classes to apply to the card's root element.
+ * @returns An item card component.
+ */
 const ItemCard: React.FC<ItemCardProps> = ({
   title,
   subtitle,

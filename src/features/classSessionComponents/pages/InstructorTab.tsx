@@ -23,6 +23,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 /**
  * Renders the UI for managing Instructors.
  * Orchestrates the `useInstructors` hook with the `InstructorFields` form and `InstructorCard` list.
+ * @returns The InstructorManagement component.
  */
 const InstructorManagement: React.FC = () => {
   const { user } = useAuth();

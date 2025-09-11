@@ -4,12 +4,16 @@ import React from 'react';
  * Props for the LoadingSpinner component.
  */
 interface LoadingSpinnerProps {
-  /** The size of the spinner.
+  /**
+   * The size of the spinner.
+   *
    * @default 'md'
    */
   size?: 'sm' | 'md' | 'lg';
 
-  /** The color of the spinner.
+  /**
+   * The color of the spinner.
+   *
    * @default 'blue'
    */
   color?: 'blue' | 'gray' | 'white';
@@ -24,6 +28,13 @@ interface LoadingSpinnerProps {
 /**
  * A simple, reusable loading spinner component.
  * It can be customized with different sizes, colors, and optional text.
+ *
+ * @param l The props for the component.
+ * @param l.size The size of the spinner.
+ * @param l.color The color of the spinner.
+ * @param l.text Optional text to display below the spinner.
+ * @param l.className Additional CSS classes to apply to the component's root element.
+ * @returns A loading spinner component.
  */
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',

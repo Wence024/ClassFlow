@@ -20,6 +20,13 @@ interface ErrorMessageProps {
 /**
  * A component to display a standardized error message.
  * It can optionally include "Retry" and "Dismiss" actions.
+ *
+ * @param e The props for the component.
+ * @param e.message The error message to display.
+ * @param e.onRetry An optional callback to be executed when the user clicks the retry button.
+ * @param e.onDismiss An optional callback to be executed when the user clicks the dismiss button.
+ * @param e.className Additional CSS classes to apply to the component's root element.
+ * @returns A component that displays a standardized error message.
  */
 const ErrorMessage: React.FC<ErrorMessageProps> = ({
   message,
