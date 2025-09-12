@@ -9,6 +9,7 @@ import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
  * This page is accessed via the link sent to the user's email. It extracts
  * authentication tokens from the URL, sets the user's session, and allows them
  * to submit a new password.
+ *
  * @returns A reset password page component.
  */
 const ResetPasswordPage: React.FC = () => {

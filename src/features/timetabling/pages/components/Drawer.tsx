@@ -29,10 +29,17 @@ interface DrawerProps {
  *
  * All drag-and-drop logic is delegated to the handlers provided via props from the `useTimetableDnd` hook.
  *
- * @param {DrawerProps} props - The props for the component.
+ * @param props - The props for the component.
+ * @param props.drawerClassSessions
+ * @param props.onDragStart
+ * @param props.onDropToDrawer
  */
 const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer }) => {
-  /** Prevents the browser's default drag behavior to enable a custom drop action. */
+  /**
+   * Prevents the browser's default drag behavior to enable a custom drop action.
+   *
+   * @param e
+   */
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
 
   return (

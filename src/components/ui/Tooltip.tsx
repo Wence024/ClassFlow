@@ -16,7 +16,6 @@ interface TooltipProps {
  * A simple tooltip component that displays content on hover.
  *
  * @param t The props for the component.
- * @param t.children The element that triggers the tooltip on hover.
  * @param t.content The content to display inside the tooltip.
  * @param t.position The position of the tooltip relative to the trigger element.
  * @returns A tooltip component.

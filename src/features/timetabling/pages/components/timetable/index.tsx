@@ -38,6 +38,21 @@ interface TimetableProps {
  * This component has been refactored to be a pure presentational component.
  * It receives all drag-and-drop state and handlers from a parent component
  * and provides them to its children via TimetableContext.
+ *
+ * @param root0
+ * @param root0.groups
+ * @param root0.timetable
+ * @param root0.isLoading
+ * @param root0.draggedSession
+ * @param root0.dragOverCell
+ * @param root0.isSlotAvailable
+ * @param root0.onDragStart
+ * @param root0.onDropToGrid
+ * @param root0.onDragEnter
+ * @param root0.onDragLeave
+ * @param root0.onDragOver
+ * @param root0.onShowTooltip
+ * @param root0.onHideTooltip
  */
 const Timetable: React.FC<TimetableProps> = ({
   groups,

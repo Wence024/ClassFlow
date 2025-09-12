@@ -85,7 +85,12 @@ export function useClassSessions() {
     /** An async function to add a new class session. Requires an object with foreign keys. */
     addClassSession: addMutation.mutateAsync,
 
-    /** An async function to update a class session. Requires the session ID and the update data. */
+    /**
+     * An async function to update a class session. Requires the session ID and the update data.
+     *
+     * @param id
+     * @param data
+     */
     updateClassSession: (id: string, data: ClassSessionUpdate) =>
       updateMutation.mutateAsync({ id, data }),
 

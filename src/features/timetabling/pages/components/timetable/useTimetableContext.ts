@@ -7,7 +7,7 @@ import TimetableContext, { type TimetableContextType } from './TimetableContext'
  * This hook throws an error if used outside of a TimetableContext.Provider, ensuring that the context
  * is properly provided to the component tree.
  *
- * @returns {TimetableContextType} - The context value containing handlers and state.
+ * @returns - The context value containing handlers and state.
  * @throws {Error} - If used outside of a TimetableContext.Provider.
  */
 export const useTimetableContext = (): TimetableContextType => {

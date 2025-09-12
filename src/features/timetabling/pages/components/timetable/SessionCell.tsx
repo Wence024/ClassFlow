@@ -15,8 +15,9 @@ interface SessionCellProps {
 
 /**
  * Builds the tooltip content for a class session.
- * @param {ClassSession} session The class session object.
- * @returns {JSX.Element} JSX content for the tooltip.
+ *
+ * @param session The class session object.
+ * @returns JSX content for the tooltip.
  */
 const buildTooltipContent = (session: ClassSession) => (
   <>
@@ -34,8 +35,14 @@ const buildTooltipContent = (session: ClassSession) => (
  * Renders a cell containing a class session in the timetable.
  * It is draggable and provides drop zones for moving items within it.
  * Shows visual feedback during drag operations with availability indicators.
- * @param {SessionCellProps} props The props for the component.
- * @returns {JSX.Element} The rendered component.
+ *
+ * @param props The props for the component.
+ * @param props.session
+ * @param props.groupId
+ * @param props.periodIndex
+ * @param props.isLastInDay
+ * @param props.isNotLastInTable
+ * @returns The rendered component.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
   session,

@@ -54,9 +54,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Handles user login.
    *
-   * @param {string} email The user's email address.
-   * @param {string} password The user's password.
-   * @returns {Promise<void>} A Promise that resolves on successful login or rejects on failure.
+   * @param email The user's email address.
+   * @param password The user's password.
+   * @returns A Promise that resolves on successful login or rejects on failure.
    */
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -82,10 +82,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Handles new user registration.
    *
-   * @param {string} name The user's name.
-   * @param {string} email The user's email address.
-   * @param {string} password The user's password.
-   * @returns {Promise<void>} A Promise that resolves on successful registration or rejects on failure.
+   * @param name The user's name.
+   * @param email The user's email address.
+   * @param password The user's password.
+   * @returns A Promise that resolves on successful registration or rejects on failure.
    */
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
@@ -130,8 +130,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Triggers the resending of a verification email.
    *
-   * @param {string} email The user's email address.
-   * @returns {Promise<void>} A Promise that resolves on successful resend or rejects on failure.
+   * @param email The user's email address.
+   * @returns A Promise that resolves on successful resend or rejects on failure.
    */
   const resendVerificationEmail = async (email: string) => {
     setLoading(true);

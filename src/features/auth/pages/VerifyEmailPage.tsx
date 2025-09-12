@@ -6,6 +6,7 @@ import { ActionButton, ErrorMessage } from '../../../components/ui';
 /**
  * A page shown to users after registration, prompting them to verify their email address.
  * It provides an option to resend the verification email.
+ *
  * @returns A verify email page component.
  */
 const VerifyEmailPage: React.FC = () => {

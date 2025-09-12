@@ -8,9 +8,10 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
 
 /**
  * Renders the specific form fields required for a Classroom.
- * @param {object} props - The component's props.
- * @param {Control<ClassroomFormData>} props.control - The control object from react-hook-form.
- * @param {FieldErrors<ClassroomFormData>} props.errors - The errors object from react-hook-form.
+ *
+ * @param props - The component's props.
+ * @param props.control - The control object from react-hook-form.
+ * @param props.errors - The errors object from react-hook-form.
  */
 export const ClassroomFields: React.FC<{
   control: Control<ClassroomFormData>;

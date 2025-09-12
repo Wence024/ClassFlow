@@ -21,11 +21,11 @@ export interface TimetableContextType {
  * These include drag-and-drop events, tooltip handlers, conflict detection, and visual feedback.
  *
  * @interface TimetableContextType
- * @prop {Object} dragOverCell - The cell currently being dragged over for visual feedback.
- * @prop {ClassSession | null} currentDraggedSession - The session currently being dragged.
- * @prop {(groupId: string, periodIndex: number) => boolean} isSlotAvailable - Function to check if a slot is available for placement.
- * @prop {(e: React.DragEvent, source: DragSource) => void} onDragStart - Function for starting a drag event.
- * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDropToGrid - Function for handling drop events.
+ * dragOverCell - The cell currently being dragged over for visual feedback.
+ * currentDraggedSession - The session currently being dragged.
+ * isSlotAvailable - Function to check if a slot is available for placement.
+ * onDragStart - Function for starting a drag event.
+ * onDropToGrid - Function for handling drop events.
  * @prop {(content: React.ReactNode, target: HTMLElement) => void} onShowTooltip - Function to show tooltips.
  * @prop {() => void} onHideTooltip - Function to hide tooltips.
  * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDragEnter - Handler for drag enter events on grid cells.
@@ -37,8 +37,6 @@ export interface TimetableContextType {
  * React Context for providing timetable-wide state and handlers.
  * This helps avoid prop drilling through intermediate components.
  *
- * @const TimetableContext
- * @type {React.Context<TimetableContextType | undefined>}
  */
 const TimetableContext = createContext<TimetableContextType | undefined>(undefined);
 

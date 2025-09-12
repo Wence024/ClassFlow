@@ -17,8 +17,13 @@ interface TimetableRowProps {
 /**
  * Renders a single row in the timetable, corresponding to a class group.
  * It iterates through the periods of the week and renders either a SessionCell or an EmptyCell.
- * @param {TimetableRowProps} props The props for the component.
- * @returns {JSX.Element} The rendered component.
+ *
+ * @param props The props for the component.
+ * @param props.group
+ * @param props.timetable
+ * @param props.periodsPerDay
+ * @param props.totalPeriods
+ * @returns The rendered component.
  */
 const TimetableRow: React.FC<TimetableRowProps> = ({
   group,

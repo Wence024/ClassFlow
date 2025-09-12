@@ -12,8 +12,13 @@ interface EmptyCellProps {
  * Renders an empty, droppable cell in the timetable grid.
  * These cells represent available time slots where a class session can be placed.
  * Shows visual feedback during drag operations with green indicators for available slots.
- * @param {EmptyCellProps} props The props for the component.
- * @returns {JSX.Element} The rendered component.
+ *
+ * @param props The props for the component.
+ * @param props.groupId
+ * @param props.periodIndex
+ * @param props.isLastInDay
+ * @param props.isNotLastInTable
+ * @returns The rendered component.
  */
 const EmptyCell: React.FC<EmptyCellProps> = ({
   groupId,

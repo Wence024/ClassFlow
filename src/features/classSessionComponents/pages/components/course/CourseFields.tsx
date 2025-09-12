@@ -8,9 +8,10 @@ type CourseFormData = z.infer<typeof componentSchemas.course>;
 
 /**
  * Renders the specific form fields required for a Course.
- * @param {object} props - The component's props.
- * @param {Control<CourseFormData>} props.control - The control object from react-hook-form.
- * @param {FieldErrors<CourseFormData>} props.errors - The errors object from react-hook-form.
+ *
+ * @param props - The component's props.
+ * @param props.control - The control object from react-hook-form.
+ * @param props.errors - The errors object from react-hook-form.
  */
 export const CourseFields: React.FC<{
   control: Control<CourseFormData>;

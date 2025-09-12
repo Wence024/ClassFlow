@@ -10,8 +10,9 @@ const TABLE = 'classrooms';
 
 /**
  * Fetches all classrooms for a specific user from the database.
- * @param {string} user_id - The ID of the user whose classrooms to retrieve.
- * @returns {Promise<Classroom[]>} A promise that resolves to an array of Classroom objects.
+ *
+ * @param user_id - The ID of the user whose classrooms to retrieve.
+ * @returns A promise that resolves to an array of Classroom objects.
  * @throws An error if the Supabase query fails.
  */
 export async function getClassrooms(user_id: string): Promise<Classroom[]> {
@@ -27,8 +28,9 @@ export async function getClassrooms(user_id: string): Promise<Classroom[]> {
 /**
  * Adds a new classroom to the database.
  * The input object must include the `user_id` of the owner.
- * @param {ClassroomInsert} classroom - The ClassroomInsert object containing the data for the new classroom.
- * @returns {Promise<Classroom>} A promise that resolves to the newly created Classroom object.
+ *
+ * @param classroom - The ClassroomInsert object containing the data for the new classroom.
+ * @returns A promise that resolves to the newly created Classroom object.
  * @throws An error if the Supabase insert fails.
  */
 export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
@@ -40,9 +42,10 @@ export async function addClassroom(classroom: ClassroomInsert): Promise<Classroo
 /**
  * Updates an existing classroom in the database.
  * Relies on Supabase's Row-Level Security (RLS) to ensure users can only update their own records.
- * @param {string} id - The unique identifier of the classroom to update.
- * @param {ClassroomUpdate} classroom - The ClassroomUpdate object containing the fields to update.
- * @returns {Promise<Classroom>} A promise that resolves to the updated Classroom object.
+ *
+ * @param id - The unique identifier of the classroom to update.
+ * @param classroom - The ClassroomUpdate object containing the fields to update.
+ * @returns A promise that resolves to the updated Classroom object.
  * @throws An error if the Supabase update fails or the record is not found.
  */
 export async function updateClassroom(id: string, classroom: ClassroomUpdate): Promise<Classroom> {
@@ -59,9 +62,10 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 /**
  * Removes a classroom from the database.
  * This operation is protected by RLS policies in the database, ensuring a user can only delete their own records.
- * @param {string} id - The unique identifier of the classroom to remove.
- * @param {string} user_id - The ID of the user, used here for an explicit check.
- * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ *
+ * @param id - The unique identifier of the classroom to remove.
+ * @param user_id - The ID of the user, used here for an explicit check.
+ * @returns A promise that resolves when the operation is complete.
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassroom(id: string, user_id: string): Promise<void> {

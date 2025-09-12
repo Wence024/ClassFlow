@@ -30,6 +30,17 @@ interface ClassSessionFormProps {
  * A presentation-only form for creating and editing Class Sessions.
  * This component is now fully controlled by its parent, which provides the
  * form state and submission logic via the `formMethods` and `onSubmit` props.
+ *
+ * @param root0
+ * @param root0.courses
+ * @param root0.classGroups
+ * @param root0.instructors
+ * @param root0.classrooms
+ * @param root0.formMethods
+ * @param root0.onSubmit
+ * @param root0.onCancel
+ * @param root0.loading
+ * @param root0.isEditing
  */
 const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   courses,

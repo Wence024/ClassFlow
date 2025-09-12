@@ -7,7 +7,7 @@ import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 
 /**
- *  A component that renders all routes related to the auth feature
+ *  A component that renders all routes related to the auth feature.
  */
 export const AuthRoutes = (
   <Route

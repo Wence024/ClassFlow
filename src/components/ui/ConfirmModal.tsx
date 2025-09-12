@@ -41,8 +41,8 @@ interface ConfirmModalProps {
  * @param c.title The title text displayed at the top of the modal.
  * @param c.children The main content or question of the modal. Can be a string or any React node.
  * @param c.isLoading A boolean to show a loading state on the confirm button.
- * @param c.confirmText The text to display on the confirmation button. @default 'Confirm'.
- * @param c.cancelText The text to display on the cancel button. @default 'Cancel'.
+ * @param c.confirmText Text for the confirmation button. Defaults to 'Confirm'.
+ * @param c.cancelText Text for the cancel button. Defaults to 'Cancel'.
  * @param c.onConfirm A callback function executed when the confirmation button is clicked.
  * @param c.onClose A callback function executed when the modal is closed (via cancel button or overlay click).
  * @returns A confirmation modal component.

@@ -15,8 +15,9 @@ import type {
 /**
  * Fetch all timetable assignments for a user from Supabase, with the full
  * class session data embedded.
+ *
  * @param user_id The user's unique ID.
- * @returns Array of HydratedTimetableAssignment objects.
+ * @returns An array of timetable assignment objects.
  */
 export async function getTimetableAssignments(
   user_id: string
@@ -49,8 +50,9 @@ export async function getTimetableAssignments(
 
 /**
  * Assign a class session to a group/period (insert or upsert) in Supabase.
+ *
  * @param assignment TimetableAssignmentInsert object.
- * @returns The upserted TimetableAssignment object.
+ * @returns The upserted timetable assignment object.
  */
 export async function assignClassSessionToTimetable(
   assignment: TimetableAssignmentInsert
@@ -67,6 +69,7 @@ export async function assignClassSessionToTimetable(
 
 /**
  * Remove a class session from a group/period in Supabase.
+ *
  * @param user_id The user's unique ID.
  * @param class_group_id The class group ID.
  * @param period_index The period index.
@@ -87,11 +90,16 @@ export async function removeClassSessionFromTimetable(
 
 /**
  * Move a class session from one cell to another (delete old, upsert new) in Supabase.
+ *
  * @param user_id The user's unique ID.
- * @param from The source cell ({ class_group_id, period_index }).
- * @param to The destination cell ({ class_group_id, period_index }).
+ * @param from The source cell.
+ * @param from.class_group_id The class group ID of the source cell.
+ * @param from.period_index The period index of the source cell.
+ * @param _to The destination cell.
+ * @param _to.class_group_id The class group ID of the destination cell.
+ * @param _to.period_index The period index of the destination cell.
  * @param assignment TimetableAssignmentInsert for the new cell.
- * @returns The upserted TimetableAssignment object for the new cell.
+ * @returns The upserted timetable assignment object for the new cell.
  */
 export async function moveClassSessionInTimetable(
   user_id: string,

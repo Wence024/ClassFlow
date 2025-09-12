@@ -65,9 +65,9 @@ export function useCourses() {
     /**
      * An async function to update a course.
      *
-     * @param {string} id The ID of the course to update.
-     * @param {CourseUpdate} data The data to update the course with.
-     * @returns {Promise<void>} A Promise that resolves when the update is complete.
+     * @param id The ID of the course to update.
+     * @param data The data to update the course with.
+     * @returns A Promise that resolves when the update is complete.
      */
     updateCourse: (id: string, data: CourseUpdate) => updateMutation.mutateAsync({ id, data }),
 

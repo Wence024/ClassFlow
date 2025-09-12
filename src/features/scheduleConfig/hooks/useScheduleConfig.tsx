@@ -3,6 +3,9 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import * as scheduleConfigService from '../services/scheduleConfigService';
 import type { ScheduleConfigUpdate } from '../types/scheduleConfig';
 
+/**
+ *
+ */
 export function useScheduleConfig() {
   const { user } = useAuth();
   const queryClient = useQueryClient();

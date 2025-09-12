@@ -200,7 +200,13 @@ export function useTimetable() {
 
   // --- PUBLIC API ---
 
-  /** Assigns a class session after performing a conflict check. Returns an error message string on failure. */
+  /**
+   * Assigns a class session after performing a conflict check. Returns an error message string on failure.
+   *
+   * @param class_group_id
+   * @param period_index
+   * @param classSession
+   */
   const assignClassSession = async (
     class_group_id: string,
     period_index: number,
@@ -219,7 +225,12 @@ export function useTimetable() {
     return '';
   };
 
-  /** Removes a class session from the timetable. */
+  /**
+   * Removes a class session from the timetable.
+   *
+   * @param class_group_id
+   * @param period_index
+   */
   const removeClassSession = async (
     class_group_id: string,
     period_index: number
@@ -227,7 +238,17 @@ export function useTimetable() {
     await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
   };
 
-  /** Moves a class session after performing a conflict check. Returns an error message string on failure. */
+  /**
+   * Moves a class session after performing a conflict check. Returns an error message string on failure.
+   *
+   * @param from
+   * @param from.class_group_id
+   * @param from.period_index
+   * @param to
+   * @param to.class_group_id
+   * @param to.period_index
+   * @param classSession
+   */
   const moveClassSession = async (
     from: { class_group_id: string; period_index: number },
     to: { class_group_id: string; period_index: number },

@@ -11,8 +11,12 @@ interface TimetableHeaderProps {
 
 /**
  * Renders the header section of the timetable, including day and time headers.
- * @param {TimetableHeaderProps} props The props for the component.
- * @returns {JSX.Element} The rendered component.
+ *
+ * @param props The props for the component.
+ * @param props.dayHeaders
+ * @param props.timeHeaders
+ * @param props.periodsPerDay
+ * @returns The rendered component.
  */
 const TimetableHeader: React.FC<TimetableHeaderProps> = ({
   dayHeaders,
@@ -21,8 +25,9 @@ const TimetableHeader: React.FC<TimetableHeaderProps> = ({
 }) => {
   /**
    * Renders the table header cells for time periods for a specific day.
-   * @param {number} dayIndex The index of the current day.
-   * @returns {JSX.Element[]} An array of table header elements.
+   *
+   * @param dayIndex The index of the current day.
+   * @returns An array of table header elements.
    */
   const renderTimeHeaders = (dayIndex: number) => {
     return timeHeaders.map((time, timeIndex) => {

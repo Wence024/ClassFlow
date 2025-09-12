@@ -8,6 +8,7 @@ import { FormField, ActionButton, ErrorMessage } from '../../../components/ui';
  * A page component that allows users to request a password reset link.
  * Users enter their email address, and upon submission, a reset link is sent
  * via the authentication provider (Supabase).
+ *
  * @returns A page component for forgot password.
  */
 const ForgotPasswordPage: React.FC = () => {

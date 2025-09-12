@@ -19,6 +19,11 @@ interface CourseCardProps {
 /**
  * A specialized display card for a single Course.
  * It formats the course's specific properties for display in the base ItemCard component.
+ *
+ * @param c The props for the CourseCard component.
+ * @param c.course The course object to display.
+ * @param c.onEdit Callback function to handle edit action.
+ * @param c.onDelete Callback function to handle delete action.
  */
 export const CourseCard: React.FC<CourseCardProps> = ({ course, onEdit, onDelete }) => {
   const details = [{ label: 'Code', value: course.code }];

@@ -11,6 +11,11 @@ interface InstructorCardProps {
 /**
  * A specialized display card for a single Instructor.
  * It formats the instructor's specific properties for display in the base ItemCard component.
+ *
+ * @param i The props for the InstructorCard component.
+ * @param i.instructor The instructor object to display.
+ * @param i.onEdit Callback function to handle edit action.
+ * @param i.onDelete Callback function to handle delete action.
  */
 export const InstructorCard: React.FC<InstructorCardProps> = ({ instructor, onEdit, onDelete }) => {
   // Construct the full display name from its parts

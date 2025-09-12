@@ -19,10 +19,10 @@ export type TimetableGrid = Map<string, (ClassSession | null)[]>;
  * The grid is structured as `Map<class_group_id, Array<period>>`, making it easy
  * to look up the session for a specific group and time slot.
  *
- * @param {HydratedTimetableAssignment[]} assignments - The flat array of assignment data from the server.
- * @param {ClassGroup[]} classGroups - The list of all class groups, used to initialize the grid rows.
- * @param {number} totalPeriods - The total number of periods in the schedule (days * periods_per_day).
- * @returns {TimetableGrid} A Map representing the populated timetable grid.
+ * @param assignments - The flat array of assignment data from the server.
+ * @param classGroups - The list of all class groups, used to initialize the grid rows.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
+ * @returns A Map representing the populated timetable grid.
  */
 export function buildTimetableGrid(
   assignments: HydratedTimetableAssignment[],

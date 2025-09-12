@@ -8,6 +8,7 @@ import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
  * A page component for new user registration.
  * It provides a form for name, email, and password, performs client-side validation,
  * and uses the `useAuth` hook to handle the registration process.
+ *
  * @returns A register page component.
  */
 const RegisterPage: React.FC = () => {

@@ -16,7 +16,8 @@ const PRESET_COLORS = [
 /**
  * Generates a random color from a predefined set of accessible pastel colors.
  * This provides visual variety for new items without requiring user input.
- * @returns {string} A random hex color code (e.g., '#4f46e5').
+ *
+ * @returns A random hex color code (e.g., '#4f46e5').
  */
 export const getRandomPresetColor = (): string => {
   // eslint-disable-next-line sonarjs/pseudo-random

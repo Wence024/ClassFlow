@@ -19,8 +19,9 @@ export interface TimeHeader {
 
 /**
  * Formats a JavaScript Date object into a 12-hour "h:mm" string.
- * @param {Date} date - The date object to format.
- * @returns {string} The formatted time string (e.g., "9:00", "12:30").
+ *
+ * @param date - The date object to format.
+ * @returns The formatted time string (e.g., "9:00", "12:30").
  */
 const formatTimeHHMM = (date: Date): string => {
   let hours = date.getHours();
@@ -35,7 +36,7 @@ const formatTimeHHMM = (date: Date): string => {
  * This function takes the schedule configuration and calculates all the necessary labels
  * for the horizontal (days) and vertical (time slots) axes of the timetable.
  *
- * @param {ScheduleConfig} settings - The academic schedule configuration from the database.
+ * @param settings - The academic schedule configuration from the database.
  * @returns An object containing an array of day headers and an array of time headers.
  * @example
  * const headers = generateTimetableHeaders({ class_days_per_week: 5, ... });

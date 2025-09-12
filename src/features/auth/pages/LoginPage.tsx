@@ -8,6 +8,7 @@ import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
  * A page component for user login.
  * It provides a form for email and password entry, handles client-side validation,
  * and uses the `useAuth` hook to perform the login operation.
+ *
  * @returns A login page component.
  */
 const LoginPage: React.FC = () => {

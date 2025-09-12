@@ -89,9 +89,9 @@ export function useClassGroups() {
     /**
      * An async function to update a class group.
      *
-     * @param {string} id The ID of the class group to update.
-     * @param {ClassGroupUpdate} data The data to update the class group with.
-     * @returns {Promise<void>} A Promise that resolves when the update is complete.
+     * @param id The ID of the class group to update.
+     * @param data The data to update the class group with.
+     * @returns A Promise that resolves when the update is complete.
      */
     updateClassGroup: (id: string, data: ClassGroupUpdate) =>
       updateMutation.mutateAsync({ id, data }),
