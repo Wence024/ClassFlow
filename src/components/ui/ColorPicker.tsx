@@ -1,9 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  getRandomPresetColor,
-  PRESET_COLORS_DATA,
-  getColorName,
-} from '../../lib/colorUtils';
+import { getRandomPresetColor, PRESET_COLORS_DATA, getColorName } from '../../lib/colorUtils';
 
 /**
  * Props for the ColorPicker component.
@@ -165,7 +161,10 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                       : 'border-gray-200'
                   }`}
                   style={{ backgroundColor: color.hex }}
-                  onClick={() => onChange(color.hex)}
+                  onClick={() => {
+                    onChange(color.hex);
+                    setIsOpen(false);
+                  }}
                   aria-label={`Select color ${color.name}`}
                 />
               ))}
@@ -186,7 +185,10 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
               id={id}
               type="color"
               value={value}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => {
+                onChange(e.target.value);
+                setIsOpen(false);
+              }}
               className="w-0 h-0 absolute opacity-0"
               aria-describedby={errorId}
             />

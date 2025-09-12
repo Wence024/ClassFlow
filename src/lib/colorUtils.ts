@@ -23,9 +23,7 @@ export const PRESET_COLORS_DATA = [
  * @returns The name of the color, or the hex code if no name is found.
  */
 export const getColorName = (hex: string): string => {
-  const color = PRESET_COLORS_DATA.find(
-    (c) => c.hex.toLowerCase() === hex.toLowerCase(),
-  );
+  const color = PRESET_COLORS_DATA.find((c) => c.hex.toLowerCase() === hex.toLowerCase());
   return color ? color.name : hex.toUpperCase();
 };
 
