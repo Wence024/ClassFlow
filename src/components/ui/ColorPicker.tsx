@@ -171,27 +171,30 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             </div>
 
             {/* Custom Color Section */}
-            <label
-              htmlFor={id}
-              className="flex-grow flex items-center gap-3 p-2 border rounded-lg cursor-pointer"
-            >
-              <div
-                className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
-                style={{ backgroundColor: value }}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Custom Color</label>
+              <label
+                htmlFor={id}
+                className="flex-grow flex items-center gap-3 p-2 border rounded-lg cursor-pointer"
+              >
+                <div
+                  className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
+                  style={{ backgroundColor: value }}
+                />
+                <span className="text-gray-700">{getColorName(value)}</span>
+              </label>
+              <input
+                id={id}
+                type="color"
+                value={value}
+                onChange={(e) => {
+                  onChange(e.target.value);
+                  setIsOpen(false);
+                }}
+                className="w-0 h-0 absolute opacity-0"
+                aria-describedby={errorId}
               />
-              <span className="text-gray-700">{getColorName(value)}</span>
-            </label>
-            <input
-              id={id}
-              type="color"
-              value={value}
-              onChange={(e) => {
-                onChange(e.target.value);
-                setIsOpen(false);
-              }}
-              className="w-0 h-0 absolute opacity-0"
-              aria-describedby={errorId}
-            />
+            </div>
           </div>
         )}
       </div>

@@ -106,10 +106,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
               border: isDraggedSession ? `2px dashed ${borderColor}` : 'none',
             }}
           >
-            <p
-              className="font-bold text-xs pointer-events-none"
-              style={{ color: textColor }}
-            >
+            <p className="font-bold text-xs pointer-events-none" style={{ color: textColor }}>
               {session.course.code}
             </p>
           </div>

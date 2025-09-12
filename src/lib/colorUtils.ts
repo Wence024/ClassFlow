@@ -19,6 +19,7 @@ export const PRESET_COLORS_DATA = [
 
 /**
  * Gets the name of a color from its hex code.
+ * 
  * @param hex The hex code of the color.
  * @returns The name of the color, or the hex code if no name is found.
  */
@@ -63,6 +64,7 @@ export const hexToRgba = (hex: string, alpha: number): string => {
 
 /**
  * Determines if a color is light or dark.
+ * 
  * @param color The color in hex format.
  * @returns `true` if the color is light, `false` if dark.
  */
