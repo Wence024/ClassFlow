@@ -1,25 +1,33 @@
-/**
- * An array of pleasant, moderately saturated pastel colors.
- * Sourced to ensure good contrast with dark text.
- */
-const PRESET_COLORS = [
-  '#4f46e5', // Indigo
-  '#0d9488', // Teal
-  '#db2777', // Pink
-  '#ca8a04', // Amber
-  '#65a30d', // Lime
-  '#0ea5e9', // Sky
-  '#8b5cf6', // Violet
-  '#d97706', // Orange
-  '#f43f5e', // Rose
-  '#d946ef', // Fuchsia
-  '#06b6d4', // Cyan
-  '#10b981', // Emerald
-  '#f59e0b', // Yellow
-  '#78716c', // Stone
-  '#ef4444', // Red
-  '#3b82f6', // Blue
+export const PRESET_COLORS_DATA = [
+  { hex: '#4f46e5', name: 'Indigo' },
+  { hex: '#0d9488', name: 'Teal' },
+  { hex: '#db2777', name: 'Pink' },
+  { hex: '#dbbe06', name: 'Amber' },
+  { hex: '#65a30d', name: 'Lime' },
+  { hex: '#0ea5e9', name: 'Sky' },
+  { hex: '#8b5cf6', name: 'Violet' },
+  { hex: '#db9600', name: 'Orange' },
+  { hex: '#f43f5e', name: 'Rose' },
+  { hex: '#d946ef', name: 'Fuchsia' },
+  { hex: '#06b6d4', name: 'Cyan' },
+  { hex: '#10b981', name: 'Emerald' },
+  { hex: '#f1f50b', name: 'Yellow' },
+  { hex: '#78716c', name: 'Stone' },
+  { hex: '#ef4444', name: 'Red' },
+  { hex: '#3b82f6', name: 'Blue' },
 ];
+
+/**
+ * Gets the name of a color from its hex code.
+ * @param hex The hex code of the color.
+ * @returns The name of the color, or the hex code if no name is found.
+ */
+export const getColorName = (hex: string): string => {
+  const color = PRESET_COLORS_DATA.find(
+    (c) => c.hex.toLowerCase() === hex.toLowerCase(),
+  );
+  return color ? color.name : hex.toUpperCase();
+};
 
 /**
  * Generates a random color from a predefined set of accessible pastel colors.
@@ -29,8 +37,8 @@ const PRESET_COLORS = [
  */
 export const getRandomPresetColor = (): string => {
   // eslint-disable-next-line sonarjs/pseudo-random
-  const randomIndex = Math.floor(Math.random() * PRESET_COLORS.length);
-  return PRESET_COLORS[randomIndex];
+  const randomIndex = Math.floor(Math.random() * PRESET_COLORS_DATA.length);
+  return PRESET_COLORS_DATA[randomIndex].hex;
 };
 
 /**

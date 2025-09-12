@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getRandomPresetColor, PRESET_COLORS } from '../../lib/colorUtils';
+import {
+  getRandomPresetColor,
+  PRESET_COLORS_DATA,
+  getColorName,
+} from '../../lib/colorUtils';
 
 /**
  * Props for the ColorPicker component.
@@ -108,7 +112,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
             style={{ backgroundColor: value }}
           />
-          <span className="font-mono text-gray-700">{value.toUpperCase()}</span>
+          <span className="text-gray-700">{getColorName(value)}</span>
         </button>
 
         {/* Popover */}
@@ -121,18 +125,18 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           >
             {/* Preset Colors Section */}
             <div className="grid grid-cols-8 gap-2 mb-3">
-              {PRESET_COLORS.map((color) => (
+              {PRESET_COLORS_DATA.map((color) => (
                 <button
-                  key={color}
+                  key={color.hex}
                   type="button"
                   className={`w-full h-8 rounded-md border transition-transform transform hover:scale-110 ${
-                    value.toLowerCase() === color.toLowerCase()
+                    value.toLowerCase() === color.hex.toLowerCase()
                       ? 'ring-2 ring-offset-1 ring-blue-500'
                       : 'border-gray-200'
                   }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => onChange(color)}
-                  aria-label={`Select color ${color}`}
+                  style={{ backgroundColor: color.hex }}
+                  onClick={() => onChange(color.hex)}
+                  aria-label={`Select color ${color.name}`}
                 />
               ))}
             </div>
@@ -147,7 +151,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                   className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
                   style={{ backgroundColor: value }}
                 />
-                <span className="font-mono text-gray-700">{value.toUpperCase()}</span>
+                <span className="text-gray-700">{getColorName(value)}</span>
               </label>
               <input
                 id={id}
