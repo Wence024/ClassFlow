@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useTimetableContext } from './useTimetableContext';
+import { hexToRgba, isColorLight } from '../../../../../lib/colorUtils';
 
 /**
  * Props for the SessionCell component.
@@ -37,11 +38,6 @@ const buildTooltipContent = (session: ClassSession) => (
  * Shows visual feedback during drag operations with availability indicators.
  *
  * @param props The props for the component.
- * @param props.session
- * @param props.groupId
- * @param props.periodIndex
- * @param props.isLastInDay
- * @param props.isNotLastInTable
  * @returns The rendered component.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
@@ -71,6 +67,15 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isDragging = currentDraggedSession !== null;
   const isDraggedSession = currentDraggedSession?.id === session.id;
 
+  const instructorHex = session.instructor.color || '#888888';
+
+  const baseBg = isDraggedSession
+    ? hexToRgba(instructorHex, 0.2) // A bit darker for dragged item
+    : hexToRgba(instructorHex, 0.6); // Lighter for normal state
+
+  const borderColor = hexToRgba(instructorHex, 0.8);
+  const textColor = isColorLight(instructorHex) ? '#000000' : '#FFFFFF'; // Black on light, white on dark
+
   return (
     <td
       colSpan={numberOfPeriods}
@@ -95,14 +100,17 @@ const SessionCell: React.FC<SessionCellProps> = ({
         >
           {/* Layer 1: The Visible Block */}
           <div
-            className={`absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200 ${
-              isDraggedSession
-                ? 'bg-blue-200 border-2 border-blue-400 border-dashed'
-                : 'bg-blue-100'
-            }`}
+            className="absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200"
+            style={{
+              backgroundColor: baseBg,
+              border: isDraggedSession ? `2px dashed ${borderColor}` : 'none',
+            }}
           >
-            <p className="font-bold text-xs text-blue-900 pointer-events-none">
-              {session.course.name}
+            <p
+              className="font-bold text-xs pointer-events-none"
+              style={{ color: textColor }}
+            >
+              {session.course.code}
             </p>
           </div>
 
