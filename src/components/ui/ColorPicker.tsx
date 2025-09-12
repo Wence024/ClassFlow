@@ -99,21 +99,51 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
     <div className={`mb-4 ${className}`}>
       <label className="block font-semibold mb-1">{label}</label>
       <div className="relative">
-        {/* Trigger Button */}
-        <button
-          ref={triggerRef}
-          type="button"
-          className={`w-full flex items-center gap-3 p-2 border rounded-lg transition-shadow focus:ring-2 ${errorClasses}`}
-          onClick={() => setIsOpen(!isOpen)}
-          aria-expanded={isOpen}
-          aria-haspopup="true"
-        >
-          <div
-            className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
-            style={{ backgroundColor: value }}
-          />
-          <span className="text-gray-700">{getColorName(value)}</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Trigger Button */}
+          <button
+            ref={triggerRef}
+            type="button"
+            className={`flex-grow flex items-center gap-3 p-2 border rounded-lg transition-shadow focus:ring-2 ${errorClasses}`}
+            onClick={() => setIsOpen(!isOpen)}
+            aria-expanded={isOpen}
+            aria-haspopup="true"
+          >
+            <div
+              className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
+              style={{ backgroundColor: value }}
+            />
+            <span className="text-gray-700">{getColorName(value)}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRandomClick}
+            className="p-2 border rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+            aria-label="Select a random preset color"
+            title="Select a random preset color"
+          >
+            <svg
+              className="w-6 h-6 text-gray-600"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="18"
+                height="18"
+                rx="2"
+                stroke="currentColor"
+                strokeWidth="2"
+              />
+              <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+              <circle cx="16" cy="16" r="1.5" fill="currentColor" />
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
 
         {/* Popover */}
         {isOpen && (
@@ -142,54 +172,24 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             </div>
 
             {/* Custom Color Section */}
-            <div className="flex items-center gap-2">
-              <label
-                htmlFor={id}
-                className="flex-grow flex items-center gap-3 p-2 border rounded-lg cursor-pointer"
-              >
-                <div
-                  className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
-                  style={{ backgroundColor: value }}
-                />
-                <span className="text-gray-700">{getColorName(value)}</span>
-              </label>
-              <input
-                id={id}
-                type="color"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="w-0 h-0 absolute opacity-0"
-                aria-describedby={errorId}
+            <label
+              htmlFor={id}
+              className="flex-grow flex items-center gap-3 p-2 border rounded-lg cursor-pointer"
+            >
+              <div
+                className="w-8 h-8 rounded-md border border-gray-200 flex-shrink-0"
+                style={{ backgroundColor: value }}
               />
-
-              <button
-                type="button"
-                onClick={handleRandomClick}
-                className="p-2 border rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
-                aria-label="Select a random preset color"
-                title="Select a random preset color"
-              >
-                <svg
-                  className="w-6 h-6 text-gray-600"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <rect
-                    x="3"
-                    y="3"
-                    width="18"
-                    height="18"
-                    rx="2"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                  <circle cx="16" cy="16" r="1.5" fill="currentColor" />
-                  <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-                </svg>
-              </button>
-            </div>
+              <span className="text-gray-700">{getColorName(value)}</span>
+            </label>
+            <input
+              id={id}
+              type="color"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="w-0 h-0 absolute opacity-0"
+              aria-describedby={errorId}
+            />
           </div>
         )}
       </div>
