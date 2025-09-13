@@ -20,6 +20,7 @@ interface SessionCellProps {
 
 /**
  * Builds the tooltip content for a class session.
+ *
  * @param session The class session object.
  * @returns JSX content for the tooltip.
  */
@@ -41,7 +42,12 @@ const buildTooltipContent = (session: ClassSession) => (
  * Shows visual feedback during drag operations with availability indicators.
  * Colors are determined by the instructor's assigned color.
  *
- * @param props The props for the component.
+ * @param sc The props for the component.
+ * @param sc.session The class session data.
+ * @param sc.groupId The ID of the group row.
+ * @param sc.periodIndex The starting period index of the cell.
+ * @param sc.isLastInDay Whether this is the last cell in a day's block.
+ * @param sc.isNotLastInTable Whether this is not the last cell in the entire row.
  * @returns The rendered component.
  */
 const SessionCell: React.FC<SessionCellProps> = ({

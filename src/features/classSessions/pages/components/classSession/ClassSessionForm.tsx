@@ -31,16 +31,17 @@ interface ClassSessionFormProps {
  * This component is now fully controlled by its parent, which provides the
  * form state and submission logic via the `formMethods` and `onSubmit` props.
  *
- * @param root0
- * @param root0.courses
- * @param root0.classGroups
- * @param root0.instructors
- * @param root0.classrooms
- * @param root0.formMethods
- * @param root0.onSubmit
- * @param root0.onCancel
- * @param root0.loading
- * @param root0.isEditing
+ * @param csf The props for the component.
+ * @param csf.courses An array of available courses.
+ * @param csf.classGroups An array of available class groups.
+ * @param csf.instructors An array of available instructors.
+ * @param csf.classrooms An array of available classrooms.
+ * @param csf.formMethods The return object from `useForm` hook for form management.
+ * @param csf.onSubmit Function to call when the form is submitted.
+ * @param [csf.onCancel] Optional function to call when the form is cancelled.
+ * @param csf.loading Boolean indicating if the form is currently loading or submitting.
+ * @param csf.isEditing Boolean indicating if the form is in editing mode.
+ * @returns The rendered class session form.
  */
 const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   courses,

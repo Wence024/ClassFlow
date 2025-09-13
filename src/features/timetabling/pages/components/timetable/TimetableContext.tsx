@@ -26,11 +26,11 @@ export interface TimetableContextType {
  * isSlotAvailable - Function to check if a slot is available for placement.
  * onDragStart - Function for starting a drag event.
  * onDropToGrid - Function for handling drop events.
- * @prop {(content: React.ReactNode, target: HTMLElement) => void} onShowTooltip - Function to show tooltips.
- * @prop {() => void} onHideTooltip - Function to hide tooltips.
- * @prop {(e: React.DragEvent, groupId: string, periodIndex: number) => void} onDragEnter - Handler for drag enter events on grid cells.
- * @prop {(e: React.DragEvent) => void} onDragLeave - Handler for drag leave events on grid cells.
- * @prop {(e: React.DragEvent) => void} onDragOver - Handler for drag over events.
+ * onShowTooltip Function to show tooltips.
+ * onHideTooltip Function to hide tooltips.
+ * onDragEnter Handler for drag enter events on grid cells.
+ * onDragLeave Handler for drag leave events on grid cells.
+ * onDragOver Handler for drag over events.
  */
 
 /**

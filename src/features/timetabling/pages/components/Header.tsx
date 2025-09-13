@@ -11,6 +11,8 @@ import { Link } from 'react-router-dom';
  *
  * Includes the application title, user information, and a logout button.
  * The logout functionality is provided by the `useAuth` hook.
+ *
+ * @returns The rendered header component.
  */
 const Header = () => {
   const { user, logout } = useAuth();

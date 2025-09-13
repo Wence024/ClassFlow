@@ -21,10 +21,11 @@ interface ClassSessionCardProps {
  * A specialized display card for a single ClassSession.
  * It formats the session's details for display in the base ItemCard component.
  *
- * @param root0
- * @param root0.classSession
- * @param root0.onEdit
- * @param root0.onDelete
+ * @param csc The props for the ClassSessionCard component.
+ * @param csc.classSession The class session object to display.
+ * @param csc.onEdit Callback function to handle edit action.
+ * @param csc.onDelete Callback function to handle delete action.
+ * @returns The rendered item card component for the class session.
  */
 const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ classSession, onEdit, onDelete }) => {
   // Defensive check for missing data, which can happen during optimistic updates

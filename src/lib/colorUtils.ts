@@ -19,6 +19,7 @@ export const PRESET_COLORS_DATA = [
 
 /**
  * Gets the name of a color from its hex code.
+ *
  * @param hex The hex code of the color.
  * @returns The name of the color, or the hex code if no name is found.
  */
@@ -30,6 +31,7 @@ export const getColorName = (hex: string): string => {
 /**
  * Generates a random color from a predefined set of accessible pastel colors.
  * This provides visual variety for new items without requiring user input.
+ *
  * @returns A random hex color code (e.g., '#4f46e5').
  */
 export const getRandomPresetColor = (): string => {
@@ -40,6 +42,7 @@ export const getRandomPresetColor = (): string => {
 
 /**
  * Determines if a color is light or dark based on YIQ formula.
+ *
  * @param color The color in 6-digit hex format.
  * @returns `true` if the color is light, `false` if dark.
  */
@@ -55,6 +58,7 @@ export const isColorLight = (color: string): boolean => {
 
 /**
  * Appends an alpha value to a 6-digit hex color code to create an 8-digit hex code.
+ *
  * @param hex The 6-digit hex color (e.g., '#RRGGBB').
  * @param alpha The alpha transparency value (0-1).
  * @returns The 8-digit hex color including alpha (e.g., '#RRGGBBAA').
@@ -75,6 +79,7 @@ const BORDER_OPACITY = 1.0;
 
 /**
  * Calculates the background color for a session cell.
+ *
  * @param hex The base 6-digit hex color.
  * @param isDragged Whether the cell is currently being dragged.
  * @returns An 8-digit hex color string for the background.
@@ -86,6 +91,7 @@ export const getSessionCellBgColor = (hex: string, isDragged: boolean): string =
 
 /**
  * Calculates the border style for a session cell.
+ *
  * @param hex The base 6-digit hex color.
  * @param isDragged Whether the cell is currently being dragged.
  * @returns A CSS border string or 'none'.
@@ -100,6 +106,7 @@ export const getSessionCellBorderStyle = (hex: string, isDragged: boolean): stri
 
 /**
  * Determines the appropriate text color (black or white) for a given background color.
+ *
  * @param backgroundColorHex The 6-digit hex code of the background.
  * @returns '#000000' (black) or '#FFFFFF' (white).
  */

@@ -5,34 +5,25 @@ import { getRandomPresetColor, PRESET_COLORS_DATA, getColorName } from '../../li
  * Props for the ColorPicker component.
  */
 interface ColorPickerProps {
-  /** A unique identifier for the input. Essential for accessibility. */
   id: string;
-
-  /** The text label displayed above the color picker. */
   label: string;
-
-  /** The current hex color value (e.g., '#4f46e5'). */
   value: string;
-
-  /** A callback function that is invoked when the color value changes. */
   onChange: (value: string) => void;
-
-  /** An optional error message to display. */
   error?: string;
-
-  /** Additional CSS classes for the container. */
   className?: string;
 }
 
 /**
  * A user-friendly color picker component that provides an improved user experience.
- * It features a large, clickable area containing a visual color swatch and the current
- * hex code. Clicking this area triggers the native browser color input.
+ * It features a popover for selecting preset or custom colors.
  *
- * This is achieved by wrapping the visual elements in a `<label>` tag that is
- * associated with a visually hidden but functional `<input type="color">`.
- *
- * @param c The props for the component.
+ * @param cp The props for the component.
+ * @param cp.id A unique identifier for the input. Essential for accessibility.
+ * @param cp.label The text label displayed above the color picker.
+ * @param cp.value The current hex color value (e.g., '#4f46e5').
+ * @param cp.onChange A callback function that is invoked when the color value changes.
+ * @param [cp.error] An optional error message to display.
+ * @param [cp.className] Additional CSS classes for the container.
  * @returns A color picker component.
  */
 const ColorPicker: React.FC<ColorPickerProps> = ({
