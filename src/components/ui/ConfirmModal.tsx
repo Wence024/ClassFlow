@@ -5,28 +5,13 @@ import { ActionButton } from './';
  * Props for the ConfirmationModal component.
  */
 interface ConfirmModalProps {
-  /** A boolean to control the visibility of the modal. */
   isOpen: boolean;
-
-  /** The title text displayed at the top of the modal. */
   title: string;
-
-  /** The main content or question of the modal. Can be a string or any React node. */
   children: React.ReactNode;
-
-  /** A boolean to show a loading state on the confirm button. */
   isLoading?: boolean;
-
-  /** The text to display on the confirmation button. @default 'Confirm' */
   confirmText?: string;
-
-  /** The text to display on the cancel button. @default 'Cancel' */
   cancelText?: string;
-
-  /** A callback function executed when the confirmation button is clicked. */
   onConfirm: () => void;
-
-  /** A callback function executed when the modal is closed (via cancel button or overlay click). */
   onClose: () => void;
 }
 
@@ -36,16 +21,16 @@ interface ConfirmModalProps {
  * It provides a standardized UI for asking the user to confirm a potentially
  * destructive action, such as deletion.
  *
- * @param c The props for the component.
- * @param c.isOpen A boolean to control the visibility of the modal.
- * @param c.title The title text displayed at the top of the modal.
- * @param c.children The main content or question of the modal. Can be a string or any React node.
- * @param c.isLoading A boolean to show a loading state on the confirm button.
- * @param c.confirmText Text for the confirmation button. Defaults to 'Confirm'.
- * @param c.cancelText Text for the cancel button. Defaults to 'Cancel'.
- * @param c.onConfirm A callback function executed when the confirmation button is clicked.
- * @param c.onClose A callback function executed when the modal is closed (via cancel button or overlay click).
- * @returns A confirmation modal component.
+ * @param cm The props for the component.
+ * @param cm.isOpen A boolean to control the visibility of the modal.
+ * @param cm.title The title text displayed at the top of the modal.
+ * @param cm.children The main content or question of the modal.
+ * @param [cm.isLoading] A boolean to show a loading state on the confirm button.
+ * @param [cm.confirmText] Text for the confirmation button. Defaults to 'Confirm'.
+ * @param [cm.cancelText] Text for the cancel button. Defaults to 'Cancel'.
+ * @param cm.onConfirm A callback function executed when the confirmation button is clicked.
+ * @param cm.onClose A callback function executed when the modal is closed.
+ * @returns A confirmation modal component or null if not open.
  * @example
  * <ConfirmationModal
  *   isOpen={isModalOpen}

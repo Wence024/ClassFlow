@@ -15,6 +15,8 @@ const navLinks = [
 /**
  * Renders the main application sidebar for navigation between pages.
  * Uses `NavLink` from `react-router-dom` to provide active link styling.
+ *
+ * @returns The rendered sidebar component.
  */
 const Sidebar = () => (
   <aside className="w-64 flex-shrink-0">

@@ -1,6 +1,11 @@
 import React from 'react';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useTimetableContext } from './useTimetableContext';
+import {
+  getSessionCellBgColor,
+  getSessionCellBorderStyle,
+  getSessionCellTextColor,
+} from '../../../../../lib/colorUtils';
 
 /**
  * Props for the SessionCell component.
@@ -35,13 +40,14 @@ const buildTooltipContent = (session: ClassSession) => (
  * Renders a cell containing a class session in the timetable.
  * It is draggable and provides drop zones for moving items within it.
  * Shows visual feedback during drag operations with availability indicators.
+ * Colors are determined by the instructor's assigned color.
  *
- * @param props The props for the component.
- * @param props.session
- * @param props.groupId
- * @param props.periodIndex
- * @param props.isLastInDay
- * @param props.isNotLastInTable
+ * @param sc The props for the component.
+ * @param sc.session The class session data.
+ * @param sc.groupId The ID of the group row.
+ * @param sc.periodIndex The starting period index of the cell.
+ * @param sc.isLastInDay Whether this is the last cell in a day's block.
+ * @param sc.isNotLastInTable Whether this is not the last cell in the entire row.
  * @returns The rendered component.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
@@ -70,6 +76,16 @@ const SessionCell: React.FC<SessionCellProps> = ({
 
   const isDragging = currentDraggedSession !== null;
   const isDraggedSession = currentDraggedSession?.id === session.id;
+  const instructorHex = session.instructor.color;
+
+  const cellStyle: React.CSSProperties = {
+    backgroundColor: getSessionCellBgColor(instructorHex, isDraggedSession),
+    border: getSessionCellBorderStyle(instructorHex, isDraggedSession),
+  };
+
+  const textStyle: React.CSSProperties = {
+    color: getSessionCellTextColor(instructorHex),
+  };
 
   return (
     <td
@@ -95,14 +111,11 @@ const SessionCell: React.FC<SessionCellProps> = ({
         >
           {/* Layer 1: The Visible Block */}
           <div
-            className={`absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200 ${
-              isDraggedSession
-                ? 'bg-blue-200 border-2 border-blue-400 border-dashed'
-                : 'bg-blue-100'
-            }`}
+            className="absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200"
+            style={cellStyle}
           >
-            <p className="font-bold text-xs text-blue-900 pointer-events-none">
-              {session.course.name}
+            <p className="font-bold text-xs pointer-events-none" style={textStyle}>
+              {session.course.code}
             </p>
           </div>
 

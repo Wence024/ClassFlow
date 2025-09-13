@@ -88,8 +88,9 @@ export function useClassSessions() {
     /**
      * An async function to update a class session. Requires the session ID and the update data.
      *
-     * @param id
-     * @param data
+     * @param id The ID of the class session to update.
+     * @param data The data to update the class session with.
+     * @returns A promise that resolves when the update is complete.
      */
     updateClassSession: (id: string, data: ClassSessionUpdate) =>
       updateMutation.mutateAsync({ id, data }),

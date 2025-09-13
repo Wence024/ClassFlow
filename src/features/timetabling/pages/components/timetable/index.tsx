@@ -39,20 +39,21 @@ interface TimetableProps {
  * It receives all drag-and-drop state and handlers from a parent component
  * and provides them to its children via TimetableContext.
  *
- * @param root0
- * @param root0.groups
- * @param root0.timetable
- * @param root0.isLoading
- * @param root0.draggedSession
- * @param root0.dragOverCell
- * @param root0.isSlotAvailable
- * @param root0.onDragStart
- * @param root0.onDropToGrid
- * @param root0.onDragEnter
- * @param root0.onDragLeave
- * @param root0.onDragOver
- * @param root0.onShowTooltip
- * @param root0.onHideTooltip
+ * @param tt The props for the component.
+ * @param tt.groups An array of class groups to display in the timetable.
+ * @param tt.timetable A map representing the timetable data.
+ * @param tt.isLoading Boolean indicating if the timetable data is currently loading.
+ * @param tt.draggedSession The class session currently being dragged.
+ * @param tt.dragOverCell The cell over which a draggable item is currently hovered.
+ * @param tt.isSlotAvailable Function to check if a given slot is available for dropping.
+ * @param tt.onDragStart Callback function for when a drag operation starts.
+ * @param tt.onDropToGrid Callback function for when a draggable item is dropped onto the grid.
+ * @param tt.onDragEnter Callback function for when a draggable item enters a droppable area.
+ * @param tt.onDragLeave Callback function for when a draggable item leaves a droppable area.
+ * @param tt.onDragOver Callback function for when a draggable item is dragged over a droppable area.
+ * @param tt.onShowTooltip Callback function to display a tooltip.
+ * @param tt.onHideTooltip Callback function to hide the tooltip.
+ * @returns The rendered timetable grid.
  */
 const Timetable: React.FC<TimetableProps> = ({
   groups,

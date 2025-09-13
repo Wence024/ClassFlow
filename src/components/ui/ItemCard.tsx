@@ -56,16 +56,16 @@ interface ItemCardProps {
 /**
  * A highly reusable, presentation-only card for displaying item information.
  *
- * @param i The props for the component.
- * @param i.title The main title of the card.
- * @param i.subtitle An optional subtitle displayed below the title. Can be null.
- * @param i.details An array of details to display as key-value pairs.
- * @param i.color An optional hex color code to display as a small vertical bar.
- * @param i.badge An optional badge to display next to the title for warnings or info.
- * @param i.onEdit A callback function for the edit action. If not provided, the edit button is not rendered.
- * @param i.onDelete A callback function for the delete action. If not provided, the delete button is not rendered.
- * @param i.className Additional CSS classes to apply to the card's root element.
- * @returns An item card component.
+ * @param ic The props for the component.
+ * @param ic.title The main title of the card.
+ * @param [ic.subtitle] An optional subtitle displayed below the title.
+ * @param [ic.details] An array of details to display as key-value pairs.
+ * @param [ic.color] An optional hex color code to display as a small vertical bar.
+ * @param [ic.badge] An optional badge to display next to the title.
+ * @param [ic.onEdit] A callback for the edit action.
+ * @param [ic.onDelete] A callback for the delete action.
+ * @param [ic.className] Additional CSS classes for the card's root element.
+ * @returns The rendered item card component.
  */
 const ItemCard: React.FC<ItemCardProps> = ({
   title,
@@ -77,7 +77,11 @@ const ItemCard: React.FC<ItemCardProps> = ({
   onDelete,
   className = '',
 }) => {
-  /** Renders the badge if badge data is provided. */
+  /**
+   * Renders the badge if badge data is provided.
+   *
+   * @returns The badge component or null.
+   */
   const renderBadge = () => {
     if (!badge) return null;
 
@@ -137,7 +141,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
           <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
             {details.map((detail, index) => (
               <p key={index}>
-                <span className="font-medium">{detail.label}:</span> {String(detail.value)}
+                <span className="font-medium">{detail.label}:</span>
+                {String(detail.value)}
               </p>
             ))}
           </div>
@@ -157,7 +162,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
             variant="danger"
             size="sm"
             onClick={onDelete}
-            aria-label={`Delete ${title}`} // <-- THE FIX
+            aria-label={`Delete ${title}`}
           >
             <Trash2 className="w-4 h-4" />
           </ActionButton>

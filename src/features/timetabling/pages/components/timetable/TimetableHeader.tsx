@@ -12,11 +12,11 @@ interface TimetableHeaderProps {
 /**
  * Renders the header section of the timetable, including day and time headers.
  *
- * @param props The props for the component.
- * @param props.dayHeaders
- * @param props.timeHeaders
- * @param props.periodsPerDay
- * @returns The rendered component.
+ * @param th The props for the component.
+ * @param th.dayHeaders An array of objects representing the day headers.
+ * @param th.timeHeaders An array of objects representing the time period headers.
+ * @param th.periodsPerDay The number of periods in a single day.
+ * @returns The rendered timetable header component.
  */
 const TimetableHeader: React.FC<TimetableHeaderProps> = ({
   dayHeaders,

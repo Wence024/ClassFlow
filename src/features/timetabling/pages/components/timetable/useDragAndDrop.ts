@@ -3,13 +3,8 @@ import { useState, useCallback, useEffect } from 'react';
 /**
  * Custom hook to manage drag-and-drop state and event handlers for the timetable grid.
  *
- * @param onDropToGrid - Function to handle dropping the dragged item onto the grid.
- * @returns - The handlers and state used to manage drag-and-drop interaction.
- * @returns DragOverCell - The cell currently being dragged over for visual feedback.
- * @returns HandleDragOver - Handler for the drag over event.
- * @returns {Function} HandleDragEnter - Handler for the drag enter event on grid cells.
- * @returns {Function} handleGlobalDragLeave - Handler for the global drag leave event.
- * @returns {Function} handleDrop - Handler for handling drop events.
+ * @param onDropToGrid Function to handle dropping the dragged item onto the grid.
+ * @returns An object containing handlers and state for drag-and-drop interaction, including the cell being dragged over (DragOverCell), and handlers for drag over (handleDragOver), drag enter (handleDragEnter), global drag leave (handleGlobalDragLeave), and drop (handleDrop) events.
  */
 export const useDragAndDrop = (
   onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void

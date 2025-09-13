@@ -16,6 +16,8 @@ interface TooltipState {
 
 /**
  * The main page component for the timetabling interface.
+ *
+ * @returns The rendered Timetable page.
  */
 const TimetablePage: React.FC = () => {
   const { classSessions } = useClassSessions();
