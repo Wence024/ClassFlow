@@ -1,42 +1,106 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import ColorPicker from '../ColorPicker';
+import { PRESET_COLORS_DATA } from '../../../lib/colorUtils';
+
+// Mock the color utils
+vi.mock('../../../lib/colorUtils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../lib/colorUtils')>();
+  return {
+    ...actual,
+    getRandomPresetColor: () => '#d97706', // Always return Orange for predictable tests
+  };
+});
 
 describe('ColorPicker', () => {
-  it('should render the label, color swatch, and hex value', () => {
-    render(<ColorPicker id="test-color" label="Test Color" value="#ff0000" onChange={() => {}} />);
+  const defaultProps = {
+    id: 'test-color',
+    label: 'Test Color',
+    value: '#4f46e5', // Indigo
+    onChange: vi.fn(),
+  };
 
-    expect(screen.getByText('Test Color')).toBeInTheDocument();
-    // The hex code should be displayed in uppercase
-    expect(screen.getByText('#FF0000')).toBeInTheDocument();
+  it('should render the trigger button with the color name', () => {
+    render(<ColorPicker {...defaultProps} />);
+    expect(screen.getByText('Indigo')).toBeInTheDocument();
   });
 
-  it('should call the onChange handler when a new color is selected', () => {
-    const handleChange = vi.fn();
-    render(
-      <ColorPicker id="test-color" label="Test Color" value="#ff0000" onChange={handleChange} />
-    );
+  it('should open the popover when the trigger is clicked', async () => {
+    render(<ColorPicker {...defaultProps} />);
+    const trigger = screen.getByRole('button', { name: /Indigo/i });
 
-    // The input itself is hidden, so we find it by its label association
-    const colorInput = screen.getByLabelText('Test Color');
+    await act(async () => {
+      fireEvent.click(trigger);
+    });
 
-    // Simulate the user selecting a new color
-    fireEvent.change(colorInput, { target: { value: '#00ff00' } });
-
-    expect(handleChange).toHaveBeenCalledOnce();
-    expect(handleChange).toHaveBeenCalledWith('#00ff00');
+    expect(screen.getByRole('dialog', { name: /color picker/i })).toBeInTheDocument();
+    // Check for a preset color button
+    expect(screen.getAllByRole('button', { name: /select color/i })[0]).toBeInTheDocument();
   });
 
-  it('should display an error message when provided', () => {
-    render(
-      <ColorPicker
-        id="test-color"
-        label="Test Color"
-        value="#ff0000"
-        onChange={() => {}}
-        error="This color is invalid"
-      />
-    );
-    expect(screen.getByText('This color is invalid')).toBeInTheDocument();
+  it('should call onChange and close the popover when a preset color is clicked', async () => {
+    const onChange = vi.fn();
+    render(<ColorPicker {...defaultProps} onChange={onChange} />);
+
+    // Open popover
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Indigo/i }));
+    });
+
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+
+    // Click the second preset color (Teal)
+    const tealButton = screen.getByRole('button', { name: /select color Teal/i });
+    await act(async () => {
+      fireEvent.click(tealButton);
+    });
+
+    expect(onChange).toHaveBeenCalledWith(PRESET_COLORS_DATA[1].hex);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('should call onChange when the random button is clicked', async () => {
+    const onChange = vi.fn();
+    render(<ColorPicker {...defaultProps} onChange={onChange} />);
+
+    const randomButton = screen.getByRole('button', { name: /select a random preset color/i });
+    await act(async () => {
+      fireEvent.click(randomButton);
+    });
+
+    expect(onChange).toHaveBeenCalledWith('#d97706'); // The mocked random color
+  });
+
+  it('should close the popover when clicking outside', async () => {
+    render(<ColorPicker {...defaultProps} />);
+    // Open popover
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Indigo/i }));
+    });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Click outside
+    await act(async () => {
+      fireEvent.mouseDown(document.body);
+    });
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('should close the popover when Escape key is pressed', async () => {
+    render(<ColorPicker {...defaultProps} />);
+    // Open popover
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Indigo/i }));
+    });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Press Escape
+    await act(async () => {
+      fireEvent.keyDown(document, { key: 'Escape' });
+    });
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
