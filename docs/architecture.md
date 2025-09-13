@@ -64,7 +64,7 @@ src/
 │   ├── supabase.ts     # (Supabase client instance)
 │   └── notificationsService.ts # (Global notification system)
 │
-└── routes/             # 4. Route Configuration
+└── routes/             # 5. Route Configuration
 ```
 
 1. **`/components/ui`**: Contains highly generic, application-agnostic UI components that could be used in any project.
@@ -119,4 +119,4 @@ The `Timetable` feature is a prime example of our architectural principles in ac
 
 - **Component Decomposition**: The main grid is broken down into smaller, focused components like `TimetableRow`, `SessionCell`, and `EmptyCell`.
 - **State Management with Context**: A `TimetableContext` is used to provide drag-and-drop state (e.g., the currently dragged item, the cell being hovered over) and event handlers directly to the components that need them. This eliminates the need to pass numerous props through the component tree.
-- **Real-time Feedback**: This structure allows child components like `EmptyCell` to access the currently dragged session from the context, call the `checkConflicts` utility, and render appropriate visual feedback (a red or green highlight) in real-time, creating a highly interactive user experience.
+- **Real-time Feedback**: This structure allows child components like `EmptyCell` to access the currently dragged session from the context, call the `checkConflicts` utility, and render appropriate visual feedback (a red or green highlight) in real-time, creating a highly interactive user experience

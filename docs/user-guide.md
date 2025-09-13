@@ -44,7 +44,7 @@ Now, combine your components into schedulable classes.
 This is where you visually build your schedule.
 
 1. Navigate to the **Timetable** page from the sidebar.
-   - **Note:** Class sessions in the drawer with a yellow warning badge have a potential issue (like a capacity conflict) that you should review.
+    - **Note:** Class sessions in the drawer with a yellow warning badge have a potential issue (like a capacity conflict) that you should review.
 2. You will see all the Class Sessions you created in the **"Available Classes"** drawer at the bottom.
 3. Simply **drag** a class from the drawer and **drop** it onto an empty, dashed slot in the timetable grid. The system will automatically prevent you from creating conflicts.
 

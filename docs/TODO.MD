@@ -125,3 +125,6 @@ Here is a rearranged, consolidated, and prioritized to-do list.
   * Majors vs general subjects
   * Teachers in program/department vs other programs/departments
 * [ ] The prop drilling issue is very rampant for `timetable/index.tsx`. Perhaps a local context-based usage is effective on some of the variables.
+* [ ] Major feature: multi-user workflow
+  * [ ] Data models: user attributes as program head role and assigned workflow
+  * [ ] Prerequisite: Role access and admin schedule config controls

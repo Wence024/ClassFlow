@@ -70,6 +70,7 @@ The application should now be running, typically at `http://localhost:5173`. The
 ## Development Workflow
 
 - **Branching**: Follow a standard feature-branching model (e.g., `feature/add-new-sidebar`, `fix/login-bug`).
+- **Committing**: The project includes a helper script to streamline creating conventional commit messages. Run `npm run prep-commit-msg` to copy the current staged changes and recent log to your clipboard, ready to be pasted into an AI assistant.
 - **Linting & Formatting**: Before committing, it's a good practice to run the linter and formatter:
 
     ```bash
