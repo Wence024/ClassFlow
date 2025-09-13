@@ -18,6 +18,11 @@ export const PRESET_COLORS_DATA = [
 ];
 
 /**
+ * A neutral gray color to be used as a fallback when a specific color is not available.
+ */
+export const DEFAULT_FALLBACK_COLOR = '#9CA3AF'; // gray-400
+
+/**
  * Gets the name of a color from its hex code.
  *
  * @param hex The hex code of the color.
@@ -46,9 +51,9 @@ export const getRandomPresetColor = (): string => {
  * @param color The color in 6-digit hex format.
  * @returns `true` if the color is light, `false` if dark.
  */
-export const isColorLight = (color: string): boolean => {
-  if (!color) return true;
-  const hex = color.replace('#', '');
+export const isColorLight = (color: string | null): boolean => {
+  const hexColor = color || DEFAULT_FALLBACK_COLOR;
+  const hex = hexColor.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
@@ -63,12 +68,12 @@ export const isColorLight = (color: string): boolean => {
  * @param alpha The alpha transparency value (0-1).
  * @returns The 8-digit hex color including alpha (e.g., '#RRGGBBAA').
  */
-export const hexWithAlpha = (hex: string, alpha: number): string => {
-  if (!hex) hex = '#808080'; // Default to gray
+export const hexWithAlpha = (hex: string | null, alpha: number): string => {
+  const hexColor = hex || DEFAULT_FALLBACK_COLOR;
   const alphaHex = Math.round(alpha * 255)
     .toString(16)
     .padStart(2, '0');
-  return `${hex}${alphaHex}`;
+  return `${hexColor}${alphaHex}`;
 };
 
 // --- Session Cell Style Logic ---
@@ -84,7 +89,7 @@ const BORDER_OPACITY = 1.0;
  * @param isDragged Whether the cell is currently being dragged.
  * @returns An 8-digit hex color string for the background.
  */
-export const getSessionCellBgColor = (hex: string, isDragged: boolean): string => {
+export const getSessionCellBgColor = (hex: string | null, isDragged: boolean): string => {
   const opacity = isDragged ? DRAGGED_OPACITY : NORMAL_OPACITY;
   return hexWithAlpha(hex, opacity);
 };
@@ -96,7 +101,7 @@ export const getSessionCellBgColor = (hex: string, isDragged: boolean): string =
  * @param isDragged Whether the cell is currently being dragged.
  * @returns A CSS border string or 'none'.
  */
-export const getSessionCellBorderStyle = (hex: string, isDragged: boolean): string => {
+export const getSessionCellBorderStyle = (hex: string | null, isDragged: boolean): string => {
   if (!isDragged) {
     return 'none';
   }
@@ -110,6 +115,6 @@ export const getSessionCellBorderStyle = (hex: string, isDragged: boolean): stri
  * @param backgroundColorHex The 6-digit hex code of the background.
  * @returns '#000000' (black) or '#FFFFFF' (white).
  */
-export const getSessionCellTextColor = (backgroundColorHex: string): string => {
+export const getSessionCellTextColor = (backgroundColorHex: string | null): string => {
   return isColorLight(backgroundColorHex) ? '#000000' : '#FFFFFF';
 };

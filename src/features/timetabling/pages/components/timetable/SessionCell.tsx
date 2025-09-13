@@ -2,6 +2,7 @@ import React from 'react';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useTimetableContext } from './useTimetableContext';
 import {
+  DEFAULT_FALLBACK_COLOR,
   getSessionCellBgColor,
   getSessionCellBorderStyle,
   getSessionCellTextColor,
@@ -76,7 +77,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
 
   const isDragging = currentDraggedSession !== null;
   const isDraggedSession = currentDraggedSession?.id === session.id;
-  const instructorHex = session.instructor.color;
+  const instructorHex = session.instructor.color ?? DEFAULT_FALLBACK_COLOR;
 
   const cellStyle: React.CSSProperties = {
     backgroundColor: getSessionCellBgColor(instructorHex, isDraggedSession),
