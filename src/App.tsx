@@ -4,8 +4,8 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
 import { AuthRoutes } from './routes/AuthRoutes';
 import { AuthProvider } from './features/auth/contexts/AuthProvider';
-import PrivateRoute from './features/auth/components/PrivateRoute'; // Import PrivateRoute here
-import AppLayout from './components/layout/AppLayout'; // Import AppLayout here
+import PrivateRoute from './features/auth/components/PrivateRoute';
+import AppLayout from './components/layout/AppLayout';
 import ClassSessions from './features/classSessions/pages/ClassSessionsPage'; // Import pages here
 import TimetablePage from './features/timetabling/pages/TimetablePage';
 import ComponentManagement from './features/classSessionComponents/pages';
@@ -27,13 +27,12 @@ function App() {
         <AuthProvider>
           <Notification />
           <Routes>
-            {/* 1. Public Auth Routes */}
+            {/* Public Routes */}
             {AuthRoutes}
 
-            {/* 2. All private routes are now children of the PrivateRoute element */}
+            {/* Private Routes */}
             <Route element={<PrivateRoute />}>
               <Route element={<AppLayout />}>
-                {/* The root of the authenticated app redirects to the default page */}
                 <Route path="/" element={<Navigate to="/class-sessions" replace />} />
                 <Route path="/class-sessions" element={<ClassSessions />} />
                 <Route path="/scheduler" element={<TimetablePage />} />
@@ -42,7 +41,6 @@ function App() {
               </Route>
             </Route>
 
-            {/* 3. A catch-all for any other path */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>

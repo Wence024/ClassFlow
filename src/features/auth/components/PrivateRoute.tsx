@@ -1,5 +1,4 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom'; // Import Outlet
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingSpinner } from '../../../components/ui';
 
@@ -10,7 +9,7 @@ import { LoadingSpinner } from '../../../components/ui';
  *
  * @returns An <Outlet /> for child routes if authenticated, a redirect, or a loading screen.
  */
-const PrivateRoute: React.FC = (): React.ReactElement => {
+const PrivateRoute: React.FC = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -26,8 +25,7 @@ const PrivateRoute: React.FC = (): React.ReactElement => {
     return <Navigate to="/login" replace />;
   }
 
-  // If authenticated, render the nested child routes.
-  return <Outlet />;
+  return <Outlet />; // It renders an Outlet, not children
 };
 
 export default PrivateRoute;
