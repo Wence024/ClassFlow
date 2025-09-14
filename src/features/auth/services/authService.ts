@@ -109,10 +109,13 @@ export async function resendVerificationEmail(email: string): Promise<void> {
 }
 
 /**
- * Retrieves the currently authenticated user from the active session.
- * This is typically used to check for an existing session when the application loads.
+ * Retrieves the currently authenticated user's session and enriches it with data from the `profiles` table.
  *
- * @returns A promise that resolves to a User object if a session exists, otherwise null.
+ * It first checks for an active Supabase session. If one exists, it then queries the `public.profiles` table
+ * to fetch essential application-specific data like the user's role and assigned program. This is the primary
+ * method for initializing the user's state when the application loads.
+ *
+ * @returns A promise that resolves to a fully-hydrated User object (including role and program_id) if a session and profile exist, otherwise null.
  */
 export async function getStoredUser(): Promise<User | null> {
   const {
@@ -124,14 +127,27 @@ export async function getStoredUser(): Promise<User | null> {
     return null;
   }
 
+  // Instead of relying on metadata, we query the definitive profiles table.
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role, program_id')
+    .eq('id', session.user.id)
+    .single();
+
+  if (profileError || !profile) {
+    // Handle case where profile might not exist yet or an error occurred
+    console.error('Could not fetch user profile:', profileError);
+    return null; // Or return a default user object
+  }
+
   return {
     id: session.user.id,
     name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
     email: session.user.email!,
-    role: session.user.user_metadata?.role || 'user',
+    role: profile.role,
+    program_id: profile.program_id,
   };
 }
-
 /**
  * Signs out the currently authenticated user.
  *
