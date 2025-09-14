@@ -1,5 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import checkTimetableConflicts, { type TimetableGrid } from '../checkConflicts';
+import checkTimetableConflicts, {
+  findConflictingSessionsAtPeriod,
+  type TimetableGrid,
+} from '../checkConflicts';
 import type {
   Instructor,
   Classroom,
@@ -188,7 +191,7 @@ describe('checkConflicts', () => {
         mockGroup2.id,
         1
       );
-      expect(result).toContain('Conflict');
+      expect(result).toContain('conflict');
       expect(result).toContain('CS-1A'); //Group Name
     });
 
@@ -207,8 +210,42 @@ describe('checkConflicts', () => {
       );
 
       // ASSERT
-      expect(result).toContain('Conflict');
+      expect(result).toContain('conflict');
       expect(result).toContain('CS-1A'); //Group Name
+    });
+
+    it('returns multiple conflicts if multiple other groups have sessions at that period', () => {
+      const otherGroup: ClassGroup = {
+        id: 'group3',
+        name: 'CS-1C',
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+        code: 'CS1C',
+        color: '#123456',
+        student_count: 24,
+      };
+
+      const otherSession: ClassSession = {
+        ...classSession2,
+        id: 'session-other',
+        group: otherGroup,
+      };
+
+      timetable.set(otherGroup.id, Array(totalPeriods).fill(null));
+      timetable.get(mockGroup2.id)![1] = conflictingInstructorSession;
+      timetable.get(otherGroup.id)![1] = otherSession;
+
+      const result = findConflictingSessionsAtPeriod(timetable, 1, mockGroup1.id, classSession1);
+
+      // ✅ Extracted outside of the nested call
+      const conflictingIds = [];
+      for (const session of result) {
+        conflictingIds.push(session.id);
+      }
+
+      expect(result).toHaveLength(2);
+      expect(conflictingIds).toContain('session3');
+      expect(conflictingIds).toContain('session-other');
     });
 
     it('should detect an instructor conflict in the second period of a multi-period class', () => {
@@ -239,7 +276,9 @@ describe('checkConflicts', () => {
         mockGroup2.id,
         0
       );
-      expect(result).toContain('Classroom conflict: Room 101');
+      expect(result).toContain(
+        "Classroom conflict: Classroom 'Room 101' is already booked by group 'CS-1A' at this time (class: 'CS101')."
+      );
     });
 
     it('should return a boundary conflict if the class duration extends beyond the periods in a day', () => {
@@ -252,7 +291,9 @@ describe('checkConflicts', () => {
         mockGroup1.id,
         lastPeriodOfDay1
       );
-      expect(result).toBe('Placement conflict: Class cannot span across multiple days.');
+      expect(result).toBe(
+        'Placement conflict: Class cannot span multiple days (spans from day 1 to day 2).'
+      );
     });
 
     it('should return a boundary conflict if the class duration extends beyond the total periods', () => {
@@ -265,7 +306,9 @@ describe('checkConflicts', () => {
         mockGroup1.id,
         lastPeriod
       );
-      expect(result).toBe('Placement conflict: Class extends beyond the available timetable days.');
+      expect(result).toBe(
+        'Placement conflict: Class extends beyond timetable limit of 20 periods.'
+      );
     });
 
     it('should not report a conflict with itself when moving a multi-period class', () => {
@@ -308,7 +351,7 @@ describe('checkConflicts', () => {
 
     // ASSERT: The function must detect the conflict and not return an empty string.
     expect(result).not.toBe('');
-    expect(result).toContain('Conflict');
+    expect(result).toContain('conflict');
     expect(result).toContain('CS-1B');
   });
 });

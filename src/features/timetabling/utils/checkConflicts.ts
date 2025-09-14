@@ -22,7 +22,7 @@ export function checkCapacityConflict(group: ClassGroup, classroom: Classroom): 
   // Ensure both values are numbers before comparing.
   if (typeof studentCount === 'number' && typeof classroomCapacity === 'number') {
     if (studentCount > classroomCapacity) {
-      return `Capacity conflict: The group "${group.name}" (${studentCount} students) exceeds the capacity of "${classroom.name}" (${classroomCapacity} seats).`;
+      return `Capacity conflict: The group "${group.name}" (${studentCount} students) exceeds the capacity of classroom "${classroom.name}" (${classroomCapacity} seats).`;
     }
   }
 
@@ -69,7 +69,7 @@ function checkBoundaryConflicts(
 
   // Ensure the session doesn't extend beyond the total number of periods in the schedule.
   if (targetPeriodIndex + period_count > totalPeriods) {
-    return 'Placement conflict: Class extends beyond the available timetable days.';
+    return `Placement conflict: Class extends beyond timetable limit of ${totalPeriods} periods.`;
   }
 
   const startDay = Math.floor(targetPeriodIndex / periods_per_day);
@@ -77,7 +77,7 @@ function checkBoundaryConflicts(
 
   // Ensure the session doesn't span across multiple days.
   if (startDay !== endDay) {
-    return 'Placement conflict: Class cannot span across multiple days.';
+    return `Placement conflict: Class cannot span multiple days (spans from day ${startDay + 1} to day ${endDay + 1}).`;
   }
 
   return '';
@@ -109,50 +109,51 @@ function checkGroupConflicts(
   for (let i = 0; i < period_count; i++) {
     const sessionInSlot = targetGroupSchedule[targetPeriodIndex + i];
     if (sessionInSlot && sessionInSlot.id !== sessionToCheck.id) {
-      return `Conflict within ${sessionInSlot.group.name}: This time slot is already occupied.`;
+      return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
     }
   }
 
   return '';
 }
+
 /**
- * Finds a class session at a specific period that may conflict with the target session.
+ * Finds all class sessions at a specific period that may conflict with the target session.
  * Ignores sessions from the same group and sessions with the same ID.
  *
- * @param timetable The full timetable grid.
- * @param periodIndex The index of the period to check.
- * @param targetGroupId The ID of the group the ckass session is being scheduled for.
- * @param sessionToCheck The class session being scheduled.
- * @returns A conflicting class session if found, or null if no conflict is present.
+ * @param timetable - The full timetable grid.
+ * @param periodIndex - The index of the period to check.
+ * @param targetGroupId - The ID of the group the class session is being scheduled for.
+ * @param sessionToCheck - The class session being scheduled.
+ * @returns An array of potentially conflicting sessions scheduled at the same period.
  */
-function findConflictingSessionAtPeriod(
+export function findConflictingSessionsAtPeriod(
   timetable: TimetableGrid,
   periodIndex: number,
   targetGroupId: string,
   sessionToCheck: ClassSession
-): ClassSession | null {
+): ClassSession[] {
+  const conflicts: ClassSession[] = [];
+
   for (const [groupId, schedule] of timetable.entries()) {
     if (groupId === targetGroupId) continue;
 
     const otherSession = schedule[periodIndex];
-
     if (!otherSession || otherSession.id === sessionToCheck.id) continue;
 
-    return otherSession;
+    conflicts.push(otherSession);
   }
 
-  return null;
+  return conflicts;
 }
 
 /**
- * Checks if the instructor for the given session is already scheduled
- * to teach another session during the same time block.
+ * Checks if the session's instructor is already scheduled to teach another class at the same time.
  *
- * @param timetable The full timetable grid.
- * @param sessionToCheck The class session being checked.
- * @param targetGroupId The ID of the group the session belongs to.
- * @param targetPeriodIndex The index of the period where the session is scheduled to start.
- * @returns A string error message if an instructor conflict is found, or an empty string if none.
+ * @param timetable - The full timetable grid.
+ * @param sessionToCheck - The session being checked.
+ * @param targetGroupId - The ID of the group the session is being scheduled for.
+ * @param targetPeriodIndex - The index of the period the session is scheduled to start.
+ * @returns A string describing the conflict, or an empty string if no instructor conflict is found.
  */
 function checkInstructorConflicts(
   timetable: TimetableGrid,
@@ -160,21 +161,22 @@ function checkInstructorConflicts(
   targetGroupId: string,
   targetPeriodIndex: number
 ): string {
-  const periodCount = sessionToCheck.period_count || 1;
+  const period_count = sessionToCheck.period_count || 1;
 
-  for (let i = 0; i < periodCount; i++) {
-    const currentPeriod = targetPeriodIndex + i;
-
-    const conflictingSession = findConflictingSessionAtPeriod(
+  for (let i = 0; i < period_count; i++) {
+    const periodIndex = targetPeriodIndex + i;
+    const conflicts = findConflictingSessionsAtPeriod(
       timetable,
-      currentPeriod,
+      periodIndex,
       targetGroupId,
       sessionToCheck
     );
 
-    if (conflictingSession && conflictingSession.instructor.id === sessionToCheck.instructor.id) {
-      const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
-      return `Instructor conflict: ${name} is already scheduled for ${conflictingSession.group.name} at this time.`;
+    for (const conflictingSession of conflicts) {
+      if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+        const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
+        return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
+      }
     }
   }
 
@@ -182,14 +184,13 @@ function checkInstructorConflicts(
 }
 
 /**
- * Checks if the classroom for the given session is already in use
- * by another group during the same time block.
+ * Checks if the classroom is already booked for another session at the same time.
  *
- * @param timetable The full timetable grid.
- * @param sessionToCheck The class session being checked.
- * @param targetGroupId The ID of the group the session belongs to.
- * @param targetPeriodIndex The index of the period where the session is scheduled to start.
- * @returns A string error message if a classroom conflict is found, or an empty string if none.
+ * @param timetable - The full timetable grid.
+ * @param sessionToCheck - The session being checked.
+ * @param targetGroupId - The ID of the group the session is being scheduled for.
+ * @param targetPeriodIndex - The index of the period the session is scheduled to start.
+ * @returns A string describing the conflict, or an empty string if no classroom conflict is found.
  */
 function checkClassroomConflicts(
   timetable: TimetableGrid,
@@ -197,20 +198,21 @@ function checkClassroomConflicts(
   targetGroupId: string,
   targetPeriodIndex: number
 ): string {
-  const periodCount = sessionToCheck.period_count || 1;
+  const period_count = sessionToCheck.period_count || 1;
 
-  for (let i = 0; i < periodCount; i++) {
-    const currentPeriod = targetPeriodIndex + i;
-
-    const conflictingSession = findConflictingSessionAtPeriod(
+  for (let i = 0; i < period_count; i++) {
+    const periodIndex = targetPeriodIndex + i;
+    const conflicts = findConflictingSessionsAtPeriod(
       timetable,
-      currentPeriod,
+      periodIndex,
       targetGroupId,
       sessionToCheck
     );
 
-    if (conflictingSession && conflictingSession.classroom.id === sessionToCheck.classroom.id) {
-      return `Classroom conflict: ${conflictingSession.classroom.name} is already in use by ${conflictingSession.group.name} at this time.`;
+    for (const conflictingSession of conflicts) {
+      if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+        return `Classroom conflict: Classroom '${conflictingSession.classroom.name}' is already booked by group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
+      }
     }
   }
 
