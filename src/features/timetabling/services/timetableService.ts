@@ -20,7 +20,7 @@ import type {
  * @returns An array of timetable assignment objects.
  */
 export async function getTimetableAssignments(
-  user_id: string
+  semester_id: string
 ): Promise<HydratedTimetableAssignment[]> {
   const { data, error } = await supabase
     .from('timetable_assignments')
@@ -36,7 +36,7 @@ export async function getTimetableAssignments(
       )
     `
     )
-    .eq('user_id', user_id);
+    .eq('semester_id', semester_id); // Filter by the active semester instead of the user
 
   if (error) {
     console.error('Error fetching hydrated timetable assignments:', error);

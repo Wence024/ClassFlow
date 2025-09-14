@@ -9,6 +9,7 @@ import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment } from '../types/timetable';
+import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
@@ -30,7 +31,10 @@ export function useTimetable() {
   const queryClient = useQueryClient();
   const { classGroups } = useClassGroups();
   const { settings } = useScheduleConfig();
-  const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
+  const { data: activeSemester } = useActiveSemester(); // 2. Get the active semester
+
+  // The queryKey is now dependent on the semester, not the user
+  const queryKey = useMemo(() => ['hydratedTimetable', activeSemester?.id], [activeSemester?.id]);
 
   // A random, unique ID for the Supabase real-time channel to prevent conflicts between browser tabs.
   // eslint-disable-next-line sonarjs/pseudo-random
@@ -46,9 +50,13 @@ export function useTimetable() {
     error: errorAssignments,
   } = useQuery<HydratedTimetableAssignment[]>({
     queryKey,
-    queryFn: () => (user ? timetableService.getTimetableAssignments(user.id) : Promise.resolve([])),
-    // This query is only enabled when all its dependencies (user, groups, settings) are loaded.
-    enabled: !!user && classGroups.length > 0 && !!settings,
+    // The queryFn now passes the semester_id to the service
+    queryFn: () =>
+      activeSemester
+        ? timetableService.getTimetableAssignments(activeSemester.id)
+        : Promise.resolve([]),
+    // The enabled check now depends on the activeSemester
+    enabled: !!user && classGroups.length > 0 && !!settings && !!activeSemester,
   });
 
   // Memoize the timetable grid so it's only rebuilt when its source data changes.
