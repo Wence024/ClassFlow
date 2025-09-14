@@ -2,11 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import { LoadingSpinner, Notification, Tooltip } from '../../../components/ui';
+import { LoadingSpinner, Tooltip } from '../../../components/ui';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import type { ClassSession } from '../../classSessions/types/classSession';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -15,9 +13,13 @@ interface TooltipState {
 }
 
 /**
- * The main page component for the timetabling interface.
+ * Renders the main timetabling interface, including the interactive grid and the drawer of available class sessions.
  *
- * @returns The rendered Timetable page.
+ * This component orchestrates the data-fetching hooks (`useTimetable`, `useClassSessions`) and the
+ * drag-and-drop logic hook (`useTimetableDnd`) to create a fully interactive scheduling experience.
+ * It is designed to be rendered within a larger application layout.
+ *
+ * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
   const { classSessions } = useClassSessions();
@@ -53,46 +55,39 @@ const TimetablePage: React.FC = () => {
   const isInitialLoading = loading && timetable.size === 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Notification />
+    <div>
       {tooltip && <Tooltip content={tooltip.content} position={tooltip.position} />}
-      <Header />
-      <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        <div className="flex flex-col lg:flex-row gap-6 h-full">
-          <Sidebar />
-          <main className="flex-1 space-y-6 min-w-0">
-            {isInitialLoading ? (
-              <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
-                <LoadingSpinner size={'lg'} text="Loading Timetable..." />
-              </div>
-            ) : (
-              <>
-                <Timetable
-                  groups={groups}
-                  timetable={timetable}
-                  isLoading={loading}
-                  onShowTooltip={handleShowTooltip}
-                  onHideTooltip={handleHideTooltip}
-                  // Pass all D&D props from the hook
-                  draggedSession={dnd.activeDraggedSession}
-                  dragOverCell={dnd.dragOverCell}
-                  isSlotAvailable={dnd.isSlotAvailable}
-                  onDragStart={dnd.handleDragStart}
-                  onDragOver={dnd.handleDragOver}
-                  onDragEnter={dnd.handleDragEnter}
-                  onDragLeave={dnd.handleDragLeave}
-                  onDropToGrid={dnd.handleDropToGrid}
-                />
-                <Drawer
-                  drawerClassSessions={drawerClassSessions}
-                  onDragStart={dnd.handleDragStart}
-                  onDropToDrawer={dnd.handleDropToDrawer}
-                />
-              </>
-            )}
-          </main>
-        </div>
-      </div>
+      <main className="flex-1 space-y-6 min-w-0">
+        {isInitialLoading ? (
+          <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
+            <LoadingSpinner size={'lg'} text="Loading Timetable..." />
+          </div>
+        ) : (
+          <>
+            <Timetable
+              groups={groups}
+              timetable={timetable}
+              isLoading={loading}
+              onShowTooltip={handleShowTooltip}
+              onHideTooltip={handleHideTooltip}
+              // Pass all D&D props from the hook
+              draggedSession={dnd.activeDraggedSession}
+              dragOverCell={dnd.dragOverCell}
+              isSlotAvailable={dnd.isSlotAvailable}
+              onDragStart={dnd.handleDragStart}
+              onDragOver={dnd.handleDragOver}
+              onDragEnter={dnd.handleDragEnter}
+              onDragLeave={dnd.handleDragLeave}
+              onDropToGrid={dnd.handleDropToGrid}
+            />
+            <Drawer
+              drawerClassSessions={drawerClassSessions}
+              onDragStart={dnd.handleDragStart}
+              onDropToDrawer={dnd.handleDropToDrawer}
+            />
+          </>
+        )}
+      </main>
     </div>
   );
 };
