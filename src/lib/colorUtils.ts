@@ -1,3 +1,5 @@
+// TODO: Fix bug where choosing a custom color closes the color picker, making it unable to choose or type a custom color.
+
 export const PRESET_COLORS_DATA = [
   { hex: '#4f46e5', name: 'Indigo' },
   { hex: '#0d9488', name: 'Teal' },

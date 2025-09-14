@@ -12,6 +12,8 @@ import type { HydratedTimetableAssignment } from '../types/timetable';
  */
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
+// TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16.
+
 /**
  * Transforms a flat array of timetable assignments from the database into a grid-like
  * Map structure that is optimized for rendering the timetable UI.
@@ -50,7 +52,6 @@ export function buildTimetableGrid(
     const classSession = assignment.class_session || null;
 
     if (row && classSession) {
-      // --- START OF FIX ---
       // Instead of just placing the session at its start, fill all the slots
       // that it occupies based on its duration (period_count).
       const numberOfPeriods = classSession.period_count || 1;
@@ -61,7 +62,6 @@ export function buildTimetableGrid(
           row[periodToFill] = classSession;
         }
       }
-      // --- END OF FIX ---
     }
   }
 

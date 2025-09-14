@@ -116,15 +116,27 @@ export const useTimetableDnd = () => {
     }
   }, []);
 
+  /**
+   * Handles the drop event from the drag and drop functionality.
+   *
+   * @param e - The drag event object.
+   * @param targetClassGroupId - The ID of the target class group.
+   * @param targetPeriodIndex - The index of the target period.
+   * @returns {void}
+   */
   const handleDropToGrid = useCallback(
     async (e: React.DragEvent, targetClassGroupId: string, targetPeriodIndex: number) => {
       e.preventDefault();
       e.stopPropagation();
 
+      // Parse the source data from the data transfer
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
+
+      // Find the class session to drop
       const classSessionToDrop = classSessions.find((cs) => cs.id === source.class_session_id);
 
       if (!classSessionToDrop) {
+        // Show notification if the class session could not be found
         showNotification('Error: Could not find the class session to drop.');
         cleanupDragState();
         return;
@@ -132,10 +144,14 @@ export const useTimetableDnd = () => {
 
       let error = '';
       if (source.from === 'drawer') {
+        // Assign the class session to the target location
         error = await assignClassSession(targetClassGroupId, targetPeriodIndex, classSessionToDrop);
       } else if (source.from === 'timetable') {
+        // Move the class session to the target location
         const isSameCell =
           source.class_group_id === targetClassGroupId && source.period_index === targetPeriodIndex;
+
+        // Abort silently if the source and target are the same
         if (isSameCell) {
           cleanupDragState();
           return; // Abort silently
@@ -148,9 +164,11 @@ export const useTimetableDnd = () => {
       }
 
       if (error) {
+        // Show notification if there was an error
         showNotification(error);
       }
 
+      // Clean up the drag state
       cleanupDragState();
     },
     [classSessions, assignClassSession, moveClassSession, cleanupDragState]

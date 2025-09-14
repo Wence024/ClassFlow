@@ -3,6 +3,30 @@ import React, { createContext } from 'react';
 import type { DragSource } from '../../../types/DragSource';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 
+/**
+ * Defines the shape of the data and handlers shared across the timetable components.
+ * These include drag-and-drop events, tooltip handlers, conflict detection, and visual feedback.
+ *
+ * DragOverCell - The cell currently being dragged over for visual feedback.
+ *
+ * CurrentDraggedSession - The session currently being dragged.
+ *
+ * IsSlotAvailable - Function to check if a slot is available for placement.
+ *
+ * OnDragStart - Function for starting a drag event.
+ *
+ * OnDropToGrid - Function for handling drop events.
+ *
+ * OnShowTooltip - Function to show tooltips.
+ *
+ * OnHideTooltip - Function to hide tooltips.
+ *
+ * OnDragEnter - Handler for drag enter events on grid cells.
+ *
+ * OnDragLeave - Handler for drag leave events on grid cells.
+ *
+ * OnDragOver - Handler for drag over events.
+ */
 export interface TimetableContextType {
   dragOverCell: { groupId: string; periodIndex: number } | null;
   currentDraggedSession: ClassSession | null;
@@ -15,23 +39,6 @@ export interface TimetableContextType {
   onDragLeave: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
 }
-
-/**
- * Defines the shape of the data and handlers shared across the timetable components.
- * These include drag-and-drop events, tooltip handlers, conflict detection, and visual feedback.
- *
- * @interface TimetableContextType
- * dragOverCell - The cell currently being dragged over for visual feedback.
- * currentDraggedSession - The session currently being dragged.
- * isSlotAvailable - Function to check if a slot is available for placement.
- * onDragStart - Function for starting a drag event.
- * onDropToGrid - Function for handling drop events.
- * onShowTooltip Function to show tooltips.
- * onHideTooltip Function to hide tooltips.
- * onDragEnter Handler for drag enter events on grid cells.
- * onDragLeave Handler for drag leave events on grid cells.
- * onDragOver Handler for drag over events.
- */
 
 /**
  * React Context for providing timetable-wide state and handlers.

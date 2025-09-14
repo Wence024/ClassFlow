@@ -116,6 +116,8 @@ function checkGroupConflicts(
   return '';
 }
 
+// TODO: Break down checkResourceConflicts into checkClassroomConflicts and checkInstructorConflicts
+
 /**
  * Checks for conflicts related to shared resources (instructors and classrooms).
  * Ensures no other session is using the same instructor or classroom at the same time.

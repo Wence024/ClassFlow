@@ -12,6 +12,8 @@ const navLinks = [
   { to: '/schedule-config', icon: Settings, label: 'Settings' },
 ];
 
+// TODO: Move Sidebar to app component
+
 /**
  * Renders the main application sidebar for navigation between pages.
  * Uses `NavLink` from `react-router-dom` to provide active link styling.

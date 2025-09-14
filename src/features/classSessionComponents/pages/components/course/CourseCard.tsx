@@ -2,17 +2,9 @@ import React from 'react';
 import { ItemCard } from '../../../../../components/ui';
 import type { Course } from '../../../types';
 
-/**
- * Props for the CourseCard component.
- */
 interface CourseCardProps {
-  /** The course object to display. */
   course: Course;
-
-  /** Callback for the edit action, receiving the full course object. */
   onEdit: (course: Course) => void;
-
-  /** Callback for the delete action, receiving the course ID. */
   onDelete: (id: string) => void;
 }
 

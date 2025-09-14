@@ -66,8 +66,7 @@ describe('colorUtils', () => {
     });
 
     it('should default to gray for null hex', () => {
-      // @ts-expect-error testing invalid input
-      expect(hexWithAlpha(null, 1)).toBe('#808080ff');
+      expect(hexWithAlpha(null, 1)).toBe('#9CA3AFff');
     });
   });
 

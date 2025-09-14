@@ -63,7 +63,7 @@ const ClassroomManagement: React.FC = () => {
     }
   }, [editingClassroom, formMethods, presetColor]);
 
-  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  // Memoize the filtered list to avoid re-calculating on every render
   const filteredClassrooms = useMemo(() => {
     if (!searchTerm) return classrooms;
     return classrooms.filter(

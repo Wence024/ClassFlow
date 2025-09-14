@@ -6,6 +6,7 @@ import { LogOut } from 'lucide-react';
 import { useAuth } from '../../../auth/hooks/useAuth';
 import { Link } from 'react-router-dom';
 
+// TODO: Move Header to app component
 /**
  * Renders the main application header.
  *
