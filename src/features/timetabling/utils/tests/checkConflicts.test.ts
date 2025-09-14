@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import checkConflicts, { type TimetableGrid } from '../checkConflicts';
+import checkTimetableConflicts, { type TimetableGrid } from '../checkConflicts';
 import type {
   Instructor,
   Classroom,
@@ -161,14 +161,26 @@ describe('checkConflicts', () => {
 
   describe('Multi-Period Conflict Logic', () => {
     it('should return no conflict when placing a multi-period class in an empty range', () => {
-      const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 10);
+      const result = checkTimetableConflicts(
+        timetable,
+        classSession2,
+        mockSettings,
+        mockGroup2.id,
+        10
+      );
       expect(result).toBe('');
     });
 
     it('should detect a group conflict if any part of the multi-period class overlaps', () => {
       timetable.get(mockGroup2.id)![2] = classSession1; // Existing class
       // Try to place a 2-period class at index 1, which overlaps at index 2
-      const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 1);
+      const result = checkTimetableConflicts(
+        timetable,
+        classSession2,
+        mockSettings,
+        mockGroup2.id,
+        1
+      );
       expect(result).toContain('Conflict');
       expect(result).toContain('CS-1A'); //Group Name
     });
@@ -179,7 +191,13 @@ describe('checkConflicts', () => {
       timetable.get(mockGroup2.id)![2] = classSession1;
 
       // ACT
-      const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 1);
+      const result = checkTimetableConflicts(
+        timetable,
+        classSession2,
+        mockSettings,
+        mockGroup2.id,
+        1
+      );
 
       // ASSERT
       expect(result).toContain('Conflict');
@@ -188,7 +206,7 @@ describe('checkConflicts', () => {
 
     it('should detect an instructor conflict in the second period of a multi-period class', () => {
       // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
-      const result = checkConflicts(
+      const result = checkTimetableConflicts(
         timetable,
         conflictingInstructorSession,
         mockSettings,
@@ -206,7 +224,7 @@ describe('checkConflicts', () => {
         instructor: mockInstructor2,
       }; // same classroom1
       // Try to place a 2-period class starting at index 0
-      const result = checkConflicts(
+      const result = checkTimetableConflicts(
         timetable,
         conflictingClassroomSession,
         mockSettings,
@@ -219,7 +237,7 @@ describe('checkConflicts', () => {
     it('should return a boundary conflict if the class duration extends beyond the periods in a day', () => {
       const lastPeriodOfDay1 = mockSettings.periods_per_day - 1; // index 3
       // Try to place a 2-period class here, it would spill to index 4 (next day)
-      const result = checkConflicts(
+      const result = checkTimetableConflicts(
         timetable,
         classSession2,
         mockSettings,
@@ -232,7 +250,7 @@ describe('checkConflicts', () => {
     it('should return a boundary conflict if the class duration extends beyond the total periods', () => {
       const lastPeriod = totalPeriods - 1; // index 19
       // Try to place a 2-period class here, it would spill to index 20
-      const result = checkConflicts(
+      const result = checkTimetableConflicts(
         timetable,
         classSession2,
         mockSettings,
@@ -244,7 +262,13 @@ describe('checkConflicts', () => {
 
     it('should not report a conflict with itself when moving a multi-period class', () => {
       timetable.get(mockGroup2.id)![5] = classSession2;
-      const result = checkConflicts(timetable, classSession2, mockSettings, mockGroup2.id, 10);
+      const result = checkTimetableConflicts(
+        timetable,
+        classSession2,
+        mockSettings,
+        mockGroup2.id,
+        10
+      );
       expect(result).toBe('');
     });
   });
@@ -266,7 +290,7 @@ describe('checkConflicts', () => {
 
     // ACT: Attempt to move session B from index 3 to index 2.
     // This should conflict with session A, which occupies index 2.
-    const result = checkConflicts(
+    const result = checkTimetableConflicts(
       timetable,
       sessionB,
       mockSettings,

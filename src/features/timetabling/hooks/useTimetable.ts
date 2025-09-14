@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassGroups } from '../../classSessionComponents/hooks/';
 import * as timetableService from '../services/timetableService';
-import checkConflicts from '../utils/checkConflicts';
+import checkTimetableConflicts from '../utils/checkConflicts';
 import { buildTimetableGrid, type TimetableGrid } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
@@ -228,7 +228,7 @@ export function useTimetable() {
     classSession: ClassSession
   ): Promise<string> => {
     if (!settings) return 'Schedule settings are not loaded yet.';
-    const conflict = checkConflicts(
+    const conflict = checkTimetableConflicts(
       timetable,
       classSession,
       settings,
@@ -272,7 +272,7 @@ export function useTimetable() {
     classSession: ClassSession
   ): Promise<string> => {
     if (!settings) return 'Schedule settings are not loaded yet.';
-    const conflict = checkConflicts(
+    const conflict = checkTimetableConflicts(
       timetable,
       classSession,
       settings,

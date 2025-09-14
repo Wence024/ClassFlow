@@ -115,18 +115,117 @@ function checkGroupConflicts(
 
   return '';
 }
-
-// TODO: Break down checkResourceConflicts into checkClassroomConflicts and checkInstructorConflicts
-
 /**
- * Checks for conflicts related to shared resources (instructors and classrooms).
- * Ensures no other session is using the same instructor or classroom at the same time.
+ * Finds a class session at a specific period that may conflict with the target session.
+ * Ignores sessions from the same group and sessions with the same ID.
  *
  * @param timetable The full timetable grid.
- * @param sessionToCheck The class session to check for conflicts.
- * @param targetGroupId The ID of the target group.
+ * @param periodIndex The index of the period to check.
+ * @param targetGroupId The ID of the group the ckass session is being scheduled for.
+ * @param sessionToCheck The class session being scheduled.
+ * @returns A conflicting class session if found, or null if no conflict is present.
+ */
+function findConflictingSessionAtPeriod(
+  timetable: TimetableGrid,
+  periodIndex: number,
+  targetGroupId: string,
+  sessionToCheck: ClassSession
+): ClassSession | null {
+  for (const [groupId, schedule] of timetable.entries()) {
+    if (groupId === targetGroupId) continue;
+
+    const otherSession = schedule[periodIndex];
+
+    if (!otherSession || otherSession.id === sessionToCheck.id) continue;
+
+    return otherSession;
+  }
+
+  return null;
+}
+
+/**
+ * Checks if the instructor for the given session is already scheduled
+ * to teach another session during the same time block.
+ *
+ * @param timetable The full timetable grid.
+ * @param sessionToCheck The class session being checked.
+ * @param targetGroupId The ID of the group the session belongs to.
  * @param targetPeriodIndex The index of the period where the session is scheduled to start.
- * @returns A string error message if a conflict is detected, or an empty string if no conflict is found.
+ * @returns A string error message if an instructor conflict is found, or an empty string if none.
+ */
+function checkInstructorConflicts(
+  timetable: TimetableGrid,
+  sessionToCheck: ClassSession,
+  targetGroupId: string,
+  targetPeriodIndex: number
+): string {
+  const periodCount = sessionToCheck.period_count || 1;
+
+  for (let i = 0; i < periodCount; i++) {
+    const currentPeriod = targetPeriodIndex + i;
+
+    const conflictingSession = findConflictingSessionAtPeriod(
+      timetable,
+      currentPeriod,
+      targetGroupId,
+      sessionToCheck
+    );
+
+    if (conflictingSession && conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+      const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
+      return `Instructor conflict: ${name} is already scheduled for ${conflictingSession.group.name} at this time.`;
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Checks if the classroom for the given session is already in use
+ * by another group during the same time block.
+ *
+ * @param timetable The full timetable grid.
+ * @param sessionToCheck The class session being checked.
+ * @param targetGroupId The ID of the group the session belongs to.
+ * @param targetPeriodIndex The index of the period where the session is scheduled to start.
+ * @returns A string error message if a classroom conflict is found, or an empty string if none.
+ */
+function checkClassroomConflicts(
+  timetable: TimetableGrid,
+  sessionToCheck: ClassSession,
+  targetGroupId: string,
+  targetPeriodIndex: number
+): string {
+  const periodCount = sessionToCheck.period_count || 1;
+
+  for (let i = 0; i < periodCount; i++) {
+    const currentPeriod = targetPeriodIndex + i;
+
+    const conflictingSession = findConflictingSessionAtPeriod(
+      timetable,
+      currentPeriod,
+      targetGroupId,
+      sessionToCheck
+    );
+
+    if (conflictingSession && conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+      return `Classroom conflict: ${conflictingSession.classroom.name} is already in use by ${conflictingSession.group.name} at this time.`;
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Checks for shared resource conflicts, including instructors and classrooms,
+ * by delegating to specific conflict checkers.
+ *
+ * @param timetable The full timetable grid.
+ * @param sessionToCheck The class session to validate.
+ * @param targetGroupId The ID of the group the session belongs to.
+ * @param targetPeriodIndex The index of the period where the session is scheduled to start.
+ * @returns A string error message if any resource conflict is found, or an empty string if none.
  */
 function checkResourceConflicts(
   timetable: TimetableGrid,
@@ -134,34 +233,10 @@ function checkResourceConflicts(
   targetGroupId: string,
   targetPeriodIndex: number
 ): string {
-  const period_count = sessionToCheck.period_count || 1;
-
-  for (let i = 0; i < period_count; i++) {
-    const currentPeriod = targetPeriodIndex + i;
-
-    for (const [groupId, schedule] of timetable.entries()) {
-      // Skip checking against the target group itself.
-      if (groupId === targetGroupId) continue;
-
-      const conflictingSession = schedule[currentPeriod];
-
-      // Skip if no session is in the slot or if it's the same session we're checking.
-      if (!conflictingSession || conflictingSession.id === sessionToCheck.id) continue;
-
-      // Check for instructor conflict.
-      if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
-        const instructorName = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
-        return `Instructor conflict: ${instructorName} is already scheduled for ${conflictingSession.group.name} at this time.`;
-      }
-
-      // Check for classroom conflict.
-      if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
-        return `Classroom conflict: ${conflictingSession.classroom.name} is already in use by ${conflictingSession.group.name} at this time.`;
-      }
-    }
-  }
-
-  return '';
+  return (
+    checkInstructorConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex) ||
+    checkClassroomConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex)
+  );
 }
 
 /**
@@ -175,7 +250,7 @@ function checkResourceConflicts(
  * @param targetPeriodIndex The index of the period where the session is scheduled to start.
  * @returns A string describing the conflict, or an empty string if no conflicts are found.
  */
-export default function checkConflicts(
+export default function checkTimetableConflicts(
   timetable: TimetableGrid,
   classSessionToCheck: ClassSession,
   settings: ScheduleConfig,

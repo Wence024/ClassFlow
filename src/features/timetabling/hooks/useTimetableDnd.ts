@@ -3,7 +3,7 @@ import { useTimetable } from './useTimetable';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import { showNotification } from '../../../lib/notificationsService';
-import checkConflicts from '../utils/checkConflicts';
+import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 
@@ -68,7 +68,7 @@ export const useTimetableDnd = () => {
         return false;
       }
 
-      const conflictMessage = checkConflicts(
+      const conflictMessage = checkTimetableConflicts(
         timetable,
         activeDraggedSession,
         settings,
