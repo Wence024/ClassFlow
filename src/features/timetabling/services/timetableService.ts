@@ -50,17 +50,19 @@ export async function getTimetableAssignments(
 
 /**
  * Assign a class session to a group/period (insert or upsert) in Supabase.
+ * The assignment object MUST include the semester_id.
  *
  * @param assignment TimetableAssignmentInsert object.
  * @returns The upserted timetable assignment object.
  */
 export async function assignClassSessionToTimetable(
-  assignment: TimetableAssignmentInsert
+  assignment: TimetableAssignmentInsert // This type already allows semester_id
 ): Promise<TimetableAssignment> {
-  // REMOVED: data_version logic is no longer needed.
+  // The logic here doesn't need to change, as long as the incoming
+  // 'assignment' object contains the semester_id.
   const { data, error } = await supabase
     .from('timetable_assignments')
-    .upsert([assignment], { onConflict: 'user_id,class_group_id,period_index' })
+    .upsert([assignment], { onConflict: 'user_id,class_group_id,period_index,semester_id' }) // IMPORTANT: Add semester_id to the conflict check
     .select('*')
     .single();
   if (error) throw error;
@@ -90,6 +92,7 @@ export async function removeClassSessionFromTimetable(
 
 /**
  * Move a class session from one cell to another (delete old, upsert new) in Supabase.
+ * The new assignment object MUST include the semester_id.
  *
  * @param user_id The user's unique ID.
  * @param from The source cell.
@@ -105,9 +108,9 @@ export async function moveClassSessionInTimetable(
   user_id: string,
   from: { class_group_id: string; period_index: number },
   _to: { class_group_id: string; period_index: number },
-  assignment: TimetableAssignmentInsert
+  assignment: TimetableAssignmentInsert // This is the payload for the new location
 ): Promise<TimetableAssignment> {
   await removeClassSessionFromTimetable(user_id, from.class_group_id, from.period_index);
-  // REMOVED: data_version logic is no longer needed.
+  // The assign function will handle the rest correctly.
   return assignClassSessionToTimetable(assignment);
 }

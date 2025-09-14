@@ -94,7 +94,7 @@ export function useTimetable() {
 
   // --- MUTATIONS ---
 
-  /** Mutation for adding a new class session assignment to the timetable. */
+  /** Mutation for adding a new class session assignment. */
   const assignClassSessionMutation = useMutation({
     mutationFn: (variables: {
       class_group_id: string;
@@ -102,11 +102,14 @@ export function useTimetable() {
       classSession: ClassSession;
     }) => {
       if (!user) throw new Error('User not authenticated');
+      if (!activeSemester) throw new Error('Active semester not loaded'); // Safety check
+
       return timetableService.assignClassSessionToTimetable({
         user_id: user.id,
         class_group_id: variables.class_group_id,
         period_index: variables.period_index,
         class_session_id: variables.classSession.id,
+        semester_id: activeSemester.id, // <-- THE FIX IS HERE
       });
     },
     onSuccess: () => {
@@ -151,7 +154,7 @@ export function useTimetable() {
     },
   });
 
-  /** Mutation for moving an existing class session assignment to a new location. */
+  /** Mutation for moving an existing class session assignment. */
   const moveClassSessionMutation = useMutation({
     mutationFn: (variables: {
       from: { class_group_id: string; period_index: number };
@@ -159,11 +162,14 @@ export function useTimetable() {
       classSession: ClassSession;
     }) => {
       if (!user) throw new Error('User not authenticated');
+      if (!activeSemester) throw new Error('Active semester not loaded'); // Safety check
+
       return timetableService.moveClassSessionInTimetable(user.id, variables.from, variables.to, {
         user_id: user.id,
         class_group_id: variables.to.class_group_id,
         period_index: variables.to.period_index,
         class_session_id: variables.classSession.id,
+        semester_id: activeSemester.id,
       });
     },
     // Optimistic update: move the item in the cache immediately.
