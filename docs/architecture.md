@@ -47,16 +47,24 @@ src/
 │   │   └── services/   # (classSessionsService.ts)
 │   │
 │   └── timetabling/    # -- Timetabling Feature
-│       ├── hooks/      # (useTimetable, useTimetableDnd)
+│       ├── hooks/        # (useTimetable, useTimetableDnd)
 │       ├── pages/
-│       ├── services/   # (timetableService.ts)
-│       └── utils/      # (checkConflicts.ts - Pure business logic)
+│       │   ├── components/ # (Drawer, Header, Sidebar)
+│       │   │   └── timetable/  # (New Modular Timetable Components)
+│       │   │       ├── EmptyCell.tsx
+│       │   │       ├── index.tsx
+│       │   │       ├── SessionCell.tsx
+│       │   │       ├── TimetableContext.tsx
+│       │   │       └── ...
+│       │   └── TimetablePage.tsx
+│       ├── services/     # (timetableService.ts)
+│       └── utils/        # (checkConflicts.ts - Pure business logic)
 │
 ├── lib/                # 3. Core Libraries & Singletons
 │   ├── supabase.ts     # (Supabase client instance)
 │   └── notificationsService.ts # (Global notification system)
 │
-└── routes/             # 4. Route Configuration
+└── routes/             # 5. Route Configuration
 ```
 
 1. **`/components/ui`**: Contains highly generic, application-agnostic UI components that could be used in any project.
@@ -104,3 +112,11 @@ The `useTimetable` hook also subscribes to changes in the `timetable_assignments
 5. React Query automatically refetches the data, ensuring the UI is always up-to-date without needing manual state management.
 
 This architecture creates a responsive, maintainable, and scalable application. To add a new data entity, a developer simply creates a new feature folder with its own service and hook, following the established pattern.
+
+### Timetable Component Architecture
+
+The `Timetable` feature is a prime example of our architectural principles in action. Previously a single monolithic component, it has been refactored into a modular structure to manage its complex state and avoid prop drilling.
+
+- **Component Decomposition**: The main grid is broken down into smaller, focused components like `TimetableRow`, `SessionCell`, and `EmptyCell`.
+- **State Management with Context**: A `TimetableContext` is used to provide drag-and-drop state (e.g., the currently dragged item, the cell being hovered over) and event handlers directly to the components that need them. This eliminates the need to pass numerous props through the component tree.
+- **Real-time Feedback**: This structure allows child components like `EmptyCell` to access the currently dragged session from the context, call the `checkConflicts` utility, and render appropriate visual feedback (a red or green highlight) in real-time, creating a highly interactive user experience

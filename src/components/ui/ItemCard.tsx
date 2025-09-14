@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, Trash2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Edit, Info, ShieldAlert, Trash2 } from 'lucide-react';
 import ActionButton from './ActionButton';
 
 /** Represents a key-value pair for display. */
@@ -11,10 +11,25 @@ interface CardDetail {
   value: string | number;
 }
 
+/** Represents the data for a small badge to be displayed next to the title. */
+export interface ItemCardBadge {
+  /** The text or number to display in the badge. */
+  text: string | number;
+
+  /** An optional tooltip for the badge. */
+  tooltip?: string;
+
+  /** The visual style of the badge. Defaults to 'warning'. */
+  variant?: 'warning' | 'info' | 'danger' | 'success';
+
+  /** An optional custom icon component to override the default. */
+  icon?: React.ElementType;
+}
+
 /** Props for the ItemCard component. */
 interface ItemCardProps {
   /** The main title of the card. */
-  title: string;
+  title: React.ReactNode;
 
   /** An optional subtitle displayed below the title. Can be null. */
   subtitle?: string | null;
@@ -24,6 +39,9 @@ interface ItemCardProps {
 
   /** An optional hex color code to display as a small vertical bar. */
   color?: string | null;
+
+  /** An optional badge to display next to the title for warnings or info. */
+  badge?: ItemCardBadge | null;
 
   /** A callback function for the edit action. If not provided, the edit button is not rendered. */
   onEdit?: () => void;
@@ -35,21 +53,72 @@ interface ItemCardProps {
   className?: string;
 }
 
-/** A highly reusable, presentation-only card for displaying item information. */
+/**
+ * A highly reusable, presentation-only card for displaying item information.
+ *
+ * @param ic The props for the component.
+ * @param ic.title The main title of the card.
+ * @param [ic.subtitle] An optional subtitle displayed below the title.
+ * @param [ic.details] An array of details to display as key-value pairs.
+ * @param [ic.color] An optional hex color code to display as a small vertical bar.
+ * @param [ic.badge] An optional badge to display next to the title.
+ * @param [ic.onEdit] A callback for the edit action.
+ * @param [ic.onDelete] A callback for the delete action.
+ * @param [ic.className] Additional CSS classes for the card's root element.
+ * @returns The rendered item card component.
+ */
 const ItemCard: React.FC<ItemCardProps> = ({
   title,
   subtitle,
   details = [],
   color,
+  badge,
   onEdit,
   onDelete,
   className = '',
 }) => {
+  /**
+   * Renders the badge if badge data is provided.
+   *
+   * @returns The badge component or null.
+   */
+  const renderBadge = () => {
+    if (!badge) return null;
+
+    const { text, tooltip, variant = 'warning', icon: CustomIcon } = badge;
+
+    const variantStyles = {
+      warning: 'bg-yellow-100 text-yellow-800',
+      info: 'bg-blue-100 text-blue-800',
+      danger: 'bg-red-100 text-red-800',
+      success: 'bg-green-100 text-green-800',
+    };
+
+    const Icon =
+      CustomIcon ||
+      {
+        warning: AlertTriangle,
+        info: Info,
+        danger: ShieldAlert,
+        success: CheckCircle,
+      }[variant];
+
+    return (
+      <div
+        className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${variantStyles[variant]}`}
+        title={tooltip}
+      >
+        <Icon className="h-3.5 w-3.5" />
+        <span>{text}</span>
+      </div>
+    );
+  };
+
   return (
     <div
       className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center gap-4 ${className}`}
     >
-      {/* THIS IS THE NEW PART: Render a color swatch if a color is provided */}
+      {/* Render a color swatch if a color is provided */}
       {color && (
         <div
           className="w-2 h-8 rounded-lg"
@@ -60,7 +129,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
       {/* Main Content Area */}
       <div className="flex-1 min-w-0">
-        <h3 className="text-md font-semibold text-gray-800 truncate">{title}</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-md font-semibold text-gray-800 truncate">{title}</h3>
+          {renderBadge()}
+        </div>
         {/* Render subtitle only if it's a non-empty string */}
         {subtitle && <p className="text-gray-500 text-sm truncate">{subtitle}</p>}
 
@@ -69,7 +141,8 @@ const ItemCard: React.FC<ItemCardProps> = ({
           <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
             {details.map((detail, index) => (
               <p key={index}>
-                <span className="font-medium">{detail.label}:</span> {String(detail.value)}
+                <span className="font-medium">{detail.label}:</span>
+                {String(detail.value)}
               </p>
             ))}
           </div>
@@ -79,24 +152,17 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         {onEdit && (
-          // THIS IS THE FIX: Add a descriptive aria-label to the button.
-          // Now, the button has an accessible name, even though it only contains an icon.
-          <ActionButton
-            variant="secondary"
-            size="sm"
-            onClick={onEdit}
-            aria-label={`Edit ${title}`} // <-- THE FIX
-          >
+          <ActionButton variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
             <Edit className="w-4 h-4" />
           </ActionButton>
         )}
         {onDelete && (
-          // THIS IS THE FIX: Add a descriptive aria-label to the button.
+          // Add a descriptive aria-label to the button.
           <ActionButton
             variant="danger"
             size="sm"
             onClick={onDelete}
-            aria-label={`Delete ${title}`} // <-- THE FIX
+            aria-label={`Delete ${title}`}
           >
             <Trash2 className="w-4 h-4" />
           </ActionButton>

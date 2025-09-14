@@ -6,6 +6,7 @@ let listeners: ((msg: string) => void)[] = [];
 /**
  * The imperative function to be called from anywhere in the app to display a message.
  * It iterates through all subscribed listeners and calls them with the message.
+ *
  * @param msg The message to display.
  */
 export function showNotification(msg: string) {
@@ -14,6 +15,7 @@ export function showNotification(msg: string) {
 
 /**
  * A function for the Notification component to subscribe to new messages.
+ *
  * @param newListener The function to be called when a new message is sent.
  * @returns An `unsubscribe` function to be used for cleanup.
  */

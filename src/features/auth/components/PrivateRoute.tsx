@@ -16,8 +16,9 @@ interface PrivateRouteProps {
  * While checking authentication status, it displays a loading indicator.
  * If the user is not authenticated, it redirects them to the login page.
  *
- * @param {PrivateRouteProps} props The component props.
- * @returns {React.ReactElement} The child component if authenticated, a redirect, or a loading screen.
+ * @param p The component props.
+ * @param p.children The component to render if the user is authenticated.
+ * @returns The child component if authenticated, a redirect, or a loading screen.
  */
 const PrivateRoute: React.FC<PrivateRouteProps> = ({
   children,

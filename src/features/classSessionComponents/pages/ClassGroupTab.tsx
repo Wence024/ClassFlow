@@ -23,6 +23,8 @@ type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;
 /**
  * Renders the UI for managing Class Groups.
  * Orchestrates the `useClassGroups` hook with the `ClassGroupFields` form and `ClassGroupCard` list.
+ *
+ * @returns The ClassGroupManagement component.
  */
 const ClassGroupManagement: React.FC = () => {
   const { user } = useAuth();

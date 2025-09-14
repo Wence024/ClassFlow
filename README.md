@@ -13,7 +13,8 @@ Built with a focus on maintainability and developer experience, the project uses
 - 🎨 **Visual Organization**: Components are automatically assigned a unique color for easy identification on cards and in the future timetable.
 - 🔍 **Search and Filtering**: Quickly find any component using the client-side search functionality on management pages.
 - 📅 **Class Session Creation**: Combine components to create schedulable class sessions with a specified duration.
-- ↔️ **Drag-and-Drop Timetable**: An interactive grid for assigning and moving class sessions with real-time conflict detection.
+- ↔️ **Interactive Timetabling**: A drag-and-drop grid for assigning and moving class sessions.
+- ✅ **Real-Time Validation**: Instant visual feedback (red/green highlights) shows valid and conflicting slots *during* drag operations, preventing errors before they happen.
 - ⚡ **Real-time Collaboration**: Changes to the timetable are reflected across all connected clients instantly via Supabase subscriptions.
 - 🛡️ **Type-Safe & Scalable**: Built entirely with TypeScript and a modular feature architecture designed for growth.
 

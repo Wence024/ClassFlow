@@ -7,14 +7,17 @@ type DrawerClassSession = Pick<ClassSession, 'id'> & { displayName: string };
 
 /**
  * Props for the Drawer component.
+ *
+ * @param drawerClassSessions - An array of unassigned class sessions to be displayed.
+ * @param onDragStart - The handler to call when dragging starts.
+ * @param onDropToDrawer - The handler to call when something is dropped on the drawer.
+ * @returns The rendered Drawer component.
  */
 interface DrawerProps {
   /** An array of unassigned class sessions to be displayed. */
   drawerClassSessions: DrawerClassSession[];
-
   /** The `onDragStart` handler from the `useTimetableDnd` hook. */
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
-
   /** The `onDrop` handler for the drawer area from the `useTimetableDnd` hook. */
   onDropToDrawer: (e: React.DragEvent) => void;
 }
@@ -22,18 +25,20 @@ interface DrawerProps {
 /**
  * A UI component that displays the list of unassigned class sessions.
  *
- * This component serves two main purposes:
- * 1. It renders a list of draggable "pills" for each class session not yet on the timetable.
- * 2. It acts as a droppable target for class sessions dragged from the timetable,
- *    effectively "un-assigning" them.
+ * This component renders a list of draggable pills for each class session not yet on the timetable.
+ * It also acts as a droppable target for class sessions dragged from the timetable, effectively unassigning them.
  *
- * All drag-and-drop logic is delegated to the handlers provided via props from the `useTimetableDnd` hook.
- *
- * @param {DrawerProps} props - The props for the component.
+ * @param d The props for the component.
+ * @param d.drawerClassSessions - An array of unassigned class sessions to be displayed.
+ * @param d.onDragStart - The `onDragStart` handler from the `useTimetableDnd` hook.
+ * @param d.onDropToDrawer - The handler to call when something is dropped on the drawer.
+ * @returns The rendered drawer component.
  */
 const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer }) => {
-  /** Prevents the browser's default drag behavior to enable a custom drop action. */
-  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+  // Prevents the browser's default drag over behavior to enable custom drop actions.
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
 
   return (
     <div

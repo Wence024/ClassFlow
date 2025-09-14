@@ -11,27 +11,37 @@ interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
   /** Optional click handler. */
   onClick?: () => void;
 
-  /** The visual style of the button.
+  /**
+   * The visual style of the button.
+   *
    * @default 'primary'
    */
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
 
-  /** The size of the button.
+  /**
+   * The size of the button.
+   *
    * @default 'md'
    */
   size?: 'sm' | 'md' | 'lg';
 
-  /** If true, the button will be disabled.
+  /**
+   * If true, the button will be disabled.
+   *
    * @default false
    */
   disabled?: boolean;
 
-  /** If true, a loading indicator will be shown.
+  /**
+   * If true, a loading indicator will be shown.
+   *
    * @default false
    */
   loading?: boolean;
 
-  /** The native button type.
+  /**
+   * The native button type.
+   *
    * @default 'button'
    */
   type?: 'button' | 'submit' | 'reset';
@@ -44,6 +54,17 @@ interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
  * A versatile button component with consistent styling for various actions.
  * It supports different visual variants, sizes, and loading/disabled states.
  * It also forwards all standard button attributes (e.g., `aria-label`) to the underlying button element.
+ *
+ * @param a The props for the component.
+ * @param a.children The content to be displayed inside the button.
+ * @param a.onClick Optional click handler.
+ * @param a.variant The visual style of the button.
+ * @param a.size The size of the button.
+ * @param a.disabled If true, the button will be disabled.
+ * @param a.loading If true, a loading indicator will be shown.
+ * @param a.type The native button type.
+ * @param a.className Additional CSS classes to apply to the button.
+ * @returns A styled button element.
  */
 const ActionButton: React.FC<ActionButtonProps> = ({
   children,

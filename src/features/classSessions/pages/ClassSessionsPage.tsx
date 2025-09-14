@@ -33,6 +33,8 @@ type ClassSessionFormData = z.infer<typeof classSessionSchema>;
  * The main page for managing Class Sessions.
  * This page orchestrates data fetching and state management for creating, updating,
  * and displaying class sessions in a two-column layout.
+ *
+ * @returns The rendered Class Sessions page.
  */
 const ClassSessionsPage: React.FC = () => {
   const { user } = useAuth();

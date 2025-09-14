@@ -22,6 +22,8 @@ type ComponentType = 'course' | 'classGroup' | 'classroom' | 'instructor';
  * This component acts as a container and router for the different management tabs
  * (Courses, Class Groups, Classrooms, Instructors). It manages the active tab
  * state and conditionally renders the corresponding management component.
+ *
+ * @returns The rendered component management page.
  */
 const ComponentManagementPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ComponentType>('course');

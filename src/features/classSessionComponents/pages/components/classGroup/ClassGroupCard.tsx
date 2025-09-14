@@ -11,6 +11,12 @@ interface ClassGroupCardProps {
 /**
  * A specialized display card for a single Class Group.
  * It formats the group's specific properties for display in the base ItemCard component.
+ *
+ * @param c The props for the component.
+ * @param c.classGroup The class group data to display.
+ * @param c.onEdit Callback function when the edit button is clicked.
+ * @param c.onDelete Callback function when the delete button is clicked.
+ * @returns A class group card component.
  */
 export const ClassGroupCard: React.FC<ClassGroupCardProps> = ({ classGroup, onEdit, onDelete }) => {
   const details = [];

@@ -24,6 +24,8 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
 /**
  * Renders the UI for managing Classrooms.
  * Orchestrates the `useClassrooms` hook with the `ClassroomFields` form and `ClassroomCard` list.
+ *
+ * @returns The ClassroomManagement component.
  */
 const ClassroomManagement: React.FC = () => {
   const { user } = useAuth();
@@ -61,7 +63,7 @@ const ClassroomManagement: React.FC = () => {
     }
   }, [editingClassroom, formMethods, presetColor]);
 
-  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  // Memoize the filtered list to avoid re-calculating on every render
   const filteredClassrooms = useMemo(() => {
     if (!searchTerm) return classrooms;
     return classrooms.filter(

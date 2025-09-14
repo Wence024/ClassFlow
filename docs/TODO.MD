@@ -39,13 +39,12 @@ Here is a rearranged, consolidated, and prioritized to-do list.
         ✅ Implement client-side search/filter on management pages.
 
 2. **[Logic] Implement Advanced Conflict Detection**
-    * **Task:** `Conflict: Implement advanced conflict detection logic`
+    * **Task:** `Conflict: Implement advanced conflict detection logic` (Capacity check complete)
     * **Action:** Update your `checkConflicts.ts` utility. The main conflict-checking function should now use the new `classroom.capacity` and `classgroup.student_count` to detect capacity-based conflicts.
     * Observed problems:
-      * [ ] Conflict notification needs to indicate course conflict when class groups is the same instead of merely group conflict
 
-3. **[UI/UX] Visualize Timetabling Actions**
-    * **Task:** `Timetabling: Red/green marks for moving class sessions across periods`
+3. [x] **[UI/UX] Visualize Timetabling Actions**
+    * **Task:** `Timetabling: Availability marks for moving class sessions across periods`
     * **Action:** In `Timetable.tsx`, use the `onDragOver` event to call the conflict detection logic and conditionally apply a class to the target cell for instant feedback.
 
 4. **[Data Integrity] Restrict Invalid Timetabling Moves**
@@ -107,6 +106,7 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 
 *These items are valuable but are lower priority than the core roadmap.*
 
+* **[UX]** Fix: success update in forms has a red color instead of green.
 * **[UI]** Add a zoom feature to timetable.
 * **[UI]** Consolidate management pages into a single, more integrated UI.
 * [ ] Implement captcha in login
@@ -118,3 +118,13 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 * **[Architecture]** Centralize error handling with a `useApiMutation` hook.
 * [ ] Keyboard shortcuts and navigation
 * [ ] Allow classrooms and instructors to be optional in class sessions.
+* [ ] Add program assignment: Create an instructor entity to be assigned temporarily to another program
+* [ ] Add location field to classroom component UI
+* [ ] Add keyboard input in class session assignment UI
+* [ ] Sort/filter issue in class sessions and components
+  * Majors vs general subjects
+  * Teachers in program/department vs other programs/departments
+* [ ] The prop drilling issue is very rampant for `timetable/index.tsx`. Perhaps a local context-based usage is effective on some of the variables.
+* [ ] Major feature: multi-user workflow
+  * [ ] Data models: user attributes as program head role and assigned workflow
+  * [ ] Prerequisite: Role access and admin schedule config controls

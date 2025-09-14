@@ -1,5 +1,6 @@
 import React from 'react';
-import { ItemCard } from '../../../../../components/ui';
+import { ItemCard, type ItemCardBadge } from '../../../../../components/ui';
+import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import type { ClassSession } from '../../../types/classSession';
 
 /**
@@ -19,6 +20,12 @@ interface ClassSessionCardProps {
 /**
  * A specialized display card for a single ClassSession.
  * It formats the session's details for display in the base ItemCard component.
+ *
+ * @param csc The props for the ClassSessionCard component.
+ * @param csc.classSession The class session object to display.
+ * @param csc.onEdit Callback function to handle edit action.
+ * @param csc.onDelete Callback function to handle delete action.
+ * @returns The rendered item card component for the class session.
  */
 const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ classSession, onEdit, onDelete }) => {
   // Defensive check for missing data, which can happen during optimistic updates
@@ -49,12 +56,25 @@ const ClassSessionCard: React.FC<ClassSessionCardProps> = ({ classSession, onEdi
     },
   ];
 
+  // Check for any "soft" conflicts associated with this session.
+  const softConflicts = checkSoftConflicts(classSession);
+
+  const conflictBadge: ItemCardBadge | null =
+    softConflicts.length > 0
+      ? {
+          text: softConflicts.length,
+          tooltip: softConflicts.join('\n'),
+          variant: 'warning',
+        }
+      : null;
+
   return (
     <ItemCard
       title={`${classSession.course.name} - ${classSession.group.name}`}
       subtitle={`Course Code: ${classSession.course.code}`}
       details={details}
       color={classSession.instructor.color} // Use the instructor color for the session card
+      badge={conflictBadge}
       onEdit={() => onEdit(classSession)}
       onDelete={() => onDelete(classSession.id)}
     />

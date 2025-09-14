@@ -13,13 +13,12 @@ interface TooltipProps {
 }
 
 /**
- * A portal-based tooltip component that renders its content at the root of the document body.
+ * A simple tooltip component that displays content on hover.
  *
- * This component is designed to solve clipping issues where a tooltip would be truncated by
- * a parent container with `overflow: hidden`. By using a React Portal, it teleports the
- * tooltip's DOM node to the `document.body`, ensuring it always renders on top of all other content.
- *
- * @param {TooltipProps} props - The props for the component.
+ * @param t The props for the component.
+ * @param t.content The content to display inside the tooltip.
+ * @param t.position The position of the tooltip relative to the trigger element.
+ * @returns A tooltip component.
  */
 const Tooltip: React.FC<TooltipProps> = ({ content, position }: TooltipProps) => {
   const tooltipRef = useRef<HTMLDivElement>(null);

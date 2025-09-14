@@ -10,8 +10,9 @@ const TABLE = 'class_groups';
 
 /**
  * Fetches all class groups for a specific user from the database.
- * @param {string} user_id - The ID of the user whose class groups to retrieve.
- * @returns {Promise<ClassGroup[]>} A promise that resolves to an array of ClassGroup objects.
+ *
+ * @param user_id - The ID of the user whose class groups to retrieve.
+ * @returns A promise that resolves to an array of ClassGroup objects.
  * @throws An error if the Supabase query fails.
  */
 export async function getClassGroups(user_id: string): Promise<ClassGroup[]> {
@@ -27,8 +28,9 @@ export async function getClassGroups(user_id: string): Promise<ClassGroup[]> {
 /**
  * Adds a new class group to the database.
  * The input object must include the `user_id` of the owner.
- * @param {ClassGroupInsert} group - The ClassGroupInsert object containing the data for the new group.
- * @returns {Promise<ClassGroup>} A promise that resolves to the newly created ClassGroup object.
+ *
+ * @param group - The ClassGroupInsert object containing the data for the new group.
+ * @returns A promise that resolves to the newly created ClassGroup object.
  * @throws An error if the Supabase insert fails.
  */
 export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup> {
@@ -40,9 +42,10 @@ export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup
 /**
  * Updates an existing class group in the database.
  * Relies on Supabase's Row-Level Security (RLS) to ensure users can only update their own records.
- * @param {string} id - The unique identifier of the class group to update.
- * @param {ClassGroupUpdate} group - The ClassGroupUpdate object containing the fields to update.
- * @returns {Promise<ClassGroup>} A promise that resolves to the updated ClassGroup object.
+ *
+ * @param id - The unique identifier of the class group to update.
+ * @param group - The ClassGroupUpdate object containing the fields to update.
+ * @returns A promise that resolves to the updated ClassGroup object.
  * @throws An error if the Supabase update fails or the record is not found.
  */
 export async function updateClassGroup(id: string, group: ClassGroupUpdate): Promise<ClassGroup> {
@@ -54,9 +57,10 @@ export async function updateClassGroup(id: string, group: ClassGroupUpdate): Pro
 /**
  * Removes a class group from the database.
  * This operation is protected by RLS policies in the database, ensuring a user can only delete their own records.
- * @param {string} id - The unique identifier of the class group to remove.
- * @param {string} user_id - The ID of the user, used here for an explicit check.
- * @returns {Promise<void>} A promise that resolves when the operation is complete.
+ *
+ * @param id - The unique identifier of the class group to remove.
+ * @param user_id - The ID of the user, used here for an explicit check.
+ * @returns A promise that resolves when the operation is complete.
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassGroup(id: string, user_id: string): Promise<void> {

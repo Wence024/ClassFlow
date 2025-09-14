@@ -63,7 +63,13 @@ export function useInstructors() {
     /** An async function to add a new instructor. */
     addInstructor: addMutation.mutateAsync,
 
-    /** An async function to update an instructor. */
+    /**
+     * An async function to update an instructor.
+     *
+     * @param id The ID of the instructor to update.
+     * @param data The data to update the instructor with.
+     * @returns A Promise that resolves when the update is complete.
+     */
     updateInstructor: (id: string, data: InstructorUpdate) =>
       updateMutation.mutateAsync({ id, data }),
 

@@ -3,6 +3,12 @@ import { useScheduleConfig } from '../hooks/useScheduleConfig';
 import { FormField, ActionButton, LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 
+/**
+ * The page for configuring academic schedule settings.
+ * Allows users to set parameters like periods per day, class days per week, start time, and period duration.
+ *
+ * @returns The rendered schedule configuration page.
+ */
 const ScheduleConfigPage: React.FC = () => {
   const { settings, updateSettings, isLoading, isUpdating, error } = useScheduleConfig();
   const [formData, setFormData] = useState({

@@ -18,6 +18,7 @@ The focus of the MVP phase is to deliver a functional, stable, and secure applic
 
 - **State Management**: Server state is managed exclusively by TanStack Query. Client state is managed by React's built-in hooks (`useState`, `useContext`).
 - **Type Safety**: The entire codebase is strictly typed with TypeScript. Avoid `any` and non-null assertions (`!`).
+- **Documentation**: All exported hooks, services, and components must have JSDoc comments, which are enforced by ESLint.
 - **Folder Structure**: Adhere to the established feature-sliced architecture.
 - **Styling**: Use Tailwind CSS utility classes for all styling to maintain consistency.
 

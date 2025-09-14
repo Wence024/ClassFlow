@@ -11,12 +11,17 @@ import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 export interface TimeHeader {
   /** The formatted time string, e.g., "7:30-9:00". */
   label: string;
+  /** The formatted start time, e.g., "7:30". */
+  start: string;
+  /** The formatted end time, e.g., "9:00". */
+  end: string;
 }
 
 /**
  * Formats a JavaScript Date object into a 12-hour "h:mm" string.
- * @param {Date} date - The date object to format.
- * @returns {string} The formatted time string (e.g., "9:00", "12:30").
+ *
+ * @param date - The date object to format.
+ * @returns The formatted time string (e.g., "9:00", "12:30").
  */
 const formatTimeHHMM = (date: Date): string => {
   let hours = date.getHours();
@@ -31,18 +36,21 @@ const formatTimeHHMM = (date: Date): string => {
  * This function takes the schedule configuration and calculates all the necessary labels
  * for the horizontal (days) and vertical (time slots) axes of the timetable.
  *
- * @param {ScheduleConfig} settings - The academic schedule configuration from the database.
+ * @param settings - The academic schedule configuration from the database.
  * @returns An object containing an array of day headers and an array of time headers.
  * @example
  * const headers = generateTimetableHeaders({ class_days_per_week: 5, ... });
- * // headers.dayHeaders -> ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]
- * // headers.timeHeaders -> [{ label: "7:30-9:00" }, { label: "9:00-10:30" }, ...]
+ * // headers.dayHeaders -> [{ label: "Day 1", date: "Day 1" }, ...]
+ * // headers.timeHeaders -> [{ label: "7:30-9:00", start: "7:30", end: "9:00" }, ...]
  */
 export function generateTimetableHeaders(settings: ScheduleConfig): {
-  dayHeaders: string[];
+  dayHeaders: { label: string; date: string }[];
   timeHeaders: TimeHeader[];
 } {
-  const dayHeaders = [...Array(settings.class_days_per_week)].map((_, i) => `Day ${i + 1}`);
+  const dayHeaders = [...Array(settings.class_days_per_week)].map((_, i) => {
+    const label = `Day ${i + 1}`;
+    return { label, date: label }; // Using label as date for a unique key
+  });
   const timeHeaders: TimeHeader[] = [];
 
   const [startHour, startMinute] = settings.start_time.split(':').map(Number);
@@ -53,8 +61,13 @@ export function generateTimetableHeaders(settings: ScheduleConfig): {
     const startTime = new Date(currentTime);
     const endTime = new Date(startTime.getTime() + settings.period_duration_mins * 60000);
 
+    const start = formatTimeHHMM(startTime);
+    const end = formatTimeHHMM(endTime);
+
     timeHeaders.push({
-      label: `${formatTimeHHMM(startTime)}-${formatTimeHHMM(endTime)}`,
+      label: `${start}-${end}`,
+      start,
+      end,
     });
 
     currentTime.setTime(endTime.getTime()); // Set up for the next loop.

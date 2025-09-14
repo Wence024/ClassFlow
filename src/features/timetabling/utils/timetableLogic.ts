@@ -12,6 +12,8 @@ import type { HydratedTimetableAssignment } from '../types/timetable';
  */
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
+// TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16.
+
 /**
  * Transforms a flat array of timetable assignments from the database into a grid-like
  * Map structure that is optimized for rendering the timetable UI.
@@ -19,10 +21,10 @@ export type TimetableGrid = Map<string, (ClassSession | null)[]>;
  * The grid is structured as `Map<class_group_id, Array<period>>`, making it easy
  * to look up the session for a specific group and time slot.
  *
- * @param {HydratedTimetableAssignment[]} assignments - The flat array of assignment data from the server.
- * @param {ClassGroup[]} classGroups - The list of all class groups, used to initialize the grid rows.
- * @param {number} totalPeriods - The total number of periods in the schedule (days * periods_per_day).
- * @returns {TimetableGrid} A Map representing the populated timetable grid.
+ * @param assignments - The flat array of assignment data from the server.
+ * @param classGroups - The list of all class groups, used to initialize the grid rows.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
+ * @returns A Map representing the populated timetable grid.
  */
 export function buildTimetableGrid(
   assignments: HydratedTimetableAssignment[],
@@ -50,7 +52,6 @@ export function buildTimetableGrid(
     const classSession = assignment.class_session || null;
 
     if (row && classSession) {
-      // --- START OF FIX ---
       // Instead of just placing the session at its start, fill all the slots
       // that it occupies based on its duration (period_count).
       const numberOfPeriods = classSession.period_count || 1;
@@ -61,7 +62,6 @@ export function buildTimetableGrid(
           row[periodToFill] = classSession;
         }
       }
-      // --- END OF FIX ---
     }
   }
 

@@ -11,8 +11,7 @@ import type { AuthContextType } from '../types/auth';
  *
  * @example
  * const { user, login, logout } = useAuth();
- *
- * @returns {AuthContextType} The authentication context value.
+ * @returns The authentication context value.
  * @throws {Error} If used outside of a component wrapped by `AuthProvider`.
  */
 export function useAuth(): AuthContextType {

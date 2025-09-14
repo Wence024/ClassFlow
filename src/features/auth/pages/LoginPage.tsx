@@ -8,6 +8,8 @@ import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
  * A page component for user login.
  * It provides a form for email and password entry, handles client-side validation,
  * and uses the `useAuth` hook to perform the login operation.
+ *
+ * @returns A login page component.
  */
 const LoginPage: React.FC = () => {
   const { login, loading, error: apiError, user, clearError } = useAuth();
@@ -38,7 +40,8 @@ const LoginPage: React.FC = () => {
   /**
    * Handles the login form submission.
    * Validates the form data and calls the login function from the AuthContext.
-   * @param {React.FormEvent} e - The form event.
+   *
+   * @param e - The form event.
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,8 +66,9 @@ const LoginPage: React.FC = () => {
 
   /**
    * Updates the form state when an input value changes.
-   * @param {string} fieldName - The name of the field being updated.
-   * @param {string} value - The new value of the field.
+   *
+   * @param fieldName - The name of the field being updated.
+   * @param value - The new value of the field.
    */
   const handleChange = (fieldName: 'email' | 'password', value: string) => {
     setFormData((prev) => ({ ...prev, [fieldName]: value }));

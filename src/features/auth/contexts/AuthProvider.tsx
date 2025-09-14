@@ -20,7 +20,9 @@ interface AuthProviderProps {
  * functions to handle login, registration, logout, and other auth-related actions.
  * It should wrap the entire application or the parts that need access to authentication.
  *
- * @param {AuthProviderProps} props The component props.
+ * @param a The component props.
+ * @param a.children The child components that will have access to the authentication context.
+ * @returns The AuthProvider component.
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
@@ -49,7 +51,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     initializeAuth();
   }, []);
 
-  /** Handles user login. */
+  /**
+   * Handles user login.
+   *
+   * @param email The user's email address.
+   * @param password The user's password.
+   * @returns A Promise that resolves on successful login or rejects on failure.
+   */
   const login = async (email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -71,7 +79,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  /** Handles new user registration. */
+  /**
+   * Handles new user registration.
+   *
+   * @param name The user's name.
+   * @param email The user's email address.
+   * @param password The user's password.
+   * @returns A Promise that resolves on successful registration or rejects on failure.
+   */
   const register = async (name: string, email: string, password: string) => {
     setLoading(true);
     setError(null);
@@ -112,7 +127,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  /** Triggers the resending of a verification email. */
+  /**
+   * Triggers the resending of a verification email.
+   *
+   * @param email The user's email address.
+   * @returns A Promise that resolves on successful resend or rejects on failure.
+   */
   const resendVerificationEmail = async (email: string) => {
     setLoading(true);
     setError(null);

@@ -9,6 +9,8 @@ import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
  * This page is accessed via the link sent to the user's email. It extracts
  * authentication tokens from the URL, sets the user's session, and allows them
  * to submit a new password.
+ *
+ * @returns A reset password page component.
  */
 const ResetPasswordPage: React.FC = () => {
   const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
@@ -45,7 +47,8 @@ const ResetPasswordPage: React.FC = () => {
   /**
    * Handles the form submission for resetting the password.
    * Validates the new password and updates it using the Supabase client.
-   * @param {React.FormEvent} e - The form event.
+   *
+   * @param e - The form event.
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

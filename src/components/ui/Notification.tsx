@@ -8,6 +8,8 @@ const AUTO_DISMISS_MS = 4000;
  * A global notification component that displays messages from the `notificationsService`.
  * It automatically subscribes to the service on mount and displays notifications
  * as they are published. It is designed to be placed once in the root layout (e.g., App.tsx).
+ *
+ * @returns A notification component.
  */
 const Notification: React.FC = () => {
   const [message, setMessage] = useState<string | null>(null);
