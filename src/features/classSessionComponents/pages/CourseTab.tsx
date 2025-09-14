@@ -20,6 +20,8 @@ import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type CourseFormData = z.infer<typeof componentSchemas.course>;
 
+// TODO: Break down the forms and viewing into individual components
+
 /**
  * Renders the UI for managing Courses.
  * This component handles fetching, displaying, creating, editing, and deleting courses

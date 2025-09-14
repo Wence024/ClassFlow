@@ -5,5 +5,10 @@ export const classSessionSchema = z.object({
   class_group_id: z.string().min(1, 'A class group must be selected'),
   classroom_id: z.string().min(1, 'A classroom must be selected'),
   instructor_id: z.string().min(1, 'An instructor must be selected'),
-  period_count: z.number().int().min(1, 'Duration must be at least 1 period'),
+  period_count: z
+    .number({
+      error: 'Duration is required and must be a number',
+    })
+    .int()
+    .min(1, 'Duration must be at least 1 period'),
 });
