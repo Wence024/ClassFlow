@@ -13,10 +13,10 @@ import type {
 // DELETED: Obsolete migration template comments.
 
 /**
- * Fetch all timetable assignments for a user from Supabase, with the full
+ * Fetch all timetable assignments for a semester from Supabase, with the full
  * class session data embedded.
  *
- * @param user_id The user's unique ID.
+ * @param semester_id - The ID of the semester to fetch timetable assignments for.
  * @returns An array of timetable assignment objects.
  */
 export async function getTimetableAssignments(
