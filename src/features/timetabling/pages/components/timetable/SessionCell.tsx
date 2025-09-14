@@ -1,3 +1,5 @@
+// src/features/timetabling/pages/components/timetable/SessionCell.tsx
+
 import React from 'react';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useTimetableContext } from './useTimetableContext';
@@ -7,6 +9,7 @@ import {
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../lib/colorUtils';
+import { useAuth } from '../../../../auth/hooks/useAuth'; // ADDED: Import the useAuth hook
 
 /**
  * Props for the SessionCell component.
@@ -42,6 +45,7 @@ const buildTooltipContent = (session: ClassSession) => (
  * It is draggable and provides drop zones for moving items within it.
  * Shows visual feedback during drag operations with availability indicators.
  * Colors are determined by the instructor's assigned color.
+ * It will now appear "washed out" if the session is not owned by the current user's program.
  *
  * @param sc The props for the component.
  * @param sc.session The class session data.
@@ -71,6 +75,12 @@ const SessionCell: React.FC<SessionCellProps> = ({
     onDropToGrid,
   } = useTimetableContext();
 
+  // --- ADDED: Ownership Check Logic ---
+  const { user } = useAuth();
+  // A session is owned if the user has a program_id and it matches the session's program_id.
+  const isOwner = !!user?.program_id && user.program_id === session.program_id;
+  // --- END ADDED LOGIC ---
+
   const numberOfPeriods = session.period_count || 1;
   const borderClass =
     isLastInDay && isNotLastInTable ? 'border-r-2 border-dashed border-gray-300' : '';
@@ -79,14 +89,28 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isDraggedSession = currentDraggedSession?.id === session.id;
   const instructorHex = session.instructor.color ?? DEFAULT_FALLBACK_COLOR;
 
-  const cellStyle: React.CSSProperties = {
-    backgroundColor: getSessionCellBgColor(instructorHex, isDraggedSession),
-    border: getSessionCellBorderStyle(instructorHex, isDraggedSession),
-  };
+  // --- MODIFIED: Styling Logic ---
+  const cellStyle: React.CSSProperties = isOwner
+    ? {
+        // Style for owned sessions (existing logic)
+        backgroundColor: getSessionCellBgColor(instructorHex, isDraggedSession),
+        border: getSessionCellBorderStyle(instructorHex, isDraggedSession),
+      }
+    : {
+        // Style for non-owned ("washed out") sessions
+        backgroundColor: '#E5E7EB', // gray-200
+        border: 'none',
+        opacity: 0.8,
+      };
 
-  const textStyle: React.CSSProperties = {
-    color: getSessionCellTextColor(instructorHex),
-  };
+  const textStyle: React.CSSProperties = isOwner
+    ? {
+        color: getSessionCellTextColor(instructorHex),
+      }
+    : {
+        // Style for non-owned sessions
+        color: '#4B5563', // gray-600
+      };
 
   return (
     <td

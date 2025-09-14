@@ -27,4 +27,5 @@ export type ClassSession = {
   instructor: Instructor;
   classroom: Classroom;
   period_count: number;
+  program_id: string;
 };
