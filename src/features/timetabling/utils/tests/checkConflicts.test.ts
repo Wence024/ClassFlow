@@ -21,6 +21,7 @@ const mockSettings: ScheduleConfig = {
   class_days_per_week: 5,
   start_time: '09:00',
   period_duration_mins: 90,
+  semester_id: null, // <-- Added this line
 };
 const totalPeriods = mockSettings.periods_per_day * mockSettings.class_days_per_week;
 
@@ -114,38 +115,44 @@ const mockCourse2: Course = {
   color: '#808080',
 };
 
-// FIXED: Class Sessions now have the `period_count` property
 const classSession1: ClassSession = {
   id: 'session1',
   course: mockCourse1,
   group: mockGroup1,
   instructor: mockInstructor1,
   classroom: mockClassroom1,
-  period_count: 1, // <-- Duration is here now
+  period_count: 1,
+  program_id: 'mockProgram',
 };
+
 const classSession2: ClassSession = {
   id: 'session2',
   course: mockCourse2,
   group: mockGroup2,
   instructor: mockInstructor2,
   classroom: mockClassroom2,
-  period_count: 2, // <-- Duration is here now
+  period_count: 2,
+  program_id: 'mockProgram',
 };
+
 const conflictingInstructorSession: ClassSession = {
   id: 'session3',
   course: mockCourse2,
   group: mockGroup2,
-  instructor: mockInstructor1, // Same instructor as session1
+  instructor: mockInstructor1,
   classroom: mockClassroom2,
   period_count: 2,
+  program_id: 'mockProgram',
 };
+
 const conflictingClassroomSession: ClassSession = {
   id: 'session4',
   course: mockCourse2,
   group: mockGroup2,
   instructor: mockInstructor2,
-  classroom: mockClassroom1, // Same classroom as session1
+  classroom: mockClassroom1,
   period_count: 2,
+  program_id: 'mockProgram',
 };
 
 describe('checkConflicts', () => {
@@ -221,8 +228,9 @@ describe('checkConflicts', () => {
       timetable.get(mockGroup1.id)![1] = {
         ...classSession1,
         id: 'session-other',
-        instructor: mockInstructor2,
+        instructor: mockInstructor1,
       }; // same classroom1
+
       // Try to place a 2-period class starting at index 0
       const result = checkTimetableConflicts(
         timetable,
@@ -276,8 +284,8 @@ describe('checkConflicts', () => {
   it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
     // ARRANGE: Set up a specific, tricky timetable layout.
     // Session A is at [1, 2], Session B is at [3, 4].
-    const sessionA = { ...classSession2, id: 'sessionA' };
-    const sessionB = { ...classSession2, id: 'sessionB' };
+    const sessionA = { ...classSession2, id: 'sessionA', program_id: 'mockProgram' };
+    const sessionB = { ...classSession2, id: 'sessionB', program_id: 'mockProgram' };
 
     const groupSessions = timetable.get(mockGroup1.id)!;
     groupSessions[1] = sessionA;
