@@ -2,18 +2,19 @@
  * @file A static sidebar component for application navigation.
  * This component is purely presentational.
  */
-import { LayoutGrid, BookOpenCheck, Settings } from 'lucide-react';
+import { LayoutGrid, BookOpenCheck, Settings, Blocks } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth'; // Step 1: Import useAuth
 
 /** An array defining the base navigation links for all users. */
 const baseNavLinks = [
+  { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
   { to: '/class-sessions', icon: BookOpenCheck, label: 'Manage Classes' },
   { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
 ];
 
 /** An array defining the navigation links for admin users only. */
-const adminNavLinks = [{ to: '/schedule-config', icon: Settings, label: 'Settings' }];
+const adminNavLinks = [{ to: '/schedule-configuration', icon: Settings, label: 'Settings' }];
 
 /**
  * Renders a role-aware main application sidebar for navigation.
