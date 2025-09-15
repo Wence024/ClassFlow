@@ -10,6 +10,8 @@ import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig'
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment } from '../types/timetable';
 import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
+import * as classGroupsService from '../../classSessionComponents/services/classGroupsService';
+import type { ClassGroup } from '../../classSessionComponents/types';
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
@@ -44,25 +46,30 @@ export function useTimetable() {
   const totalPeriods = settings ? settings.periods_per_day * settings.class_days_per_week : 0;
 
   // --- DATA FETCHING ---
+  const { data: allClassGroups = [] } = useQuery<ClassGroup[]>({
+    queryKey: ['allClassGroups'],
+    queryFn: classGroupsService.getAllClassGroups,
+    enabled: !!user,
+  });
+
   const {
     data: assignments = [],
     isFetching,
     error: errorAssignments,
   } = useQuery<HydratedTimetableAssignment[]>({
     queryKey,
-    // The queryFn now passes the semester_id to the service
     queryFn: () =>
       activeSemester
         ? timetableService.getTimetableAssignments(activeSemester.id)
         : Promise.resolve([]),
-    // The enabled check now depends on the activeSemester
-    enabled: !!user && classGroups.length > 0 && !!settings && !!activeSemester,
+    // IMPORTANT: Update the enabled check to use the new `allClassGroups`
+    enabled: !!user && allClassGroups.length > 0 && !!settings && !!activeSemester,
   });
 
   // Memoize the timetable grid so it's only rebuilt when its source data changes.
   const timetable: TimetableGrid = useMemo(
-    () => buildTimetableGrid(assignments, classGroups, totalPeriods),
-    [assignments, classGroups, totalPeriods]
+    () => buildTimetableGrid(assignments, allClassGroups, totalPeriods),
+    [assignments, allClassGroups, totalPeriods]
   );
 
   // --- REAL-TIME SUBSCRIPTION ---
@@ -288,7 +295,7 @@ export function useTimetable() {
   const loading = isFetching || !settings;
 
   return {
-    groups: classGroups,
+    groups: allClassGroups,
     timetable,
     assignClassSession,
     removeClassSession,

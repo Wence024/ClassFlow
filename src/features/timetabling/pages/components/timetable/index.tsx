@@ -6,6 +6,7 @@ import type { ClassSession } from '../../../../classSessions/types/classSession'
 import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
 import type { DragSource } from '../../../types/DragSource';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
+import { useAuth } from '../../../../auth/hooks/useAuth';
 import TimetableContext from './TimetableContext';
 import TimetableHeader from './TimetableHeader';
 import TimetableRow from './TimetableRow';
@@ -36,13 +37,15 @@ interface TimetableProps {
 }
 
 /**
- * Renders an interactive timetable grid.
- * This component has been refactored to be a pure presentational component.
- * It receives all drag-and-drop state and handlers from a parent component
- * and provides them to its children via TimetableContext.
+ * Renders an interactive, multi-program timetable grid.
+ *
+ * This component displays all class groups, prioritizing and separating the ones
+ * belonging to the current user. It receives all drag-and-drop state and handlers
+ * from a parent component and provides them to its children via TimetableContext,
+ * enabling a shared, collaborative view of the schedule.
  *
  * @param tt The props for the component.
- * @param tt.groups An array of class groups to display in the timetable.
+ * @param tt.groups An array of all class groups to display in the timetable.
  * @param tt.timetable A map representing the timetable data.
  * @param tt.isLoading Boolean indicating if the timetable data is currently loading.
  * @param tt.draggedSession The class session currently being dragged.
@@ -72,7 +75,19 @@ const Timetable: React.FC<TimetableProps> = ({
   onShowTooltip,
   onHideTooltip,
 }: TimetableProps): JSX.Element => {
+  const { user } = useAuth();
   const { settings, isLoading: isLoadingConfig } = useScheduleConfig();
+
+  // --- Split groups by ownership for prioritized rendering ---
+  const myGroups = useMemo(
+    () => groups.filter((group) => group.program_id === user?.program_id),
+    [groups, user]
+  );
+
+  const otherGroups = useMemo(
+    () => groups.filter((group) => group.program_id !== user?.program_id),
+    [groups, user]
+  );
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
@@ -133,7 +148,31 @@ const Timetable: React.FC<TimetableProps> = ({
               periodsPerDay={periodsPerDay}
             />
             <tbody>
-              {groups.map((group) => (
+              {/* Render the user's own groups first */}
+              {myGroups.map((group) => (
+                <TimetableRow
+                  key={group.id}
+                  group={group}
+                  timetable={timetable}
+                  periodsPerDay={periodsPerDay}
+                  totalPeriods={totalPeriods}
+                />
+              ))}
+
+              {/* If there are other groups, render a visual separator and then the other groups */}
+              {otherGroups.length > 0 && (
+                <tr>
+                  <td
+                    colSpan={totalPeriods + 1}
+                    className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
+                  >
+                    Schedules from Other Programs
+                  </td>
+                </tr>
+              )}
+
+              {/* Render the groups from other programs */}
+              {otherGroups.map((group) => (
                 <TimetableRow
                   key={group.id}
                   group={group}

@@ -27,6 +27,27 @@ const SELECT_COLUMNS = `
 `;
 
 /**
+ * Fetches ALL class sessions from the database, regardless of owner,
+ * including their fully hydrated related data.
+ * @returns A promise that resolves to an array of all ClassSession objects.
+ */
+export async function getAllClassSessions(): Promise<ClassSession[]> {
+  const { data, error } = await supabase.from('class_sessions').select(`
+      id,
+      user_id,
+      program_id,
+      course:courses(*),
+      group:class_groups(*),
+      instructor:instructors(*),
+      classroom:classrooms(*),
+      period_count
+    `);
+
+  if (error) throw error;
+  return (data as unknown as ClassSession[]) || [];
+}
+
+/**
  * Fetches all class sessions for a specific user from the database.
  * This performs a "join" to get the full related objects for course, group, etc.
  *

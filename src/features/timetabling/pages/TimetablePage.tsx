@@ -1,9 +1,13 @@
 import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query'; // 1. ADD this import
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, Tooltip } from '../../../components/ui';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+// 2. REMOVE the old hook import:
+// import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+// 3. ADD a direct service import instead:
+import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
 
 /** Represents the state of the tooltip. */
@@ -22,10 +26,14 @@ interface TooltipState {
  * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
-  const { classSessions } = useClassSessions();
-  const { timetable, groups, loading } = useTimetable();
+  // 4. REPLACE the old hook with a new global query
+  const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
+    queryKey: ['allClassSessions'],
+    queryFn: classSessionsService.getAllClassSessions,
+  });
+  // --- END REPLACEMENT ---
 
-  // Single call to the consolidated hook for all D&D logic
+  const { timetable, groups, loading: loadingTimetable } = useTimetable();
   const dnd = useTimetableDnd();
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
@@ -44,15 +52,17 @@ const TimetablePage: React.FC = () => {
         if (session) assignedIds.add(session.id);
       }
     }
-    return classSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
-  }, [timetable, classSessions]);
+    // 5. Use the new `allClassSessions` data here
+    return allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
+  }, [timetable, allClassSessions]);
 
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
-    displayName: `${cs.course.name} - ${cs.group.name}`,
+    displayName: `${cs.course.name ?? 'Unnamed Course'} - ${cs.group.name ?? 'Unnamed Group'}`,
   }));
 
-  const isInitialLoading = loading && timetable.size === 0;
+  // 6. Update the loading state to include the new query
+  const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
   return (
     <div>
@@ -67,7 +77,7 @@ const TimetablePage: React.FC = () => {
             <Timetable
               groups={groups}
               timetable={timetable}
-              isLoading={loading}
+              isLoading={loadingTimetable}
               onShowTooltip={handleShowTooltip}
               onHideTooltip={handleHideTooltip}
               // Pass all D&D props from the hook

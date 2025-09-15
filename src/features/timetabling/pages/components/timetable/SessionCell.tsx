@@ -77,9 +77,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
 
   // --- ADDED: Ownership Check Logic ---
   const { user } = useAuth();
-  // A session is owned if the user has a program_id and it matches the session's program_id.
   const isOwner = !!user?.program_id && user.program_id === session.program_id;
-  // --- END ADDED LOGIC ---
 
   const numberOfPeriods = session.period_count || 1;
   const borderClass =
@@ -120,9 +118,11 @@ const SessionCell: React.FC<SessionCellProps> = ({
     >
       <div className="h-20">
         <div
-          draggable
+          // --- APPLY THE LOGIC HERE ---
+          draggable={isOwner} // The most important change!
           data-testid={`session-card-${session.id}`}
           onDragStart={(e) =>
+            isOwner && // Only allow drag start if the user is the owner
             onDragStart(e, {
               from: 'timetable',
               class_session_id: session.id,
@@ -132,7 +132,8 @@ const SessionCell: React.FC<SessionCellProps> = ({
           }
           onMouseEnter={(e) => onShowTooltip(buildTooltipContent(session), e.currentTarget)}
           onMouseLeave={onHideTooltip}
-          className={`relative w-full h-full cursor-grab ${isDraggedSession ? 'opacity-50' : ''}`}
+          // Also apply the cursor style for immediate visual feedback
+          className={`relative w-full h-full ${isOwner ? 'cursor-grab' : 'cursor-not-allowed'} ${isDraggedSession ? 'opacity-50' : ''}`}
         >
           {/* Layer 1: The Visible Block */}
           <div
