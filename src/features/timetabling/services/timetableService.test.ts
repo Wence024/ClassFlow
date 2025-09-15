@@ -79,7 +79,7 @@ describe('TimetableService', () => {
 
       // Test that the raw input is passed directly to upsert
       expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
-        onConflict: 'user_id,class_group_id,period_index',
+        onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
       expect(result).toEqual(mockAssignmentWithId);
     });
@@ -102,7 +102,7 @@ describe('TimetableService', () => {
       await assignClassSessionToTimetable(mockAssignmentInput);
 
       expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
-        onConflict: 'user_id,class_group_id,period_index',
+        onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
     });
   });
@@ -132,7 +132,7 @@ describe('TimetableService', () => {
       const result = await getTimetableAssignments('user-id');
 
       expect(mockSupabaseQueryBuilder.select).toHaveBeenCalled();
-      expect(mockSupabaseQueryBuilder.eq).toHaveBeenCalledWith('user_id', 'user-id');
+      expect(mockSupabaseQueryBuilder.eq).toHaveBeenCalledWith('semester_id', 'user-id');
       expect(result).toEqual(mockHydratedRows);
     });
 
@@ -197,7 +197,7 @@ describe('TimetableService', () => {
 
       // Check that the assign function was called correctly
       expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
-        onConflict: 'user_id,class_group_id,period_index',
+        onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
       expect(result).toEqual(mockAssignmentWithId);
     });

@@ -1,12 +1,11 @@
+// src/features/timetabling/pages/TimetablePage.tsx
+
 import React, { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query'; // 1. ADD this import
+import { useQuery } from '@tanstack/react-query';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, Tooltip } from '../../../components/ui';
-// 2. REMOVE the old hook import:
-// import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-// 3. ADD a direct service import instead:
 import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
 
@@ -26,16 +25,14 @@ interface TooltipState {
  * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
-  // 4. REPLACE the old hook with a new global query
+  // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
     queryKey: ['allClassSessions'],
     queryFn: classSessionsService.getAllClassSessions,
   });
-  // --- END REPLACEMENT ---
 
   const { timetable, groups, loading: loadingTimetable } = useTimetable();
   const dnd = useTimetableDnd();
-
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const handleShowTooltip = (content: React.ReactNode, target: HTMLElement) => {
@@ -44,7 +41,7 @@ const TimetablePage: React.FC = () => {
   };
   const handleHideTooltip = () => setTooltip(null);
 
-  // Memoized calculation for the sessions to show in the drawer
+  // Memoized calculation for the sessions to show in the drawer.
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
     for (const sessionsInGroup of timetable.values()) {
@@ -52,16 +49,32 @@ const TimetablePage: React.FC = () => {
         if (session) assignedIds.add(session.id);
       }
     }
-    // 5. Use the new `allClassSessions` data here
-    return allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
+
+    const allUnassigned = allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
+
+    // --- DEFENSIVE FILTERING to prevent crashes from bad data ---
+    // This filters out any orphaned class sessions that are missing their course or group.
+    const validUnassigned = allUnassigned.filter((session) => {
+      if (!session.course || !session.group) {
+        console.warn(
+          'Filtered out an invalid class session with missing course or group data. Session ID:',
+          session.id
+        );
+        return false;
+      }
+      return true;
+    });
+    // --- END DEFENSIVE FILTERING ---
+
+    return validUnassigned;
   }, [timetable, allClassSessions]);
 
+  // This .map() is now safe from crashes as it only receives valid sessions.
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
-    displayName: `${cs.course.name ?? 'Unnamed Course'} - ${cs.group.name ?? 'Unnamed Group'}`,
+    displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
 
-  // 6. Update the loading state to include the new query
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
   return (

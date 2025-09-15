@@ -1,5 +1,3 @@
-// src/features/timetabling/pages/components/timetable/SessionCell.tsx
-
 import React from 'react';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useTimetableContext } from './useTimetableContext';
@@ -9,22 +7,11 @@ import {
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../lib/colorUtils';
-import { useAuth } from '../../../../auth/hooks/useAuth'; // ADDED: Import the useAuth hook
-
-/**
- * Props for the SessionCell component.
- */
-interface SessionCellProps {
-  session: ClassSession;
-  groupId: string;
-  periodIndex: number;
-  isLastInDay: boolean;
-  isNotLastInTable: boolean;
-}
+import { useAuth } from '../../../../auth/hooks/useAuth';
+import { AlertTriangle } from 'lucide-react';
 
 /**
  * Builds the tooltip content for a class session.
- *
  * @param session The class session object.
  * @returns JSX content for the tooltip.
  */
@@ -40,12 +27,20 @@ const buildTooltipContent = (session: ClassSession) => (
   </>
 );
 
+// Define the props interface for SessionCell
+interface SessionCellProps {
+  session: ClassSession;
+  groupId: string;
+  periodIndex: number;
+  isLastInDay: boolean;
+  isNotLastInTable: boolean;
+}
+
 /**
  * Renders a cell containing a class session in the timetable.
  * It is draggable and provides drop zones for moving items within it.
- * Shows visual feedback during drag operations with availability indicators.
- * Colors are determined by the instructor's assigned color.
- * It will now appear "washed out" if the session is not owned by the current user's program.
+ * It will now appear "washed out" if not owned by the user's program and
+ * will render a fallback state for invalid/orphaned data to prevent crashes.
  *
  * @param sc The props for the component.
  * @param sc.session The class session data.
@@ -75,7 +70,23 @@ const SessionCell: React.FC<SessionCellProps> = ({
     onDropToGrid,
   } = useTimetableContext();
 
-  // --- ADDED: Ownership Check Logic ---
+  // --- ADDED: Defensive Check for Invalid Data ---
+  if (!session.instructor || !session.course || !session.group || !session.classroom) {
+    console.warn(
+      'Rendering fallback for an invalid class session with missing relational data. Session ID:',
+      session.id
+    );
+    return (
+      <td colSpan={session.period_count || 1} className="p-0.5 align-top">
+        <div className="h-20 bg-red-100 border-2 border-dashed border-red-300 rounded-md flex flex-col items-center justify-center text-center p-1">
+          <AlertTriangle className="w-4 h-4 text-red-600" />
+          <p className="text-xs font-semibold text-red-700">Invalid Session Data</p>
+        </div>
+      </td>
+    );
+  }
+  // --- END ADDED CHECK ---
+
   const { user } = useAuth();
   const isOwner = !!user?.program_id && user.program_id === session.program_id;
 
@@ -87,16 +98,13 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isDraggedSession = currentDraggedSession?.id === session.id;
   const instructorHex = session.instructor.color ?? DEFAULT_FALLBACK_COLOR;
 
-  // --- MODIFIED: Styling Logic ---
   const cellStyle: React.CSSProperties = isOwner
     ? {
-        // Style for owned sessions (existing logic)
         backgroundColor: getSessionCellBgColor(instructorHex, isDraggedSession),
         border: getSessionCellBorderStyle(instructorHex, isDraggedSession),
       }
     : {
-        // Style for non-owned ("washed out") sessions
-        backgroundColor: '#E5E7EB', // gray-200
+        backgroundColor: '#E5E7EB',
         border: 'none',
         opacity: 0.8,
       };
@@ -106,8 +114,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
         color: getSessionCellTextColor(instructorHex),
       }
     : {
-        // Style for non-owned sessions
-        color: '#4B5563', // gray-600
+        color: '#4B5563',
       };
 
   return (
@@ -118,11 +125,10 @@ const SessionCell: React.FC<SessionCellProps> = ({
     >
       <div className="h-20">
         <div
-          // --- APPLY THE LOGIC HERE ---
-          draggable={isOwner} // The most important change!
+          draggable={isOwner}
           data-testid={`session-card-${session.id}`}
           onDragStart={(e) =>
-            isOwner && // Only allow drag start if the user is the owner
+            isOwner &&
             onDragStart(e, {
               from: 'timetable',
               class_session_id: session.id,
@@ -132,8 +138,9 @@ const SessionCell: React.FC<SessionCellProps> = ({
           }
           onMouseEnter={(e) => onShowTooltip(buildTooltipContent(session), e.currentTarget)}
           onMouseLeave={onHideTooltip}
-          // Also apply the cursor style for immediate visual feedback
-          className={`relative w-full h-full ${isOwner ? 'cursor-grab' : 'cursor-not-allowed'} ${isDraggedSession ? 'opacity-50' : ''}`}
+          className={`relative w-full h-full ${isOwner ? 'cursor-grab' : 'cursor-not-allowed'} ${
+            isDraggedSession ? 'opacity-50' : ''
+          }`}
         >
           {/* Layer 1: The Visible Block */}
           <div
