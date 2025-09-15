@@ -128,3 +128,10 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 * [ ] Major feature: multi-user workflow
   * [ ] Data models: user attributes as program head role and assigned workflow
   * [ ] Prerequisite: Role access and admin schedule config controls
+
+Refactor backlogs:
+
+* [ ] **[Refactor]** Decompose monolithic management tab components (`CourseTab`, `ClassroomTab`, etc.) into smaller, more focused form and view components to reduce complexity.
+* [ ] **[Refactor]** Further reduce prop drilling in the main `Timetable` component, potentially by expanding the `TimetableContext` or creating more specialized child components.
+* [ ] **[Refactor]** Simplify the `buildTimetableGrid` utility to reduce its cognitive complexity, likely by extracting parts of its logic into smaller helper functions.
+* [ ] **[Bug]** The `ColorPicker` popover closes immediately when the custom color input is clicked, preventing users from selecting a custom color.
