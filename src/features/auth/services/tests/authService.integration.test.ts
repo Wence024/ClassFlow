@@ -23,8 +23,11 @@ describe('authService.getStoredUser - profile hydration', () => {
       eq: vi.fn().mockReturnThis(),
       single: singleMock,
     }));
-    supabase.auth.getSession.mockResolvedValue({ data: { session: mockSession }, error: null });
-    supabase.from = fromMock;
+    (supabase.auth.getSession as vi.Mock).mockResolvedValue({
+      data: { session: mockSession },
+      error: null,
+    });
+    (supabase.from as vi.Mock) = fromMock;
 
     const user = await getStoredUser();
 
@@ -53,8 +56,11 @@ describe('authService.getStoredUser - profile hydration', () => {
       eq: vi.fn().mockReturnThis(),
       single: singleMock,
     }));
-    supabase.auth.getSession.mockResolvedValue({ data: { session: mockSession }, error: null });
-    supabase.from = fromMock;
+    (supabase.auth.getSession as vi.Mock).mockResolvedValue({
+      data: { session: mockSession },
+      error: null,
+    });
+    (supabase.from as vi.Mock) = fromMock;
 
     const user = await getStoredUser();
 
@@ -62,9 +68,12 @@ describe('authService.getStoredUser - profile hydration', () => {
   });
 
   it('should return null if no active session', async () => {
-    supabase.auth.getSession.mockResolvedValue({ data: { session: null }, error: null });
+    (supabase.auth.getSession as vi.Mock).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
     const fromMock = vi.fn();
-    supabase.from = fromMock;
+    (supabase.from as vi.Mock) = fromMock;
 
     const user = await getStoredUser();
 

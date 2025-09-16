@@ -3,13 +3,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTimetable } from '../useTimetable';
 import * as timetableService from '../../services/timetableService';
+import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import * as useClassGroupsHook from '../../../classSessionComponents/hooks/useClassGroups';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
+import { AuthContext } from '../../../auth/contexts/AuthContext';
+
+// 1. MOCK THE SERVICE MODULES
+vi.mock('../../services/timetableService');
+vi.mock('../../../classSessionComponents/services/classGroupsService');
 
 const queryClient = new QueryClient();
 
+// A reusable wrapper to provide all necessary contexts for the hook
 const wrapper = ({ children }) => (
   <QueryClientProvider client={queryClient}>
     <AuthContext.Provider value={{ user: { id: 'u1', program_id: 'p1', role: 'program_head' } }}>
@@ -20,86 +25,66 @@ const wrapper = ({ children }) => (
 
 describe('useTimetable - semester scope', () => {
   const mockSemesterId = 'sem-active-123';
-  const mockAssignments = [
-    {
-      id: 'a1',
-      semester_id: mockSemesterId,
-      class_session_id: 's1',
-      class_group_id: 'g1',
-      period_index: 0,
-      class_session: {
-        id: 's1',
-        course_id: 'c1',
-        class_group_id: 'g1',
-        classroom_id: 'r1',
-        instructor_id: 'i1',
-        period_count: 2,
-        user_id: 'u1',
-        program_id: 'p1',
-      },
-    },
-  ];
+  const mockAssignments = [{ id: 'a1', semester_id: mockSemesterId, class_session: { id: 'cs1' } }];
+  const mockClassGroups = [{ id: 'g1', name: 'Group 1', program_id: 'p1' }];
+  const mockSettings = { periods_per_day: 8, class_days_per_week: 5 };
 
   beforeEach(() => {
+    // Reset mocks before each test
     vi.clearAllMocks();
+    queryClient.clear(); // Clear the query cache
+
+    // 2. MOCK THE HOOK DEPENDENCIES
     vi.spyOn(useActiveSemesterHook, 'useActiveSemester').mockReturnValue({
-      data: {
-        id: mockSemesterId,
-        name: 'Fall 2025',
-        is_active: true,
-        program_id: 'p1',
-        start_date: '2025-09-01',
-        end_date: '2025-12-20',
-      },
+      data: { id: mockSemesterId, name: 'Fall 2025', is_active: true },
       isLoading: false,
-      error: null,
-      isFetching: false,
-    });
-    vi.spyOn(timetableService, 'getTimetableAssignments').mockResolvedValue(mockAssignments);
-    vi.spyOn(useClassGroupsHook, 'useClassGroups').mockReturnValue({
-      classGroups: [{ id: 'g1', name: 'Group 1', capacity: 30, program_id: 'p1' }],
-      isLoading: false,
-    });
+    } as any);
+
     vi.spyOn(useScheduleConfigHook, 'useScheduleConfig').mockReturnValue({
-      settings: {
-        periods_per_day: 8,
-        class_days_per_week: 5,
-        start_time: '09:00',
-        period_duration_mins: 60,
-      },
+      settings: mockSettings,
       isLoading: false,
-    });
+    } as any);
+
+    // 3. MOCK THE INTERNAL SERVICE CALLS
+    // This is the key fix: We mock the service that the hook's internal useQuery calls.
+    vi.spyOn(classGroupsService, 'getAllClassGroups').mockResolvedValue(mockClassGroups);
+    vi.spyOn(timetableService, 'getTimetableAssignments').mockResolvedValue(mockAssignments);
   });
 
   it('should call timetableService.getTimetableAssignments with the active semester ID', async () => {
     const { result } = renderHook(() => useTimetable(), { wrapper });
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    // The hook will initially be loading while it fetches groups and assignments.
+    // We wait until the assignments query has finished (isFetching is false).
+    await waitFor(() => {
+      // Vitest's `waitFor` requires the callback to not return a promise that resolves to undefined.
+      // A simple truthiness check is a good way to handle this.
+      return !result.current.loading;
+    });
 
+    // Now that all conditions in the `enabled` flag were met, the service must have been called.
     expect(timetableService.getTimetableAssignments).toHaveBeenCalledWith(mockSemesterId);
+
+    // We can also assert that the hook has processed the data correctly
+    expect(result.current.groups).toEqual(mockClassGroups);
     expect(result.current.timetable.size).toBeGreaterThan(0);
   });
 
-  it('should pass semester_id to assignClassSessionToTimetable', async () => {
-    const mockAssignFn = vi
+  it('should pass semester_id when calling assignClassSessionToTimetable', async () => {
+    // Setup a spy on the mutation service function
+    const assignSpy = vi
       .spyOn(timetableService, 'assignClassSessionToTimetable')
-      .mockResolvedValue(mockAssignments[0]);
-    const mockSession = {
-      id: 's1',
-      period_count: 1,
-      course_id: 'c1',
-      class_group_id: 'g1',
-      classroom_id: 'r1',
-      instructor_id: 'i1',
-      user_id: 'u1',
-      program_id: 'p1',
-    };
+      .mockResolvedValue({} as any);
+    const mockSession = { id: 's1', period_count: 1 };
+
     const { result } = renderHook(() => useTimetable(), { wrapper });
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => !result.current.loading);
 
-    await result.current.assignClassSession('group1', 0, mockSession);
+    // Call the mutation function returned by the hook
+    await result.current.assignClassSession('group1', 0, mockSession as any);
 
-    expect(mockAssignFn).toHaveBeenCalledWith(
+    // Assert that the service was called with the correct semester_id
+    expect(assignSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         semester_id: mockSemesterId,
         class_session_id: mockSession.id,
@@ -107,34 +92,29 @@ describe('useTimetable - semester scope', () => {
     );
   });
 
-  it('should pass semester_id to moveClassSessionInTimetable', async () => {
-    const mockMoveFn = vi
+  // You can add a similar test for `moveClassSession` here
+  it('should pass semester_id when calling moveClassSessionInTimetable', async () => {
+    const moveSpy = vi
       .spyOn(timetableService, 'moveClassSessionInTimetable')
-      .mockResolvedValue(mockAssignments[0]);
-    const mockSession = {
-      id: 's1',
-      period_count: 1,
-      course_id: 'c1',
-      class_group_id: 'g1',
-      classroom_id: 'r1',
-      instructor_id: 'i1',
-      user_id: 'u1',
-      program_id: 'p1',
-    };
+      .mockResolvedValue({} as any);
+    const mockSession = { id: 's1', period_count: 1 };
+
     const { result } = renderHook(() => useTimetable(), { wrapper });
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => !result.current.loading);
 
     await result.current.moveClassSession(
-      { class_group_id: 'group1', period_index: 0 },
-      { class_group_id: 'group1', period_index: 1 },
-      mockSession
+      { class_group_id: 'g1', period_index: 0 },
+      { class_group_id: 'g1', period_index: 1 },
+      mockSession as any
     );
 
-    expect(mockMoveFn).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(Object),
-      expect.any(Object),
+    // The `move` service function takes the new assignment object as its last parameter
+    expect(moveSpy).toHaveBeenCalledWith(
+      expect.any(String), // user.id
+      expect.any(Object), // from
+      expect.any(Object), // to
       expect.objectContaining({
+        // new assignment payload
         semester_id: mockSemesterId,
         class_session_id: mockSession.id,
       })

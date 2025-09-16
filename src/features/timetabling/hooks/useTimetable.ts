@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useClassGroups } from '../../classSessionComponents/hooks/';
 import * as timetableService from '../services/timetableService';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import { buildTimetableGrid, type TimetableGrid } from '../utils/timetableLogic';
@@ -31,7 +30,6 @@ import type { ClassGroup } from '../../classSessionComponents/types';
 export function useTimetable() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { classGroups } = useClassGroups();
   const { settings } = useScheduleConfig();
   const { data: activeSemester } = useActiveSemester(); // 2. Get the active semester
 
