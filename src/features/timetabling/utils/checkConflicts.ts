@@ -174,7 +174,10 @@ function checkInstructorConflicts(
     );
 
     for (const conflictingSession of conflicts) {
-      if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+      if (
+        conflictingSession.instructor.first_name === sessionToCheck.instructor.first_name &&
+        conflictingSession.instructor.last_name === sessionToCheck.instructor.last_name
+      ) {
         const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
         const programInfo = conflictingSession.group.program_id
           ? ` (Program ID: ${conflictingSession.group.program_id})`
@@ -214,7 +217,8 @@ function checkClassroomConflicts(
     );
 
     for (const conflictingSession of conflicts) {
-      if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+      // TODO: Change this check for the long term
+      if (conflictingSession.classroom.name === sessionToCheck.classroom.name) {
         return `Classroom conflict: Classroom '${conflictingSession.classroom.name}' is already booked by group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
       }
     }

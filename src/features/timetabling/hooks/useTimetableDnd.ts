@@ -6,6 +6,7 @@ import { showNotification } from '../../../lib/notificationsService';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -18,6 +19,7 @@ const DRAG_DATA_KEY = 'application/json';
  */
 export const useTimetableDnd = () => {
   // --- Core Hooks ---
+  const { user } = useAuth();
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
   const { classSessions } = useClassSessions();
   const { settings } = useScheduleConfig();
@@ -63,6 +65,14 @@ export const useTimetableDnd = () => {
     (groupId: string, periodIndex: number): boolean => {
       if (!activeDraggedSession || !settings) return false;
 
+      // This prevents the slot from even appearing available (green) if the user is not the owner.
+      if (
+        activeDragSource?.from === 'timetable' &&
+        activeDraggedSession.program_id !== user?.program_id
+      ) {
+        return false;
+      }
+
       // Disallow moving a session to a different group row when dragging from the grid
       if (activeDragSource?.from === 'timetable' && activeDragSource.class_group_id !== groupId) {
         return false;
@@ -78,7 +88,7 @@ export const useTimetableDnd = () => {
 
       return conflictMessage === '';
     },
-    [activeDraggedSession, settings, timetable, activeDragSource]
+    [activeDraggedSession, settings, timetable, activeDragSource, user]
   );
 
   // --- Event Handlers ---
@@ -142,6 +152,13 @@ export const useTimetableDnd = () => {
         return;
       }
 
+      // Add final client-side safeguard before mutation
+      if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
+        showNotification('You can only move sessions that belong to your own program.');
+        cleanupDragState();
+        return;
+      }
+
       let error = '';
       if (source.from === 'drawer') {
         // Assign the class session to the target location
@@ -171,7 +188,7 @@ export const useTimetableDnd = () => {
       // Clean up the drag state
       cleanupDragState();
     },
-    [classSessions, assignClassSession, moveClassSession, cleanupDragState]
+    [classSessions, assignClassSession, moveClassSession, cleanupDragState, user]
   );
 
   const handleDropToDrawer = useCallback(
