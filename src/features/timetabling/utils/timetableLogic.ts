@@ -105,10 +105,10 @@ function placeSessionInGrid(
   totalPeriods: number
 ): void {
   const numberOfPeriods = classSession.period_count || 1;
-  
+
   for (let i = 0; i < numberOfPeriods; i++) {
     const periodToFill = assignment.period_index + i;
-    
+
     // Boundary check to ensure we don't write outside the array bounds
     if (periodToFill < totalPeriods) {
       row[periodToFill] = classSession;

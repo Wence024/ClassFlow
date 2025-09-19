@@ -8,7 +8,13 @@ import * as useScheduleConfigHook from '../../hooks/useScheduleConfig';
 
 const queryClient = new QueryClient();
 
-const renderPage = (user: { id: string; role: string; program_id: string; name: string; email: string }) => {
+const renderPage = (user: {
+  id: string;
+  role: string;
+  program_id: string;
+  name: string;
+  email: string;
+}) => {
   const mockAuthContext: AuthContextType = {
     user,
     loading: false,
@@ -54,7 +60,13 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('should display fields as disabled for non-admin users', async () => {
-    renderPage({ id: 'u1', role: 'program_head', program_id: 'p1', name: 'test', email: 'test@test.com' });
+    renderPage({
+      id: 'u1',
+      role: 'program_head',
+      program_id: 'p1',
+      name: 'test',
+      email: 'test@test.com',
+    });
     await waitFor(() => {
       expect(screen.getByLabelText(/Periods Per Day/i)).toBeDisabled();
       expect(screen.getByLabelText(/Class Days Per Week/i)).toBeDisabled();

@@ -40,10 +40,51 @@ describe('SessionCell - Ownership Styling', () => {
 
   const mockSession: ClassSession = {
     id: '1',
-    course: { id: 'c1', name: 'Course 1', code: 'C1', user_id: 'u1', created_at: '2023-01-01T00:00:00Z', color: '#ff0000', program_id: 'p1' },
-    group: { id: 'g1', name: 'Group 1', code: 'G1', user_id: 'u1', created_at: '2023-01-01T00:00:00Z', color: '#00ff00', student_count: 30, program_id: 'p1' },
-    classroom: { id: 'r1', name: 'Room 1', code: 'R1', user_id: 'u1', created_at: '2023-01-01T00:00:00Z', color: '#0000ff', location: 'Building A', capacity: 30, program_id: 'p1' },
-    instructor: { id: 'i1', first_name: 'Instructor', last_name: '1', code: 'I1', user_id: 'u1', created_at: '2023-01-01T00:00:00Z', color: '#ffff00', email: 'instructor@example.com', phone: '123-456-7890', prefix: 'Dr.', suffix: 'PhD', contract_type: 'Full-time', program_id: 'p1' },
+    course: {
+      id: 'c1',
+      name: 'Course 1',
+      code: 'C1',
+      user_id: 'u1',
+      created_at: '2023-01-01T00:00:00Z',
+      color: '#ff0000',
+      program_id: 'p1',
+    },
+    group: {
+      id: 'g1',
+      name: 'Group 1',
+      code: 'G1',
+      user_id: 'u1',
+      created_at: '2023-01-01T00:00:00Z',
+      color: '#00ff00',
+      student_count: 30,
+      program_id: 'p1',
+    },
+    classroom: {
+      id: 'r1',
+      name: 'Room 1',
+      code: 'R1',
+      user_id: 'u1',
+      created_at: '2023-01-01T00:00:00Z',
+      color: '#0000ff',
+      location: 'Building A',
+      capacity: 30,
+      program_id: 'p1',
+    },
+    instructor: {
+      id: 'i1',
+      first_name: 'Instructor',
+      last_name: '1',
+      code: 'I1',
+      user_id: 'u1',
+      created_at: '2023-01-01T00:00:00Z',
+      color: '#ffff00',
+      email: 'instructor@example.com',
+      phone: '123-456-7890',
+      prefix: 'Dr.',
+      suffix: 'PhD',
+      contract_type: 'Full-time',
+      program_id: 'p1',
+    },
     period_count: 1,
     program_id: mockProgramId,
   };
@@ -52,7 +93,13 @@ describe('SessionCell - Ownership Styling', () => {
   const otherSession = { ...mockSession, id: '2', program_id: mockOtherProgramId };
 
   const authOwnerContext: Partial<AuthContextType> = {
-    user: { id: 'u1', program_id: mockProgramId, role: 'program_head', name: 'test', email: 'test@test.com' },
+    user: {
+      id: 'u1',
+      program_id: mockProgramId,
+      role: 'program_head',
+      name: 'test',
+      email: 'test@test.com',
+    },
     loading: false,
   };
   const timetableDefaultContext: Partial<TimetableContextType> = {
@@ -82,8 +129,8 @@ describe('SessionCell - Ownership Styling', () => {
     );
     const cellContent = screen.getByTestId(`session-card-${ownedSession.id}`).firstChild;
     if (cellContent) {
-        expect(cellContent).not.toHaveStyle('opacity: 0.8');
-        expect(cellContent).not.toHaveStyle('background-color: rgb(229, 231, 235)');
+      expect(cellContent).not.toHaveStyle('opacity: 0.8');
+      expect(cellContent).not.toHaveStyle('background-color: rgb(229, 231, 235)');
     }
   });
 
@@ -101,12 +148,12 @@ describe('SessionCell - Ownership Styling', () => {
     );
     const cellContent = screen.getByTestId(`session-card-${otherSession.id}`).firstChild;
     if (cellContent && cellContent instanceof HTMLElement) {
-        expect(cellContent).toHaveStyle('opacity: 0.8');
-        expect(cellContent).toHaveStyle('background-color: rgb(229, 231, 235)');
-        const p = cellContent.querySelector('p');
-        if (p) {
-            expect(p).toHaveStyle('color: rgb(75, 85, 99)');
-        }
+      expect(cellContent).toHaveStyle('opacity: 0.8');
+      expect(cellContent).toHaveStyle('background-color: rgb(229, 231, 235)');
+      const p = cellContent.querySelector('p');
+      if (p) {
+        expect(p).toHaveStyle('color: rgb(75, 85, 99)');
+      }
     }
   });
 });

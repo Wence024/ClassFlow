@@ -8,8 +8,6 @@ import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassSessions } from '../hooks/useClassSessions';
 
-
-
 // FIXED: Corrected import paths for the refactored components
 import { ClassSessionForm } from './components/classSession';
 import { ClassSessionCard } from './components/classSession';
@@ -21,7 +19,12 @@ import { classSessionSchema } from '../types/validation';
 // Import all necessary UI components
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
-import { useCourses, useClassGroups, useClassrooms, useInstructors } from '../../classSessionComponents/hooks';
+import {
+  useCourses,
+  useClassGroups,
+  useClassrooms,
+  useInstructors,
+} from '../../classSessionComponents/hooks';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;

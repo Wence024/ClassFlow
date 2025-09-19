@@ -30,12 +30,24 @@ const renderSidebar = (authContextValue: Partial<AuthContextType>) => {
 
 describe('Sidebar - Role-based Navigation', () => {
   it('should show "Settings" link for admin users', () => {
-    renderSidebar({ user: { id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' }, loading: false });
+    renderSidebar({
+      user: { id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' },
+      loading: false,
+    });
     expect(screen.getByRole('link', { name: /Settings/i })).toBeInTheDocument();
   });
 
   it('should NOT show "Settings" link for non-admin users', () => {
-    renderSidebar({ user: { id: 'u1', role: 'program_head', program_id: 'p1', name: 'test', email: 'test@test.com' }, loading: false });
+    renderSidebar({
+      user: {
+        id: 'u1',
+        role: 'program_head',
+        program_id: 'p1',
+        name: 'test',
+        email: 'test@test.com',
+      },
+      loading: false,
+    });
     expect(screen.queryByRole('link', { name: /Settings/i })).not.toBeInTheDocument();
   });
 

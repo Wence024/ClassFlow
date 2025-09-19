@@ -4,7 +4,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useClassSessions } from '../useClassSessions';
 import * as classSessionsService from '../../services/classSessionsService';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { Course, Instructor, Classroom, ClassGroup } from '../../../classSessionComponents/types';
+import type {
+  Course,
+  Instructor,
+  Classroom,
+  ClassGroup,
+} from '../../../classSessionComponents/types';
 import type { ClassSession } from '../../types/classSession';
 
 const queryClient = new QueryClient();
@@ -13,7 +18,13 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <AuthContext.Provider
       value={{
-        user: { id: 'u1', name: 'Test User', email: 'test@example.com', program_id: 'p1', role: 'program_head' },
+        user: {
+          id: 'u1',
+          name: 'Test User',
+          email: 'test@example.com',
+          program_id: 'p1',
+          role: 'program_head',
+        },
         loading: false,
         role: 'program_head',
         login: vi.fn(),
@@ -31,14 +42,14 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('useClassSessions - program_id association', () => {
   const mockProgramId = 'p1';
-const mockClassSessionInput = {
-  course_id: 'c1',
-  class_group_id: 'g1',
-  classroom_id: 'r1',
-  instructor_id: 'i1',
-  period_count: 1,
-  user_id: 'u1',
-};
+  const mockClassSessionInput = {
+    course_id: 'c1',
+    class_group_id: 'g1',
+    classroom_id: 'r1',
+    instructor_id: 'i1',
+    period_count: 1,
+    user_id: 'u1',
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -73,7 +84,13 @@ const mockClassSessionInput = {
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider
           value={{
-            user: { id: 'u1', name: 'Test User', email: 'test@example.com', role: 'program_head', program_id: null },
+            user: {
+              id: 'u1',
+              name: 'Test User',
+              email: 'test@example.com',
+              role: 'program_head',
+              program_id: null,
+            },
             loading: false,
             role: 'program_head',
             login: vi.fn(),

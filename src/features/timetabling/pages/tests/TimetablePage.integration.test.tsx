@@ -178,12 +178,16 @@ describe('TimetablePage Integration Tests', () => {
 
     // Vitest-dom's `compareDocumentPosition` returns a bitmask.
     // This checks if myGroupCell comes before the separator.
-    expect(myGroupCell.compareDocumentPosition(separator) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(separator.compareDocumentPosition(otherGroupCell) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(
+      myGroupCell.compareDocumentPosition(separator) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      separator.compareDocumentPosition(otherGroupCell) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   it('should render a fallback UI for sessions with invalid/orphaned data', async () => {
-        // @ts-expect-error - Intentionally creating an invalid session for testing
+    // @ts-expect-error - Intentionally creating an invalid session for testing
     const invalidSession: Partial<ClassSession> = { id: 's-invalid', course: null };
     const timetableWithInvalidData: TimetableGrid = new Map([
       ['g1', [invalidSession as ClassSession]],

@@ -360,7 +360,7 @@ describe('checkConflicts', () => {
         ...classSession1,
         instructor: mockInstructor1,
       };
-      
+
       // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
       const result = checkTimetableConflicts(
         timetable,
@@ -388,9 +388,9 @@ describe('checkConflicts', () => {
         mockGroup2.id,
         0
       );
-      expect(result).toContain("Classroom conflict");
-      expect(result).toContain("Room 101");
-      expect(result).toContain("CS-1A");
+      expect(result).toContain('Classroom conflict');
+      expect(result).toContain('Room 101');
+      expect(result).toContain('CS-1A');
     });
 
     it('should return a boundary conflict if the class duration extends beyond the periods in a day', () => {

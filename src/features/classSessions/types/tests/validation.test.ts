@@ -16,8 +16,6 @@ describe('classSessionSchema', () => {
       expect(result.success).toBe(true);
     });
 
-    
-
     it('should fail if period_count is zero', () => {
       const result = classSessionSchema.safeParse({ ...baseValidSession, period_count: 0 });
       expect(result.success).toBe(false);

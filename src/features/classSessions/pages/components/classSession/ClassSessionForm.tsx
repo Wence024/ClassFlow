@@ -80,7 +80,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
     const selectedInstructor = instructors.find((i) => i.id === instructorId);
 
     // We need all parts to build a temporary session to check for conflicts.
-    if (selectedGroup && selectedClassroom && selectedCourse && selectedInstructor && selectedGroup.program_id) {
+    if (
+      selectedGroup &&
+      selectedClassroom &&
+      selectedCourse &&
+      selectedInstructor &&
+      selectedGroup.program_id
+    ) {
       // We can construct a temporary ClassSession object to pass to the checker.
       const tempSession = {
         id: 'temp-id', // A dummy ID is fine here

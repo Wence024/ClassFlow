@@ -49,7 +49,6 @@ vi.spyOn(sessionHooks, 'useClassSessions').mockReturnValue({
 
 const queryClient = new QueryClient();
 
-
 // A helper to render the component with all necessary providers
 const renderComponent = () => {
   const authContextValue: AuthContextType = {

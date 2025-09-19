@@ -24,17 +24,25 @@ const queryClient = new QueryClient();
 // A reusable wrapper to provide all necessary contexts for the hook
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ 
-      user: { id: 'u1', name: 'Test User', email: 'test@example.com', program_id: 'p1', role: 'program_head' } as User,
-      loading: false,
-      role: 'program_head',
-      login: vi.fn(),
-      register: vi.fn(),
-      logout: vi.fn(),
-      resendVerificationEmail: vi.fn(),
-      error: null,
-      clearError: vi.fn(),
-    }}>
+    <AuthContext.Provider
+      value={{
+        user: {
+          id: 'u1',
+          name: 'Test User',
+          email: 'test@example.com',
+          program_id: 'p1',
+          role: 'program_head',
+        } as User,
+        loading: false,
+        role: 'program_head',
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        resendVerificationEmail: vi.fn(),
+        error: null,
+        clearError: vi.fn(),
+      }}
+    >
       {children}
     </AuthContext.Provider>
   </QueryClientProvider>
@@ -58,33 +66,37 @@ describe('useTimetable - semester scope', () => {
     classroom: { id: 'r1', name: 'Room 101' } as Classroom,
   } as ClassSession;
 
-  const mockAssignments = [{ 
-    id: 'a1', 
-    semester_id: mockSemesterId, 
-    class_session: mockClassSession,
-    class_group_id: 'g1',
-    created_at: '2025-01-01T00:00:00Z',
-    period_index: 0,
-    user_id: 'u1'
-  }] as HydratedTimetableAssignment[];
-  const mockClassGroups = [{ 
-    id: 'g1', 
-    name: 'Group 1', 
-    program_id: 'p1',
-    code: null,
-    color: null,
-    created_at: '2025-01-01T00:00:00Z',
-    student_count: 30,
-    user_id: 'u1'
-  }] as ClassGroup[];
-  const mockSettings = { 
-    periods_per_day: 8, 
+  const mockAssignments = [
+    {
+      id: 'a1',
+      semester_id: mockSemesterId,
+      class_session: mockClassSession,
+      class_group_id: 'g1',
+      created_at: '2025-01-01T00:00:00Z',
+      period_index: 0,
+      user_id: 'u1',
+    },
+  ] as HydratedTimetableAssignment[];
+  const mockClassGroups = [
+    {
+      id: 'g1',
+      name: 'Group 1',
+      program_id: 'p1',
+      code: null,
+      color: null,
+      created_at: '2025-01-01T00:00:00Z',
+      student_count: 30,
+      user_id: 'u1',
+    },
+  ] as ClassGroup[];
+  const mockSettings = {
+    periods_per_day: 8,
     class_days_per_week: 5,
     id: 'config1',
     semester_id: null,
     start_time: '08:00',
     period_duration_mins: 45,
-    created_at: '2025-01-01T00:00:00Z'
+    created_at: '2025-01-01T00:00:00Z',
   } as ScheduleConfigSettings;
 
   beforeEach(() => {
@@ -94,7 +106,14 @@ describe('useTimetable - semester scope', () => {
 
     // 2. MOCK THE HOOK DEPENDENCIES
     vi.spyOn(useActiveSemesterHook, 'useActiveSemester').mockReturnValue({
-      data: { id: mockSemesterId, name: 'Fall 2025', is_active: true, created_at: '2025-01-01T00:00:00Z', start_date: '2025-09-01', end_date: '2025-12-31' } as ActiveSemester,
+      data: {
+        id: mockSemesterId,
+        name: 'Fall 2025',
+        is_active: true,
+        created_at: '2025-01-01T00:00:00Z',
+        start_date: '2025-09-01',
+        end_date: '2025-12-31',
+      } as ActiveSemester,
       isLoading: false,
       isError: false,
       error: null,

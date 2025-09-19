@@ -16,7 +16,15 @@ const MOCK_PROGRAM_ID = 'p1';
 
 // --- Mock Data ---
 const mockCourses: Course[] = [
-  { id: 'c1', name: 'Test Course', code: 'T101', user_id: 'u1', created_at: '', color: '#fff', program_id: MOCK_PROGRAM_ID },
+  {
+    id: 'c1',
+    name: 'Test Course',
+    code: 'T101',
+    user_id: 'u1',
+    created_at: '',
+    color: '#fff',
+    program_id: MOCK_PROGRAM_ID,
+  },
 ];
 const mockInstructors: Instructor[] = [
   {

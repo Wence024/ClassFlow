@@ -18,7 +18,14 @@ describe('authService.getStoredUser - profile hydration', () => {
   const mockSession = {
     data: {
       session: {
-        user: { id: 'u1', email: 'test@example.com', user_metadata: { name: 'Test User' }, app_metadata: {}, aud: '', created_at: '' },
+        user: {
+          id: 'u1',
+          email: 'test@example.com',
+          user_metadata: { name: 'Test User' },
+          app_metadata: {},
+          aud: '',
+          created_at: '',
+        },
         access_token: 'abc',
         refresh_token: 'def',
         expires_in: 3600,

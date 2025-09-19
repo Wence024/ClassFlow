@@ -54,7 +54,7 @@ const renderWithContext = (
       role: 'program_head',
       program_id: 'p1',
       name: 'Test User',
-      email: 'test@example.com'
+      email: 'test@example.com',
     },
     loading: false,
     role: 'program_head',
