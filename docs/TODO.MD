@@ -135,3 +135,20 @@ Refactor backlogs:
 * [ ] **[Refactor]** Further reduce prop drilling in the main `Timetable` component, potentially by expanding the `TimetableContext` or creating more specialized child components.
 * [ ] **[Refactor]** Simplify the `buildTimetableGrid` utility to reduce its cognitive complexity, likely by extracting parts of its logic into smaller helper functions.
 * [ ] **[Bug]** The `ColorPicker` popover closes immediately when the custom color input is clicked, preventing users from selecting a custom color.
+
+
+// TODO: Break down the forms and viewing into individual components (CourseTab, ClassroomTab, ClassGroupsTab, InstructorsTab)
+// TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
+// TODO: Consider duplicate courses, class groups, classrooms and instructors a data anomaly; such entities should be singleton. (ClassSessionComponentsPage)
+
+// TODO: Make drawer stick to the bottom, or limit the height size of the timetable to accomodate the drawer. (TimetablePage)
+// TODO: Do scrolling behavior when placing the moved object around the edge of the viewport. (Timetable)
+// TODO: In drawer, only make visible the class sessions that belong to the user's assigned program. (Drawer)
+
+// TODO: Apply refactor to prop drilling later (Timetable/index)
+
+// TODO: Change name check to id check for the long term (checkConflicts)
+
+// TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16. (timeLogic.ts)
+
+// TODO: Fix bug where choosing a custom color closes the color picker, making it unable to choose or type a custom color. (colorUtils.ts)
