@@ -16,55 +16,27 @@ const TABLE = 'class_sessions';
  * from the `courses`, `class_groups`, `instructors`, and `classrooms` tables.
  * The column names (`course`, `group`, etc.) become the keys in the resulting JavaScript object.
  */
+// Step 1a: Create ONE reliable constant
 const SELECT_COLUMNS = `
-  id,
-  user_id,
+  *,
   course:courses(*),
   group:class_groups(*),
   instructor:instructors(*),
-  classroom:classrooms(*),
-  period_count
+  classroom:classrooms(*)
 `;
 
-/**
- * Fetches ALL class sessions from the database, regardless of owner,
- * including their fully hydrated related data.
- *
- * @returns A promise that resolves to an array of all ClassSession objects.
- */
+// Step 1b: Make ALL functions use the reliable constant
 export async function getAllClassSessions(): Promise<ClassSession[]> {
-  const { data, error } = await supabase.from('class_sessions').select(`
-      id,
-      user_id,
-      program_id,
-      course:courses(*),
-      group:class_groups(*),
-      instructor:instructors(*),
-      classroom:classrooms(*),
-      period_count
-    `);
-
+  const { data, error } = await supabase.from('class_sessions').select(SELECT_COLUMNS);
   if (error) throw error;
   return (data as unknown as ClassSession[]) || [];
 }
 
-/**
- * Fetches all class sessions for a specific user from the database.
- * This performs a "join" to get the full related objects for course, group, etc.
- *
- * @param user_id - The ID of the user whose class sessions to retrieve.
- * @returns A promise that resolves to an array of fully-hydrated ClassSession objects.
- * @throws An error if the Supabase query fails.
- */
 export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
-
   if (error) throw error;
-  // The data structure from Supabase, thanks to the SELECT_COLUMNS string,
-  // should perfectly match our hydrated ClassSession type.
   return (data as unknown as ClassSession[]) || [];
 }
-
 /**
  * Fetches a single, fully-hydrated class session by its ID.
  * This includes all related data such as course, class group, instructor, and classroom.
