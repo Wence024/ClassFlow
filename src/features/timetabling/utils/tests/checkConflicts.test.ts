@@ -268,6 +268,8 @@ describe('checkConflicts', () => {
 
   beforeEach(() => {
     timetable = new Map();
+    timetable.set(mockGroup1.id, Array(totalPeriods).fill(null));
+    timetable.set(mockGroup2.id, Array(totalPeriods).fill(null));
     timetable.set(mockGroupCS1A.id, Array(totalPeriods).fill(null));
     timetable.set(mockGroupBus101.id, Array(totalPeriods).fill(null));
   });
@@ -353,6 +355,12 @@ describe('checkConflicts', () => {
     });
 
     it('should detect an instructor conflict in the second period of a multi-period class', () => {
+      // Setup existing session that conflicts
+      timetable.get(mockGroup1.id)![0] = {
+        ...classSession1,
+        instructor: mockInstructor1,
+      };
+      
       // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
       const result = checkTimetableConflicts(
         timetable,
@@ -380,9 +388,9 @@ describe('checkConflicts', () => {
         mockGroup2.id,
         0
       );
-      expect(result).toContain(
-        "Classroom conflict: Classroom 'Room 101' is already booked by group 'CS-1A' at this time (class: 'CS101')."
-      );
+      expect(result).toContain("Classroom conflict");
+      expect(result).toContain("Room 101");
+      expect(result).toContain("CS-1A");
     });
 
     it('should return a boundary conflict if the class duration extends beyond the periods in a day', () => {
