@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PrivateRoute from '../PrivateRoute';
 import { AuthContext } from '../../contexts/AuthContext';
 import AppLayout from '../../../../components/layout/AppLayout';
+import type { AuthContextType, User } from '../../types/auth'; // Import User type as well
 
 // Mock child components of AppLayout
 vi.mock('../../../../components/Sidebar', () => ({
@@ -16,7 +17,7 @@ vi.mock('../../../../components/Header', () => ({
 
 // Mocking the Notification component from the 'ui' module
 vi.mock('../../../../components/ui', async (importOriginal) => {
-  const original = await importOriginal();
+  const original = await importOriginal<typeof import('../../../../components/ui')>();
   return {
     ...original,
     Notification: () => <div data-testid="notification">Notification</div>,
@@ -28,10 +29,11 @@ const LoginPage = () => <div>LoginPage</div>;
 
 const queryClient = new QueryClient();
 
-const renderAppRoutes = (authContextValue, initialRoute = '/') => {
+const renderAppRoutes = (authContextValue: Partial<AuthContextType>, initialRoute = '/') => {
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={authContextValue}>
+      {/* Use a type assertion to satisfy the Provider's strict type requirement */}
+      <AuthContext.Provider value={authContextValue as AuthContextType}>
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
@@ -57,10 +59,17 @@ describe('PrivateRoute & App Routing', () => {
   });
 
   it('should render AppLayout and protected page if authenticated', async () => {
-    renderAppRoutes(
-      { user: { id: 'u1', role: 'program_head', program_id: 'p1' }, loading: false },
-      '/'
-    );
+    // FIX #2: Complete the mock user object to satisfy the User type
+    const mockUser: User = {
+      id: 'u1',
+      name: 'Test User',
+      email: 'test@example.com',
+      role: 'program_head',
+      program_id: 'p1',
+    };
+
+    renderAppRoutes({ user: mockUser, loading: false }, '/');
+
     await waitFor(() => {
       expect(screen.getByTestId('sidebar')).toBeInTheDocument();
       expect(screen.getByTestId('header')).toBeInTheDocument();
