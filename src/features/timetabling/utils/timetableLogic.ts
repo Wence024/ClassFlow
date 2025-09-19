@@ -49,6 +49,10 @@ export function buildTimetableGrid(
 
 /**
  * Initializes the timetable grid with empty rows for each class group.
+ *
+ * @param grid - The timetable grid Map to populate with empty rows.
+ * @param classGroups - The array of class groups that will form the rows of the timetable.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
  */
 function initializeGridRows(
   grid: TimetableGrid,
@@ -66,6 +70,10 @@ function initializeGridRows(
 
 /**
  * Populates the timetable grid with class session assignments.
+ *
+ * @param grid - The initialized timetable grid to populate with session data.
+ * @param assignments - The array of hydrated timetable assignments containing session placement data.
+ * @param totalPeriods - The total number of periods in the schedule for boundary checking.
  */
 function populateGridWithAssignments(
   grid: TimetableGrid,
@@ -84,6 +92,11 @@ function populateGridWithAssignments(
 
 /**
  * Places a class session across multiple periods in the grid row.
+ *
+ * @param row - The group's row in the timetable grid (array of ClassSession | null).
+ * @param assignment - The timetable assignment containing the starting period index.
+ * @param classSession - The class session to place in the grid.
+ * @param totalPeriods - The total number of periods to prevent array overflow.
  */
 function placeSessionInGrid(
   row: (ClassSession | null)[],

@@ -28,7 +28,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
             program_id: 'p1',
             role: 'program_head',
           },
-        } as any
+        } as Partial<AuthContextType>
       }
     >
       {children}
@@ -146,7 +146,7 @@ describe('TimetablePage Integration Tests', () => {
         semester_id: 'sem1',
       },
       isLoading: false,
-    } as any);
+    } as ReturnType<typeof useScheduleConfigHook.useScheduleConfig>);
     // FIX: Correctly spy on the hook and store the spy variable
     useTimetableSpy = vi.spyOn(useTimetableHook, 'useTimetable');
   });
@@ -164,7 +164,7 @@ describe('TimetablePage Integration Tests', () => {
       timetable,
       loading: false,
       error: null,
-    } as any);
+    } as ReturnType<typeof useTimetableHook.useTimetable>);
 
     render(<TimetablePage />, { wrapper });
 
@@ -185,8 +185,9 @@ describe('TimetablePage Integration Tests', () => {
   });
 
   it('should render a fallback UI for sessions with invalid/orphaned data', async () => {
+    const invalidSession: Partial<ClassSession> = { id: 's-invalid', course: null };
     const timetableWithInvalidData: TimetableGrid = new Map([
-      ['g1', [{ id: 's-invalid', course: null } as any]], // Intentionally invalid data
+      ['g1', [invalidSession as ClassSession]],
     ]);
 
     useTimetableSpy.mockReturnValue({
@@ -194,7 +195,7 @@ describe('TimetablePage Integration Tests', () => {
       timetable: timetableWithInvalidData,
       loading: false,
       error: null,
-    } as any);
+    } as ReturnType<typeof useTimetableHook.useTimetable>);
 
     render(<TimetablePage />, { wrapper });
 
@@ -218,7 +219,7 @@ describe('TimetablePage Integration Tests', () => {
       timetable: new Map([['g1', [mockOwnedSession]]]),
       loading: false,
       error: null,
-    } as any);
+    } as ReturnType<typeof useTimetableHook.useTimetable>);
 
     // Mock the service that populates the drawer
     vi.spyOn(classSessionsService, 'getAllClassSessions').mockResolvedValue([
@@ -229,7 +230,7 @@ describe('TimetablePage Integration Tests', () => {
     render(<TimetablePage />, { wrapper });
 
     // Wait for the drawer to be populated
-    const drawer = await screen.findByLabelText('Available Classes Drawer');
+    await screen.findByLabelText('Available Classes Drawer');
 
     // The assigned session should NOT be in the drawer
     expect(screen.queryByText('Owned Course - My Group 1')).not.toBeInTheDocument();

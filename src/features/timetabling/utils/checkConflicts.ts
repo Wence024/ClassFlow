@@ -149,12 +149,13 @@ export function findConflictingSessionsAtPeriod(
 
 /**
  * Checks if the session's instructor is already scheduled to teach another class at the same time.
+ * This function checks all periods the session spans to detect instructor double-booking.
  *
- * @param timetable - The full timetable grid.
- * @param sessionToCheck - The session being checked.
- * @param targetGroupId - The ID of the group the session is being scheduled for.
- * @param targetPeriodIndex - The index of the period the session is scheduled to start.
- * @returns A string describing the conflict, or an empty string if no instructor conflict is found.
+ * @param timetable - The complete timetable grid containing all scheduled sessions.
+ * @param sessionToCheck - The class session being validated for instructor conflicts.
+ * @param targetGroupId - The ID of the target group where the session is being placed.
+ * @param targetPeriodIndex - The starting period index for the session placement.
+ * @returns A string describing the instructor conflict, or an empty string if no conflict found.
  */
 function checkInstructorConflicts(
   timetable: TimetableGrid,
@@ -179,12 +180,13 @@ function checkInstructorConflicts(
 }
 
 /**
- * Finds instructor conflicts in a specific period.
+ * Finds instructor conflicts in a specific period by comparing instructor names across sessions.
  *
- * @param timetable
- * @param periodIndex
- * @param targetGroupId
- * @param sessionToCheck
+ * @param timetable - The timetable grid to search for conflicting sessions.
+ * @param periodIndex - The specific period index to check for conflicts.
+ * @param targetGroupId - The group ID to exclude from conflict detection (same group).
+ * @param sessionToCheck - The session whose instructor should not be double-booked.
+ * @returns A string describing the instructor conflict, or null if no conflict found in this period.
  */
 function findInstructorConflictInPeriod(
   timetable: TimetableGrid,
@@ -217,12 +219,13 @@ function findInstructorConflictInPeriod(
 
 /**
  * Checks if the classroom is already booked for another session at the same time.
+ * This function validates classroom availability across all periods the session spans.
  *
- * @param timetable - The full timetable grid.
- * @param sessionToCheck - The session being checked.
- * @param targetGroupId - The ID of the group the session is being scheduled for.
- * @param targetPeriodIndex - The index of the period the session is scheduled to start.
- * @returns A string describing the conflict, or an empty string if no classroom conflict is found.
+ * @param timetable - The complete timetable grid containing all scheduled sessions.
+ * @param sessionToCheck - The class session being validated for classroom conflicts.
+ * @param targetGroupId - The ID of the target group where the session is being placed.
+ * @param targetPeriodIndex - The starting period index for the session placement.
+ * @returns A string describing the classroom conflict, or an empty string if no conflict found.
  */
 function checkClassroomConflicts(
   timetable: TimetableGrid,
@@ -247,12 +250,13 @@ function checkClassroomConflicts(
 }
 
 /**
- * Finds classroom conflicts in a specific period.
+ * Finds classroom conflicts in a specific period by comparing classroom names across sessions.
  *
- * @param timetable
- * @param periodIndex
- * @param targetGroupId
- * @param sessionToCheck
+ * @param timetable - The timetable grid to search for conflicting sessions.
+ * @param periodIndex - The specific period index to check for conflicts.
+ * @param targetGroupId - The group ID to exclude from conflict detection (same group).
+ * @param sessionToCheck - The session whose classroom should not be double-booked.
+ * @returns A string describing the classroom conflict, or null if no conflict found in this period.
  */
 function findClassroomConflictInPeriod(
   timetable: TimetableGrid,
@@ -280,11 +284,11 @@ function findClassroomConflictInPeriod(
  * Checks for shared resource conflicts, including instructors and classrooms,
  * by delegating to specific conflict checkers.
  *
- * @param timetable The full timetable grid.
- * @param sessionToCheck The class session to validate.
- * @param targetGroupId The ID of the group the session belongs to.
- * @param targetPeriodIndex The index of the period where the session is scheduled to start.
- * @returns A string error message if any resource conflict is found, or an empty string if none.
+ * @param timetable - The full timetable grid containing all scheduled sessions across groups.
+ * @param sessionToCheck - The class session to validate for resource conflicts.
+ * @param targetGroupId - The ID of the group that the session belongs to.
+ * @param targetPeriodIndex - The starting period index where the session is intended to be placed.
+ * @returns A string describing the first detected resource conflict, or an empty string if no conflicts exist.
  */
 function checkResourceConflicts(
   timetable: TimetableGrid,
@@ -302,12 +306,12 @@ function checkResourceConflicts(
  * Main function to check for all types of conflicts in a timetable.
  * It checks for boundary, group, and resource conflicts for the specified class session.
  *
- * @param timetable The full timetable grid to check.
- * @param classSessionToCheck The class session to check for conflicts.
- * @param settings The timetable settings.
- * @param targetGroupId The ID of the group that the session belongs to.
- * @param targetPeriodIndex The index of the period where the session is scheduled to start.
- * @returns A string describing the conflict, or an empty string if no conflicts are found.
+ * @param timetable - The complete timetable grid representing all scheduled class sessions.
+ * @param classSessionToCheck - The specific class session being placed or validated in the timetable.
+ * @param settings - The schedule configuration defining the structure of the timetable (e.g., periods per day).
+ * @param targetGroupId - The unique identifier of the group for which the session is being scheduled.
+ * @param targetPeriodIndex - The starting period index in the timetable where the session should be placed.
+ * @returns A string message describing the first detected conflict (boundary, group, or resource), or an empty string if the placement is valid.
  */
 export default function checkTimetableConflicts(
   timetable: TimetableGrid,
