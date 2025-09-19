@@ -9,18 +9,13 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
 const TABLE = 'classrooms';
 
 /**
- * Fetches all classrooms for a specific user from the database.
+ * Fetches all classrooms from the database.
  *
- * @param user_id - The ID of the user whose classrooms to retrieve.
  * @returns A promise that resolves to an array of Classroom objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getClassrooms(user_id: string): Promise<Classroom[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('*')
-    .eq('user_id', user_id)
-    .order('name');
+export async function getClassrooms(): Promise<Classroom[]> {
+  const { data, error } = await supabase.from(TABLE).select('*').order('name');
   if (error) throw error;
   return data || [];
 }

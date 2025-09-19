@@ -132,6 +132,7 @@ export function findConflictingSessionsAtPeriod(
   targetGroupId: string,
   sessionToCheck: ClassSession
 ): ClassSession[] {
+  // This function finds sessions from all groups, including other programs, for cross-program conflict detection.
   const conflicts: ClassSession[] = [];
 
   for (const [groupId, schedule] of timetable.entries()) {
@@ -175,7 +176,10 @@ function checkInstructorConflicts(
     for (const conflictingSession of conflicts) {
       if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
         const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
-        return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
+        const programInfo = conflictingSession.group.program_id
+          ? ` (Program ID: ${conflictingSession.group.program_id})`
+          : '';
+        return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}'${programInfo} at this time (class: '${conflictingSession.course.code}').`;
       }
     }
   }

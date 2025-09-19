@@ -177,6 +177,7 @@ const CourseManagement: React.FC = () => {
                       course={course}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
+                      isOwner={course.program_id === user?.program_id}
                     />
                   ))}
                 </div>

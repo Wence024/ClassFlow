@@ -6,6 +6,7 @@ interface InstructorCardProps {
   instructor: Instructor;
   onEdit: (instructor: Instructor) => void;
   onDelete: (id: string) => void;
+  isOwner?: boolean;
 }
 
 /**
@@ -18,7 +19,12 @@ interface InstructorCardProps {
  * @param ic.onDelete Callback function to handle delete action.
  * @returns The rendered item card component for the instructor.
  */
-export const InstructorCard: React.FC<InstructorCardProps> = ({ instructor, onEdit, onDelete }) => {
+export const InstructorCard: React.FC<InstructorCardProps> = ({
+  instructor,
+  onEdit,
+  onDelete,
+  isOwner,
+}) => {
   // Construct the full display name from its parts
   const fullName = [
     instructor.prefix,
@@ -41,6 +47,7 @@ export const InstructorCard: React.FC<InstructorCardProps> = ({ instructor, onEd
       color={instructor.color}
       onEdit={() => onEdit(instructor)}
       onDelete={() => onDelete(instructor.id)}
+      isOwner={isOwner}
     />
   );
 };
