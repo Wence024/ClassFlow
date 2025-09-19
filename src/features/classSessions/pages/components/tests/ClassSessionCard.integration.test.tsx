@@ -94,7 +94,7 @@ describe('ClassSessionCard', () => {
     );
 
     const badgeContainer = screen.getByTitle(
-      'Capacity conflict: The group "Oversized Group" (35 students) exceeds the capacity of "Room 101" (30 seats).'
+      'Capacity conflict: The group "Oversized Group" (35 students) exceeds the capacity of classroom "Room 101" (30 seats).'
     );
     expect(badgeContainer).toBeInTheDocument();
     expect(badgeContainer).toHaveTextContent('1');

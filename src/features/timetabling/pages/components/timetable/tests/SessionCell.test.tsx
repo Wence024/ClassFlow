@@ -2,12 +2,14 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SessionCell from '../SessionCell';
 import TimetableContext, { type TimetableContextType } from '../TimetableContext';
+import { AuthContext } from '../../../../../../features/auth/contexts/AuthContext';
 import {
   getSessionCellBgColor,
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../../lib/colorUtils';
 import type { ClassSession } from '../../../../../../features/classSessions/types/classSession';
+import type { AuthContextType } from '../../../../../../features/auth/types/auth';
 
 // Test helper to convert a hex color to the rgb/rgba format JSDOM uses
 const hexToRgba = (hex: string): string => {
@@ -46,14 +48,34 @@ const renderWithContext = (
   ui: React.ReactElement,
   providerProps?: Partial<TimetableContextType>
 ) => {
+  const mockAuthContext: AuthContextType = {
+    user: {
+      id: 'test-user',
+      role: 'program_head',
+      program_id: 'p1',
+      name: 'Test User',
+      email: 'test@example.com'
+    },
+    loading: false,
+    role: 'program_head',
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    resendVerificationEmail: vi.fn(),
+    error: null,
+    clearError: vi.fn(),
+  };
+
   return render(
-    <TimetableContext.Provider value={{ ...mockContextValue, ...providerProps }}>
-      <table>
-        <tbody>
-          <tr>{ui}</tr>
-        </tbody>
-      </table>
-    </TimetableContext.Provider>
+    <AuthContext.Provider value={mockAuthContext}>
+      <TimetableContext.Provider value={{ ...mockContextValue, ...providerProps }}>
+        <table>
+          <tbody>
+            <tr>{ui}</tr>
+          </tbody>
+        </table>
+      </TimetableContext.Provider>
+    </AuthContext.Provider>
   );
 };
 

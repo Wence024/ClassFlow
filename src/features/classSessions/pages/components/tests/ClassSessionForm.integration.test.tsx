@@ -1,7 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import ClassSessionForm from '../classSession/ClassSessionForm';
 import { classSessionSchema } from '../../../../classSessions/types/validation';
@@ -11,6 +10,7 @@ import type {
   Classroom,
   ClassGroup,
 } from '../../../../classSessionComponents/types';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const MOCK_PROGRAM_ID = 'p1';
 
@@ -124,7 +124,7 @@ describe('ClassSessionForm', () => {
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
     expect(
       await screen.findByText(
-        /Capacity conflict: The group "Large Group" \(30 students\) exceeds the capacity of "Small Room" \(20 seats\)\./
+        /Capacity conflict: The group "Large Group" \(30 students\) exceeds the capacity of classroom "Small Room" \(20 seats\)\./
       )
     ).toBeInTheDocument();
   });
