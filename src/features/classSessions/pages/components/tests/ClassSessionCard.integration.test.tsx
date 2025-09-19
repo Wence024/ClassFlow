@@ -9,6 +9,8 @@ import type {
 import type { ClassSession } from '../../../types/classSession';
 import { ClassSessionCard } from '..';
 
+const MOCK_PROGRAM_ID = 'p1';
+
 // --- Mock Data ---
 const mockCourse: Course = {
   id: 'c1',
@@ -17,6 +19,7 @@ const mockCourse: Course = {
   user_id: 'u1',
   created_at: '',
   color: '#fff',
+  program_id: MOCK_PROGRAM_ID,
 };
 const mockInstructor: Instructor = {
   id: 'i1',
@@ -31,6 +34,7 @@ const mockInstructor: Instructor = {
   phone: null,
   prefix: null,
   suffix: null,
+  program_id: MOCK_PROGRAM_ID,
 };
 const mockGroup: ClassGroup = {
   id: 'g1',
@@ -40,6 +44,7 @@ const mockGroup: ClassGroup = {
   created_at: '',
   code: 'G1',
   color: '#fff',
+  program_id: MOCK_PROGRAM_ID,
 };
 const mockClassroom: Classroom = {
   id: 'r1',
@@ -50,9 +55,9 @@ const mockClassroom: Classroom = {
   code: 'R1',
   color: '#fff',
   location: 'A',
+  program_id: MOCK_PROGRAM_ID,
 };
 
-// Mock session WITHOUT conflict
 const mockSession: ClassSession = {
   id: 's1',
   course: mockCourse,
@@ -60,6 +65,7 @@ const mockSession: ClassSession = {
   instructor: mockInstructor,
   classroom: mockClassroom,
   period_count: 1,
+  program_id: MOCK_PROGRAM_ID,
 };
 
 // Mock session WITH capacity conflict
@@ -67,6 +73,7 @@ const mockSessionWithConflict: ClassSession = {
   ...mockSession,
   id: 's2',
   group: { ...mockGroup, name: 'Oversized Group', student_count: 35 },
+  program_id: MOCK_PROGRAM_ID,
 };
 
 describe('ClassSessionCard', () => {

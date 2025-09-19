@@ -2,25 +2,22 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { getStoredUser } from '../authService';
 import { supabase } from '../../../../lib/supabase';
 
-vi.mock('../../../../lib/supabase', () => ({
-  auth: {
-    getSession: vi.fn(),
-  },
-  from: vi.fn(() => ({
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
+vi.mock('../../../../lib/supabase', () => {
+  const mockFrom = vi.fn(() => ({
+    select: vi.fn(() => mockFrom),
+    eq: vi.fn(() => mockFrom),
     single: vi.fn(),
-  })),
-}));
+  }));
 
-interface MockedSupabase {
-  auth: {
-    getSession: typeof vi.fn;
+  return {
+    auth: {
+      getSession: vi.fn(),
+    },
+    from: mockFrom,
   };
-  from: typeof vi.fn;
-}
+});
 
-const { auth, from } = supabase as MockedSupabase;
+const { auth, from } = supabase as any;
 
 describe('authService.getStoredUser - profile hydration', () => {
   const mockSession = {
@@ -35,12 +32,12 @@ describe('authService.getStoredUser - profile hydration', () => {
   });
 
   it('should return user with role and program_id from profiles table', async () => {
-    auth.getSession.mockResolvedValue({ data: { session: mockSession }, error: null });
-    from.mockReturnValue({
+    (auth.getSession as any).mockResolvedValue({ data: { session: mockSession }, error: null });
+    (from as any).mockImplementationOnce(() => ({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: mockProfile, error: null }),
-    });
+    }));
 
     const user = await getStoredUser();
 
@@ -54,19 +51,19 @@ describe('authService.getStoredUser - profile hydration', () => {
       })
     );
     expect(from).toHaveBeenCalledWith('profiles');
-    const mockFromCall = from.mock.results[0].value;
-    expect(mockFromCall.select).toHaveBeenCalledWith('role, program_id');
-    expect(mockFromCall.eq).toHaveBeenCalledWith('id', 'u1');
-    expect(mockFromCall.single).toHaveBeenCalled();
+    const mockFromReturn = (from as any).mock.results[0].value;
+    expect(mockFromReturn.select).toHaveBeenCalledWith('role, program_id');
+    expect(mockFromReturn.eq).toHaveBeenCalledWith('id', 'u1');
+    expect(mockFromReturn.single).toHaveBeenCalled();
   });
 
   it('should return null if profile not found', async () => {
-    auth.getSession.mockResolvedValue({ data: { session: mockSession }, error: null });
-    from.mockReturnValue({
+    (auth.getSession as any).mockResolvedValue({ data: { session: mockSession }, error: null });
+    (from as any).mockImplementationOnce(() => ({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: null, error: new Error('Profile not found') }),
-    });
+    }));
 
     const user = await getStoredUser();
 
@@ -74,7 +71,7 @@ describe('authService.getStoredUser - profile hydration', () => {
   });
 
   it('should return null if no active session', async () => {
-    auth.getSession.mockResolvedValue({ data: { session: null }, error: null });
+    (auth.getSession as any).mockResolvedValue({ data: { session: null }, error: null });
 
     const user = await getStoredUser();
 

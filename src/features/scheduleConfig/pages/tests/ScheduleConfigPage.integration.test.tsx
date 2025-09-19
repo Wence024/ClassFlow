@@ -7,10 +7,20 @@ import * as useScheduleConfigHook from '../../hooks/useScheduleConfig';
 
 const queryClient = new QueryClient();
 
-const renderPage = (authContextValue) => {
+const renderPage = (user: { id: string; role: string; program_id: string }) => {
+  const mockAuthContext = {
+    user,
+    loading: false,
+    role: user.role,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    getStoredUser: vi.fn(),
+  } as any;
+
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={authContextValue}>
+      <AuthContext.Provider value={mockAuthContext}>
         <ScheduleConfigPage />
       </AuthContext.Provider>
     </QueryClientProvider>
@@ -19,10 +29,13 @@ const renderPage = (authContextValue) => {
 
 describe('ScheduleConfigPage - Admin Access', () => {
   const mockSettings = {
+    id: 'config1',
     periods_per_day: 8,
     class_days_per_week: 5,
     start_time: '09:00',
     period_duration_mins: 60,
+    created_at: '2023-01-01T00:00:00Z',
+    semester_id: 'sem1',
   };
   const mockUpdateSettings = vi.fn().mockResolvedValue(mockSettings);
 
@@ -38,7 +51,7 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('should display fields as disabled for non-admin users', async () => {
-    renderPage({ user: { id: 'u1', role: 'program_head', program_id: 'p1' }, loading: false });
+    renderPage({ id: 'u1', role: 'program_head', program_id: 'p1' });
     await waitFor(() => {
       expect(screen.getByLabelText(/Periods Per Day/i)).toBeDisabled();
       expect(screen.getByLabelText(/Class Days Per Week/i)).toBeDisabled();
@@ -49,7 +62,7 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('should display fields as enabled for admin users', async () => {
-    renderPage({ user: { id: 'u1', role: 'admin', program_id: 'p1' }, loading: false });
+    renderPage({ id: 'u1', role: 'admin', program_id: 'p1' });
     await waitFor(() => {
       expect(screen.getByLabelText(/Periods Per Day/i)).toBeEnabled();
       expect(screen.getByLabelText(/Class Days Per Week/i)).toBeEnabled();
@@ -60,7 +73,7 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('admin user should be able to save settings', async () => {
-    renderPage({ user: { id: 'u1', role: 'admin', program_id: 'p1' }, loading: false });
+    renderPage({ id: 'u1', role: 'admin', program_id: 'p1' });
 
     const saveButton = await screen.findByRole('button', { name: /Save Settings/i });
     fireEvent.click(saveButton);
