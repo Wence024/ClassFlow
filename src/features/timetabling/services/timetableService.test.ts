@@ -45,6 +45,7 @@ const mockAssignmentInput: Omit<TimetableAssignment, 'id'> = {
   class_session_id: 'session-id',
   user_id: 'user-id',
   created_at: null,
+  semester_id: 'sem1',
 };
 
 // This is the full object, as it exists in the DB

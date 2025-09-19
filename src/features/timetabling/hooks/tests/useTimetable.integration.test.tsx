@@ -7,7 +7,8 @@ import * as classGroupsService from '../../../classSessionComponents/services/cl
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { ActiveSemester, ScheduleConfigSettings } from '../../../scheduleConfig/types';
+import type { Semester as ActiveSemester } from '../../../scheduleConfig/types/semesters';
+import type { ScheduleConfig as ScheduleConfigSettings } from '../../../scheduleConfig/types/scheduleConfig';
 import type { TimetableAssignment, HydratedTimetableAssignment } from '../../types/timetable';
 import type { ClassSession } from '../../../classSessions/types/classSession';
 import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';

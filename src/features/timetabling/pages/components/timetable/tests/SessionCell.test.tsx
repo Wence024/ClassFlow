@@ -61,6 +61,7 @@ const renderWithContext = (
 const mockSession: ClassSession = {
   id: '1',
   period_count: 1,
+  program_id: 'p1',
   course: {
     id: 'c1',
     name: 'Test Course',
@@ -68,6 +69,7 @@ const mockSession: ClassSession = {
     color: '#ffffff',
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
   instructor: {
     id: 'i1',
@@ -82,6 +84,7 @@ const mockSession: ClassSession = {
     code: 'JD1',
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
   classroom: {
     id: 'r1',
@@ -92,6 +95,7 @@ const mockSession: ClassSession = {
     location: 'Building A',
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
   group: {
     id: 'g1',
@@ -101,6 +105,7 @@ const mockSession: ClassSession = {
     color: null,
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
 };
 

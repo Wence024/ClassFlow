@@ -2,11 +2,13 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScheduleConfigPage from '../ScheduleConfigPage';
-import { AuthContext, AuthContextType } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../auth/types/auth';
+import * as useScheduleConfigHook from '../../hooks/useScheduleConfig';
 
 const queryClient = new QueryClient();
 
-const renderPage = (user: { id: string; role: string; program_id: string }) => {
+const renderPage = (user: { id: string; role: string; program_id: string; name: string; email: string }) => {
   const mockAuthContext: AuthContextType = {
     user,
     loading: false,
@@ -52,7 +54,7 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('should display fields as disabled for non-admin users', async () => {
-    renderPage({ id: 'u1', role: 'program_head', program_id: 'p1' });
+    renderPage({ id: 'u1', role: 'program_head', program_id: 'p1', name: 'test', email: 'test@test.com' });
     await waitFor(() => {
       expect(screen.getByLabelText(/Periods Per Day/i)).toBeDisabled();
       expect(screen.getByLabelText(/Class Days Per Week/i)).toBeDisabled();
@@ -63,7 +65,7 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('should display fields as enabled for admin users', async () => {
-    renderPage({ id: 'u1', role: 'admin', program_id: 'p1' });
+    renderPage({ id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' });
     await waitFor(() => {
       expect(screen.getByLabelText(/Periods Per Day/i)).toBeEnabled();
       expect(screen.getByLabelText(/Class Days Per Week/i)).toBeEnabled();
@@ -74,7 +76,7 @@ describe('ScheduleConfigPage - Admin Access', () => {
   });
 
   it('admin user should be able to save settings', async () => {
-    renderPage({ id: 'u1', role: 'admin', program_id: 'p1' });
+    renderPage({ id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' });
 
     const saveButton = await screen.findByRole('button', { name: /Save Settings/i });
     fireEvent.click(saveButton);

@@ -46,6 +46,7 @@ const mockInstructor1: Instructor = {
   phone: null,
   prefix: null,
   suffix: null,
+  program_id: mockProgramCS.id,
 };
 const mockInstructor2: Instructor = {
   id: 'inst2',
@@ -60,6 +61,7 @@ const mockInstructor2: Instructor = {
   phone: null,
   prefix: null,
   suffix: null,
+  program_id: mockProgramCS.id,
 };
 const mockInstructorShared: Instructor = {
   id: 'inst_shared',
@@ -74,6 +76,7 @@ const mockInstructorShared: Instructor = {
   phone: '111-1111',
   prefix: 'Dr.',
   suffix: null,
+  program_id: null,
 };
 const mockInstructorCS: Instructor = {
   id: 'inst_cs',
@@ -88,6 +91,7 @@ const mockInstructorCS: Instructor = {
   phone: '222-2222',
   prefix: null,
   suffix: null,
+  program_id: mockProgramCS.id,
 };
 
 // Mock Classrooms
@@ -100,6 +104,7 @@ const mockClassroom1: Classroom = {
   code: 'R101',
   color: '#0000FF',
   location: 'A',
+  program_id: mockProgramCS.id,
 };
 const mockClassroom2: Classroom = {
   id: 'room2',
@@ -110,6 +115,7 @@ const mockClassroom2: Classroom = {
   code: 'R202',
   color: '#FFFF00',
   location: 'B',
+  program_id: mockProgramCS.id,
 };
 
 const mockClassroomShared: Classroom = {
@@ -121,6 +127,7 @@ const mockClassroomShared: Classroom = {
   code: 'AUD',
   color: '#0000FF',
   location: 'Main Building',
+  program_id: null,
 };
 const mockClassroomCS: Classroom = {
   id: 'room_cs',
@@ -131,6 +138,7 @@ const mockClassroomCS: Classroom = {
   code: 'CSL1',
   color: '#FFFF00',
   location: 'Tech Building',
+  program_id: mockProgramCS.id,
 };
 
 // Mock Class Groups
@@ -183,6 +191,7 @@ const mockCourse1: Course = {
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   color: '#C0C0C0',
+  program_id: mockProgramCS.id,
 };
 const mockCourse2: Course = {
   id: 'course2',
@@ -191,6 +200,7 @@ const mockCourse2: Course = {
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   color: '#808080',
+  program_id: mockProgramCS.id,
 };
 
 // Mock Courses
@@ -201,6 +211,7 @@ const mockCourseCS: Course = {
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   color: '#C0C0C0',
+  program_id: mockProgramCS.id,
 };
 const mockCourseBus: Course = {
   id: 'course_bus',
@@ -209,6 +220,7 @@ const mockCourseBus: Course = {
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   color: '#808080',
+  program_id: mockProgramBus.id,
 };
 
 const classSession1: ClassSession = {

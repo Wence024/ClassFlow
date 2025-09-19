@@ -20,6 +20,7 @@ const mockCourse: Course = {
   user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   color: '#db2777',
+  program_id: 'p1',
 };
 
 const mockGroup1: ClassGroup = {
@@ -30,6 +31,7 @@ const mockGroup1: ClassGroup = {
   code: 'CS1A',
   color: '#4f46e5',
   student_count: 25,
+  program_id: 'p1',
 };
 
 const mockGroup2: ClassGroup = {
@@ -40,6 +42,7 @@ const mockGroup2: ClassGroup = {
   code: 'CS1B',
   color: '#0d9488',
   student_count: 30,
+  program_id: 'p1',
 };
 
 const mockInstructor: Instructor = {
@@ -57,6 +60,7 @@ const mockInstructor: Instructor = {
   suffix: null,
   phone: null,
   contract_type: null,
+  program_id: 'p1',
 };
 
 const mockClassroom: Classroom = {
@@ -68,6 +72,7 @@ const mockClassroom: Classroom = {
   created_at: MOCK_CREATED_AT,
   code: 'R101',
   color: '#65a30d',
+  program_id: 'p1',
 };
 
 const mockClassSession1: ClassSession = {
@@ -77,6 +82,7 @@ const mockClassSession1: ClassSession = {
   instructor: mockInstructor,
   classroom: mockClassroom,
   period_count: 1,
+  program_id: mockGroup1.program_id,
 };
 
 const mockClassSession2: ClassSession = {
@@ -86,6 +92,7 @@ const mockClassSession2: ClassSession = {
   instructor: mockInstructor,
   classroom: mockClassroom,
   period_count: 1,
+  program_id: mockGroup2.program_id,
 };
 
 // --- (No changes needed for the rest of the file from here) ---
@@ -97,6 +104,7 @@ const mockAssignment1: HydratedTimetableAssignment = {
   period_index: 0,
   created_at: '',
   class_session: mockClassSession1,
+  semester_id: 'sem1',
 };
 
 const mockAssignment2: HydratedTimetableAssignment = {
@@ -106,6 +114,7 @@ const mockAssignment2: HydratedTimetableAssignment = {
   period_index: 3,
   created_at: '',
   class_session: mockClassSession2,
+  semester_id: 'sem1',
 };
 
 const mockMultiPeriodCourse: Course = {
@@ -115,6 +124,7 @@ const mockMultiPeriodCourse: Course = {
   user_id: 'user1',
   created_at: MOCK_CREATED_AT,
   color: '#ffffff',
+  program_id: 'p1',
 };
 
 const mockMultiPeriodSession: ClassSession = {
@@ -124,6 +134,7 @@ const mockMultiPeriodSession: ClassSession = {
   instructor: mockInstructor,
   classroom: mockClassroom,
   period_count: 2,
+  program_id: mockGroup1.program_id,
 };
 
 const mockMultiPeriodAssignment: HydratedTimetableAssignment = {
@@ -133,6 +144,7 @@ const mockMultiPeriodAssignment: HydratedTimetableAssignment = {
   period_index: 5,
   created_at: '',
   class_session: mockMultiPeriodSession,
+  semester_id: 'sem1',
 };
 
 describe('buildTimetableGrid', () => {

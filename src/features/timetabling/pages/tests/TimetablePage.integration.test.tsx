@@ -7,10 +7,10 @@ import * as useTimetableDndHook from '../../hooks/useTimetableDnd';
 import * as classSessionsService from '../../../classSessions/services/classSessionsService';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
+
 import type { ClassSession } from '../../../classSessions/types/classSession';
 import type { ClassGroup } from '../../../classSessionComponents/types';
 import type { TimetableGrid } from '../../utils/timetableLogic';
-import type { User } from '../../../auth/types/auth';
 
 const queryClient = new QueryClient();
 
@@ -19,17 +19,23 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     {/* FIX: Use a complete, correctly typed mock user */}
     <AuthContext.Provider
-      value={
-        {
-          user: {
-            id: 'u1',
-            name: 'Test User',
-            email: 'test@example.com',
-            program_id: 'p1',
-            role: 'program_head',
-          },
-        } as Partial<AuthContextType>
-      }
+      value={{
+        user: {
+          id: 'u1',
+          name: 'Test User',
+          email: 'test@example.com',
+          program_id: 'p1',
+          role: 'program_head',
+        },
+        role: 'program_head',
+        loading: false,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        resendVerificationEmail: vi.fn(),
+        error: null,
+        clearError: vi.fn(),
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -41,14 +47,6 @@ const MOCK_USER_ID = 'u1';
 const MOCK_PROGRAM_ID = 'p1';
 const MOCK_OTHER_PROGRAM_ID = 'p2';
 const MOCK_CREATED_AT = new Date().toISOString();
-
-const mockUser: User = {
-  id: MOCK_USER_ID,
-  name: 'Test User',
-  email: 'test@example.com',
-  role: 'program_head',
-  program_id: MOCK_PROGRAM_ID,
-};
 
 const mockMyGroup: ClassGroup = {
   id: 'g1',
@@ -185,6 +183,7 @@ describe('TimetablePage Integration Tests', () => {
   });
 
   it('should render a fallback UI for sessions with invalid/orphaned data', async () => {
+        // @ts-expect-error - Intentionally creating an invalid session for testing
     const invalidSession: Partial<ClassSession> = { id: 's-invalid', course: null };
     const timetableWithInvalidData: TimetableGrid = new Map([
       ['g1', [invalidSession as ClassSession]],
