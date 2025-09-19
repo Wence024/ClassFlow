@@ -82,7 +82,12 @@ describe('ScheduleConfigPage - Admin Access', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
-      expect(mockUpdateSettings).toHaveBeenCalledWith(mockSettings);
+      expect(mockUpdateSettings).toHaveBeenCalledWith({
+        periods_per_day: 8,
+        class_days_per_week: 5,
+        start_time: '09:00',
+        period_duration_mins: 60,
+      });
     });
   });
 });
