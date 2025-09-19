@@ -227,3 +227,14 @@ Only allow program heads to move the sessions owned by their program.
 Your existing real-time setup in `useTimetable.ts` is perfect for this workflow. When one program head moves a session, the database change will trigger an event. All other connected users will receive this event, causing their `useTimetable` hook to refetch the data and automatically re-render the grid with the updated session placement, styled correctly according to the ownership rules you just implemented. No additional work is required here.
 
 By following these steps, you will successfully transform your single-user application into a robust, secure, and intuitive multi-user timetabling system.
+
+---
+
+Please create another index implementation of tests regarding the current branch change. Suggest what to do with the current branch `feature/multi-user-workflow`. Should I merge and make another branch, or should I continue?
+
+I see. Currently, I plan to stop here in the features, stabilize with tests and refactoring, then the following features might be implemented without sequence yet. What do you think is the best proposed plan forward?
+
+* Refine cross-program conflict detection
+* Dynamic timetable (view rows as classrooms, or instructors in addition to class groups.
+* Add department_id to instructors and a `dean` role that administers instructor management
+* Add class merging (same classroom, instructor and course but different class groups)

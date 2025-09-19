@@ -30,7 +30,7 @@ export default tseslint.config([
       '@typescript-eslint/no-unused-vars': 'off',
 
       // Enforce a cognitive complexity detection of 11 and above.
-      "sonarjs/cognitive-complexity": ["error", { "max": 11 }],
+      "sonarjs/cognitive-complexity": ["error", 10],
 
       // Enforce the presence of JSDoc comments
       'jsdoc/require-jsdoc': [
