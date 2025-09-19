@@ -36,12 +36,24 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed due to an unexpected issue. Please try again.');
   }
 
+  // Fetch role and program_id from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role, program_id')
+    .eq('id', data.user.id)
+    .single();
+
+  if (profileError || !profile) {
+    throw new Error('Login successful, but could not find user profile.');
+  }
+
   return {
     user: {
       id: data.user.id,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
       email: data.user.email!,
       role: data.user.user_metadata?.role || 'user',
+      program_id: profile.program_id,
     },
     token: data.session.access_token,
   };
@@ -79,6 +91,17 @@ export async function register(
     throw new Error('Registration failed due to an unexpected issue.');
   }
 
+  // Fetch role and program_id from profiles table
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('role, program_id')
+    .eq('id', data.user.id)
+    .single();
+
+  if (profileError || !profile) {
+    throw new Error('Login successful, but could not find user profile.');
+  }
+
   // If `data.session` is null, it means Supabase requires email verification.
   const needsVerification = !data.session;
 
@@ -88,6 +111,7 @@ export async function register(
       name: data.user.user_metadata?.name || name,
       email: data.user.email!,
       role: data.user.user_metadata?.role || 'user',
+      program_id: profile.program_id,
     },
     token: data.session?.access_token || '',
     needsVerification: needsVerification,

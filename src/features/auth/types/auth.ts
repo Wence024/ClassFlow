@@ -6,7 +6,7 @@ export type User = {
   name: string;
   email: string;
   role: string;
-  program_id?: string;
+  program_id: string | null;
 };
 
 /**
