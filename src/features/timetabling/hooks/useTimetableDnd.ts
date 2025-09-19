@@ -144,11 +144,6 @@ export const useTimetableDnd = () => {
 
       // Find the class session to drop
       const classSessionToDrop = classSessions.find((cs) => cs.id === source.class_session_id);
-      console.log(
-        `Dropping class session ${classSessionToDrop?.course.code} - ${classSessionToDrop?.group.name}.`
-      );
-      console.log(`Class ID: ${classSessionToDrop?.id}.`);
-      console.log(`Program ID of class: ${classSessionToDrop?.program_id}.`);
 
       if (!classSessionToDrop) {
         // Show notification if the class session could not be found
@@ -159,8 +154,6 @@ export const useTimetableDnd = () => {
 
       // Add final client-side safeguard before mutation
       if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
-        console.log("Class session's program ID: ", classSessionToDrop.program_id);
-        console.log("User's program ID: ", user?.program_id);
         showNotification('You can only move sessions that belong to your own program.');
         cleanupDragState();
         return;
