@@ -14,7 +14,7 @@
     "lint:fix": "eslint . --fix",
     "precommit": "npm run format && npm run prep-commit-msg",
     "prep-commit-msg": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
-    "premerge": "npm run format && npm run test && npm run lint",
+    "premerge": "npm run lint && npm run type-check && npm run test && npm run format",
     "preview": "vite preview",
     "test": "vitest",
     "test:unit": "vitest run -c vitest.unit.config.ts",
