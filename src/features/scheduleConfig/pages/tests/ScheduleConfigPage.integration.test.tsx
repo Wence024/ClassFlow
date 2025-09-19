@@ -2,21 +2,22 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScheduleConfigPage from '../ScheduleConfigPage';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import * as useScheduleConfigHook from '../../hooks/useScheduleConfig';
+import { AuthContext, AuthContextType } from '../../../auth/contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
 const renderPage = (user: { id: string; role: string; program_id: string }) => {
-  const mockAuthContext = {
+  const mockAuthContext: AuthContextType = {
     user,
     loading: false,
     role: user.role,
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
-    getStoredUser: vi.fn(),
-  } as any;
+    resendVerificationEmail: vi.fn(),
+    error: null,
+    clearError: vi.fn(),
+  };
 
   return render(
     <QueryClientProvider client={queryClient}>
