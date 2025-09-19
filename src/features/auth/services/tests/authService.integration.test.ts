@@ -63,6 +63,7 @@ describe('authService.getStoredUser - profile hydration', () => {
   });
 
   it('should return null if profile not found', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockedSupabase.auth.getSession.mockResolvedValue(mockSession);
     const fromMock = {
       select: vi.fn().mockReturnThis(),
@@ -74,6 +75,8 @@ describe('authService.getStoredUser - profile hydration', () => {
     const user = await getStoredUser();
 
     expect(user).toBeNull();
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
   });
 
   it('should return null if no active session', async () => {
