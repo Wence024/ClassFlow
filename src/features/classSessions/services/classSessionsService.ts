@@ -29,6 +29,7 @@ const SELECT_COLUMNS = `
 /**
  * Fetches ALL class sessions from the database, regardless of owner,
  * including their fully hydrated related data.
+ *
  * @returns A promise that resolves to an array of all ClassSession objects.
  */
 export async function getAllClassSessions(): Promise<ClassSession[]> {

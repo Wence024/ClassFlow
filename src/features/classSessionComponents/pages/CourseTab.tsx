@@ -20,10 +20,6 @@ import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type CourseFormData = z.infer<typeof componentSchemas.course>;
 
-// TODO: Break down the forms and viewing into individual components
-// TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience.
-// TODO: Consider duplicate courses, class groups, classrooms and instructors a data anomaly; such entities should be singleton.
-
 /**
  * Renders the UI for managing Courses.
  * This component handles fetching, displaying, creating, editing, and deleting courses

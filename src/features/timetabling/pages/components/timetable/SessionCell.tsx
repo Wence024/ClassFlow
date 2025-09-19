@@ -12,6 +12,7 @@ import { AlertTriangle } from 'lucide-react';
 
 /**
  * Builds the tooltip content for a class session.
+ *
  * @param session The class session object.
  * @returns JSX content for the tooltip.
  */
@@ -70,6 +71,8 @@ const SessionCell: React.FC<SessionCellProps> = ({
     onDropToGrid,
   } = useTimetableContext();
 
+  const { user } = useAuth();
+
   // --- ADDED: Defensive Check for Invalid Data ---
   if (!session.instructor || !session.course || !session.group || !session.classroom) {
     console.warn(
@@ -86,8 +89,6 @@ const SessionCell: React.FC<SessionCellProps> = ({
     );
   }
   // --- END ADDED CHECK ---
-
-  const { user } = useAuth();
   const isOwner = !!user?.program_id && user.program_id === session.program_id;
 
   const numberOfPeriods = session.period_count || 1;

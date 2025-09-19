@@ -11,7 +11,9 @@ import TimetableContext from './TimetableContext';
 import TimetableHeader from './TimetableHeader';
 import TimetableRow from './TimetableRow';
 
-// TODO: Apply refactor to prop drilling later
+/**
+ * Apply refactor to prop drilling later.
+ */
 
 /**
  * Props for the Timetable component.

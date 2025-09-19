@@ -17,6 +17,7 @@ interface InstructorCardProps {
  * @param ic.instructor The instructor object to display.
  * @param ic.onEdit Callback function to handle edit action.
  * @param ic.onDelete Callback function to handle delete action.
+ * @param [ic.isOwner] Whether the user owns this item and can edit/delete it. Defaults to true.
  * @returns The rendered item card component for the instructor.
  */
 export const InstructorCard: React.FC<InstructorCardProps> = ({

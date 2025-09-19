@@ -68,6 +68,7 @@ interface ItemCardProps {
  * @param [ic.onEdit] A callback for the edit action.
  * @param [ic.onDelete] A callback for the delete action.
  * @param [ic.className] Additional CSS classes for the card's root element.
+ * @param ic.isOwner Whether the user owns this item and can edit/delete it. Defaults to true.
  * @returns The rendered item card component.
  */
 const ItemCard: React.FC<ItemCardProps> = ({

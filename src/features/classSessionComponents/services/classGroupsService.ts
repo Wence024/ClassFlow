@@ -28,6 +28,7 @@ export async function getClassGroups(user_id: string): Promise<ClassGroup[]> {
 /**
  * Fetches ALL class groups from the database, regardless of owner.
  * This is used for the shared timetable view.
+ *
  * @returns A promise that resolves to an array of all ClassGroup objects.
  */
 export async function getAllClassGroups(): Promise<ClassGroup[]> {

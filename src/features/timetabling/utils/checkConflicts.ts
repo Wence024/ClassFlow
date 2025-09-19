@@ -166,28 +166,53 @@ function checkInstructorConflicts(
 
   for (let i = 0; i < period_count; i++) {
     const periodIndex = targetPeriodIndex + i;
-    const conflicts = findConflictingSessionsAtPeriod(
+    const conflict = findInstructorConflictInPeriod(
       timetable,
       periodIndex,
       targetGroupId,
       sessionToCheck
     );
-
-    for (const conflictingSession of conflicts) {
-      if (
-        conflictingSession.instructor.first_name === sessionToCheck.instructor.first_name &&
-        conflictingSession.instructor.last_name === sessionToCheck.instructor.last_name
-      ) {
-        const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
-        const programInfo = conflictingSession.group.program_id
-          ? ` (Program ID: ${conflictingSession.group.program_id})`
-          : '';
-        return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}'${programInfo} at this time (class: '${conflictingSession.course.code}').`;
-      }
-    }
+    if (conflict) return conflict;
   }
 
   return '';
+}
+
+/**
+ * Finds instructor conflicts in a specific period.
+ *
+ * @param timetable
+ * @param periodIndex
+ * @param targetGroupId
+ * @param sessionToCheck
+ */
+function findInstructorConflictInPeriod(
+  timetable: TimetableGrid,
+  periodIndex: number,
+  targetGroupId: string,
+  sessionToCheck: ClassSession
+): string | null {
+  const conflicts = findConflictingSessionsAtPeriod(
+    timetable,
+    periodIndex,
+    targetGroupId,
+    sessionToCheck
+  );
+
+  for (const conflictingSession of conflicts) {
+    if (
+      conflictingSession.instructor.first_name === sessionToCheck.instructor.first_name &&
+      conflictingSession.instructor.last_name === sessionToCheck.instructor.last_name
+    ) {
+      const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
+      const programInfo = conflictingSession.group.program_id
+        ? ` (Program ID: ${conflictingSession.group.program_id})`
+        : '';
+      return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}'${programInfo} at this time (class: '${conflictingSession.course.code}').`;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -209,22 +234,46 @@ function checkClassroomConflicts(
 
   for (let i = 0; i < period_count; i++) {
     const periodIndex = targetPeriodIndex + i;
-    const conflicts = findConflictingSessionsAtPeriod(
+    const conflict = findClassroomConflictInPeriod(
       timetable,
       periodIndex,
       targetGroupId,
       sessionToCheck
     );
-
-    for (const conflictingSession of conflicts) {
-      // TODO: Change this check for the long term
-      if (conflictingSession.classroom.name === sessionToCheck.classroom.name) {
-        return `Classroom conflict: Classroom '${conflictingSession.classroom.name}' is already booked by group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
-      }
-    }
+    if (conflict) return conflict;
   }
 
   return '';
+}
+
+/**
+ * Finds classroom conflicts in a specific period.
+ *
+ * @param timetable
+ * @param periodIndex
+ * @param targetGroupId
+ * @param sessionToCheck
+ */
+function findClassroomConflictInPeriod(
+  timetable: TimetableGrid,
+  periodIndex: number,
+  targetGroupId: string,
+  sessionToCheck: ClassSession
+): string | null {
+  const conflicts = findConflictingSessionsAtPeriod(
+    timetable,
+    periodIndex,
+    targetGroupId,
+    sessionToCheck
+  );
+
+  for (const conflictingSession of conflicts) {
+    if (conflictingSession.classroom.name === sessionToCheck.classroom.name) {
+      return `Classroom conflict: Classroom '${conflictingSession.classroom.name}' is already booked by group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
+    }
+  }
+
+  return null;
 }
 
 /**
