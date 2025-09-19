@@ -15,6 +15,10 @@ interface TooltipState {
   position: { top: number; left: number };
 }
 
+// TODO: Make drawer stick to the bottom, or limit the height size of the timetable to accomodate the drawer.
+// TODO: Do scrolling behavior when placing the moved object around the edge of the viewport.
+// TODO: In drawer, only make visible the class sessions that belong to the user's assigned program.
+
 /**
  * Renders the main timetabling interface, including the interactive grid and the drawer of available class sessions.
  *

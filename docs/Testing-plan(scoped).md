@@ -26,7 +26,7 @@
 
 ## **3. Core Timetabling Logic & Data Flow**
 
-* [ ] **File:** `src/features/timetabling/hooks/tests/useTimetable.integration.test.ts`
+* [x] **File:** `src/features/timetabling/hooks/tests/useTimetable.integration.test.ts`
   * **Purpose:** To verify that the `useTimetable` hook now fetches data based on the active `semester_id` (not `user_id`) and correctly fetches all `classGroups`. It should also be tested to ensure it passes the `semester_id` during mutations.
   * **Status:** **Needs Creation/Update.** The data fetching logic has been completely refactored.
   * **Key Test:** `should call timetableService.getTimetableAssignments with the active semester ID` and `should pass semester_id to assignClassSessionToTimetable`.

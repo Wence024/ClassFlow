@@ -1,380 +1,335 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+// src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx
+
+import { render, screen, within, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TimetablePage from '../TimetablePage';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import * as timetableHooks from '../../hooks/useTimetable';
-import * as sessionHooks from '../../../classSessions/hooks/useClassSessions';
-import * as scheduleHooks from '../../../scheduleConfig/hooks/useScheduleConfig';
-import type {
-  ClassGroup,
-  Classroom,
-  Course,
-  Instructor,
-} from '../../../classSessionComponents/types';
+import * as useTimetableHook from '../../hooks/useTimetable';
+import * as useTimetableDndHook from '../../hooks/useTimetableDnd';
+import * as classSessionsService from '../../../classSessions/services/classSessionsService';
+import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
+import { TimetableGroup, TimetableMap } from '../../types/timetable';
 import type { ClassSession } from '../../../classSessions/types/classSession';
-import type { ScheduleConfig } from '../../../scheduleConfig/types/scheduleConfig';
-
-// Mock data
-const mockSettings: ScheduleConfig = {
-  id: 'settings1',
-  created_at: new Date().toISOString(),
-  periods_per_day: 4,
-  class_days_per_week: 1, // Simplified to one day for testing
-  start_time: '09:00',
-  period_duration_mins: 60,
-};
-
-const mockInstructor: Instructor = {
-  id: 'inst1',
-  first_name: 'John',
-  last_name: 'Doe',
-  email: 'john@doe.com',
-  user_id: 'u1',
-  created_at: '',
-  code: 'JD',
-  color: '#fff',
-  contract_type: null,
-  phone: null,
-  prefix: null,
-  suffix: null,
-};
-const mockCourse: Course = {
-  id: 'course1',
-  name: 'Test Course',
-  code: 'T101',
-  user_id: 'u1',
-  created_at: '',
-  color: '#fff',
-};
-const mockClassroom: Classroom = {
-  id: 'room1',
-  name: 'Room 1',
-  capacity: 30,
-  user_id: 'u1',
-  created_at: '',
-  code: 'R1',
-  color: '#fff',
-  location: null,
-};
-const mockGroup: ClassGroup = {
-  id: 'group1',
-  name: 'Group 1',
-  student_count: 20,
-  user_id: 'u1',
-  created_at: '',
-  code: 'G1',
-  color: '#fff',
-};
-
-const mockSession1: ClassSession = {
-  id: 'session1',
-  period_count: 1,
-  course: mockCourse,
-  instructor: mockInstructor,
-  classroom: mockClassroom,
-  group: mockGroup,
-};
-
-const mockSession2: ClassSession = {
-  id: 'session2',
-  period_count: 1,
-  course: { ...mockCourse, id: 'course2', name: 'Another Course' },
-  instructor: { ...mockInstructor, id: 'inst2', first_name: 'Jane' },
-  classroom: { ...mockClassroom, id: 'room2', name: 'Room 2' },
-  group: { ...mockGroup, id: 'group2', name: 'Group 2' },
-};
-
-// Mock hooks
-vi.mock('../../hooks/useTimetable');
-vi.mock('../../../classSessions/hooks/useClassSessions');
-vi.mock('../../../scheduleConfig/hooks/useScheduleConfig');
-vi.mock('../../../../../lib/notificationsService');
+import { AuthContext } from '../../../auth/contexts/AuthContext';
 
 const queryClient = new QueryClient();
 
-type AuthContextType = React.ContextType<typeof AuthContext>;
-const renderComponent = () => {
-  render(
-    <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ user: { id: 'u1' } } as AuthContextType}>
-        <MemoryRouter>
-          <TimetablePage />
-        </MemoryRouter>
-      </AuthContext.Provider>
-    </QueryClientProvider>
-  );
-};
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient}>
+    <AuthContext.Provider value={{ user: { id: 'u1', program_id: 'p1', role: 'program_head' } }}>
+      {children}
+    </AuthContext.Provider>
+  </QueryClientProvider>
+);
 
-describe('TimetablePage Drag and Drop Visual Feedback', () => {
+describe('TimetablePage Integration Tests', () => {
+  const mockDnd = {
+    activeDraggedSession: null,
+    dragOverCell: null,
+    isSlotAvailable: () => true,
+    handleDragStart: vi.fn(),
+    handleDragOver: vi.fn(),
+    handleDragEnter: vi.fn(),
+    handleDragLeave: vi.fn(),
+    handleDropToGrid: vi.fn(),
+    handleDropToDrawer: vi.fn(),
+  };
+
+  let useTimetable;
+
   beforeEach(() => {
-    // Clear and reset mocks before each test
     vi.clearAllMocks();
-    // No timers needed for these interaction tests
-
-    // Re-mock hooks for each test to ensure isolation
-    type UseTimetableHooksReturn = ReturnType<typeof timetableHooks.useTimetable>;
-    vi.spyOn(timetableHooks, 'useTimetable').mockReturnValue({
-      timetable: new Map([
-        // Use a new map for each test
-        ['group1', [mockSession1, null, null, null]],
-        ['group2', [null, null, null, null]],
-      ]),
-      groups: [mockGroup, { ...mockGroup, id: 'group2', name: 'Group 2' }],
-      loading: false,
-      assignClassSession: vi.fn().mockResolvedValue(''),
-      removeClassSession: vi.fn().mockResolvedValue(undefined),
-      moveClassSession: vi.fn().mockResolvedValue(''),
-    } as unknown as UseTimetableHooksReturn);
-
-    type UseClassSessionsReturn = ReturnType<typeof sessionHooks.useClassSessions>;
-    vi.spyOn(sessionHooks, 'useClassSessions').mockReturnValue({
-      classSessions: [mockSession1, mockSession2],
-    } as UseClassSessionsReturn);
-
-    type UseScheduleConfigReturn = ReturnType<typeof scheduleHooks.useScheduleConfig>;
-    vi.spyOn(scheduleHooks, 'useScheduleConfig').mockReturnValue({
-      settings: mockSettings,
+    vi.spyOn(useTimetableDndHook, 'useTimetableDnd').mockReturnValue(mockDnd);
+    vi.spyOn(classSessionsService, 'getAllClassSessions').mockResolvedValue([]);
+    vi.spyOn(useScheduleConfigHook, 'useScheduleConfig').mockReturnValue({
+      settings: {
+        id: 'config1',
+        semester_id: 'sem1',
+        periods_per_day: 8,
+        class_days_per_week: 5,
+        start_time: '09:00',
+        period_duration_mins: 60,
+        created_at: '2023-01-01T00:00:00Z',
+      },
       isLoading: false,
-    } as UseScheduleConfigReturn);
+      isUpdating: false,
+      error: null,
+      updateSettings: vi.fn(),
+    });
+    useTimetable = vi.spyOn(useTimetableHook, 'useTimetable');
   });
 
-  it('shows a green overlay on an available empty cell when dragging over it', async () => {
-    renderComponent();
+  it("should render the user's own groups first, followed by a separator and other groups", async () => {
+    const myGroups: TimetableGroup[] = [
+      { id: 'g1', name: 'My Group 1', isOwner: true, program_id: 'p1' },
+    ];
+    const otherGroups: TimetableGroup[] = [
+      { id: 'g2', name: 'Other Group 1', isOwner: false, program_id: 'p2' },
+    ];
+    const allGroups = [...myGroups, ...otherGroups];
 
-    const draggable = screen.getByText('Another Course - Group 2');
-    const dropTargetCell = screen.getByTestId('cell-group2-1');
-    const dropTargetDiv = dropTargetCell.firstChild as HTMLElement;
-
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({ class_session_id: 'session2', source: 'drawer' })
-            : '';
-        }),
-        effectAllowed: 'move',
-      },
+    useTimetable.mockReturnValue({
+      groups: allGroups,
+      timetable: new Map([
+        ['g1', []],
+        ['g2', []]
+      ]),
+      loading: false,
+      error: null
     });
-    fireEvent.dragEnter(dropTargetDiv);
+
+    render(<TimetablePage />, { wrapper });
 
     await waitFor(() => {
-      const overlay = dropTargetDiv.querySelector('div');
-      expect(overlay).toHaveClass('bg-green-200/50');
+      expect(screen.queryByText('Loading Timetable...')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('session-card-s1')).toBeInTheDocument();
     });
+
+    // Find group rows by looking for group names in table cells
+    const myGroupCell = screen.getByText('My Group 1');
+    const otherGroupCell = screen.getByText('Other Group 1');
+    
+    // Check for the separator
+    const separator = screen.getByText('Schedules from Other Programs');
+    expect(separator).toBeInTheDocument();
+    
+    // Verify ordering - my group should come before separator
+    expect(myGroupCell.compareDocumentPosition(separator)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(separator.compareDocumentPosition(otherGroupCell)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
-  it('shows a red overlay on a cell with a conflict when dragging from the drawer', async () => {
-    renderComponent();
-
-    const draggable = screen.getByText('Another Course - Group 2');
-    const dropTargetCell = screen.getByTestId('cell-group1-0'); // Occupied by mockSession1
-    const dropZone = dropTargetCell.querySelector('[class="flex-1"]');
-
-    expect(dropZone).toBeInTheDocument();
-
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({ class_session_id: 'session2', source: 'drawer' })
-            : '';
-        }),
-        effectAllowed: 'move',
-      },
+  it('should render owned sessions with full color and non-owned sessions as grayed out', async () => {
+    const groups: TimetableGroup[] = [
+      { id: 'g1', name: 'My Group', isOwner: true, program_id: 'p1' },
+      { id: 'g2', name: 'Other Group', isOwner: false, program_id: 'p2' },
+    ];
+    const timetable: TimetableMap = new Map([
+      [
+        'g1',
+        [
+          {
+            id: 's1',
+            course: { 
+              id: 'c1', 
+              name: 'Owned Course', 
+              color: '#ff0000',
+              code: 'COURSE1',
+              created_at: '2023-01-01T00:00:00Z',
+              user_id: 'u1'
+            },
+            group: { 
+              id: 'g1', 
+              name: 'My Group',
+              code: 'GROUP1',
+              color: '#ff0000',
+              created_at: '2023-01-01T00:00:00Z',
+              program_id: 'p1',
+              student_count: 30,
+              user_id: 'u1'
+            },
+            isOwner: true,
+            period_count: 1,
+            instructor: { 
+              id: 'i1', 
+              name: 'Instructor 1',
+              first_name: 'John',
+              last_name: 'Doe',
+              email: 'john@example.com',
+              phone: '123-456-7890',
+              created_at: '2023-01-01T00:00:00Z',
+              user_id: 'u1'
+            },
+            classroom: { id: 'r1', name: 'Room 1' },
+            program_id: 'p1',
+          },
+        ],
+      ],
+      [
+        'g2',
+        [
+          {
+            id: 's2',
+            course: { 
+              id: 'c2', 
+              name: 'Other Course', 
+              color: '#00ff00',
+              code: 'COURSE2',
+              created_at: '2023-01-01T00:00:00Z',
+              user_id: 'u2'
+            },
+            group: { 
+              id: 'g2', 
+              name: 'Other Group',
+              code: 'GROUP2',
+              color: '#00ff00',
+              created_at: '2023-01-01T00:00:00Z',
+              program_id: 'p2',
+              student_count: 25,
+              user_id: 'u2'
+            },
+            isOwner: false,
+            period_count: 1,
+            instructor: { 
+              id: 'i2', 
+              name: 'Instructor 2',
+              first_name: 'Jane',
+              last_name: 'Smith',
+              email: 'jane@example.com',
+              phone: '987-654-3210',
+              created_at: '2023-01-01T00:00:00Z',
+              user_id: 'u2'
+            },
+            classroom: { id: 'r2', name: 'Room 2' },
+            program_id: 'p2',
+          },
+        ],
+      ],
     });
-    if (dropZone) {
-      fireEvent.dragEnter(dropZone);
-    }
+
+    useTimetable.mockReturnValue({
+      groups,
+      timetable,
+      loading: false,
+      error: null
+    });
+
+    render(<TimetablePage />, { wrapper });
 
     await waitFor(() => {
-      const overlay = dropZone?.querySelector('div');
-      expect(overlay).toHaveClass('bg-red-200', 'bg-opacity-50');
+      expect(screen.queryByText('Loading Timetable...')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('session-card-s1')).toBeInTheDocument();
+      expect(screen.queryByTestId('session-card-s2')).toBeInTheDocument();
     });
+
+    const ownedSession = screen.getByTestId('session-card-s1');
+    const otherSession = screen.getByTestId('session-card-s2');
+
+    expect(ownedSession).not.toHaveClass('opacity-60');
+    expect(otherSession).toHaveClass('opacity-60');
   });
 
-  it('shows a green overlay on an available empty cell when moving an existing session', async () => {
-    renderComponent();
-
-    const draggable = screen.getByTestId('session-card-session1');
-    const dropTargetCell = screen.getByTestId('cell-group1-2');
-    const dropTargetDiv = dropTargetCell.firstChild as HTMLElement;
-
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({
-                class_session_id: 'session1',
-                source: 'grid',
-                from: { groupId: 'group1', periodIndex: 0 },
-              })
-            : '';
-        }),
-        effectAllowed: 'move',
-      },
-    });
-    fireEvent.dragEnter(dropTargetDiv);
-
-    await waitFor(() => {
-      const overlay = dropTargetDiv.querySelector('div');
-      expect(overlay).toHaveClass('bg-green-200/50');
-    });
-  });
-
-  it('shows a red overlay on a conflicting cell when moving an existing session', async () => {
-    // This test needs careful setup for the conflict
-    const customTimetable = new Map([
-      ['group1', [mockSession1, null, null, null]],
-      // Place a session that will conflict with mockSession1 if moved
-      ['group2', [null, { ...mockSession2, instructor: mockInstructor }, null, null]],
+  it('should render a fallback UI for sessions with invalid/orphaned data', async () => {
+    const groups: TimetableGroup[] = [
+      { id: 'g1', name: 'My Group', isOwner: true, program_id: 'p1' },
+    ];
+    const timetable: TimetableMap = new Map([
+      [
+        'g1',
+        [
+          // @ts-expect-error - Intentionally testing invalid data
+          { id: 's1', course: null, group: { name: 'My Group' }, isOwner: true, period_count: 1 },
+        ],
+      ],
     ]);
 
-    type UseTimetableHooksReturn = ReturnType<typeof timetableHooks.useTimetable>;
-    vi.spyOn(timetableHooks, 'useTimetable').mockReturnValue({
-      timetable: customTimetable,
-      groups: [mockGroup, { ...mockGroup, id: 'group2', name: 'Group 2' }],
+    useTimetable.mockReturnValue({
+      groups,
+      timetable,
       loading: false,
-      assignClassSession: vi.fn(),
-      removeClassSession: vi.fn(),
-      moveClassSession: vi.fn().mockResolvedValue('Instructor conflict'), // Ensure move returns a conflict
-    } as unknown as UseTimetableHooksReturn);
-
-    renderComponent();
-
-    const draggable = screen.getByTestId('session-card-session1');
-    // Target the cell where the conflicting session is
-    const dropTargetCell = screen.getByTestId('cell-group2-1');
-    const dropZone = dropTargetCell.querySelector('[class="flex-1"]');
-    expect(dropZone).toBeInTheDocument();
-
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({
-                class_session_id: 'session1',
-                source: 'grid',
-                from: { groupId: 'group1', periodIndex: 0 },
-              })
-            : '';
-        }),
-        effectAllowed: 'move',
-      },
     });
-    if (dropZone) {
-      fireEvent.dragEnter(dropZone);
-    }
+
+    render(<TimetablePage />, { wrapper });
 
     await waitFor(() => {
-      const overlay = dropZone?.querySelector('div');
-      expect(overlay).toHaveClass('bg-red-200', 'bg-opacity-50');
+      expect(screen.queryByText('Loading Timetable...')).not.toBeInTheDocument();
+      expect(screen.queryByText('Invalid Session Data')).toBeInTheDocument();
     });
+
+    expect(screen.getByText('Invalid Session Data')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'This session is missing critical information (e.g., course or instructor) and cannot be displayed.'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'This session is missing critical information (e.g., course or instructor) and cannot be displayed.'
+      )
+    ).toBeInTheDocument();
   });
 
-  it('removes the overlay when the dragged item leaves an available cell', async () => {
-    renderComponent();
+  it('should display unassigned class sessions from all programs in the drawer', async () => {
+    const assignedSession: ClassSession = {
+      id: 's1',
+      course: { id: 'c1', name: 'Course 1', color: '#ff0000' },
+      group: { id: 'g1', name: 'Group 1' },
+      isOwner: true,
+      period_count: 1,
+      instructor: { id: 'i1', name: 'Instructor 1' },
+    };
+    const unassignedOwnSession: ClassSession = {
+      id: 's2',
+      course: { id: 'c2', name: 'Course 2', color: '#ff0000' },
+      group: { id: 'g1', name: 'Group 1' },
+      isOwner: true,
+      period_count: 1,
+      instructor: { id: 'i1', name: 'Instructor 1' },
+    };
+    const unassignedOtherSession: ClassSession = {
+      id: 's3',
+      course: { id: 'c3', name: 'Course 3', color: '#ff0000' },
+      group: { id: 'g2', name: 'Group 2' },
+      isOwner: false,
+      period_count: 1,
+      instructor: { id: 'i2', name: 'Instructor 2' },
+    };
 
-    const draggable = screen.getByText('Another Course - Group 2');
-    const dropTargetCell = screen.getByTestId('cell-group2-1');
-    const dropTargetDiv = dropTargetCell.firstChild as HTMLElement;
+    useTimetable.mockReturnValue({
+      groups: [{ id: 'g1', name: 'Group 1', isOwner: true, program_id: 'p1' }],
+      timetable: new Map([['g1', [assignedSession]]]),
+      loading: false,
+      error: null
+    });
 
-    // Enter the cell
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({ class_session_id: 'session2', source: 'drawer' })
-            : '';
-        }),
-        effectAllowed: 'move',
+    vi.spyOn(classSessionsService, 'getAllClassSessions').mockResolvedValue([
+      assignedSession,
+      unassignedOwnSession,
+      unassignedOtherSession
+    ].map(session => ({
+      ...session,
+      course: { 
+        ...session.course, 
+        code: 'COURSE', 
+        created_at: '2023-01-01T00:00:00Z', 
+        user_id: 'u1' 
       },
-    });
-    fireEvent.dragEnter(dropTargetDiv);
-    await waitFor(() => {
-      const overlay = dropTargetDiv.querySelector('div');
-      expect(overlay).toHaveClass('bg-green-200/50');
-    });
-
-    // Leave the cell
-    fireEvent.dragLeave(dropTargetDiv);
-    await waitFor(() => {
-      // Overlay should be removed when not hovered
-      const overlay = dropTargetDiv.querySelector('[class*="bg-green-200"], [class*="bg-red-200"]');
-      expect(overlay).toBeNull();
-    });
-  });
-
-  it('shows a red overlay when attempting to move a session to a different group row', async () => {
-    renderComponent();
-
-    const draggable = screen.getByTestId('session-card-session1'); // Belongs to group1
-    const dropTargetCell = screen.getByTestId('cell-group2-2'); // A cell in group2's row
-    const dropZone = dropTargetCell.firstChild as HTMLElement;
-
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({
-                class_session_id: 'session1',
-                source: 'grid',
-                from: { groupId: 'group1', periodIndex: 0 },
-              })
-            : '';
-        }),
-        effectAllowed: 'move',
+      group: { 
+        ...session.group, 
+        code: 'GROUP', 
+        color: '#000', 
+        created_at: '2023-01-01T00:00:00Z', 
+        program_id: 'p1', 
+        student_count: 20, 
+        user_id: 'u1' 
       },
-    });
-    fireEvent.dragEnter(dropZone);
+      instructor: { 
+        ...session.instructor, 
+        first_name: 'Test', 
+        last_name: 'Instructor', 
+        email: 'test@example.com', 
+        phone: '123-456-7890',
+        contract_type: 'full-time',
+        prefix: '',
+        suffix: '',
+        created_at: '2023-01-01T00:00:00Z',
+        user_id: 'u1'
+      }
+    })));
 
-    await waitFor(() => {
-      const overlay = dropZone.querySelector('div');
-      expect(overlay).toHaveClass('bg-red-200/50');
-    });
-  });
+    render(<TimetablePage />, { wrapper });
 
-  it('should clear available slot indicators when drag is canceled with Escape key', async () => {
-    renderComponent();
+    // Wait for the query to resolve and the drawer to update
+    await screen.findByText('Available Classes');
 
-    const draggable = screen.getByText('Another Course - Group 2');
-    const dropTargetCell = screen.getByTestId('cell-group2-1');
-    const dropTargetDiv = dropTargetCell.firstChild as HTMLElement;
+    // Find drawer content by visible text instead of test ID
+    const drawerContent = screen.getByText('Available Classes').closest('div')?.parentElement;
+    expect(drawerContent).toBeInTheDocument();
 
-    // 1. Start dragging a session
-    fireEvent.dragStart(draggable, {
-      dataTransfer: {
-        setData: vi.fn(),
-        getData: vi.fn((type) => {
-          return type === 'text/plain'
-            ? JSON.stringify({ class_session_id: 'session2', source: 'drawer' })
-            : '';
-        }),
-        effectAllowed: 'move',
-      },
-    });
+    // Should see both unassigned sessions
+    expect(screen.getByText('Course 2 - Group 1')).toBeInTheDocument();
+    expect(screen.getByText('Course 3 - Group 2')).toBeInTheDocument();
 
-    // 2. Enter a valid drop target to show the green overlay
-    fireEvent.dragEnter(dropTargetDiv);
-    await waitFor(() => {
-      const overlay = dropTargetDiv.querySelector('div');
-      expect(overlay).toHaveClass('bg-green-200/50');
-    });
-
-    // 3. Simulate pressing the Escape key
-    fireEvent.keyDown(document, { key: 'Escape' });
-
-    // 4. Assert that the overlay is removed
-    await waitFor(() => {
-      const overlay = dropTargetDiv.querySelector('[class*="bg-green-200"], [class*="bg-red-200"]');
-      expect(overlay).toBeNull();
-    });
+    // Should NOT see the assigned session
+    expect(screen.queryByText('Course 1 - Group 1')).not.toBeInTheDocument();
   });
 });
