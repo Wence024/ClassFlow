@@ -13,11 +13,6 @@ import type { HydratedTimetableAssignment } from '../types/timetable';
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
 /**
- * Note: Function complexity is intentionally higher due to the nature of timetable grid construction.
- * Consider refactoring if performance becomes an issue in production.
- */
-
-/**
  * Transforms a flat array of timetable assignments from the database into a grid-like
  * Map structure that is optimized for rendering the timetable UI.
  *

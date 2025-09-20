@@ -36,16 +36,7 @@ Process the following list of test files sequentially. For each file in the list
 **List of Target Test Files:**
 List of test files:
 
-* `src/features/auth/services/tests/authService.integration.test.ts`
-* `src/features/auth/components/tests/PrivateRoute.integration.test.tsx`
-* `src/components/layout/tests/Sidebar.integration.test.tsx`
-* `src/features/scheduleConfig/pages/tests/ScheduleConfigPage.integration.test.ts`
-* `src/features/classSessions/hooks/tests/useClassSessions.integration.test.tsx`
-* `src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx`
-* `src/features/timetabling/utils/tests/checkConflicts.test.ts`
-* `src/features/timetabling/pages/components/timetable/tests/SessionCell.integration.test.tsx`
-* `src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx`
-**(The other test files were noted as complete in the analysis, so we will focus on the incomplete ones first.)**
+* currently none
 
 **Sub-Workflow (for each file):**
 
@@ -63,7 +54,7 @@ List of test files:
 After all individual test files have been processed and committed, perform a final, full-system check.
 
 1. Execute `npm run lint`. Fix any new issues.
-2. Execute `npm run typeCheck`. Fix any new errors.
+2. Execute `npm run type-check`. Fix any new errors.
 3. Execute the full test suite: `npm run test`. Fix any failing tests.
 4. If any changes were made during this final pass, create a final commit.
     * **Commit Example:** `chore(quality): :broom: perform final lint, type, and test pass`
