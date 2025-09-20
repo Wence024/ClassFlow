@@ -44,7 +44,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     .single();
 
   if (profileError || !profile) {
-    throw new Error('Login successful, but could not find user profile.');
+    throw new Error('Login failed: could not find user profile.');
   }
 
   return {
