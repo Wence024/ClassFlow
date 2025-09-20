@@ -18,7 +18,7 @@ interface TimetableProps {
 
 /**
  * Renders an interactive, multi-program timetable grid.
- * 
+ *
  * This component is a pure view component that consumes its interaction logic
  * (like drag-and-drop handlers) from the `TimetableContext`, which is provided
  * by a parent component (`TimetablePage`). It is responsible for structuring the

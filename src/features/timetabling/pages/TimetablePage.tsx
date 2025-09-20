@@ -95,11 +95,7 @@ const TimetablePage: React.FC = () => {
           </div>
         ) : (
           <TimetableContext.Provider value={contextValue}>
-            <Timetable
-              groups={groups}
-              timetable={timetable}
-              isLoading={loadingTimetable}
-            />
+            <Timetable groups={groups} timetable={timetable} isLoading={loadingTimetable} />
             <Drawer
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
