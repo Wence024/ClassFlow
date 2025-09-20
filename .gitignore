@@ -29,4 +29,4 @@ dist-ssr
 supabase/.temp/
 
 # Sql Backup
-docs/sql_backup/
+docs/postgresql_schema/data_backups/*
