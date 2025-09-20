@@ -17,7 +17,7 @@
 
     /* Linting */
     "strict": true,
-    "types": ["vite/client", "vitest/globals"],
+    "types": ["vite/client"],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
