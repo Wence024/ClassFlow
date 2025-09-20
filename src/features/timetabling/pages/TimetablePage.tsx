@@ -1,5 +1,3 @@
-// src/features/timetabling/pages/TimetablePage.tsx
-
 import React, { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTimetable } from '../hooks/useTimetable';
@@ -8,6 +6,7 @@ import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, Tooltip } from '../../../components/ui';
 import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
+import TimetableContext from './components/timetable/TimetableContext';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -16,11 +15,16 @@ interface TooltipState {
 }
 
 /**
- * Renders the main timetabling interface, including the interactive grid and the drawer of available class sessions.
+ * Renders the main timetabling interface page.
  *
- * This component orchestrates the data-fetching hooks (`useTimetable`, `useClassSessions`) and the
- * drag-and-drop logic hook (`useTimetableDnd`) to create a fully interactive scheduling experience.
- * It is designed to be rendered within a larger application layout.
+ * This component acts as the orchestrator for the entire scheduling view.
+ * It fetches all necessary data (timetable, groups, all class sessions),
+ * initializes the drag-and-drop (D&D) logic via the `useTimetableDnd` hook,
+ * and manages tooltip state.
+ *
+ * Crucially, it provides all D&D state and handlers to its children
+ * (`Timetable`, `Drawer`) via the `TimetableContext.Provider`, enabling a fully
+ * interactive and decoupled scheduling experience.
  *
  * @returns The rendered Timetable page component.
  */
@@ -52,8 +56,7 @@ const TimetablePage: React.FC = () => {
 
     const allUnassigned = allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
 
-    // --- DEFENSIVE FILTERING to prevent crashes from bad data ---
-    // This filters out any orphaned class sessions that are missing their course or group.
+    // Defensive filtering to prevent crashes from orphaned data
     const validUnassigned = allUnassigned.filter((session) => {
       if (!session.course || !session.group) {
         console.warn(
@@ -64,16 +67,21 @@ const TimetablePage: React.FC = () => {
       }
       return true;
     });
-    // --- END DEFENSIVE FILTERING ---
 
     return validUnassigned;
   }, [timetable, allClassSessions]);
 
-  // This .map() is now safe from crashes as it only receives valid sessions.
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
+
+  // Combine D&D handlers and tooltip handlers into a single object for the context
+  const contextValue = {
+    ...dnd,
+    onShowTooltip: handleShowTooltip,
+    onHideTooltip: handleHideTooltip,
+  };
 
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
@@ -86,29 +94,18 @@ const TimetablePage: React.FC = () => {
             <LoadingSpinner size={'lg'} text="Loading Timetable..." />
           </div>
         ) : (
-          <>
+          <TimetableContext.Provider value={contextValue}>
             <Timetable
               groups={groups}
               timetable={timetable}
               isLoading={loadingTimetable}
-              onShowTooltip={handleShowTooltip}
-              onHideTooltip={handleHideTooltip}
-              // Pass all D&D props from the hook
-              draggedSession={dnd.activeDraggedSession}
-              dragOverCell={dnd.dragOverCell}
-              isSlotAvailable={dnd.isSlotAvailable}
-              onDragStart={dnd.handleDragStart}
-              onDragOver={dnd.handleDragOver}
-              onDragEnter={dnd.handleDragEnter}
-              onDragLeave={dnd.handleDragLeave}
-              onDropToGrid={dnd.handleDropToGrid}
             />
             <Drawer
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
               onDropToDrawer={dnd.handleDropToDrawer}
             />
-          </>
+          </TimetableContext.Provider>
         )}
       </main>
     </div>

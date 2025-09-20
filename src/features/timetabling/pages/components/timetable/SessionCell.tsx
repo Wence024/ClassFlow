@@ -23,7 +23,7 @@ interface SessionCellProps {
 interface DropZoneProps {
   groupId: string;
   periodIndex: number;
-  sessionInCell: ClassSession
+  sessionInCell: ClassSession;
 }
 
 interface VisibleBlockProps {
@@ -40,10 +40,10 @@ interface VisibleBlockProps {
 // --- HELPER FUNCTIONS & COMPONENTS ---
 
 /**
- * Builds the tooltip content for a class session.
+ * Builds the JSX content for a class session tooltip.
  *
- * @param session The class session object.
- * @returns JSX content for the tooltip.
+ * @param session - The class session object.
+ * @returns The JSX element to be rendered inside the tooltip.
  */
 const buildTooltipContent = (session: ClassSession) => (
   <>
@@ -58,11 +58,11 @@ const buildTooltipContent = (session: ClassSession) => (
 );
 
 /**
- * Renders a fallback UI for an invalid class session.
+ * Renders a fallback UI for a class session with invalid or missing relational data.
  *
- * @param isc The component props.
- * @param isc.session The invalid class session data.
- * @returns The rendered fallback component.
+ * @param isc - The component props.
+ * @param isc.session - The invalid class session data.
+ * @returns The rendered fallback table cell component.
  */
 const InvalidSessionCell = ({ session }: { session: ClassSession }) => {
   console.warn(
@@ -80,17 +80,17 @@ const InvalidSessionCell = ({ session }: { session: ClassSession }) => {
 };
 
 /**
- * Renders the visible, colored block representing the session.
+ * Renders the visible, colored, and draggable block representing the session.
  *
- * @param vb The props for the component.
- * @param vb.session The class session data to display.
- * @param vb.isOwner Whether the current user owns this session.
- * @param vb.isDraggedSession Whether this is the session currently being dragged.
- * @param vb.cellStyle The calculated CSS styles for the cell background and border.
- * @param vb.textStyle The calculated CSS styles for the text.
- * @param vb.onDragStart The callback handler for the drag start event.
- * @param vb.onShowTooltip The callback handler for showing the tooltip.
- * @param vb.onHideTooltip The callback handler for hiding the tooltip.
+ * @param vsb - The props for the component.
+ * @param vsb.session - The class session data to display.
+ * @param vsb.isOwner - Whether the current user owns this session, controlling draggable status.
+ * @param vsb.isDraggedSession - Whether this is the specific session currently being dragged.
+ * @param vsb.cellStyle - The calculated CSS styles for the cell's background and border.
+ * @param vsb.textStyle - The calculated CSS styles for the text.
+ * @param vsb.onDragStart - The callback handler for the drag start event.
+ * @param vsb.onShowTooltip - The callback handler for showing the tooltip on mouse enter.
+ * @param vsb.onHideTooltip - The callback handler for hiding the tooltip on mouse leave.
  * @returns The rendered visible block component.
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
@@ -126,30 +126,28 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
 );
 
 /**
- * Renders a single, invisible drop zone that provides visual feedback on hover.
+ * Renders an invisible drop zone that overlays a session cell period, providing visual feedback on hover.
+ * It consumes D&D logic directly from the `TimetableContext`.
  *
- * @param dz The props for the component.
- * @param dz.groupId The ID of the group row this drop zone belongs to.
- * @param dz.periodIndex The specific period index of this drop zone.
- * @param dz.sessionInCell The session contained within the parent cell.
+ * @param dz - The props for the component.
+ * @param dz.groupId - The ID of the group row this drop zone belongs to.
+ * @param dz.periodIndex - The specific period index of this drop zone within the row.
+ * @param dz.sessionInCell - The session contained within the parent cell, used to prevent dropping on itself.
  * @returns The rendered DropZone component.
  */
 const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionInCell }) => {
   const {
     dragOverCell,
-    currentDraggedSession,
+    activeDraggedSession,
     isSlotAvailable,
-    onDragEnter,
-    onDragOver,
-    onDragLeave,
-    onDropToGrid,
+    handleDragEnter,
+    handleDragOver,
+    handleDragLeave,
+    handleDropToGrid,
   } = useTimetableContext();
 
-  const isDragging = currentDraggedSession !== null;
-  // --- THIS IS THE FIX ---
-  // Compare the dragged session's ID with the ID of the session in this cell.
-  const isSelf = currentDraggedSession?.id === sessionInCell.id;
-  // --- END FIX ---
+  const isDragging = activeDraggedSession !== null;
+  const isSelf = activeDraggedSession?.id === sessionInCell.id;
 
   const isDragOver = dragOverCell?.groupId === groupId && dragOverCell?.periodIndex === periodIndex;
   const isSlotValidForDrop = isDragging && !isSelf && isSlotAvailable(groupId, periodIndex);
@@ -157,10 +155,10 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionInCell
   return (
     <div
       className="flex-1"
-      onDragEnter={(e) => onDragEnter(e, groupId, periodIndex)}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={(e) => onDropToGrid(e, groupId, periodIndex)}
+      onDragEnter={(e) => handleDragEnter(e, groupId, periodIndex)}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={(e) => handleDropToGrid(e, groupId, periodIndex)}
     >
       {isDragOver && (
         <div
@@ -178,20 +176,21 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionInCell
   );
 };
 
-
 // --- MAIN COMPONENT ---
 
 /**
- * Renders a cell containing a class session in the timetable.
- * It orchestrates rendering the visible block and the interactive drop zones.
+ * Renders a table cell (`<td>`) containing a class session.
+ * This component orchestrates the rendering of the visible session block and the
+ * invisible, interactive drop zones that overlay it. It derives all its interactive
+ * logic and state from the `TimetableContext`.
  *
- * @param sc The props for the component.
- * @param sc.session The class session data.
- * @param sc.groupId The ID of the group row.
- * @param sc.periodIndex The starting period index of the cell.
- * @param sc.isLastInDay Whether this is the last cell in a day's block.
- * @param sc.isNotLastInTable Whether this is not the last cell in the entire row.
- * @returns The rendered component.
+ * @param sc - The props for the component.
+ * @param sc.session - The class session data for this cell.
+ * @param sc.groupId - The ID of the group row this cell belongs to.
+ * @param sc.periodIndex - The starting period index of the cell.
+ * @param sc.isLastInDay - Whether this is the last cell in a day's block, used for styling.
+ * @param sc.isNotLastInTable - Whether this is not the last cell in the entire row, used for styling.
+ * @returns The rendered `SessionCell` component.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
   session,
@@ -200,17 +199,19 @@ const SessionCell: React.FC<SessionCellProps> = ({
   isLastInDay,
   isNotLastInTable,
 }) => {
-  const { onDragStart, onShowTooltip, onHideTooltip } = useTimetableContext();
+  const { activeDraggedSession, handleDragStart, onShowTooltip, onHideTooltip } =
+    useTimetableContext();
   const { user } = useAuth();
 
   // --- Data and State Calculation ---
-  const isDataInvalid = !session.instructor || !session.course || !session.group || !session.classroom;
+  const isDataInvalid =
+    !session.instructor || !session.course || !session.group || !session.classroom;
   if (isDataInvalid) {
     return <InvalidSessionCell session={session} />;
   }
 
   const isOwner = !!user?.program_id && user.program_id === session.program_id;
-  const isDraggedSession = useTimetableContext().currentDraggedSession?.id === session.id;
+  const isDraggedSession = activeDraggedSession?.id === session.id;
   const instructorHex = session.instructor.color ?? DEFAULT_FALLBACK_COLOR;
   const numberOfPeriods = session.period_count || 1;
 
@@ -225,7 +226,8 @@ const SessionCell: React.FC<SessionCellProps> = ({
     ? { color: getSessionCellTextColor(instructorHex) }
     : { color: '#4B5563' };
 
-  const borderClass = isLastInDay && isNotLastInTable ? 'border-r-2 border-dashed border-gray-300' : '';
+  const borderClass =
+    isLastInDay && isNotLastInTable ? 'border-r-2 border-dashed border-gray-300' : '';
 
   return (
     <td
@@ -242,7 +244,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
             cellStyle={cellStyle}
             textStyle={textStyle}
             onDragStart={(e) =>
-              onDragStart(e, {
+              handleDragStart(e, {
                 from: 'timetable',
                 class_session_id: session.id,
                 class_group_id: groupId,
@@ -256,7 +258,12 @@ const SessionCell: React.FC<SessionCellProps> = ({
           {/* Layer 2: The Invisible Drop Zones */}
           <div className="absolute inset-0 flex z-20">
             {Array.from({ length: numberOfPeriods }).map((_, i) => (
-              <DropZone key={periodIndex + i} groupId={groupId} periodIndex={periodIndex + i} sessionInCell={session}/>
+              <DropZone
+                key={periodIndex + i}
+                groupId={groupId}
+                periodIndex={periodIndex + i}
+                sessionInCell={session}
+              />
             ))}
           </div>
         </div>
