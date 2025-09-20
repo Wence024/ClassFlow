@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PrivateRoute from '../PrivateRoute';
 import { AuthContext } from '../../contexts/AuthContext';
 import AppLayout from '../../../../components/layout/AppLayout';
-import type { AuthContextType, User } from '../../types/auth'; // Import User type as well
+import type { AuthContextType, User } from '../../types/auth';
 
 // Mock child components of AppLayout
 vi.mock('../../../../components/Sidebar', () => ({
@@ -59,7 +59,6 @@ describe('PrivateRoute & App Routing', () => {
   });
 
   it('should render AppLayout and protected page if authenticated', async () => {
-    // FIX #2: Complete the mock user object to satisfy the User type
     const mockUser: User = {
       id: 'u1',
       name: 'Test User',
