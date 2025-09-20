@@ -6,6 +6,7 @@ interface CourseCardProps {
   course: Course;
   onEdit: (course: Course) => void;
   onDelete: (id: string) => void;
+  isOwner?: boolean;
 }
 
 /**
@@ -16,9 +17,10 @@ interface CourseCardProps {
  * @param cc.course The course object to display.
  * @param cc.onEdit Callback function to handle edit action.
  * @param cc.onDelete Callback function to handle delete action.
+ * @param [cc.isOwner] Whether the user owns this item and can edit/delete it. Defaults to true.
  * @returns The rendered item card component for the course.
  */
-export const CourseCard: React.FC<CourseCardProps> = ({ course, onEdit, onDelete }) => {
+export const CourseCard: React.FC<CourseCardProps> = ({ course, onEdit, onDelete, isOwner }) => {
   const details = [{ label: 'Code', value: course.code }];
 
   return (
@@ -28,6 +30,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course, onEdit, onDelete
       color={course.color}
       onEdit={() => onEdit(course)}
       onDelete={() => onDelete(course.id)}
+      isOwner={isOwner}
     />
   );
 };

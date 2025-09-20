@@ -23,7 +23,7 @@ export function useInstructors() {
     error,
   } = useQuery<Instructor[]>({
     queryKey,
-    queryFn: () => (user ? instructorsService.getInstructors(user.id) : Promise.resolve([])),
+    queryFn: () => (user ? instructorsService.getInstructors() : Promise.resolve([])),
     enabled: !!user,
   });
 

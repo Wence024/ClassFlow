@@ -24,7 +24,7 @@ import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../ty
  * };
  */
 export function useClassSessions() {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Your user object now contains program_id
   const queryClient = useQueryClient();
 
   /**
@@ -47,9 +47,14 @@ export function useClassSessions() {
 
   // Mutation for adding a new class session.
   const addMutation = useMutation({
-    mutationFn: (data: ClassSessionInsert) =>
-      classSessionsService.addClassSession({ ...data, user_id: user!.id }),
-    // When this mutation succeeds, invalidate the `classSessions` query to trigger a refetch.
+    mutationFn: (data: ClassSessionInsert) => {
+      if (!user?.program_id) {
+        throw new Error('Cannot create class session: User is not assigned to a program.');
+      }
+      // Add the user's program_id to the new class session
+      const sessionData = { ...data, user_id: user.id, program_id: user.program_id };
+      return classSessionsService.addClassSession(sessionData);
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 

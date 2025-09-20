@@ -1,15 +1,23 @@
+// In ScheduleConfigPage.tsx
+import { useAuth } from '../../auth/hooks/useAuth';
+
 import React, { useEffect, useState } from 'react';
 import { useScheduleConfig } from '../hooks/useScheduleConfig';
 import { FormField, ActionButton, LoadingSpinner, ErrorMessage } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
 
 /**
- * The page for configuring academic schedule settings.
- * Allows users to set parameters like periods per day, class days per week, start time, and period duration.
+ * A page for viewing and managing the application's academic schedule configuration.
  *
- * @returns The rendered schedule configuration page.
+ * This component displays the core settings for the timetable, such as periods per day and class times.
+ * Its behavior is role-dependent:
+ * - For users with an 'admin' role, it renders an editable form allowing them to update the settings.
+ * - For all other users (e.g., 'program_head'), it renders the same information in a read-only (disabled) state.
+ *
+ * @returns The rendered schedule configuration page, tailored to the user's role.
  */
 const ScheduleConfigPage: React.FC = () => {
+  const { user } = useAuth();
   const { settings, updateSettings, isLoading, isUpdating, error } = useScheduleConfig();
   const [formData, setFormData] = useState({
     periods_per_day: 8,
@@ -28,6 +36,8 @@ const ScheduleConfigPage: React.FC = () => {
       });
     }
   }, [settings]);
+
+  const isAdmin = user?.role === 'admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,9 +59,10 @@ const ScheduleConfigPage: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-6 text-center">Academic Setup</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">Academic Schedule Configuration</h1>
       <form onSubmit={handleSubmit}>
-        <fieldset disabled={isUpdating}>
+        {/* The fieldset will disable all inputs for non-admins */}
+        <fieldset disabled={!isAdmin || isUpdating}>
           <FormField
             id="periods_per_day"
             label="Periods Per Day"
@@ -90,10 +101,16 @@ const ScheduleConfigPage: React.FC = () => {
             }
             required
           />
-          <ActionButton type="submit" loading={isUpdating} className="w-full">
-            Save Settings
-          </ActionButton>
         </fieldset>
+
+        {/* Conditionally render the submit button */}
+        {isAdmin && (
+          <div className="mt-6">
+            <ActionButton type="submit" loading={isUpdating} className="w-full">
+              Save Settings
+            </ActionButton>
+          </div>
+        )}
       </form>
     </div>
   );

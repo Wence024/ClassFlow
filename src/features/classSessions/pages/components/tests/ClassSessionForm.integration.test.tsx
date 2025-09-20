@@ -1,7 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import ClassSessionForm from '../classSession/ClassSessionForm';
 import { classSessionSchema } from '../../../../classSessions/types/validation';
@@ -11,10 +10,21 @@ import type {
   Classroom,
   ClassGroup,
 } from '../../../../classSessionComponents/types';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const MOCK_PROGRAM_ID = 'p1';
 
 // --- Mock Data ---
 const mockCourses: Course[] = [
-  { id: 'c1', name: 'Test Course', code: 'T101', user_id: 'u1', created_at: '', color: '#fff' },
+  {
+    id: 'c1',
+    name: 'Test Course',
+    code: 'T101',
+    user_id: 'u1',
+    created_at: '',
+    color: '#fff',
+    program_id: MOCK_PROGRAM_ID,
+  },
 ];
 const mockInstructors: Instructor[] = [
   {
@@ -30,6 +40,7 @@ const mockInstructors: Instructor[] = [
     phone: null,
     prefix: null,
     suffix: null,
+    program_id: MOCK_PROGRAM_ID,
   },
 ];
 const mockClassrooms: Classroom[] = [
@@ -42,6 +53,7 @@ const mockClassrooms: Classroom[] = [
     code: 'R1',
     color: '#fff',
     location: 'A',
+    program_id: MOCK_PROGRAM_ID,
   },
   {
     id: 'r2',
@@ -52,6 +64,7 @@ const mockClassrooms: Classroom[] = [
     code: 'R2',
     color: '#fff',
     location: 'B',
+    program_id: MOCK_PROGRAM_ID,
   },
 ];
 const mockClassGroups: ClassGroup[] = [
@@ -63,6 +76,7 @@ const mockClassGroups: ClassGroup[] = [
     created_at: '',
     code: 'G1',
     color: '#fff',
+    program_id: MOCK_PROGRAM_ID,
   },
   {
     id: 'g2',
@@ -72,6 +86,7 @@ const mockClassGroups: ClassGroup[] = [
     created_at: '',
     code: 'G2',
     color: '#fff',
+    program_id: MOCK_PROGRAM_ID,
   },
 ];
 
@@ -117,7 +132,7 @@ describe('ClassSessionForm', () => {
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
     expect(
       await screen.findByText(
-        /Capacity conflict: The group "Large Group" \(30 students\) exceeds the capacity of "Small Room" \(20 seats\)\./
+        /Capacity conflict: The group "Large Group" \(30 students\) exceeds the capacity of classroom "Small Room" \(20 seats\)\./
       )
     ).toBeInTheDocument();
   });

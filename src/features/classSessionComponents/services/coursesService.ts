@@ -9,18 +9,13 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
 const TABLE = 'courses';
 
 /**
- * Fetches all courses for a specific user from the database.
+ * Fetches all courses from the database.
  *
- * @param user_id - The ID of the user whose courses to retrieve.
  * @returns A promise that resolves to an array of Course objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getCourses(user_id: string): Promise<Course[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('*')
-    .eq('user_id', user_id)
-    .order('name');
+export async function getCourses(): Promise<Course[]> {
+  const { data, error } = await supabase.from(TABLE).select('*').order('name');
   if (error) throw error;
   return data || [];
 }

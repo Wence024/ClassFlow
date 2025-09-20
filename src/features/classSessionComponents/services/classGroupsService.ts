@@ -26,6 +26,18 @@ export async function getClassGroups(user_id: string): Promise<ClassGroup[]> {
 }
 
 /**
+ * Fetches ALL class groups from the database, regardless of owner.
+ * This is used for the shared timetable view.
+ *
+ * @returns A promise that resolves to an array of all ClassGroup objects.
+ */
+export async function getAllClassGroups(): Promise<ClassGroup[]> {
+  const { data, error } = await supabase.from('class_groups').select('*').order('name');
+  if (error) throw error;
+  return data || [];
+}
+
+/**
  * Adds a new class group to the database.
  * The input object must include the `user_id` of the owner.
  *

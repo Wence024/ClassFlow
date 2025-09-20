@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CourseManagement from '../CourseTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../auth/types/auth';
 import * as courseHooks from '../../hooks/useCourses';
 import * as sessionHooks from '../../../classSessions/hooks/useClassSessions';
 
@@ -15,6 +16,7 @@ const mockCourses = [
     user_id: 'u1',
     created_at: '',
     color: '#4f46e5',
+    program_id: 'p1',
   },
   {
     id: 'c2',
@@ -23,6 +25,7 @@ const mockCourses = [
     user_id: 'u1',
     created_at: '',
     color: '#0d9488',
+    program_id: 'p1',
   },
 ];
 
@@ -46,12 +49,22 @@ vi.spyOn(sessionHooks, 'useClassSessions').mockReturnValue({
 
 const queryClient = new QueryClient();
 
-type AuthContextType = React.ContextType<typeof AuthContext>;
 // A helper to render the component with all necessary providers
 const renderComponent = () => {
+  const authContextValue: AuthContextType = {
+    user: { id: 'u1', name: 'test', email: 'test@test.com', role: 'admin', program_id: 'p1' },
+    loading: false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    resendVerificationEmail: vi.fn(),
+    error: null,
+    clearError: vi.fn(),
+    role: 'admin',
+  };
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={{ user: { id: 'u1' } } as AuthContextType}>
+      <AuthContext.Provider value={authContextValue}>
         <CourseManagement />
       </AuthContext.Provider>
     </QueryClientProvider>

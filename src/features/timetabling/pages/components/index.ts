@@ -1,2 +1,2 @@
-export { default as Timetable } from './Timetable';
+export { default as Timetable } from './timetable';
 export { default as Drawer } from './Drawer';

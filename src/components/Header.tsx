@@ -3,10 +3,9 @@
  * This component is purely presentational.
  */
 import { LogOut } from 'lucide-react';
-import { useAuth } from '../../../auth/hooks/useAuth';
+import { useAuth } from '../features/auth/hooks/useAuth';
 import { Link } from 'react-router-dom';
 
-// TODO: Move Header to app component
 /**
  * Renders the main application header.
  *
@@ -19,7 +18,7 @@ const Header = () => {
   const { user, logout } = useAuth();
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <div className="bg-white shadow-sm border-b border-gray-200">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-4">
@@ -42,7 +41,7 @@ const Header = () => {
           </div>
         </div>
       </div>
-    </header>
+    </div>
   );
 };
 
