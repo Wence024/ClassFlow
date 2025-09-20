@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
-      navigate('/class-sessions'); // Redirect on successful login
+      navigate('/scheduler'); // Redirect on successful login
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         // Otherwise, log them in and redirect.
         setUser(user);
-        navigate('/class-sessions');
+        navigate('/scheduler');
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
