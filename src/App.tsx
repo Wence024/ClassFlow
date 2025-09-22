@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { TooltipProvider, Toaster } from './components/ui';
+import { TooltipProvider, Toaster, Notification } from './components/ui';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
 import { AuthRoutes } from './routes/AuthRoutes';
@@ -26,6 +26,7 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
+            <Notification />
             <Routes>
               {/* Public Routes */}
               {AuthRoutes}
