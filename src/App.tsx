@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Notification } from './components/ui';
+import { TooltipProvider, Toaster } from './components/ui';
 import { QueryClientProvider } from '@tanstack/react-query';
 import queryClient from './lib/reactQueryClient';
 import { AuthRoutes } from './routes/AuthRoutes';
@@ -25,24 +25,26 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <Notification />
-          <Routes>
-            {/* Public Routes */}
-            {AuthRoutes}
+          <TooltipProvider>
+            <Routes>
+              {/* Public Routes */}
+              {AuthRoutes}
 
-            {/* Private Routes */}
-            <Route element={<PrivateRoute />}>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<Navigate to="/class-sessions" replace />} />
-                <Route path="/class-sessions" element={<ClassSessions />} />
-                <Route path="/scheduler" element={<TimetablePage />} />
-                <Route path="/component-management" element={<ComponentManagement />} />
-                <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
+              {/* Private Routes */}
+              <Route element={<PrivateRoute />}>
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<Navigate to="/class-sessions" replace />} />
+                  <Route path="/class-sessions" element={<ClassSessions />} />
+                  <Route path="/scheduler" element={<TimetablePage />} />
+                  <Route path="/component-management" element={<ComponentManagement />} />
+                  <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
+                </Route>
               </Route>
-            </Route>
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <Toaster />
+          </TooltipProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
