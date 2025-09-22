@@ -515,6 +515,7 @@ it('should detect a group conflict when moving a session backward to overlap an 
       expect(result).toContain('Instructor conflict');
       expect(result).toContain('Shared Professor');
       expect(result).toContain('Business 101');
+      expect(result).toContain('(Program: Business)'); // Check for the program name
     });
 
     it('should DETECT a classroom conflict with a session from another program', () => {

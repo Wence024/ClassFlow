@@ -3,9 +3,11 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { usePrograms } from '../usePrograms';
 import { supabase } from '@/lib/supabase';
-import { Program } from '@/features/programs/types/program';
+import type { Program } from '@/features/programs/types/program';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+
+const MOCK_CREATED_AT = new Date().toISOString();
 
 // Mock the supabase client
 vi.mock('@/lib/supabase', () => ({
@@ -31,8 +33,8 @@ const createWrapper = () => {
 describe('usePrograms', () => {
   it('should fetch and return a list of all programs', async () => {
     const mockPrograms: Program[] = [
-      { id: 1, name: 'Computer Science', color: '#ff0000' },
-      { id: 2, name: 'Mathematics', color: '#00ff00' },
+      { id: '1', name: 'Computer Science', short_code: "BSCS", created_at: MOCK_CREATED_AT},
+      { id: '2', name: 'Mathematics', short_code: "MATH", created_at: MOCK_CREATED_AT },
     ];
 
     (supabase.from('programs').select as vi.Mock).mockResolvedValueOnce({ data: mockPrograms, error: null });
