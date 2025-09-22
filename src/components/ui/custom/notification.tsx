@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { subscribe } from '../../lib/notificationsService';
+import { subscribe } from '../../../lib/notificationsService';
 
 /** The duration in milliseconds for which the notification is visible before auto-dismissing. */
 const AUTO_DISMISS_MS = 4000;

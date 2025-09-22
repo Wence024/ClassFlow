@@ -1,5 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
-import ActionButton from './ActionButton';
+import { Button } from '../button';
 
 /**
  * Props for the ErrorBoundary component.
@@ -77,9 +77,9 @@ class ErrorBoundary extends Component<Props, State> {
           <p className="text-red-700 mb-6">
             {this.props.fallbackMessage || 'An unexpected error occurred. Please try again.'}
           </p>
-          <ActionButton onClick={this.handleReset} variant="danger">
+          <Button onClick={this.handleReset} variant="destructive">
             Try Again
-          </ActionButton>
+          </Button>
         </div>
       );
     }

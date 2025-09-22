@@ -1,4 +1,8 @@
 import React from 'react';
+import { Input } from '../input';
+import { Label } from '../label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../select';
+import { cn } from '@/lib/utils';
 
 /**
  * Represents a single option for a select input.
@@ -26,7 +30,6 @@ interface FormFieldProps {
    *
    * @default 'text'
    */
-  // ADD 'color' to the list of allowed types
   type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number' | 'color';
 
   /** The current value of the form field. */
@@ -61,19 +64,6 @@ interface FormFieldProps {
 /**
  * A standardized component for creating labeled form inputs, including text, password, select, and more.
  * It handles displaying labels, validation errors, and required field indicators.
- *
- * @param f The props for the component.
- * @param f.id A unique identifier for the input, used for the `id` and `name` attributes. Essential for accessibility.
- * @param f.label The text label displayed above the form field.
- * @param f.type The type of the input field. 'select' renders a dropdown.
- * @param f.value The current value of the form field.
- * @param f.onChange A callback function that is invoked when the field's value changes.
- * @param f.options An array of options for select inputs. Each option should have an `id` and `name`.
- * @param f.placeholder Placeholder text for the input field.
- * @param f.required Whether the field is required. Adds a visual indicator and the `required` attribute.
- * @param f.error An error message to display below the field. If present, the field will be styled to indicate an error.
- * @param f.autoComplete The `autocomplete` attribute for the input, to help with browser autofill.
- * @returns A form field component.
  */
 const FormField: React.FC<FormFieldProps> = ({
   id,
@@ -88,65 +78,48 @@ const FormField: React.FC<FormFieldProps> = ({
   autoComplete,
 }) => {
   const errorId = error ? `${id}-error` : undefined;
-  const baseClasses =
-    'w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-100';
-  const errorClasses = error ? 'border-red-500 focus:ring-red-400' : '';
-
-  const inputProps: React.InputHTMLAttributes<HTMLInputElement> = {
-    id,
-    type,
-    value,
-    onChange: (e) => onChange(e.target.value),
-    placeholder,
-    className: `${baseClasses} ${errorClasses}`,
-    required,
-    'aria-describedby': errorId,
-  };
-  if (autoComplete) {
-    inputProps.autoComplete = autoComplete;
-  }
 
   return (
     <div className="mb-4">
-      <label htmlFor={id} className="block font-semibold mb-1">
+      <Label htmlFor={id} className={cn("block font-semibold mb-1", error && "text-destructive")}>
         {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </label>
+        {required && <span className="text-destructive ml-1">*</span>}
+      </Label>
 
       {type === 'select' ? (
-        <select
-          id={id}
-          name={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={`${baseClasses} ${errorClasses}`}
-          required={required}
-          aria-describedby={errorId}
-        >
-          <option value="">Select {label}</option>
-          {options?.map((option) => (
-            <option key={option.id} value={option.id}>
-              {option.name}
-            </option>
-          ))}
-        </select>
+        <Select value={value} onValueChange={onChange} required={required}>
+          <SelectTrigger 
+            id={id}
+            className={cn(error && "border-destructive focus:ring-destructive")}
+            aria-describedby={errorId}
+          >
+            <SelectValue placeholder={`Select ${label}`} />
+          </SelectTrigger>
+          <SelectContent>
+            {options?.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       ) : (
-        <input
+        <Input
           id={id}
           name={id}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`${baseClasses} ${errorClasses}`}
           required={required}
-          {...inputProps}
+          autoComplete={autoComplete}
+          className={cn(error && "border-destructive focus:ring-destructive")}
           aria-describedby={errorId}
         />
       )}
 
       {error && (
-        <p id={errorId} className="text-red-500 text-sm mt-1" role="alert">
+        <p id={errorId} className="text-destructive text-sm mt-1" role="alert">
           {error}
         </p>
       )}

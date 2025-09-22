@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, Edit, Info, ShieldAlert, Trash2 } from 'lucide-react';
-import ActionButton from './ActionButton';
+import { Button } from '../button';
 
 /** Represents a key-value pair for display. */
 interface CardDetail {
@@ -157,20 +157,19 @@ const ItemCard: React.FC<ItemCardProps> = ({
       {/* Action Buttons */}
       <div className="flex gap-2">
         {onEdit && isOwner && (
-          <ActionButton variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
+          <Button variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
             <Edit className="w-4 h-4" />
-          </ActionButton>
+          </Button>
         )}
         {onDelete && isOwner && (
-          // Add a descriptive aria-label to the button.
-          <ActionButton
-            variant="danger"
+          <Button
+            variant="destructive"
             size="sm"
             onClick={onDelete}
             aria-label={`Delete ${title}`}
           >
             <Trash2 className="w-4 h-4" />
-          </ActionButton>
+          </Button>
         )}
       </div>
     </div>

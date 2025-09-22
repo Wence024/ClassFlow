@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getRandomPresetColor, PRESET_COLORS_DATA, getColorName } from '../../lib/colorUtils';
+import { getRandomPresetColor, PRESET_COLORS_DATA, getColorName } from '../../../lib/colorUtils';
 
 /**
  * Props for the ColorPicker component.
