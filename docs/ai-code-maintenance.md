@@ -36,7 +36,34 @@ Process the following list of test files sequentially. For each file in the list
 **List of Target Test Files:**
 List of test files:
 
-* currently none
+### Recommended Testing Plan
+
+#### New Test File Required (1)
+
+1. **File:** `src/components/ui/custom/tests/color-picker.test.tsx`
+    * **Purpose:** To verify the functionality of the new, refactored `ColorPicker` component.
+    * **Status:** **Needs Creation.**
+    * **Key Tests:**
+        * `should open the popover when the trigger button is clicked`.
+        * `should call onChange and close when a preset color is selected`.
+        * `should call onChange when the custom color input is used`.
+        * `should call onChange with a random color when the random button is clicked`.
+
+#### Existing Test Files to Update (Crucial)
+
+The migration has changed the underlying DOM structure of your application. Your existing integration tests are almost certainly failing and must be updated. This is where the bulk of the testing effort should be focused.
+
+1. **`src/features/classSessionComponents/pages/tests/CourseTab.integration.test.tsx`**
+    * **Reason:** The form and item cards are now built with Shadcn's `Button`, `Card`, `Input`, etc. Queries for elements and assertions about their state will need to be updated. For example, `getByRole('button', { name: /Edit/i })` will now find a Shadcn button.
+
+2. **`src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx`**
+    * **Reason:** This is a high-priority update. The drawer, session cells, and any interactive elements have been changed. You also need to add mocking for the new `toast()` function to confirm that conflict notifications are being triggered.
+
+3. **`src/features/timetabling/pages/components/timetable/tests/SessionCell.integration.test.tsx`**
+    * **Reason:** The internal structure of the `SessionCell` has changed. Tests verifying styling for "owned" vs. "non-owned" sessions and `draggable` attributes need to be validated against the new DOM and class structure.
+
+4. **`src/features/scheduleConfig/pages/tests/ScheduleConfigPage.integration.test.tsx`**
+    * **Reason:** The form fields are no longer custom `FormField` components but are now Shadcn `Input` and `Label` components. Tests that check if fields are `disabled` for non-admins must be updated to work with the new structure.
 
 **Sub-Workflow (for each file):**
 

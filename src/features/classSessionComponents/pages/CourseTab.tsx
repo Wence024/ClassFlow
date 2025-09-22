@@ -7,7 +7,7 @@ import { useCourses } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { CourseFields, CourseCard } from './components/course';
 import {
-  ActionButton,
+  Button,
   ConfirmModal,
   ErrorMessage,
   FormField,
@@ -15,7 +15,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Course } from '../types';
-import { showNotification } from '../../../lib/notificationsService';
+import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type CourseFormData = z.infer<typeof componentSchemas.course>;
@@ -72,7 +72,7 @@ const CourseManagement: React.FC = () => {
     if (!user) return;
     await addCourse({ ...data, user_id: user.id });
     formMethods.reset();
-    showNotification('Course created successfully!');
+    toast('Success', { description: 'Course created successfully!' });
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -80,7 +80,7 @@ const CourseManagement: React.FC = () => {
     if (!editingCourse) return;
     await updateCourse(editingCourse.id, data);
     setEditingCourse(null);
-    showNotification('Course updated successfully!');
+    toast('Success', { description: 'Course updated successfully!' });
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -96,14 +96,14 @@ const CourseManagement: React.FC = () => {
     if (!courseToDelete) return;
     const isUsed = classSessions.some((session) => session.course?.id === courseToDelete.id);
     if (isUsed) {
-      showNotification(
-        `Cannot delete "${courseToDelete.name}". It is used in one or more classes.`
-      );
+      toast('Error', {
+        description: `Cannot delete "${courseToDelete.name}". It is used in one or more classes.`,
+      });
       setCourseToDelete(null);
       return;
     }
     await removeCourse(courseToDelete.id);
-    showNotification('Course removed successfully.');
+    toast('Success', { description: 'Course removed successfully.' });
     setCourseToDelete(null);
     if (editingCourse?.id === courseToDelete.id) {
       setEditingCourse(null);
@@ -126,13 +126,13 @@ const CourseManagement: React.FC = () => {
                     errors={formMethods.formState.errors}
                   />
                   <div className="flex gap-2 pt-4">
-                    <ActionButton type="submit" loading={isSubmitting} className="flex-1">
+                    <Button type="submit" loading={isSubmitting} className="flex-1">
                       {editingCourse ? 'Save Changes' : 'Create'}
-                    </ActionButton>
+                    </Button>
                     {editingCourse && (
-                      <ActionButton type="button" variant="secondary" onClick={handleCancel}>
+                      <Button type="button" variant="secondary" onClick={handleCancel}>
                         Cancel
-                      </ActionButton>
+                      </Button>
                     )}
                   </div>
                 </fieldset>

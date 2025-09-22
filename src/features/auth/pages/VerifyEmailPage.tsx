@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { ActionButton, ErrorMessage } from '../../../components/ui';
+import { Button, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page shown to users after registration, prompting them to verify their email address.
@@ -53,9 +53,9 @@ const VerifyEmailPage: React.FC = () => {
         A verification link has been sent to your email address. Please check your inbox and click
         the link to activate your account.
       </p>
-      <ActionButton onClick={handleResend} disabled={loading || resent} className="w-full">
+      <Button onClick={handleResend} disabled={loading || resent} className="w-full">
         {resent ? 'Verification Email Sent!' : 'Resend Verification Email'}
-      </ActionButton>
+      </Button>
       {(apiError || localError) && (
         <ErrorMessage message={apiError || localError!} className="mt-4" />
       )}

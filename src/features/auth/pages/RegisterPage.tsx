@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { registerSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
-import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
+import { Button, FormField, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page component for new user registration.
@@ -119,9 +119,9 @@ const RegisterPage: React.FC = () => {
             required
             autoComplete="new-password"
           />
-          <ActionButton type="submit" loading={loading} className="w-full">
+          <Button type="submit" loading={loading} className="w-full">
             Register
-          </ActionButton>
+          </Button>
         </fieldset>
         {apiError && <ErrorMessage message={apiError} onDismiss={clearError} className="mt-4" />}
       </form>
