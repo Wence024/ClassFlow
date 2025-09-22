@@ -3,9 +3,9 @@ import * as programsService from '../services/programsService';
 import type { Program } from '../types/program';
 
 /**
- * Custom hook for fetching and managing programs data
+ * Custom hook for fetching and managing programs data.
  * 
- * @returns Object containing programs data, loading state, and error state
+ * @returns Object containing programs data, loading state, and error state.
  */
 export function usePrograms() {
   const queryKey = ['programs'];

@@ -27,7 +27,7 @@ const SELECT_COLUMNS = `
 /**
  * Retrieves all class sessions from the database.
  *
- * @returns Promise resolving to an array of ClassSession objects
+ * @returns Promise resolving to an array of ClassSession objects.
  */
 export async function getAllClassSessions(): Promise<ClassSession[]> {
   const { data, error } = await supabase.from('class_sessions').select(SELECT_COLUMNS);
@@ -38,8 +38,8 @@ export async function getAllClassSessions(): Promise<ClassSession[]> {
 /**
  * Retrieves class sessions for a specific user.
  *
- * @param user_id - The ID of the user to fetch sessions for
- * @returns Promise resolving to an array of ClassSession objects
+ * @param user_id - The ID of the user to fetch sessions for.
+ * @returns Promise resolving to an array of ClassSession objects.
  */
 export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);

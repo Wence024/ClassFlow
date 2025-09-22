@@ -87,7 +87,6 @@ const InvalidSessionCell = ({ session }: { session: ClassSession }) => {
  * @param vsb.isDraggedSession - Whether this is the specific session currently being dragged.
  * @param vsb.cellStyle - The calculated CSS styles for the cell's background and border.
  * @param vsb.textStyle - The calculated CSS styles for the text.
- * @param vsb.onDragStart - The callback handler for the drag start event.
  * @param vsb.onShowTooltip - The callback handler for showing the tooltip on mouse enter.
  * @param vsb.onHideTooltip - The callback handler for hiding the tooltip on mouse leave.
  * @returns The rendered visible block component.
