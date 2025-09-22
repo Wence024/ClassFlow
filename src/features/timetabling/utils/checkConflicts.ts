@@ -1,6 +1,7 @@
-import type { ClassSession } from '../../classSessions/types/classSession';
-import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 import type { ClassGroup, Classroom } from '../../classSessionComponents/types';
+import type { ClassSession } from '../../classSessions/types/classSession';
+import type { Program } from '../../programs/types/program';
+import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
 
 /**
  * Type definition for a timetable grid, where each group has an array of class sessions.
@@ -155,13 +156,15 @@ export function findConflictingSessionsAtPeriod(
  * @param sessionToCheck - The class session being validated for instructor conflicts.
  * @param targetGroupId - The ID of the target group where the session is being placed.
  * @param targetPeriodIndex - The starting period index for the session placement.
+ * @param programs - A list of all programs to resolve program names from IDs.
  * @returns A string describing the instructor conflict, or an empty string if no conflict found.
  */
 function checkInstructorConflicts(
   timetable: TimetableGrid,
   sessionToCheck: ClassSession,
   targetGroupId: string,
-  targetPeriodIndex: number
+  targetPeriodIndex: number,
+  programs: Program[]
 ): string {
   const period_count = sessionToCheck.period_count || 1;
 
@@ -171,7 +174,8 @@ function checkInstructorConflicts(
       timetable,
       periodIndex,
       targetGroupId,
-      sessionToCheck
+      sessionToCheck,
+      programs
     );
     if (conflict) return conflict;
   }
@@ -186,13 +190,15 @@ function checkInstructorConflicts(
  * @param periodIndex - The specific period index to check for conflicts.
  * @param targetGroupId - The group ID to exclude from conflict detection (same group).
  * @param sessionToCheck - The session whose instructor should not be double-booked.
+ * @param programs - A list of all programs to resolve program names from IDs.
  * @returns A string describing the instructor conflict, or null if no conflict found in this period.
  */
 function findInstructorConflictInPeriod(
   timetable: TimetableGrid,
   periodIndex: number,
   targetGroupId: string,
-  sessionToCheck: ClassSession
+  sessionToCheck: ClassSession,
+  programs: Program[]
 ): string | null {
   const conflicts = findConflictingSessionsAtPeriod(
     timetable,
@@ -207,9 +213,14 @@ function findInstructorConflictInPeriod(
       conflictingSession.instructor.last_name === sessionToCheck.instructor.last_name
     ) {
       const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
-      const programInfo = conflictingSession.group.program_id
-        ? ` (Program ID: ${conflictingSession.group.program_id})`
-        : '';
+      const program = programs.find((p) => p.id === conflictingSession.group.program_id);
+
+      const programInfo = program
+        ? ` (Program: ${program.name})`
+        : conflictingSession.group.program_id
+          ? ` (Program ID: ${conflictingSession.group.program_id})`
+          : '';
+
       return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}'${programInfo} at this time (class: '${conflictingSession.course.code}').`;
     }
   }
@@ -288,17 +299,24 @@ function findClassroomConflictInPeriod(
  * @param sessionToCheck - The class session to validate for resource conflicts.
  * @param targetGroupId - The ID of the group that the session belongs to.
  * @param targetPeriodIndex - The starting period index where the session is intended to be placed.
+ * @param programs - A list of all programs to resolve program names from IDs.
  * @returns A string describing the first detected resource conflict, or an empty string if no conflicts exist.
  */
 function checkResourceConflicts(
   timetable: TimetableGrid,
   sessionToCheck: ClassSession,
   targetGroupId: string,
-  targetPeriodIndex: number
+  targetPeriodIndex: number,
+  programs: Program[]
 ): string {
   return (
-    checkInstructorConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex) ||
-    checkClassroomConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex)
+    checkInstructorConflicts(
+      timetable,
+      sessionToCheck,
+      targetGroupId,
+      targetPeriodIndex,
+      programs
+    ) || checkClassroomConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex)
   );
 }
 
@@ -311,6 +329,7 @@ function checkResourceConflicts(
  * @param settings - The schedule configuration defining the structure of the timetable (e.g., periods per day).
  * @param targetGroupId - The unique identifier of the group for which the session is being scheduled.
  * @param targetPeriodIndex - The starting period index in the timetable where the session should be placed.
+ * @param programs - An array of all programs, used for resolving program names in conflict messages.
  * @returns A string message describing the first detected conflict (boundary, group, or resource), or an empty string if the placement is valid.
  */
 export default function checkTimetableConflicts(
@@ -318,7 +337,8 @@ export default function checkTimetableConflicts(
   classSessionToCheck: ClassSession,
   settings: ScheduleConfig,
   targetGroupId: string,
-  targetPeriodIndex: number
+  targetPeriodIndex: number,
+  programs: Program[]
 ): string {
   const period_count = classSessionToCheck.period_count || 1;
 
@@ -340,7 +360,8 @@ export default function checkTimetableConflicts(
     timetable,
     classSessionToCheck,
     targetGroupId,
-    targetPeriodIndex
+    targetPeriodIndex,
+    programs
   );
   if (resourceError) return resourceError;
 

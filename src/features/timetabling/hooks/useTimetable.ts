@@ -11,6 +11,7 @@ import type { HydratedTimetableAssignment } from '../types/timetable';
 import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
 import * as classGroupsService from '../../classSessionComponents/services/classGroupsService';
 import type { ClassGroup } from '../../classSessionComponents/types';
+import { usePrograms } from '../../programs/hooks/usePrograms';
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
@@ -32,6 +33,7 @@ export function useTimetable() {
   const queryClient = useQueryClient();
   const { settings } = useScheduleConfig();
   const { data: activeSemester } = useActiveSemester(); // 2. Get the active semester
+  const { programs } = usePrograms();
 
   // The queryKey is now dependent on the semester, not the user
   const queryKey = useMemo(() => ['hydratedTimetable', activeSemester?.id], [activeSemester?.id]);
@@ -238,7 +240,8 @@ export function useTimetable() {
       classSession,
       settings,
       class_group_id,
-      period_index
+      period_index,
+      programs
     );
     if (conflict) return conflict;
     await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
@@ -282,7 +285,8 @@ export function useTimetable() {
       classSession,
       settings,
       to.class_group_id,
-      to.period_index
+      to.period_index,
+      programs
     );
     if (conflict) return conflict;
     await moveClassSessionMutation.mutateAsync({ from, to, classSession });

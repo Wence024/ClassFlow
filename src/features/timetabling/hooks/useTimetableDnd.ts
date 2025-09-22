@@ -6,6 +6,7 @@ import { showNotification } from '../../../lib/notificationsService';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
+import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useAuth } from '../../auth/hooks/useAuth';
 
 const DRAG_DATA_KEY = 'application/json';
@@ -23,6 +24,7 @@ export const useTimetableDnd = () => {
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
   const { classSessions } = useClassSessions();
   const { settings } = useScheduleConfig();
+  const { programs } = usePrograms();
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);
@@ -83,12 +85,13 @@ export const useTimetableDnd = () => {
         activeDraggedSession,
         settings,
         groupId,
-        periodIndex
+        periodIndex,
+        programs
       );
 
       return conflictMessage === '';
     },
-    [activeDraggedSession, settings, timetable, activeDragSource, user]
+    [activeDraggedSession, settings, timetable, activeDragSource, user, programs]
   );
 
   // --- Event Handlers ---

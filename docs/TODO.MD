@@ -157,3 +157,5 @@ Refactor backlogs:
 * [ ] Refactor ClassSessions/Courses - assess if course entity shall be merged with class session entity.
 * [ ] TimetablePage - Replace program.id feedback with program.name/code
 * [ ] [Data Integrity] Harden the database schema by adding ON DELETE RESTRICT constraints to all foreign keys in the class_sessions table + Smart Checks in the App
+
+* [ ] Use React Query for usePrograms.ts
