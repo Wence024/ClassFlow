@@ -104,15 +104,15 @@ describe('SessionCell - Ownership Styling', () => {
   };
   const timetableDefaultContext: Partial<TimetableContextType> = {
     dragOverCell: null,
-    currentDraggedSession: null,
+    activeDraggedSession: null,
     isSlotAvailable: vi.fn(() => true),
-    onDragStart: vi.fn(),
-    onDropToGrid: vi.fn(),
+    handleDragStart: vi.fn(),
+    handleDropToGrid: vi.fn(),
     onShowTooltip: vi.fn(),
     onHideTooltip: vi.fn(),
-    onDragEnter: vi.fn(),
-    onDragLeave: vi.fn(),
-    onDragOver: vi.fn(),
+    handleDragEnter: vi.fn(),
+    handleDragLeave: vi.fn(),
+    handleDragOver: vi.fn(),
   };
 
   it('should render owned sessions with normal styling', () => {

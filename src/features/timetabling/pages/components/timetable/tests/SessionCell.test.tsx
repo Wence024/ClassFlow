@@ -33,15 +33,15 @@ const hexToRgba = (hex: string): string => {
 
 const mockContextValue: TimetableContextType = {
   dragOverCell: null,
-  currentDraggedSession: null,
+  activeDraggedSession: null,
   isSlotAvailable: () => false,
-  onDragStart: vi.fn(),
+  handleDragStart: vi.fn(),
   onShowTooltip: vi.fn(),
   onHideTooltip: vi.fn(),
-  onDragEnter: vi.fn(),
-  onDragOver: vi.fn(),
-  onDragLeave: vi.fn(),
-  onDropToGrid: vi.fn(),
+  handleDragEnter: vi.fn(),
+  handleDragOver: vi.fn(),
+  handleDragLeave: vi.fn(),
+  handleDropToGrid: vi.fn(),
 };
 
 const renderWithContext = (
@@ -168,7 +168,7 @@ describe('SessionCell', () => {
         isLastInDay={false}
         isNotLastInTable={false}
       />,
-      { currentDraggedSession: mockSession }
+      { activeDraggedSession: mockSession }
     );
 
     const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;

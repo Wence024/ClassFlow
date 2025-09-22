@@ -16,7 +16,6 @@ const TABLE = 'class_sessions';
  * from the `courses`, `class_groups`, `instructors`, and `classrooms` tables.
  * The column names (`course`, `group`, etc.) become the keys in the resulting JavaScript object.
  */
-// Step 1a: Create ONE reliable constant
 const SELECT_COLUMNS = `
   *,
   course:courses(*),
@@ -25,13 +24,23 @@ const SELECT_COLUMNS = `
   classroom:classrooms(*)
 `;
 
-// Step 1b: Make ALL functions use the reliable constant
+/**
+ * Retrieves all class sessions from the database.
+ *
+ * @returns Promise resolving to an array of ClassSession objects
+ */
 export async function getAllClassSessions(): Promise<ClassSession[]> {
   const { data, error } = await supabase.from('class_sessions').select(SELECT_COLUMNS);
   if (error) throw error;
   return (data as unknown as ClassSession[]) || [];
 }
 
+/**
+ * Retrieves class sessions for a specific user.
+ *
+ * @param user_id - The ID of the user to fetch sessions for
+ * @returns Promise resolving to an array of ClassSession objects
+ */
 export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
   if (error) throw error;
