@@ -159,3 +159,10 @@ Refactor backlogs:
 * [ ] [Data Integrity] Harden the database schema by adding ON DELETE RESTRICT constraints to all foreign keys in the class_sessions table + Smart Checks in the App
 
 * [ ] Use React Query for usePrograms.ts
+
+Sir B's Feedback:
+
+* [ ] Approval feature: Program Head, when other program heads assign class sessions.
+* [ ] CSV Import
+* [ ] Classroom/instructor View
+* [ ] Reports per instructor and class group.
