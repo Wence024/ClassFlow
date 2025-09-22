@@ -103,4 +103,29 @@ describe('ColorPicker', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('should allow custom color selection without closing popover immediately', async () => {
+    const onChange = vi.fn();
+    render(<ColorPicker {...defaultProps} onChange={onChange} />);
+
+    // Open popover
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /Indigo/i }));
+    });
+
+    const popover = screen.getByRole('dialog');
+    expect(popover).toBeInTheDocument();
+
+    // Find and interact with the color input
+    const colorInput = screen.getByDisplayValue('#4f46e5');
+    expect(colorInput).toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.change(colorInput, { target: { value: '#ff0000' } });
+    });
+
+    expect(onChange).toHaveBeenCalledWith('#ff0000');
+    // Popover should remain open after custom color change
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
 });

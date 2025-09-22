@@ -113,10 +113,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                   id={id}
                   type="color"
                   value={value}
-                  onChange={(e) => {
-                    onChange(e.target.value);
-                    setIsOpen(false);
-                  }}
+                  onChange={(e) => onChange(e.target.value)}
                   className="w-12 h-8 rounded border border-input cursor-pointer"
                   aria-describedby={errorId}
                 />
