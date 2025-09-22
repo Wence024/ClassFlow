@@ -7,7 +7,7 @@ import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ClassGroupFields, ClassGroupCard } from './components/classGroup';
 import {
-  ActionButton,
+  Button,
   ConfirmModal,
   ErrorMessage,
   FormField,
@@ -15,7 +15,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { ClassGroup } from '../types';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;
@@ -100,7 +100,9 @@ const ClassGroupManagement: React.FC = () => {
     if (!groupToDelete) return;
     const isUsed = classSessions.some((session) => session.group?.id === groupToDelete.id);
     if (isUsed) {
-      toast('Error', { description: `Cannot delete "${groupToDelete.name}". It is used in one or more classes.` });
+      toast('Error', {
+        description: `Cannot delete "${groupToDelete.name}". It is used in one or more classes.`,
+      });
       setGroupToDelete(null);
       return;
     }
@@ -128,13 +130,13 @@ const ClassGroupManagement: React.FC = () => {
                     errors={formMethods.formState.errors}
                   />
                   <div className="flex gap-2 pt-4">
-                    <ActionButton type="submit" loading={isSubmitting} className="flex-1">
+                    <Button type="submit" loading={isSubmitting} className="flex-1">
                       {editingGroup ? 'Save Changes' : 'Create'}
-                    </ActionButton>
+                    </Button>
                     {editingGroup && (
-                      <ActionButton type="button" variant="secondary" onClick={handleCancel}>
+                      <Button type="button" variant="secondary" onClick={handleCancel}>
                         Cancel
-                      </ActionButton>
+                      </Button>
                     )}
                   </div>
                 </fieldset>

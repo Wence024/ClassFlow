@@ -3,8 +3,8 @@ import { useAuth } from '../../auth/hooks/useAuth';
 
 import React, { useEffect, useState } from 'react';
 import { useScheduleConfig } from '../hooks/useScheduleConfig';
-import { FormField, ActionButton, LoadingSpinner, ErrorMessage } from '../../../components/ui';
-import { toast } from "sonner";
+import { FormField, Button, LoadingSpinner, ErrorMessage } from '../../../components/ui';
+import { toast } from 'sonner';
 
 /**
  * A page for viewing and managing the application's academic schedule configuration.
@@ -106,9 +106,9 @@ const ScheduleConfigPage: React.FC = () => {
         {/* Conditionally render the submit button */}
         {isAdmin && (
           <div className="mt-6">
-            <ActionButton type="submit" loading={isUpdating} className="w-full">
+            <Button type="submit" loading={isUpdating} className="w-full">
               Save Settings
-            </ActionButton>
+            </Button>
           </div>
         )}
       </form>

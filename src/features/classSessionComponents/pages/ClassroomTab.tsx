@@ -8,7 +8,7 @@ import { useClassrooms } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
 import {
-  ActionButton,
+  Button,
   ConfirmModal,
   ErrorMessage,
   FormField,
@@ -16,7 +16,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Classroom } from '../types';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
@@ -101,7 +101,9 @@ const ClassroomManagement: React.FC = () => {
     if (!classroomToDelete) return;
     const isUsed = classSessions.some((session) => session.classroom?.id === classroomToDelete.id);
     if (isUsed) {
-      toast('Error', { description: `Cannot delete "${classroomToDelete.name}". It is used in one or more classes.` });
+      toast('Error', {
+        description: `Cannot delete "${classroomToDelete.name}". It is used in one or more classes.`,
+      });
       setClassroomToDelete(null);
       return;
     }
@@ -129,13 +131,13 @@ const ClassroomManagement: React.FC = () => {
                     errors={formMethods.formState.errors}
                   />
                   <div className="flex gap-2 pt-4">
-                    <ActionButton type="submit" loading={isSubmitting} className="flex-1">
+                    <Button type="submit" loading={isSubmitting} className="flex-1">
                       {editingClassroom ? 'Save Changes' : 'Create'}
-                    </ActionButton>
+                    </Button>
                     {editingClassroom && (
-                      <ActionButton type="button" variant="secondary" onClick={handleCancel}>
+                      <Button type="button" variant="secondary" onClick={handleCancel}>
                         Cancel
-                      </ActionButton>
+                      </Button>
                     )}
                   </div>
                 </fieldset>
