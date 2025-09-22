@@ -32,7 +32,6 @@ interface VisibleBlockProps {
   isDraggedSession: boolean;
   cellStyle: React.CSSProperties;
   textStyle: React.CSSProperties;
-  onDragStart: (e: React.DragEvent) => void;
   onShowTooltip: (e: React.MouseEvent<HTMLElement>) => void;
   onHideTooltip: () => void;
 }
@@ -99,14 +98,11 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
   isDraggedSession,
   cellStyle,
   textStyle,
-  onDragStart,
   onShowTooltip,
   onHideTooltip,
 }) => (
   <div
-    draggable={isOwner}
     data-testid={`session-card-${session.id}`}
-    onDragStart={onDragStart}
     onMouseEnter={onShowTooltip}
     onMouseLeave={onHideTooltip}
     className={`relative w-full h-full ${isOwner ? 'cursor-grab' : 'cursor-not-allowed'} ${
@@ -236,21 +232,25 @@ const SessionCell: React.FC<SessionCellProps> = ({
       data-testid={`cell-${groupId}-${periodIndex}`}
     >
       <div className="h-20">
-        <div className="relative w-full h-full">
+        <div
+          className="relative w-full h-full"
+          draggable={isOwner}
+          onDragStart={(e) =>
+            isOwner &&
+            onDragStart(e, {
+              from: 'timetable',
+              class_session_id: session.id,
+              class_group_id: groupId,
+              period_index: periodIndex,
+            })
+          }
+        >
           <VisibleSessionBlock
             session={session}
             isOwner={isOwner}
             isDraggedSession={isDraggedSession}
             cellStyle={cellStyle}
             textStyle={textStyle}
-            onDragStart={(e) =>
-              handleDragStart(e, {
-                from: 'timetable',
-                class_session_id: session.id,
-                class_group_id: groupId,
-                period_index: periodIndex,
-              })
-            }
             onShowTooltip={(e) => onShowTooltip(buildTooltipContent(session), e.currentTarget)}
             onHideTooltip={onHideTooltip}
           />
