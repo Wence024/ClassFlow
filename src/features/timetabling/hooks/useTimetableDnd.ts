@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
-import { showNotification } from '../../../lib/notificationsService';
+import { toast } from "sonner";
 import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
@@ -150,14 +150,14 @@ export const useTimetableDnd = () => {
 
       if (!classSessionToDrop) {
         // Show notification if the class session could not be found
-        showNotification('Error: Could not find the class session to drop.');
+        toast('Error', { description: 'Could not find the class session to drop.' });
         cleanupDragState();
         return;
       }
 
       // Add final client-side safeguard before mutation
       if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
-        showNotification('You can only move sessions that belong to your own program.');
+        toast('Error', { description: 'You can only move sessions that belong to your own program.' });
         cleanupDragState();
         return;
       }
@@ -185,7 +185,7 @@ export const useTimetableDnd = () => {
 
       if (error) {
         // Show notification if there was an error
-        showNotification(error);
+        toast('Error', { description: error });
       }
 
       // Clean up the drag state

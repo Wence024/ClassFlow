@@ -15,7 +15,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { ClassGroup } from '../types';
-import { showNotification } from '../../../lib/notificationsService';
+import { toast } from "sonner";
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;
@@ -76,7 +76,7 @@ const ClassGroupManagement: React.FC = () => {
     if (!user) return;
     await addClassGroup({ ...data, user_id: user.id });
     formMethods.reset();
-    showNotification('Class group created successfully!');
+    toast('Success', { description: 'Class group created successfully!' });
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -84,7 +84,7 @@ const ClassGroupManagement: React.FC = () => {
     if (!editingGroup) return;
     await updateClassGroup(editingGroup.id, data);
     setEditingGroup(null);
-    showNotification('Class group updated successfully!');
+    toast('Success', { description: 'Class group updated successfully!' });
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -100,12 +100,12 @@ const ClassGroupManagement: React.FC = () => {
     if (!groupToDelete) return;
     const isUsed = classSessions.some((session) => session.group?.id === groupToDelete.id);
     if (isUsed) {
-      showNotification(`Cannot delete "${groupToDelete.name}". It is used in one or more classes.`);
+      toast('Error', { description: `Cannot delete "${groupToDelete.name}". It is used in one or more classes.` });
       setGroupToDelete(null);
       return;
     }
     await removeClassGroup(groupToDelete.id);
-    showNotification('Class group removed successfully.');
+    toast('Success', { description: 'Class group removed successfully.' });
     setGroupToDelete(null);
     if (editingGroup?.id === groupToDelete.id) {
       setEditingGroup(null);

@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import React, { useEffect, useState } from 'react';
 import { useScheduleConfig } from '../hooks/useScheduleConfig';
 import { FormField, ActionButton, LoadingSpinner, ErrorMessage } from '../../../components/ui';
-import { showNotification } from '../../../lib/notificationsService';
+import { toast } from "sonner";
 
 /**
  * A page for viewing and managing the application's academic schedule configuration.
@@ -43,9 +43,9 @@ const ScheduleConfigPage: React.FC = () => {
     e.preventDefault();
     try {
       await updateSettings(formData);
-      showNotification('Settings saved successfully!');
+      toast('Success', { description: 'Settings saved successfully!' });
     } catch {
-      showNotification('Failed to save settings.');
+      toast('Error', { description: 'Failed to save settings.' });
     }
   };
 
