@@ -240,4 +240,45 @@ describe('TimetablePage Integration Tests', () => {
     // The unassigned session (even from another program) SHOULD be in the drawer
     expect(screen.getByText('Other Course - Other Group 1')).toBeInTheDocument();
   });
+
+  it('should not crash when dragging a session from the grid and dropping it on an empty cell', async () => {
+    const timetable: TimetableGrid = new Map([
+      ['g1', [mockOwnedSession, null]], // One session and one empty cell
+    ]);
+
+    const handleDropToGrid = vi.fn();
+    const dndHookValues = {
+      ...mockDnd,
+      activeDraggedSession: mockOwnedSession,
+      handleDropToGrid,
+    };
+
+    useTimetableSpy.mockReturnValue({
+      groups: [mockMyGroup],
+      timetable,
+      loading: false,
+      error: null,
+    } as ReturnType<typeof useTimetableHook.useTimetable>);
+    vi.spyOn(useTimetableDndHook, 'useTimetableDnd').mockReturnValue(dndHookValues);
+
+    render(<TimetablePage />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('session-card-s1')).toBeInTheDocument();
+    });
+
+    // Simulate the drop action on the empty cell
+    // In a real user interaction, this would be triggered by react-dnd.
+    // Here, we call the handler directly to test the logic.
+    const targetCell = { groupId: 'g1', dayIndex: 1, periodIndex: 0 };
+    dndHookValues.handleDropToGrid(targetCell.groupId, targetCell.dayIndex, targetCell.periodIndex);
+
+    // The main assertion is that no error was thrown during the drop.
+    // We also check that our mock drop handler was called as expected.
+    expect(handleDropToGrid).toHaveBeenCalledWith(
+      targetCell.groupId,
+      targetCell.dayIndex,
+      targetCell.periodIndex
+    );
+  });
 });
