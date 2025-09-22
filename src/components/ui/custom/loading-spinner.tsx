@@ -1,4 +1,6 @@
 import React from 'react';
+import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /**
  * Props for the LoadingSpinner component.
@@ -11,13 +13,6 @@ interface LoadingSpinnerProps {
    */
   size?: 'sm' | 'md' | 'lg';
 
-  /**
-   * The color of the spinner.
-   *
-   * @default 'blue'
-   */
-  color?: 'blue' | 'gray' | 'white';
-
   /** Optional text to display below the spinner. */
   text?: string;
 
@@ -26,19 +21,17 @@ interface LoadingSpinnerProps {
 }
 
 /**
- * A simple, reusable loading spinner component.
- * It can be customized with different sizes, colors, and optional text.
+ * A simple, reusable loading spinner component using semantic tokens.
+ * It can be customized with different sizes and optional text.
  *
  * @param l The props for the component.
  * @param l.size The size of the spinner.
- * @param l.color The color of the spinner.
  * @param l.text Optional text to display below the spinner.
  * @param l.className Additional CSS classes to apply to the component's root element.
  * @returns A loading spinner component.
  */
 const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
-  color = 'blue',
   text,
   className = '',
 }) => {
@@ -48,20 +41,14 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
     lg: 'h-12 w-12',
   };
 
-  const colorClasses = {
-    blue: 'border-blue-600',
-    gray: 'border-gray-600',
-    white: 'border-white',
-  };
-
   return (
-    <div className={`flex flex-col items-center justify-center ${className}`}>
-      <div
-        className={`animate-spin rounded-full border-b-2 ${sizeClasses[size]} ${colorClasses[color]}`}
+    <div className={cn("flex flex-col items-center justify-center", className)}>
+      <Loader2
+        className={cn("animate-spin text-primary", sizeClasses[size])}
         role="status"
         aria-label="Loading"
-      ></div>
-      {text && <p className="mt-2 text-sm text-gray-600">{text}</p>}
+      />
+      {text && <p className="mt-2 text-sm text-muted-foreground">{text}</p>}
     </div>
   );
 };

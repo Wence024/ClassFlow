@@ -6,6 +6,7 @@
 // Shadcn components
 export { Alert, AlertDescription, AlertTitle } from "./alert"
 export { Button, buttonVariants } from "./button"
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card"
 export {
   Dialog,
   DialogClose,
@@ -20,6 +21,7 @@ export {
 } from "./dialog"
 export { Input } from "./input"
 export { Label } from "./label"
+export { Popover, PopoverContent, PopoverTrigger } from "./popover"
 export {
   Select,
   SelectContent,
@@ -33,6 +35,19 @@ export {
   SelectValue,
 } from "./select"
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs"
+export {
+  Toast,
+  ToastAction,
+  ToastClose,
+  ToastDescription,
+  ToastProvider,
+  ToastTitle,
+  ToastViewport,
+  type ToastActionElement,
+  type ToastProps,
+} from "./toast"
+export { Toaster } from "./toaster"
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip"
 
 // Form components
 export {
@@ -55,7 +70,7 @@ export { default as ItemCard, type ItemCardBadge } from "./custom/item-card"
 export { default as LoadingSpinner } from "./custom/loading-spinner"
 export { default as Notification } from "./custom/notification"
 export { default as TabNavigation } from "./custom/tab-navigation"
-export { default as Tooltip } from "./custom/tooltip"
+export { default as CustomTooltip } from "./custom/tooltip"
 
 // Alias Button as ActionButton for backward compatibility
 export { Button as ActionButton } from "./button"
