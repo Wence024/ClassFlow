@@ -10,12 +10,20 @@ import type { Program } from '../types/program';
 export function usePrograms() {
   const queryKey = ['programs'];
 
-  const { data: programs = [] } = useQuery<Program[]>({
+  const {
+    data: programs = [],
+    isSuccess,
+    isError,
+    error,
+  } = useQuery<Program[]>({
     queryKey,
     queryFn: programsService.getPrograms,
   });
 
   return {
     programs,
+    isSuccess,
+    isError,
+    error,
   };
 }
