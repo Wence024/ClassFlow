@@ -215,11 +215,12 @@ function findInstructorConflictInPeriod(
       const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
       const program = programs.find((p) => p.id === conflictingSession.group.program_id);
 
-      const programInfo = program
-        ? ` (Program: ${program.name})`
-        : conflictingSession.group.program_id
-          ? ` (Program ID: ${conflictingSession.group.program_id})`
-          : '';
+  let programInfo = '';
+  if (program) {
+    programInfo = ` (Program: ${program.name})`;
+  } else if (conflictingSession.group.program_id) {
+    programInfo = ` (Program ID: ${conflictingSession.group.program_id})`;
+  }
 
       return `Instructor conflict: ${name} is already scheduled to teach group '${conflictingSession.group.name}'${programInfo} at this time (class: '${conflictingSession.course.code}').`;
     }
@@ -342,11 +343,9 @@ export default function checkTimetableConflicts(
 ): string {
   const period_count = classSessionToCheck.period_count || 1;
 
-  // Check for boundary conflicts.
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);
   if (boundaryError) return boundaryError;
 
-  // Check for conflicts within the same group.
   const groupError = checkGroupConflicts(
     timetable,
     classSessionToCheck,
@@ -355,16 +354,11 @@ export default function checkTimetableConflicts(
   );
   if (groupError) return groupError;
 
-  // Check for resource conflicts (instructor and classroom).
-  const resourceError = checkResourceConflicts(
+  return checkResourceConflicts(
     timetable,
     classSessionToCheck,
     targetGroupId,
     targetPeriodIndex,
     programs
   );
-  if (resourceError) return resourceError;
-
-  // No conflicts found.
-  return '';
 }
