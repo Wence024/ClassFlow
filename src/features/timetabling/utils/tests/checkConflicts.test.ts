@@ -17,8 +17,8 @@ const MOCK_USER_ID = 'user-mock-123';
 const MOCK_CREATED_AT = new Date().toISOString();
 
 // Mock Programs
-const mockProgramCS = { id: 'prog_cs', name: 'Computer Science' };
-const mockProgramBus = { id: 'prog_bus', name: 'Business' };
+const mockProgramCS = { id: 'prog_cs', name: 'Computer Science', created_at: MOCK_CREATED_AT, short_code: 'CS' };
+const mockProgramBus = { id: 'prog_bus', name: 'Business', created_at: MOCK_CREATED_AT, short_code: 'BUS' };
 
 // Mock Settings
 const mockSettings: ScheduleConfig = {
@@ -509,7 +509,8 @@ it('should detect a group conflict when moving a session backward to overlap an 
         conflictingCSSession,
         mockSettings,
         mockGroupCS1A.id,
-        5
+        5,
+        [mockProgramCS, mockProgramBus]
       );
       expect(result).toContain('Instructor conflict');
       expect(result).toContain('Shared Professor');
@@ -532,7 +533,8 @@ it('should detect a group conflict when moving a session backward to overlap an 
         conflictingCSSession,
         mockSettings,
         mockGroupCS1A.id,
-        6
+        6,
+        [mockProgramCS, mockProgramBus]
       ); // Check against 2nd period of the business class
       expect(result).toContain('Classroom conflict');
       expect(result).toContain('Shared Auditorium');
@@ -555,7 +557,8 @@ it('should detect a group conflict when moving a session backward to overlap an 
         nonConflictingCSSession,
         mockSettings,
         mockGroupCS1A.id,
-        5
+        5,
+        [mockProgramCS, mockProgramBus]
       );
       expect(result).toBe('');
     });
