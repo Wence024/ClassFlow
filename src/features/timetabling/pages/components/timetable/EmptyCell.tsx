@@ -56,10 +56,10 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={(e) => {
-          console.log("E: ", e);
-          console.log("Group ID: ", groupId);
-          console.log("Period Index: ", periodIndex);
-          handleDropToGrid(e, groupId, periodIndex)
+          console.log('E: ', e);
+          console.log('Group ID: ', groupId);
+          console.log('Period Index: ', periodIndex);
+          handleDropToGrid(e, groupId, periodIndex);
         }}
       >
         {isDragOver && (

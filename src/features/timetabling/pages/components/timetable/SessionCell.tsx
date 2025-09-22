@@ -208,6 +208,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
 
   const isOwner = !!user?.program_id && user.program_id === session.program_id;
   const isDraggedSession = activeDraggedSession?.id === session.id;
+  const isDragging = activeDraggedSession !== null;
   const instructorHex = session.instructor.color ?? DEFAULT_FALLBACK_COLOR;
   const numberOfPeriods = session.period_count || 1;
 
@@ -237,7 +238,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
           draggable={isOwner}
           onDragStart={(e) =>
             isOwner &&
-            onDragStart(e, {
+            handleDragStart(e, {
               from: 'timetable',
               class_session_id: session.id,
               class_group_id: groupId,
@@ -256,7 +257,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
           />
 
           {/* Layer 2: The Invisible Drop Zones */}
-          <div className="absolute inset-0 flex z-20">
+          <div className={`absolute inset-0 flex z-20 ${!isDragging ? 'pointer-events-none' : ''}`}>
             {Array.from({ length: numberOfPeriods }).map((_, i) => (
               <DropZone
                 key={periodIndex + i}
