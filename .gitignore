@@ -27,3 +27,6 @@ dist-ssr
 *.sw?
 .env
 supabase/.temp/
+
+# Sql Backup
+docs/postgresql_schema/data_backups/*

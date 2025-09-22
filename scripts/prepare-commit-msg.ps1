@@ -15,4 +15,4 @@ $combinedOutput | Set-Clipboard
 # Inform the user that the output has been copied to the clipboard
 Write-Host "Git log and diff have been copied to the clipboard."
 
-Start-Process "brave.exe" -ArgumentList "--incognito https://chat.openai.com"
+Start-Process "msedge.exe" -ArgumentList "--inprivate https://chatgpt.com"

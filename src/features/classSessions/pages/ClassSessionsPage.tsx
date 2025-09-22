@@ -7,12 +7,6 @@ import { z } from 'zod';
 // Import hooks for fetching data
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassSessions } from '../hooks/useClassSessions';
-import {
-  useClassGroups,
-  useClassrooms,
-  useCourses,
-  useInstructors,
-} from '../../classSessionComponents/hooks';
 
 // FIXED: Corrected import paths for the refactored components
 import { ClassSessionForm } from './components/classSession';
@@ -25,6 +19,12 @@ import { classSessionSchema } from '../types/validation';
 // Import all necessary UI components
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
 import { showNotification } from '../../../lib/notificationsService';
+import {
+  useCourses,
+  useClassGroups,
+  useClassrooms,
+  useInstructors,
+} from '../../classSessionComponents/hooks';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
@@ -71,7 +71,7 @@ const ClassSessionsPage: React.FC = () => {
   });
 
   useEffect(() => {
-    if (editingSession) {
+    if (editingSession && editingSession.course) {
       formMethods.reset({
         course_id: editingSession.course.id,
         instructor_id: editingSession.instructor.id,
@@ -97,8 +97,8 @@ const ClassSessionsPage: React.FC = () => {
     if (!searchTerm) return classSessions;
     return classSessions.filter(
       (classSession) =>
-        classSession.course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        classSession.course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classSession.course?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        classSession.course?.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
         classSession.group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         classSession.group.code?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -206,7 +206,7 @@ const ClassSessionsPage: React.FC = () => {
         isLoading={isRemoving}
         confirmText="Delete"
       >
-        Are you sure you want to delete the class session for "{sessionToDelete?.course.name} -{' '}
+        Are you sure you want to delete the class session for "{sessionToDelete?.course?.name} -{' '}
         {sessionToDelete?.group.name}"?
       </ConfirmModal>
     </>

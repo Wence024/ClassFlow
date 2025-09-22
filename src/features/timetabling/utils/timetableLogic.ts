@@ -12,8 +12,6 @@ import type { HydratedTimetableAssignment } from '../types/timetable';
  */
 export type TimetableGrid = Map<string, (ClassSession | null)[]>;
 
-// TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16.
-
 /**
  * Transforms a flat array of timetable assignments from the database into a grid-like
  * Map structure that is optimized for rendering the timetable UI.
@@ -33,37 +31,82 @@ export function buildTimetableGrid(
 ): TimetableGrid {
   const grid: TimetableGrid = new Map();
 
-  // 1. Initialize the grid with an empty row for every class group.
-  //    Each row is an array of the specified total number of periods, filled with `null`.
-  if (!classGroups.length) {
-    return grid;
-  }
-  for (const group of classGroups) {
-    grid.set(group.id, Array(totalPeriods).fill(null));
-  }
+  // Initialize the grid with empty rows for all groups
+  initializeGridRows(grid, classGroups, totalPeriods);
 
-  // 2. Populate the grid by placing each class session from the assignments
-  //    into its correct `[class_group_id, period_index]` coordinate.
-  if (!assignments.length) {
-    return grid;
-  }
-  for (const assignment of assignments) {
-    const row = grid.get(assignment.class_group_id);
-    const classSession = assignment.class_session || null;
-
-    if (row && classSession) {
-      // Instead of just placing the session at its start, fill all the slots
-      // that it occupies based on its duration (period_count).
-      const numberOfPeriods = classSession.period_count || 1;
-      for (let i = 0; i < numberOfPeriods; i++) {
-        const periodToFill = assignment.period_index + i;
-        // Boundary check to ensure we don't write outside the array
-        if (periodToFill < totalPeriods) {
-          row[periodToFill] = classSession;
-        }
-      }
-    }
+  // Populate the grid with assignments
+  if (assignments.length > 0) {
+    populateGridWithAssignments(grid, assignments, totalPeriods);
   }
 
   return grid;
+}
+
+/**
+ * Initializes the timetable grid with empty rows for each class group.
+ *
+ * @param grid - The timetable grid Map to populate with empty rows.
+ * @param classGroups - The array of class groups that will form the rows of the timetable.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
+ */
+function initializeGridRows(
+  grid: TimetableGrid,
+  classGroups: ClassGroup[],
+  totalPeriods: number
+): void {
+  if (classGroups.length === 0) {
+    return;
+  }
+
+  for (const group of classGroups) {
+    grid.set(group.id, Array(totalPeriods).fill(null));
+  }
+}
+
+/**
+ * Populates the timetable grid with class session assignments.
+ *
+ * @param grid - The initialized timetable grid to populate with session data.
+ * @param assignments - The array of hydrated timetable assignments containing session placement data.
+ * @param totalPeriods - The total number of periods in the schedule for boundary checking.
+ */
+function populateGridWithAssignments(
+  grid: TimetableGrid,
+  assignments: HydratedTimetableAssignment[],
+  totalPeriods: number
+): void {
+  for (const assignment of assignments) {
+    const row = grid.get(assignment.class_group_id);
+    const classSession = assignment.class_session;
+
+    if (row && classSession) {
+      placeSessionInGrid(row, assignment, classSession, totalPeriods);
+    }
+  }
+}
+
+/**
+ * Places a class session across multiple periods in the grid row.
+ *
+ * @param row - The group's row in the timetable grid (array of ClassSession | null).
+ * @param assignment - The timetable assignment containing the starting period index.
+ * @param classSession - The class session to place in the grid.
+ * @param totalPeriods - The total number of periods to prevent array overflow.
+ */
+function placeSessionInGrid(
+  row: (ClassSession | null)[],
+  assignment: HydratedTimetableAssignment,
+  classSession: ClassSession,
+  totalPeriods: number
+): void {
+  const numberOfPeriods = classSession.period_count || 1;
+
+  for (let i = 0; i < numberOfPeriods; i++) {
+    const periodToFill = assignment.period_index + i;
+
+    // Boundary check to ensure we don't write outside the array bounds
+    if (periodToFill < totalPeriods) {
+      row[periodToFill] = classSession;
+    }
+  }
 }

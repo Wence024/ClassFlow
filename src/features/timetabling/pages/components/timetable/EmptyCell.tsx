@@ -28,16 +28,16 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
 }) => {
   const {
     dragOverCell,
-    currentDraggedSession,
+    activeDraggedSession,
     isSlotAvailable,
-    onDragEnter,
-    onDragOver,
-    onDropToGrid,
-    onDragLeave,
+    handleDragEnter,
+    handleDragOver,
+    handleDropToGrid,
+    handleDragLeave,
   } = useTimetableContext();
 
   const isDragOver = dragOverCell?.groupId === groupId && dragOverCell?.periodIndex === periodIndex;
-  const isDragging = currentDraggedSession !== null;
+  const isDragging = activeDraggedSession !== null;
   const isAvailable = isDragging && isSlotAvailable(groupId, periodIndex);
   const borderClass =
     isLastInDay && isNotLastInTable ? 'border-r-2 border-dashed border-gray-300' : '';
@@ -52,10 +52,12 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
     >
       <div
         className={`${cellClasses} flex items-center justify-center`}
-        onDragEnter={(e) => onDragEnter(e, groupId, periodIndex)}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={(e) => onDropToGrid(e, groupId, periodIndex)}
+        onDragEnter={(e) => handleDragEnter(e, groupId, periodIndex)}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => {
+          handleDropToGrid(e, groupId, periodIndex);
+        }}
       >
         {isDragOver && (
           <div

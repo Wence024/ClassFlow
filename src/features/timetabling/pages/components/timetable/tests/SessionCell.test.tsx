@@ -2,12 +2,14 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SessionCell from '../SessionCell';
 import TimetableContext, { type TimetableContextType } from '../TimetableContext';
+import { AuthContext } from '../../../../../../features/auth/contexts/AuthContext';
 import {
   getSessionCellBgColor,
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../../lib/colorUtils';
 import type { ClassSession } from '../../../../../../features/classSessions/types/classSession';
+import type { AuthContextType } from '../../../../../../features/auth/types/auth';
 
 // Test helper to convert a hex color to the rgb/rgba format JSDOM uses
 const hexToRgba = (hex: string): string => {
@@ -31,29 +33,49 @@ const hexToRgba = (hex: string): string => {
 
 const mockContextValue: TimetableContextType = {
   dragOverCell: null,
-  currentDraggedSession: null,
+  activeDraggedSession: null,
   isSlotAvailable: () => false,
-  onDragStart: vi.fn(),
+  handleDragStart: vi.fn(),
   onShowTooltip: vi.fn(),
   onHideTooltip: vi.fn(),
-  onDragEnter: vi.fn(),
-  onDragOver: vi.fn(),
-  onDragLeave: vi.fn(),
-  onDropToGrid: vi.fn(),
+  handleDragEnter: vi.fn(),
+  handleDragOver: vi.fn(),
+  handleDragLeave: vi.fn(),
+  handleDropToGrid: vi.fn(),
 };
 
 const renderWithContext = (
   ui: React.ReactElement,
   providerProps?: Partial<TimetableContextType>
 ) => {
+  const mockAuthContext: AuthContextType = {
+    user: {
+      id: 'test-user',
+      role: 'program_head',
+      program_id: 'p1',
+      name: 'Test User',
+      email: 'test@example.com',
+    },
+    loading: false,
+    role: 'program_head',
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    resendVerificationEmail: vi.fn(),
+    error: null,
+    clearError: vi.fn(),
+  };
+
   return render(
-    <TimetableContext.Provider value={{ ...mockContextValue, ...providerProps }}>
-      <table>
-        <tbody>
-          <tr>{ui}</tr>
-        </tbody>
-      </table>
-    </TimetableContext.Provider>
+    <AuthContext.Provider value={mockAuthContext}>
+      <TimetableContext.Provider value={{ ...mockContextValue, ...providerProps }}>
+        <table>
+          <tbody>
+            <tr>{ui}</tr>
+          </tbody>
+        </table>
+      </TimetableContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
@@ -61,6 +83,7 @@ const renderWithContext = (
 const mockSession: ClassSession = {
   id: '1',
   period_count: 1,
+  program_id: 'p1',
   course: {
     id: 'c1',
     name: 'Test Course',
@@ -68,6 +91,7 @@ const mockSession: ClassSession = {
     color: '#ffffff',
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
   instructor: {
     id: 'i1',
@@ -82,6 +106,7 @@ const mockSession: ClassSession = {
     code: 'JD1',
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
   classroom: {
     id: 'r1',
@@ -92,6 +117,7 @@ const mockSession: ClassSession = {
     location: 'Building A',
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
   group: {
     id: 'g1',
@@ -101,6 +127,7 @@ const mockSession: ClassSession = {
     color: null,
     created_at: new Date().toISOString(),
     user_id: 'u1',
+    program_id: 'p1',
   },
 };
 
@@ -141,7 +168,7 @@ describe('SessionCell', () => {
         isLastInDay={false}
         isNotLastInTable={false}
       />,
-      { currentDraggedSession: mockSession }
+      { activeDraggedSession: mockSession }
     );
 
     const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;

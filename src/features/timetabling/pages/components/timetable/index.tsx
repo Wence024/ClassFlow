@@ -4,75 +4,50 @@ import { LoadingSpinner } from '../../../../../components/ui';
 import type { ClassGroup } from '../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
-import type { DragSource } from '../../../types/DragSource';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
-import TimetableContext from './TimetableContext';
+import { useAuth } from '../../../../auth/hooks/useAuth';
 import TimetableHeader from './TimetableHeader';
 import TimetableRow from './TimetableRow';
+import { useTimetableContext } from './useTimetableContext';
 
-// TODO: Apply refactor to prop drilling later
-
-/**
- * Props for the Timetable component.
- */
 interface TimetableProps {
   groups: ClassGroup[];
   timetable: Map<string, (ClassSession | null)[]>;
   isLoading: boolean;
-
-  // D&D Props from parent hook
-  draggedSession: ClassSession | null;
-  dragOverCell: { groupId: string; periodIndex: number } | null;
-  isSlotAvailable: (groupId: string, periodIndex: number) => boolean;
-  onDragStart: (e: React.DragEvent, source: DragSource) => void;
-  onDropToGrid: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
-  onDragEnter: (e: React.DragEvent, groupId: string, periodIndex: number) => void;
-  onDragLeave: (e: React.DragEvent) => void;
-  onDragOver: (e: React.DragEvent) => void;
-
-  // Tooltip Props
-  onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
-  onHideTooltip: () => void;
 }
 
 /**
- * Renders an interactive timetable grid.
- * This component has been refactored to be a pure presentational component.
- * It receives all drag-and-drop state and handlers from a parent component
- * and provides them to its children via TimetableContext.
+ * Renders an interactive, multi-program timetable grid.
  *
- * @param tt The props for the component.
- * @param tt.groups An array of class groups to display in the timetable.
- * @param tt.timetable A map representing the timetable data.
- * @param tt.isLoading Boolean indicating if the timetable data is currently loading.
- * @param tt.draggedSession The class session currently being dragged.
- * @param tt.dragOverCell The cell over which a draggable item is currently hovered.
- * @param tt.isSlotAvailable Function to check if a given slot is available for dropping.
- * @param tt.onDragStart Callback function for when a drag operation starts.
- * @param tt.onDropToGrid Callback function for when a draggable item is dropped onto the grid.
- * @param tt.onDragEnter Callback function for when a draggable item enters a droppable area.
- * @param tt.onDragLeave Callback function for when a draggable item leaves a droppable area.
- * @param tt.onDragOver Callback function for when a draggable item is dragged over a droppable area.
- * @param tt.onShowTooltip Callback function to display a tooltip.
- * @param tt.onHideTooltip Callback function to hide the tooltip.
- * @returns The rendered timetable grid.
+ * This component is a pure view component that consumes its interaction logic
+ * (like drag-and-drop handlers) from the `TimetableContext`, which is provided
+ * by a parent component (`TimetablePage`). It is responsible for structuring the
+ * table and mapping over groups to render `TimetableRow` components.
+ *
+ * @param t - The props for the component.
+ * @param t.groups - An array of all class groups to display as rows in the timetable.
+ * @param t.timetable - A Map where keys are group IDs and values are arrays of sessions or nulls, representing the schedule.
+ * @param t.isLoading - A boolean indicating if the timetable data is currently being synced or re-fetched.
+ * @returns The rendered timetable grid component.
  */
 const Timetable: React.FC<TimetableProps> = ({
   groups,
   timetable,
   isLoading,
-  draggedSession,
-  dragOverCell,
-  isSlotAvailable,
-  onDragStart,
-  onDropToGrid,
-  onDragEnter,
-  onDragLeave,
-  onDragOver,
-  onShowTooltip,
-  onHideTooltip,
 }: TimetableProps): JSX.Element => {
+  const { user } = useAuth();
   const { settings, isLoading: isLoadingConfig } = useScheduleConfig();
+  const { handleDragLeave, handleDragOver } = useTimetableContext();
+
+  const myGroups = useMemo(
+    () => groups.filter((group) => group.program_id === user?.program_id),
+    [groups, user]
+  );
+
+  const otherGroups = useMemo(
+    () => groups.filter((group) => group.program_id !== user?.program_id),
+    [groups, user]
+  );
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
@@ -91,25 +66,11 @@ const Timetable: React.FC<TimetableProps> = ({
   const periodsPerDay = settings.periods_per_day;
   const totalPeriods = settings.class_days_per_week * periodsPerDay;
 
-  // The value provided to the context now comes directly from props.
-  const contextValue = {
-    dragOverCell,
-    currentDraggedSession: draggedSession,
-    isSlotAvailable,
-    onDragStart,
-    onDropToGrid,
-    onShowTooltip,
-    onHideTooltip,
-    onDragEnter,
-    onDragLeave,
-    onDragOver,
-  };
-
   return (
     <div
       className="bg-white rounded-lg shadow-sm border border-gray-200"
-      onDragLeave={onDragLeave}
-      onDragOver={onDragOver} // onDragOver is needed here to allow dropping
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
     >
       <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -123,29 +84,50 @@ const Timetable: React.FC<TimetableProps> = ({
           </div>
         )}
       </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-fixed border-collapse">
+          <TimetableHeader
+            dayHeaders={dayHeaders}
+            timeHeaders={timeHeaders}
+            periodsPerDay={periodsPerDay}
+          />
+          <tbody>
+            {/* Render the user's own groups first */}
+            {myGroups.map((group) => (
+              <TimetableRow
+                key={group.id}
+                group={group}
+                timetable={timetable}
+                periodsPerDay={periodsPerDay}
+                totalPeriods={totalPeriods}
+              />
+            ))}
 
-      <TimetableContext.Provider value={contextValue}>
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-fixed border-collapse">
-            <TimetableHeader
-              dayHeaders={dayHeaders}
-              timeHeaders={timeHeaders}
-              periodsPerDay={periodsPerDay}
-            />
-            <tbody>
-              {groups.map((group) => (
-                <TimetableRow
-                  key={group.id}
-                  group={group}
-                  timetable={timetable}
-                  periodsPerDay={periodsPerDay}
-                  totalPeriods={totalPeriods}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </TimetableContext.Provider>
+            {/* If there are other groups, render a visual separator and then the other groups */}
+            {otherGroups.length > 0 && (
+              <tr>
+                <td
+                  colSpan={totalPeriods + 1}
+                  className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
+                >
+                  Schedules from Other Programs
+                </td>
+              </tr>
+            )}
+
+            {/* Render the groups from other programs */}
+            {otherGroups.map((group) => (
+              <TimetableRow
+                key={group.id}
+                group={group}
+                timetable={timetable}
+                periodsPerDay={periodsPerDay}
+                totalPeriods={totalPeriods}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

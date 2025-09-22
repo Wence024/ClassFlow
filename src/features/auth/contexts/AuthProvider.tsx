@@ -26,7 +26,6 @@ interface AuthProviderProps {
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -38,7 +37,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const storedUser = await authService.getStoredUser();
         if (storedUser) {
           setUser(storedUser);
-          setRole(storedUser.role);
         }
       } catch (err) {
         console.error('Failed to initialize auth:', err);
@@ -64,8 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
-      setRole(user.role);
-      navigate('/class-sessions'); // Redirect on successful login
+      navigate('/scheduler'); // Redirect on successful login
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
@@ -99,8 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         // Otherwise, log them in and redirect.
         setUser(user);
-        setRole(user.role);
-        navigate('/class-sessions');
+        navigate('/scheduler');
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
@@ -121,7 +117,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Even if the remote logout fails, we clear the session locally.
     } finally {
       setUser(null);
-      setRole(null);
       setLoading(false);
       navigate('/'); // Redirect to home page after logout.
     }
@@ -155,7 +150,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const authContextValue = {
     user,
-    role,
+    role: user?.role || null, // Derives the role from the user object
     login,
     register,
     logout,

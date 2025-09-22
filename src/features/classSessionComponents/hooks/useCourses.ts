@@ -23,7 +23,7 @@ export function useCourses() {
     error,
   } = useQuery<Course[]>({
     queryKey,
-    queryFn: () => (user ? coursesService.getCourses(user.id) : Promise.resolve([])),
+    queryFn: () => (user ? coursesService.getCourses() : Promise.resolve([])),
     enabled: !!user,
   });
 

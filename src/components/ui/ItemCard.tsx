@@ -49,6 +49,9 @@ interface ItemCardProps {
   /** A callback function for the delete action. If not provided, the delete button is not rendered. */
   onDelete?: () => void;
 
+  /** Whether the user owns this item and can edit/delete it. Defaults to true. */
+  isOwner?: boolean;
+
   /** Additional CSS classes to apply to the card's root element. */
   className?: string;
 }
@@ -65,6 +68,7 @@ interface ItemCardProps {
  * @param [ic.onEdit] A callback for the edit action.
  * @param [ic.onDelete] A callback for the delete action.
  * @param [ic.className] Additional CSS classes for the card's root element.
+ * @param [ic.isOwner] Whether the user owns this item and can edit/delete it. Defaults to true.
  * @returns The rendered item card component.
  */
 const ItemCard: React.FC<ItemCardProps> = ({
@@ -75,6 +79,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   badge,
   onEdit,
   onDelete,
+  isOwner = true,
   className = '',
 }) => {
   /**
@@ -151,12 +156,12 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
       {/* Action Buttons */}
       <div className="flex gap-2">
-        {onEdit && (
+        {onEdit && isOwner && (
           <ActionButton variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
             <Edit className="w-4 h-4" />
           </ActionButton>
         )}
-        {onDelete && (
+        {onDelete && isOwner && (
           // Add a descriptive aria-label to the button.
           <ActionButton
             variant="danger"

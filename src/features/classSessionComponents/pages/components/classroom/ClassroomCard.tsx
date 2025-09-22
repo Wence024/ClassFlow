@@ -6,6 +6,7 @@ interface ClassroomCardProps {
   classroom: Classroom;
   onEdit: (classroom: Classroom) => void;
   onDelete: (id: string) => void;
+  isOwner?: boolean;
 }
 
 /**

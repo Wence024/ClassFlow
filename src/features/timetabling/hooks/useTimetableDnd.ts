@@ -3,9 +3,11 @@ import { useTimetable } from './useTimetable';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import { showNotification } from '../../../lib/notificationsService';
-import checkConflicts from '../utils/checkConflicts';
+import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
+import { usePrograms } from '../../programs/hooks/usePrograms';
+import { useAuth } from '../../auth/hooks/useAuth';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -18,9 +20,11 @@ const DRAG_DATA_KEY = 'application/json';
  */
 export const useTimetableDnd = () => {
   // --- Core Hooks ---
+  const { user } = useAuth();
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
   const { classSessions } = useClassSessions();
   const { settings } = useScheduleConfig();
+  const { programs } = usePrograms();
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);
@@ -63,22 +67,31 @@ export const useTimetableDnd = () => {
     (groupId: string, periodIndex: number): boolean => {
       if (!activeDraggedSession || !settings) return false;
 
+      // This prevents the slot from even appearing available (green) if the user is not the owner.
+      if (
+        activeDragSource?.from === 'timetable' &&
+        activeDraggedSession.program_id !== user?.program_id
+      ) {
+        return false;
+      }
+
       // Disallow moving a session to a different group row when dragging from the grid
       if (activeDragSource?.from === 'timetable' && activeDragSource.class_group_id !== groupId) {
         return false;
       }
 
-      const conflictMessage = checkConflicts(
+      const conflictMessage = checkTimetableConflicts(
         timetable,
         activeDraggedSession,
         settings,
         groupId,
-        periodIndex
+        periodIndex,
+        programs
       );
 
       return conflictMessage === '';
     },
-    [activeDraggedSession, settings, timetable, activeDragSource]
+    [activeDraggedSession, settings, timetable, activeDragSource, user, programs]
   );
 
   // --- Event Handlers ---
@@ -142,6 +155,13 @@ export const useTimetableDnd = () => {
         return;
       }
 
+      // Add final client-side safeguard before mutation
+      if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
+        showNotification('You can only move sessions that belong to your own program.');
+        cleanupDragState();
+        return;
+      }
+
       let error = '';
       if (source.from === 'drawer') {
         // Assign the class session to the target location
@@ -171,7 +191,7 @@ export const useTimetableDnd = () => {
       // Clean up the drag state
       cleanupDragState();
     },
-    [classSessions, assignClassSession, moveClassSession, cleanupDragState]
+    [classSessions, assignClassSession, moveClassSession, cleanupDragState, user]
   );
 
   const handleDropToDrawer = useCallback(

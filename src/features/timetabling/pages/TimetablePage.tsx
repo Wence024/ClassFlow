@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import { LoadingSpinner, Notification, Tooltip } from '../../../components/ui';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+import { LoadingSpinner, Tooltip } from '../../../components/ui';
+import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
+import TimetableContext from './components/timetable/TimetableContext';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -15,17 +15,28 @@ interface TooltipState {
 }
 
 /**
- * The main page component for the timetabling interface.
+ * Renders the main timetabling interface page.
  *
- * @returns The rendered Timetable page.
+ * This component acts as the orchestrator for the entire scheduling view.
+ * It fetches all necessary data (timetable, groups, all class sessions),
+ * initializes the drag-and-drop (D&D) logic via the `useTimetableDnd` hook,
+ * and manages tooltip state.
+ *
+ * Crucially, it provides all D&D state and handlers to its children
+ * (`Timetable`, `Drawer`) via the `TimetableContext.Provider`, enabling a fully
+ * interactive and decoupled scheduling experience.
+ *
+ * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
-  const { classSessions } = useClassSessions();
-  const { timetable, groups, loading } = useTimetable();
+  // Fetches ALL class sessions from the database for a global view.
+  const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
+    queryKey: ['allClassSessions'],
+    queryFn: classSessionsService.getAllClassSessions,
+  });
 
-  // Single call to the consolidated hook for all D&D logic
+  const { timetable, groups, loading: loadingTimetable } = useTimetable();
   const dnd = useTimetableDnd();
-
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const handleShowTooltip = (content: React.ReactNode, target: HTMLElement) => {
@@ -34,7 +45,7 @@ const TimetablePage: React.FC = () => {
   };
   const handleHideTooltip = () => setTooltip(null);
 
-  // Memoized calculation for the sessions to show in the drawer
+  // Memoized calculation for the sessions to show in the drawer.
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
     for (const sessionsInGroup of timetable.values()) {
@@ -42,57 +53,57 @@ const TimetablePage: React.FC = () => {
         if (session) assignedIds.add(session.id);
       }
     }
-    return classSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
-  }, [timetable, classSessions]);
+
+    const allUnassigned = allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
+
+    // Defensive filtering to prevent crashes from orphaned data
+    const validUnassigned = allUnassigned.filter((session) => {
+      if (!session.course || !session.group) {
+        console.warn(
+          'Filtered out an invalid class session with missing course or group data. Session ID:',
+          session.id
+        );
+        return false;
+      }
+      return true;
+    });
+
+    return validUnassigned;
+  }, [timetable, allClassSessions]);
 
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
 
-  const isInitialLoading = loading && timetable.size === 0;
+  // Combine D&D handlers and tooltip handlers into a single object for the context
+  const contextValue = {
+    ...dnd,
+    onShowTooltip: handleShowTooltip,
+    onHideTooltip: handleHideTooltip,
+  };
+
+  const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Notification />
+    <div>
       {tooltip && <Tooltip content={tooltip.content} position={tooltip.position} />}
-      <Header />
-      <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        <div className="flex flex-col lg:flex-row gap-6 h-full">
-          <Sidebar />
-          <main className="flex-1 space-y-6 min-w-0">
-            {isInitialLoading ? (
-              <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
-                <LoadingSpinner size={'lg'} text="Loading Timetable..." />
-              </div>
-            ) : (
-              <>
-                <Timetable
-                  groups={groups}
-                  timetable={timetable}
-                  isLoading={loading}
-                  onShowTooltip={handleShowTooltip}
-                  onHideTooltip={handleHideTooltip}
-                  // Pass all D&D props from the hook
-                  draggedSession={dnd.activeDraggedSession}
-                  dragOverCell={dnd.dragOverCell}
-                  isSlotAvailable={dnd.isSlotAvailable}
-                  onDragStart={dnd.handleDragStart}
-                  onDragOver={dnd.handleDragOver}
-                  onDragEnter={dnd.handleDragEnter}
-                  onDragLeave={dnd.handleDragLeave}
-                  onDropToGrid={dnd.handleDropToGrid}
-                />
-                <Drawer
-                  drawerClassSessions={drawerClassSessions}
-                  onDragStart={dnd.handleDragStart}
-                  onDropToDrawer={dnd.handleDropToDrawer}
-                />
-              </>
-            )}
-          </main>
-        </div>
-      </div>
+      <main className="flex-1 space-y-6 min-w-0">
+        {isInitialLoading ? (
+          <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
+            <LoadingSpinner size={'lg'} text="Loading Timetable..." />
+          </div>
+        ) : (
+          <TimetableContext.Provider value={contextValue}>
+            <Timetable groups={groups} timetable={timetable} isLoading={loadingTimetable} />
+            <Drawer
+              drawerClassSessions={drawerClassSessions}
+              onDragStart={dnd.handleDragStart}
+              onDropToDrawer={dnd.handleDropToDrawer}
+            />
+          </TimetableContext.Provider>
+        )}
+      </main>
     </div>
   );
 };

@@ -17,32 +17,35 @@ const TABLE = 'class_sessions';
  * The column names (`course`, `group`, etc.) become the keys in the resulting JavaScript object.
  */
 const SELECT_COLUMNS = `
-  id,
-  user_id,
+  *,
   course:courses(*),
   group:class_groups(*),
   instructor:instructors(*),
-  classroom:classrooms(*),
-  period_count
+  classroom:classrooms(*)
 `;
 
 /**
- * Fetches all class sessions for a specific user from the database.
- * This performs a "join" to get the full related objects for course, group, etc.
+ * Retrieves all class sessions from the database.
  *
- * @param user_id - The ID of the user whose class sessions to retrieve.
- * @returns A promise that resolves to an array of fully-hydrated ClassSession objects.
- * @throws An error if the Supabase query fails.
+ * @returns Promise resolving to an array of ClassSession objects.
  */
-export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
-  const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
-
+export async function getAllClassSessions(): Promise<ClassSession[]> {
+  const { data, error } = await supabase.from('class_sessions').select(SELECT_COLUMNS);
   if (error) throw error;
-  // The data structure from Supabase, thanks to the SELECT_COLUMNS string,
-  // should perfectly match our hydrated ClassSession type.
   return (data as unknown as ClassSession[]) || [];
 }
 
+/**
+ * Retrieves class sessions for a specific user.
+ *
+ * @param user_id - The ID of the user to fetch sessions for.
+ * @returns Promise resolving to an array of ClassSession objects.
+ */
+export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
+  const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
+  if (error) throw error;
+  return (data as unknown as ClassSession[]) || [];
+}
 /**
  * Fetches a single, fully-hydrated class session by its ID.
  * This includes all related data such as course, class group, instructor, and classroom.

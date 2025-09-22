@@ -9,18 +9,13 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
 const TABLE = 'instructors';
 
 /**
- * Fetches all instructors for a specific user from the database.
+ * Fetches all instructors from the database.
  *
- * @param user_id - The ID of the user whose instructors to retrieve.
  * @returns A promise that resolves to an array of Instructor objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getInstructors(user_id: string): Promise<Instructor[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('*')
-    .eq('user_id', user_id)
-    .order('first_name');
+export async function getInstructors(): Promise<Instructor[]> {
+  const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
   if (error) throw error;
   return data || [];
 }

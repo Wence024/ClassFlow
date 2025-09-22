@@ -1,14 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useClassGroups } from '../../classSessionComponents/hooks/';
 import * as timetableService from '../services/timetableService';
-import checkConflicts from '../utils/checkConflicts';
+import checkTimetableConflicts from '../utils/checkConflicts';
 import { buildTimetableGrid, type TimetableGrid } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment } from '../types/timetable';
+import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
+import * as classGroupsService from '../../classSessionComponents/services/classGroupsService';
+import type { ClassGroup } from '../../classSessionComponents/types';
+import { usePrograms } from '../../programs/hooks/usePrograms';
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
@@ -28,9 +31,12 @@ import type { HydratedTimetableAssignment } from '../types/timetable';
 export function useTimetable() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { classGroups } = useClassGroups();
   const { settings } = useScheduleConfig();
-  const queryKey = useMemo(() => ['hydratedTimetable', user?.id], [user?.id]);
+  const { data: activeSemester } = useActiveSemester(); // 2. Get the active semester
+  const { programs } = usePrograms();
+
+  // The queryKey is now dependent on the semester, not the user
+  const queryKey = useMemo(() => ['hydratedTimetable', activeSemester?.id], [activeSemester?.id]);
 
   // A random, unique ID for the Supabase real-time channel to prevent conflicts between browser tabs.
   // eslint-disable-next-line sonarjs/pseudo-random
@@ -40,21 +46,30 @@ export function useTimetable() {
   const totalPeriods = settings ? settings.periods_per_day * settings.class_days_per_week : 0;
 
   // --- DATA FETCHING ---
+  const { data: allClassGroups = [] } = useQuery<ClassGroup[]>({
+    queryKey: ['allClassGroups'],
+    queryFn: classGroupsService.getAllClassGroups,
+    enabled: !!user,
+  });
+
   const {
     data: assignments = [],
     isFetching,
     error: errorAssignments,
   } = useQuery<HydratedTimetableAssignment[]>({
     queryKey,
-    queryFn: () => (user ? timetableService.getTimetableAssignments(user.id) : Promise.resolve([])),
-    // This query is only enabled when all its dependencies (user, groups, settings) are loaded.
-    enabled: !!user && classGroups.length > 0 && !!settings,
+    queryFn: () =>
+      activeSemester
+        ? timetableService.getTimetableAssignments(activeSemester.id)
+        : Promise.resolve([]),
+    // IMPORTANT: Update the enabled check to use the new `allClassGroups`
+    enabled: !!user && allClassGroups.length > 0 && !!settings && !!activeSemester,
   });
 
   // Memoize the timetable grid so it's only rebuilt when its source data changes.
   const timetable: TimetableGrid = useMemo(
-    () => buildTimetableGrid(assignments, classGroups, totalPeriods),
-    [assignments, classGroups, totalPeriods]
+    () => buildTimetableGrid(assignments, allClassGroups, totalPeriods),
+    [assignments, allClassGroups, totalPeriods]
   );
 
   // --- REAL-TIME SUBSCRIPTION ---
@@ -86,7 +101,7 @@ export function useTimetable() {
 
   // --- MUTATIONS ---
 
-  /** Mutation for adding a new class session assignment to the timetable. */
+  /** Mutation for adding a new class session assignment. */
   const assignClassSessionMutation = useMutation({
     mutationFn: (variables: {
       class_group_id: string;
@@ -94,11 +109,14 @@ export function useTimetable() {
       classSession: ClassSession;
     }) => {
       if (!user) throw new Error('User not authenticated');
+      if (!activeSemester) throw new Error('Active semester not loaded'); // Safety check
+
       return timetableService.assignClassSessionToTimetable({
         user_id: user.id,
         class_group_id: variables.class_group_id,
         period_index: variables.period_index,
         class_session_id: variables.classSession.id,
+        semester_id: activeSemester.id, // <-- THE FIX IS HERE
       });
     },
     onSuccess: () => {
@@ -143,7 +161,7 @@ export function useTimetable() {
     },
   });
 
-  /** Mutation for moving an existing class session assignment to a new location. */
+  /** Mutation for moving an existing class session assignment. */
   const moveClassSessionMutation = useMutation({
     mutationFn: (variables: {
       from: { class_group_id: string; period_index: number };
@@ -151,11 +169,14 @@ export function useTimetable() {
       classSession: ClassSession;
     }) => {
       if (!user) throw new Error('User not authenticated');
+      if (!activeSemester) throw new Error('Active semester not loaded'); // Safety check
+
       return timetableService.moveClassSessionInTimetable(user.id, variables.from, variables.to, {
         user_id: user.id,
         class_group_id: variables.to.class_group_id,
         period_index: variables.to.period_index,
         class_session_id: variables.classSession.id,
+        semester_id: activeSemester.id,
       });
     },
     // Optimistic update: move the item in the cache immediately.
@@ -214,12 +235,13 @@ export function useTimetable() {
     classSession: ClassSession
   ): Promise<string> => {
     if (!settings) return 'Schedule settings are not loaded yet.';
-    const conflict = checkConflicts(
+    const conflict = checkTimetableConflicts(
       timetable,
       classSession,
       settings,
       class_group_id,
-      period_index
+      period_index,
+      programs
     );
     if (conflict) return conflict;
     await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
@@ -258,12 +280,13 @@ export function useTimetable() {
     classSession: ClassSession
   ): Promise<string> => {
     if (!settings) return 'Schedule settings are not loaded yet.';
-    const conflict = checkConflicts(
+    const conflict = checkTimetableConflicts(
       timetable,
       classSession,
       settings,
       to.class_group_id,
-      to.period_index
+      to.period_index,
+      programs
     );
     if (conflict) return conflict;
     await moveClassSessionMutation.mutateAsync({ from, to, classSession });
@@ -274,7 +297,7 @@ export function useTimetable() {
   const loading = isFetching || !settings;
 
   return {
-    groups: classGroups,
+    groups: allClassGroups,
     timetable,
     assignClassSession,
     removeClassSession,

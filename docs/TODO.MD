@@ -128,3 +128,41 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 * [ ] Major feature: multi-user workflow
   * [ ] Data models: user attributes as program head role and assigned workflow
   * [ ] Prerequisite: Role access and admin schedule config controls
+
+Refactor backlogs:
+
+* [ ] **[Refactor]** Decompose monolithic management tab components (`CourseTab`, `ClassroomTab`, etc.) into smaller, more focused form and view components to reduce complexity.
+* [ ] **[Refactor]** Further reduce prop drilling in the main `Timetable` component, potentially by expanding the `TimetableContext` or creating more specialized child components.
+* [ ] **[Refactor]** Simplify the `buildTimetableGrid` utility to reduce its cognitive complexity, likely by extracting parts of its logic into smaller helper functions.
+* [ ] **[Bug]** The `ColorPicker` popover closes immediately when the custom color input is clicked, preventing users from selecting a custom color.
+
+
+// TODO: Break down the forms and viewing into individual components (CourseTab, ClassroomTab, ClassGroupsTab, InstructorsTab)
+// TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
+// TODO: Consider duplicate courses, class groups, classrooms and instructors a data anomaly; such entities should be singleton. (ClassSessionComponentsPage)
+
+// TODO: Make drawer stick to the bottom, or limit the height size of the timetable to accomodate the drawer. (TimetablePage)
+// TODO: Do scrolling behavior when placing the moved object around the edge of the viewport. (Timetable)
+// TODO: In drawer, only make visible the class sessions that belong to the user's assigned program. (Drawer)
+
+// TODO: Apply refactor to prop drilling later (Timetable/index)
+
+// TODO: Change name check to id check for the long term (checkConflicts)
+
+// TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16. (timeLogic.ts)
+
+// TODO: Fix bug where choosing a custom color closes the color picker, making it unable to choose or type a custom color. (colorUtils.ts)
+
+* [ ] ClassSessionComponents - Prioritize owned components
+* [ ] Refactor ClassSessions/Courses - assess if course entity shall be merged with class session entity.
+* [ ] TimetablePage - Replace program.id feedback with program.name/code
+* [ ] [Data Integrity] Harden the database schema by adding ON DELETE RESTRICT constraints to all foreign keys in the class_sessions table + Smart Checks in the App
+
+* [ ] Use React Query for usePrograms.ts
+
+Sir B's Feedback:
+
+* [ ] Approval feature: Program Head, when other program heads assign class sessions.
+* [ ] CSV Import
+* [ ] Classroom/instructor View
+* [ ] Reports per instructor and class group.
