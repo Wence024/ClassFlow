@@ -276,43 +276,46 @@ describe('checkConflicts', () => {
 
   describe('Multi-Period Conflict Logic', () => {
     it('should return no conflict when placing a multi-period class in an empty range', () => {
-      const result = checkTimetableConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup2.id,
-        10
-      );
+const result = checkTimetableConflicts(
+  timetable,
+  classSession2,
+  mockSettings,
+  mockGroup2.id,
+  0,
+  [mockProgramCS, mockProgramBus]
+);
       expect(result).toBe('');
     });
 
-    it('should detect a group conflict if any part of the multi-period class overlaps', () => {
-      timetable.get(mockGroup2.id)![2] = classSession1; // Existing class
-      // Try to place a 2-period class at index 1, which overlaps at index 2
-      const result = checkTimetableConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup2.id,
-        1
-      );
+it('should detect a group conflict if any part of the multi-period class overlaps', () => {
+  timetable.get(mockGroup2.id)![2] = classSession1; // Existing class
+  // Try to place a 2-period class at index 1, which overlaps at index 2
+  const result = checkTimetableConflicts(
+    timetable,
+    classSession2,
+    mockSettings,
+    mockGroup2.id,
+    1,
+    [mockProgramCS, mockProgramBus]
+  );
       expect(result).toContain('conflict');
       expect(result).toContain('CS-1A'); //Group Name
     });
 
-    it('should detect a group conflict when a multi-period class completely overlaps an existing class', () => {
-      // ARRANGE
-      timetable.get(mockGroup2.id)![1] = classSession1;
-      timetable.get(mockGroup2.id)![2] = classSession1;
+it('should detect a group conflict when a multi-period class completely overlaps an existing class', () => {
+  // ARRANGE
+  timetable.get(mockGroup2.id)![1] = classSession1;
+  timetable.get(mockGroup2.id)![2] = classSession1;
 
-      // ACT
-      const result = checkTimetableConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup2.id,
-        1
-      );
+  // ACT
+  const result = checkTimetableConflicts(
+    timetable,
+    classSession2,
+    mockSettings,
+    mockGroup2.id,
+    1,
+    [mockProgramCS, mockProgramBus]
+  );
 
       // ASSERT
       expect(result).toContain('conflict');
@@ -354,112 +357,118 @@ describe('checkConflicts', () => {
       expect(conflictingIds).toContain('session-other');
     });
 
-    it('should detect an instructor conflict in the second period of a multi-period class', () => {
-      // Setup existing session that conflicts
-      timetable.get(mockGroup1.id)![0] = {
-        ...classSession1,
-        instructor: mockInstructor1,
-      };
+it('should detect an instructor conflict in the second period of a multi-period class', () => {
+  // Setup existing session that conflicts
+  timetable.get(mockGroup1.id)![0] = {
+    ...classSession1,
+    instructor: mockInstructor1,
+  };
 
-      // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
-      const result = checkTimetableConflicts(
-        timetable,
-        conflictingInstructorSession,
-        mockSettings,
-        mockGroup2.id,
-        0
-      );
+  // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
+  const result = checkTimetableConflicts(
+    timetable,
+    conflictingInstructorSession,
+    mockSettings,
+    mockGroup2.id,
+    0,
+    [mockProgramCS, mockProgramBus]
+  );
       expect(result).toContain('Instructor conflict: Jerry Smith');
     });
 
-    it('should detect a classroom conflict in the second period of a multi-period class', () => {
-      // Place conflicting session for classroom at period 1
-      timetable.get(mockGroup1.id)![1] = {
-        ...classSession1,
-        id: 'session-other',
-        instructor: mockInstructor1,
-      }; // same classroom1
+it('should detect a classroom conflict in the second period of a multi-period class', () => {
+  // Place conflicting session for classroom at period 1
+  timetable.get(mockGroup1.id)![1] = {
+    ...classSession1,
+    id: 'session-other',
+    instructor: mockInstructor1,
+  }; // same classroom1
 
-      // Try to place a 2-period class starting at index 0
-      const result = checkTimetableConflicts(
-        timetable,
-        conflictingClassroomSession,
-        mockSettings,
-        mockGroup2.id,
-        0
-      );
+  // Try to place a 2-period class starting at index 0
+  const result = checkTimetableConflicts(
+    timetable,
+    conflictingClassroomSession,
+    mockSettings,
+    mockGroup2.id,
+    0,
+    [mockProgramCS, mockProgramBus]
+  );
       expect(result).toContain('Classroom conflict');
       expect(result).toContain('Room 101');
       expect(result).toContain('CS-1A');
     });
 
-    it('should return a boundary conflict if the class duration extends beyond the periods in a day', () => {
-      const lastPeriodOfDay1 = mockSettings.periods_per_day - 1; // index 3
-      // Try to place a 2-period class here, it would spill to index 4 (next day)
-      const result = checkTimetableConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup1.id,
-        lastPeriodOfDay1
-      );
+it('should return a boundary conflict if the class duration extends beyond the periods in a day', () => {
+  const lastPeriodOfDay1 = mockSettings.periods_per_day - 1; // index 3
+  // Try to place a 2-period class here, it would spill to index 4 (next day)
+  const result = checkTimetableConflicts(
+    timetable,
+    classSession2,
+    mockSettings,
+    mockGroup1.id,
+    lastPeriodOfDay1,
+    [mockProgramCS, mockProgramBus]
+  );
       expect(result).toBe(
         'Placement conflict: Class cannot span multiple days (spans from day 1 to day 2).'
       );
     });
 
-    it('should return a boundary conflict if the class duration extends beyond the total periods', () => {
-      const lastPeriod = totalPeriods - 1; // index 19
-      // Try to place a 2-period class here, it would spill to index 20
-      const result = checkTimetableConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup1.id,
-        lastPeriod
-      );
+it('should return a boundary conflict if the class duration extends beyond the total periods', () => {
+  const lastPeriod = totalPeriods - 1; // index 19
+  // Try to place a 2-period class here, it would spill to index 20
+  const result = checkTimetableConflicts(
+    timetable,
+    classSession2,
+    mockSettings,
+    mockGroup1.id,
+    lastPeriod,
+    [mockProgramCS, mockProgramBus]
+  );
       expect(result).toBe(
         'Placement conflict: Class extends beyond timetable limit of 20 periods.'
       );
     });
 
-    it('should not report a conflict with itself when moving a multi-period class', () => {
-      timetable.get(mockGroup2.id)![5] = classSession2;
-      const result = checkTimetableConflicts(
-        timetable,
-        classSession2,
-        mockSettings,
-        mockGroup2.id,
-        10
-      );
+it('should not report a conflict with itself when moving a multi-period class', () => {
+  timetable.get(mockGroup2.id)![5] = classSession2;
+  const result = checkTimetableConflicts(
+    timetable,
+    classSession2,
+    mockSettings,
+    mockGroup2.id,
+    10,
+    [mockProgramCS, mockProgramBus]
+  );
       expect(result).toBe('');
     });
   });
 
-  it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
-    // ARRANGE: Set up a specific, tricky timetable layout.
-    // Session A is at [1, 2], Session B is at [3, 4].
-    const sessionA = { ...classSession2, id: 'sessionA', program_id: 'mockProgram' };
-    const sessionB = { ...classSession2, id: 'sessionB', program_id: 'mockProgram' };
+it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
+  // ARRANGE: Set up a specific, tricky timetable layout.
+  // Session A is at [1, 2], Session B is at [3, 4].
+  const sessionA = { ...classSession2, id: 'sessionA', program_id: 'mockProgram' };
+  const sessionB = { ...classSession2, id: 'sessionB', program_id: 'mockProgram' };
 
-    const groupSessions = timetable.get(mockGroup1.id)!;
-    groupSessions[1] = sessionA;
-    groupSessions[2] = sessionA;
-    groupSessions[3] = sessionB;
-    groupSessions[4] = sessionB;
+  const groupSessions = timetable.get(mockGroup1.id)!;
+  groupSessions[1] = sessionA;
+  groupSessions[2] = sessionA;
+  groupSessions[3] = sessionB;
+  groupSessions[4] = sessionB;
 
-    // Define the move operation
-    const targetPeriodIndex = 2; // Target is [2, 3]
+  // Define the move operation
+  const targetPeriodIndex = 2; // Target is [2, 3]
 
-    // ACT: Attempt to move session B from index 3 to index 2.
-    // This should conflict with session A, which occupies index 2.
-    const result = checkTimetableConflicts(
-      timetable,
-      sessionB,
-      mockSettings,
-      mockGroup1.id,
-      targetPeriodIndex
-    );
+  // ACT: Attempt to move session B from index 3 to index 2.
+  // This should conflict with session A, which occupies index 2.
+  const result = checkTimetableConflicts(
+    timetable,
+    sessionB,
+    mockSettings,
+    mockGroup1.id,
+    targetPeriodIndex,
+    [mockProgramCS, mockProgramBus]
+  );
 
     // ASSERT: The function must detect the conflict and not return an empty string.
     expect(result).not.toBe('');
