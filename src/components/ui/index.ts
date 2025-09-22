@@ -35,18 +35,7 @@ export {
   SelectValue,
 } from "./select"
 export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs"
-export {
-  Toast,
-  ToastAction,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-  type ToastActionElement,
-  type ToastProps,
-} from "./toast"
-export { Toaster } from "./toaster"
+export { Toaster } from "./sonner"
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip"
 
 // Form components
@@ -68,7 +57,6 @@ export { default as ErrorMessage } from "./custom/error-message"
 export { default as FormField } from "./custom/form-field"
 export { default as ItemCard, type ItemCardBadge } from "./custom/item-card"
 export { default as LoadingSpinner } from "./custom/loading-spinner"
-export { default as Notification } from "./custom/notification"
 export { default as TabNavigation } from "./custom/tab-navigation"
 export { default as CustomTooltip } from "./custom/tooltip"
 
