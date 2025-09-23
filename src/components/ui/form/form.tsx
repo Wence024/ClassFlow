@@ -12,17 +12,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { useFormField } from './use-form-field';
+import { FormFieldContext, FormItemContext } from './form-contexts';
 
 const Form = FormProvider;
-
-type FormFieldContextValue<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> = {
-  name: TName;
-};
-
-const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 /**
  * A component that provides form context and manages form state.
@@ -43,12 +35,6 @@ const FormField = <
     </FormFieldContext.Provider>
   );
 };
-
-type FormItemContextValue = {
-  id: string;
-};
-
-const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
 /**
  * A component that wraps form fields and applies styling.

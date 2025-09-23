@@ -40,7 +40,6 @@ export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tool
 
 // Form components
 export {
-  useFormField,
   Form,
   FormItem,
   FormLabel,
