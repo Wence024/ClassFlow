@@ -64,6 +64,18 @@ interface FormFieldProps {
 /**
  * A standardized component for creating labeled form inputs, including text, password, select, and more.
  * It handles displaying labels, validation errors, and required field indicators.
+ *
+ * @param ff
+ * @param ff.id
+ * @param ff.label
+ * @param ff.type
+ * @param ff.value
+ * @param ff.onChange
+ * @param ff.options
+ * @param ff.placeholder
+ * @param ff.required
+ * @param ff.error
+ * @param ff.autoComplete
  */
 const FormField: React.FC<FormFieldProps> = ({
   id,
@@ -81,16 +93,16 @@ const FormField: React.FC<FormFieldProps> = ({
 
   return (
     <div className="mb-4">
-      <Label htmlFor={id} className={cn("block font-semibold mb-1", error && "text-destructive")}>
+      <Label htmlFor={id} className={cn('block font-semibold mb-1', error && 'text-destructive')}>
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
 
       {type === 'select' ? (
         <Select value={value} onValueChange={onChange} required={required}>
-          <SelectTrigger 
+          <SelectTrigger
             id={id}
-            className={cn(error && "border-destructive focus:ring-destructive")}
+            className={cn(error && 'border-destructive focus:ring-destructive')}
             aria-describedby={errorId}
           >
             <SelectValue placeholder={`Select ${label}`} />
@@ -113,7 +125,7 @@ const FormField: React.FC<FormFieldProps> = ({
           placeholder={placeholder}
           required={required}
           autoComplete={autoComplete}
-          className={cn(error && "border-destructive focus:ring-destructive")}
+          className={cn(error && 'border-destructive focus:ring-destructive')}
           aria-describedby={errorId}
         />
       )}

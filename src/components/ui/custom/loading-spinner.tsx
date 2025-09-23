@@ -30,11 +30,7 @@ interface LoadingSpinnerProps {
  * @param l.className Additional CSS classes to apply to the component's root element.
  * @returns A loading spinner component.
  */
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'md',
-  text,
-  className = '',
-}) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'md', text, className = '' }) => {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
@@ -42,9 +38,9 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div className={cn("flex flex-col items-center justify-center", className)}>
+    <div className={cn('flex flex-col items-center justify-center', className)}>
       <Loader2
-        className={cn("animate-spin text-primary", sizeClasses[size])}
+        className={cn('animate-spin text-primary', sizeClasses[size])}
         role="status"
         aria-label="Loading"
       />

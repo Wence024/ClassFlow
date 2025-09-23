@@ -26,7 +26,6 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <TooltipProvider>
-            
             <Routes>
               {/* Public Routes */}
               {AuthRoutes}

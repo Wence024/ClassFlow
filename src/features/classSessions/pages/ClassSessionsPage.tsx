@@ -18,7 +18,7 @@ import type { ClassSession } from '../types/classSession';
 import { classSessionSchema } from '../types/validation';
 // Import all necessary UI components
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import {
   useCourses,
   useClassGroups,

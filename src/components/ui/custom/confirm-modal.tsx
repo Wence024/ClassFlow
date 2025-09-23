@@ -1,6 +1,13 @@
 import React from 'react';
 import { Button } from '../button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../dialog';
 
 /**
  * Props for the ConfirmModal component.
@@ -18,6 +25,16 @@ interface ConfirmModalProps {
 
 /**
  * A reusable modal dialog for confirming user actions.
+ *
+ * @param cm
+ * @param cm.isOpen
+ * @param cm.title
+ * @param cm.children
+ * @param cm.isLoading
+ * @param cm.confirmText
+ * @param cm.cancelText
+ * @param cm.onConfirm
+ * @param cm.onClose
  */
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen,

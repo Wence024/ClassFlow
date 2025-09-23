@@ -34,6 +34,12 @@ interface TabNavigationProps {
 
 /**
  * A component that renders a set of clickable tabs for navigation.
+ *
+ * @param tn
+ * @param tn.tabs
+ * @param tn.activeTab
+ * @param tn.onTabChange
+ * @param tn.className
  */
 const TabNavigation: React.FC<TabNavigationProps> = ({
   tabs,
@@ -43,13 +49,12 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
 }) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className={className}>
-      <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+      <TabsList
+        className="grid w-full"
+        style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+      >
         {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.id}
-            value={tab.id}
-            disabled={tab.disabled}
-          >
+          <TabsTrigger key={tab.id} value={tab.id} disabled={tab.disabled}>
             {tab.label}
           </TabsTrigger>
         ))}

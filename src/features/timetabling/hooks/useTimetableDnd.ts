@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
@@ -157,7 +157,9 @@ export const useTimetableDnd = () => {
 
       // Add final client-side safeguard before mutation
       if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
-        toast('Error', { description: 'You can only move sessions that belong to your own program.' });
+        toast('Error', {
+          description: 'You can only move sessions that belong to your own program.',
+        });
         cleanupDragState();
         return;
       }

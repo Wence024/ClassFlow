@@ -4,7 +4,7 @@ import type { Program } from '../types/program';
 
 /**
  * Custom hook for fetching and managing programs data.
- * 
+ *
  * @returns Object containing programs data, loading state, and error state.
  */
 export function usePrograms() {

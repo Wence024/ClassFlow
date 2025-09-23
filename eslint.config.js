@@ -1,12 +1,12 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
 import sonarjs from 'eslint-plugin-sonarjs';
 import jsdoc from 'eslint-plugin-jsdoc';
 
-import { globalIgnores } from 'eslint/config'
+import { globalIgnores } from 'eslint/config';
 
 export default tseslint.config([
   globalIgnores(['dist', 'src/lib/supabase.types.ts']),
@@ -22,7 +22,6 @@ export default tseslint.config([
       reactRefresh.configs.vite,
       sonarjs.configs.recommended,
       jsdoc.configs['flat/recommended-typescript'],
-
     ],
     rules: {
       // Overrides to prevent conflicts between linting tools
@@ -30,7 +29,7 @@ export default tseslint.config([
       '@typescript-eslint/no-unused-vars': 'off',
 
       // Enforce a cognitive complexity detection of 11 and above.
-      "sonarjs/cognitive-complexity": ["error", 10],
+      'sonarjs/cognitive-complexity': ['error', 10],
 
       // Enforce the presence of JSDoc comments
       'jsdoc/require-jsdoc': [
@@ -53,20 +52,24 @@ export default tseslint.config([
       'jsdoc/no-types': 'error',
 
       // Ensure consistent spacing and formatting
-      "jsdoc/tag-lines": ["warn", "always", {
-        "startLines": 1, 
-        "count": 0, 
-      }],
+      'jsdoc/tag-lines': [
+        'warn',
+        'always',
+        {
+          startLines: 1,
+          count: 0,
+        },
+      ],
       'jsdoc/multiline-blocks': 'warn',
       'jsdoc/require-description': 'warn',
       'jsdoc/require-param-description': 'warn',
       'jsdoc/require-returns-description': 'warn',
       'jsdoc/no-multi-asterisks': 'warn',
-      'jsdoc/require-description-complete-sentence': 'warn'
+      'jsdoc/require-description-complete-sentence': 'warn',
     },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
     },
   },
-])
+]);

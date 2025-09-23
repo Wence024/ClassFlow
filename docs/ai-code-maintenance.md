@@ -1,6 +1,6 @@
 # **Engineered Prompt for AI Agent**
 
-**Objective:** You are a senior software engineer AI agent. Your task is to perform a comprehensive code quality and testing pass on the `feature/multi-user-workflow` branch of the ClassFlow project. The goal is to ensure the branch is stable, free of errors, and ready for a final review before being merged into the main branch.
+**Objective:** You are a senior software engineer AI agent. Your task is to perform a comprehensive code quality and testing pass on the `lovable` branch of the ClassFlow project. The goal is to ensure the branch is stable, free of errors, and ready for a final review before being merged into the main branch.
 
 **Workflow:** You will execute the following process in a strict, sequential order:
 

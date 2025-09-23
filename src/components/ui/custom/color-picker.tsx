@@ -49,8 +49,8 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   const errorId = error ? `${id}-error` : undefined;
 
   return (
-    <div className={cn("mb-4", className)}>
-      <Label htmlFor={id} className={cn("block font-semibold mb-1", error && "text-destructive")}>
+    <div className={cn('mb-4', className)}>
+      <Label htmlFor={id} className={cn('block font-semibold mb-1', error && 'text-destructive')}>
         {label}
       </Label>
       <div className="flex items-center gap-2">
@@ -59,8 +59,8 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             <Button
               variant="outline"
               className={cn(
-                "flex-grow justify-start gap-3 h-auto p-2",
-                error && "border-destructive focus:ring-destructive"
+                'flex-grow justify-start gap-3 h-auto p-2',
+                error && 'border-destructive focus:ring-destructive'
               )}
               aria-expanded={isOpen}
               aria-describedby={errorId}
@@ -73,7 +73,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
               <ChevronDown className="w-4 h-4 opacity-50" />
             </Button>
           </PopoverTrigger>
-          
+
           <PopoverContent className="w-80" align="start">
             {/* Preset Colors Section */}
             <div className="space-y-3">
@@ -84,10 +84,10 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                     key={color.hex}
                     variant="outline"
                     className={cn(
-                      "w-full h-8 p-0 border-2 transition-all hover:scale-110",
+                      'w-full h-8 p-0 border-2 transition-all hover:scale-110',
                       value.toLowerCase() === color.hex.toLowerCase()
-                        ? "ring-2 ring-primary ring-offset-2"
-                        : ""
+                        ? 'ring-2 ring-primary ring-offset-2'
+                        : ''
                     )}
                     style={{ backgroundColor: color.hex }}
                     onClick={() => {
@@ -136,22 +136,14 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect
-              x="3"
-              y="3"
-              width="18"
-              height="18"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
+            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
             <circle cx="8" cy="8" r="1.5" fill="currentColor" />
             <circle cx="16" cy="16" r="1.5" fill="currentColor" />
             <circle cx="12" cy="12" r="1.5" fill="currentColor" />
           </svg>
         </Button>
       </div>
-      
+
       {error && (
         <p id={errorId} className="text-destructive text-sm mt-1" role="alert">
           {error}

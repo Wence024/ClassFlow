@@ -113,7 +113,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
     return (
       <div
         className={cn(
-          "flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold",
+          'flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold',
           variantStyles[variant]
         )}
         title={tooltip}
@@ -125,7 +125,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   return (
-    <Card className={cn("flex items-center gap-4", className)}>
+    <Card className={cn('flex items-center gap-4', className)}>
       <CardContent className="p-4 flex items-center gap-4 w-full">
         {/* Render a color swatch if a color is provided */}
         {color && (
