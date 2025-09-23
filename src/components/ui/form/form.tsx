@@ -7,11 +7,11 @@ import {
   type FieldPath,
   type FieldValues,
   FormProvider,
-  useFormContext,
 } from 'react-hook-form';
 
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { useFormField } from './use-form-field';
 
 const Form = FormProvider;
 
@@ -25,8 +25,11 @@ type FormFieldContextValue<
 const FormFieldContext = React.createContext<FormFieldContextValue>({} as FormFieldContextValue);
 
 /**
+ * A component that provides form context and manages form state.
+ * It passes down form control to child components.
  *
- * @param props
+ * @param props - The props for the FormField component, which include the name and control information.
+ * @returns A FormField component that wraps a Controller.
  */
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -41,38 +44,20 @@ const FormField = <
   );
 };
 
-/**
- *
- */
-const useFormField = () => {
-  const fieldContext = React.useContext(FormFieldContext);
-  const itemContext = React.useContext(FormItemContext);
-  const { getFieldState, formState } = useFormContext();
-
-  const fieldState = getFieldState(fieldContext.name, formState);
-
-  if (!fieldContext) {
-    throw new Error('useFormField should be used within <FormField>');
-  }
-
-  const { id } = itemContext;
-
-  return {
-    id,
-    name: fieldContext.name,
-    formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
-    ...fieldState,
-  };
-};
-
 type FormItemContextValue = {
   id: string;
 };
 
 const FormItemContext = React.createContext<FormItemContextValue>({} as FormItemContextValue);
 
+/**
+ * A component that wraps form fields and applies styling.
+ *
+ * @param fi - The props for the FormItem component.
+ * @param fi.className - The className to apply to the root element.
+ * @param fi.props - Other props passed to the div element.
+ * @returns A FormItem component that wraps a div element with styling.
+ */
 const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     const id = React.useId();
@@ -86,6 +71,13 @@ const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivEl
 );
 FormItem.displayName = 'FormItem';
 
+/**
+ * A component that renders a label for form fields.
+ *
+ * @param className - The className to apply to the label.
+ * @param props - The other props passed to the Label component.
+ * @returns A Label component that is styled and connected to the form field.
+ */
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
@@ -103,6 +95,12 @@ const FormLabel = React.forwardRef<
 });
 FormLabel.displayName = 'FormLabel';
 
+/**
+ * A component that provides form controls for form fields.
+ *
+ * @param props - The props passed to the Slot component.
+ * @returns A Slot component that connects the form field with its control.
+ */
 const FormControl = React.forwardRef<
   React.ElementRef<typeof Slot>,
   React.ComponentPropsWithoutRef<typeof Slot>
@@ -121,6 +119,13 @@ const FormControl = React.forwardRef<
 });
 FormControl.displayName = 'FormControl';
 
+/**
+ * A component that provides a description for the form field.
+ *
+ * @param className - The className to apply to the description.
+ * @param props - The props passed to the paragraph element.
+ * @returns A paragraph element that serves as the description for the form field.
+ */
 const FormDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
@@ -138,6 +143,14 @@ const FormDescription = React.forwardRef<
 });
 FormDescription.displayName = 'FormDescription';
 
+/**
+ * A component that provides error or other messages for the form field.
+ *
+ * @param className - The className to apply to the message.
+ * @param children - The content of the message.
+ * @param props - Other props passed to the paragraph element.
+ * @returns A paragraph element that shows the form error or message.
+ */
 const FormMessage = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
@@ -162,13 +175,4 @@ const FormMessage = React.forwardRef<
 });
 FormMessage.displayName = 'FormMessage';
 
-export {
-  useFormField,
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  FormField,
-};
+export { Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };

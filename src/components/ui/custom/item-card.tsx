@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, Edit, Info, ShieldAlert, Trash2 } from 'lucide-react';
-import { Button } from '../button';
+import { Button } from '../button/button';
 import { Card, CardContent } from '../card';
 import { cn } from '@/lib/utils';
 

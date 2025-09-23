@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { getRandomPresetColor, PRESET_COLORS_DATA, getColorName } from '../../../lib/colorUtils';
-import { Button } from '../button';
+import { Button } from '../button/button';
 import { Label } from '../label';
 import { Popover, PopoverContent, PopoverTrigger } from '../popover';
 import { cn } from '@/lib/utils';

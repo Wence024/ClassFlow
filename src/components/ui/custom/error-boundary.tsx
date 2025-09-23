@@ -1,5 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
-import { Button } from '../button';
+import { Button } from '../button/button';
 
 /**
  * Props for the ErrorBoundary component.

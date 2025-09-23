@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle, RotateCcw, X } from 'lucide-react';
 import { Alert, AlertDescription } from '../alert';
-import { Button } from '../button';
+import { Button } from '../button/button';
 
 /**
  * Props for the ErrorMessage component.

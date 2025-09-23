@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../button';
+import { Button } from '../button/button';
 import {
   Dialog,
   DialogContent,
@@ -26,15 +26,17 @@ interface ConfirmModalProps {
 /**
  * A reusable modal dialog for confirming user actions.
  *
- * @param cm
- * @param cm.isOpen
- * @param cm.title
- * @param cm.children
- * @param cm.isLoading
- * @param cm.confirmText
- * @param cm.cancelText
- * @param cm.onConfirm
- * @param cm.onClose
+ * @param cm The ConfirmModal props.
+ * @param cm.isOpen A boolean that determines if the modal is open or not.
+ * @param cm.title The title displayed at the top of the modal.
+ * @param cm.children The content to display inside the modal.
+ * @param cm.isLoading A flag to disable the buttons while loading (default is false).
+ * @param cm.confirmText The text for the confirmation button (default is "Confirm").
+ * @param cm.cancelText The text for the cancel button (default is "Cancel").
+ * @param cm.onConfirm The callback function triggered when the confirm button is clicked.
+ * @param cm.onClose The callback function triggered when the close button or cancel button is clicked.
+ *
+ * @returns A React component that renders a modal dialog with confirm and cancel actions.
  */
 const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen,

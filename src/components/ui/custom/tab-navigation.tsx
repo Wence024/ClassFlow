@@ -5,13 +5,8 @@ import { Tabs, TabsList, TabsTrigger } from '../tabs';
  * Represents the structure of a single tab.
  */
 interface Tab {
-  /** A unique identifier for the tab. */
   id: string;
-
-  /** The text to display on the tab. */
   label: string;
-
-  /** If true, the tab will be visually disabled and cannot be clicked. */
   disabled?: boolean;
 }
 
@@ -19,27 +14,22 @@ interface Tab {
  * Props for the TabNavigation component.
  */
 interface TabNavigationProps {
-  /** An array of tab objects to be rendered. */
   tabs: Tab[];
-
-  /** The `id` of the currently active tab. */
   activeTab: string;
-
-  /** A callback function that is invoked with the `id` of the tab when it is clicked. */
   onTabChange: (tabId: string) => void;
-
-  /** Additional CSS classes to apply to the component's root element. */
   className?: string;
 }
 
 /**
  * A component that renders a set of clickable tabs for navigation.
  *
- * @param tn
- * @param tn.tabs
- * @param tn.activeTab
- * @param tn.onTabChange
- * @param tn.className
+ * @param tn The props for the TabNavigation component.
+ * @param tn.tabs An array of tab objects to render. Each tab contains an `id`, `label`, and optional `disabled` state.
+ * @param tn.activeTab The `id` of the currently active tab.
+ * @param tn.onTabChange A callback function that is called when a tab is clicked, receiving the `tabId` as an argument.
+ * @param tn.className Optional additional CSS classes to apply to the root element of the TabNavigation component.
+ *
+ * @returns A React component that renders a tab navigation UI with clickable tabs.
  */
 const TabNavigation: React.FC<TabNavigationProps> = ({
   tabs,

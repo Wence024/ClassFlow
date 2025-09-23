@@ -5,13 +5,16 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Dialog = DialogPrimitive.Root;
-
 const DialogTrigger = DialogPrimitive.Trigger;
-
 const DialogPortal = DialogPrimitive.Portal;
-
 const DialogClose = DialogPrimitive.Close;
 
+/**
+ * Dialog overlay component that appears behind the dialog content.
+ *
+ * @param className Optional class name to customize the overlay's styling.
+ * @returns A React component representing the dialog overlay.
+ */
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
@@ -27,6 +30,13 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+/**
+ * Dialog content component that represents the main body of the dialog.
+ *
+ * @param className Optional class name to customize the dialog's content.
+ * @param children The content to be displayed inside the dialog.
+ * @returns A React component representing the dialog content.
+ */
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -52,9 +62,12 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 /**
+ * Dialog header component that represents the title section of the dialog.
  *
- * @param dh
- * @param dh.className
+ * @param dh The props of the compoenent.
+ * @param dh.className Optional class name to customize the header's styling.
+ * @param dh.props Additional props to pass to the header.
+ * @returns A React component representing the dialog header.
  */
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />
@@ -62,9 +75,12 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 DialogHeader.displayName = 'DialogHeader';
 
 /**
+ * Dialog footer component that represents the footer section of the dialog.
  *
- * @param root0
- * @param root0.className
+ * @param df The props of the compoenent.
+ * @param df.className Optional class name to customize the footer's styling.
+ * @param df.props Additional props to pass to the footer.
+ * @returns A React component representing the dialog footer.
  */
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
@@ -74,6 +90,14 @@ const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 );
 DialogFooter.displayName = 'DialogFooter';
 
+/**
+ * Dialog title component that represents the title text inside the dialog.
+ *
+ * @param dt The props of the compoenent.
+ * @param dt.className Optional class name to customize the title's styling.
+ * @param dt.props Additional props to pass to the title.
+ * @returns A React component representing the dialog title.
+ */
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
@@ -86,6 +110,14 @@ const DialogTitle = React.forwardRef<
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
+/**
+ * Dialog description component that provides a description inside the dialog.
+ *
+ * @param dd The props of the compoenent.
+ * @param dd.className Optional class name to customize the description's styling.
+ * @param dd.props Additional props to pass to the description.
+ * @returns A React component representing the dialog description.
+ */
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>

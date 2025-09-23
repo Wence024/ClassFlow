@@ -8,10 +8,7 @@ import { cn } from '@/lib/utils';
  * Represents a single option for a select input.
  */
 interface SelectOption {
-  /** The unique identifier for the option (used as the value). */
   id: string;
-
-  /** The human-readable text for the option. */
   name: string;
 }
 
@@ -19,63 +16,35 @@ interface SelectOption {
  * Props for the FormField component.
  */
 interface FormFieldProps {
-  /** A unique identifier for the input, used for the `id` and `name` attributes. Essential for accessibility. */
   id: string;
-
-  /** The text label displayed above the form field. */
   label: string;
-
-  /**
-   * The type of the input field. 'select' renders a dropdown.
-   *
-   * @default 'text'
-   */
   type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number' | 'color';
-
-  /** The current value of the form field. */
   value: string;
-
-  /** A callback function that is invoked when the field's value changes. */
   onChange: (value: string) => void;
-
-  /** An array of options for select inputs. Each option should have an `id` and `name`. */
   options?: SelectOption[];
-
-  /** Placeholder text for the input field. */
   placeholder?: string;
-
-  /**
-   * Whether the field is required. Adds a visual indicator and the `required` attribute.
-   *
-   * @default false
-   */
   required?: boolean;
-
-  /** An error message to display below the field. If present, the field will be styled to indicate an error. */
   error?: string;
-
-  /**
-   * The `autocomplete` attribute for the input, to help with browser autofill.
-   * Note: Only pass a valid, non-empty autocomplete string for accessibility compliance.
-   */
   autoComplete?: string;
 }
 
 /**
- * A standardized component for creating labeled form inputs, including text, password, select, and more.
+ * A legacy component for creating labeled form inputs, including text, password, select, and more.
  * It handles displaying labels, validation errors, and required field indicators.
  *
- * @param ff
- * @param ff.id
- * @param ff.label
- * @param ff.type
- * @param ff.value
- * @param ff.onChange
- * @param ff.options
- * @param ff.placeholder
- * @param ff.required
- * @param ff.error
- * @param ff.autoComplete
+ * @param ff - The props for the FormField component.
+ * @param ff.id - A unique identifier for the input, used for the `id` and `name` attributes.
+ * @param ff.label - The text label displayed above the form field.
+ * @param [ff.type] - The type of the input field.
+ * @param ff.value - The current value of the form field.
+ * @param ff.onChange - A callback function that is invoked when the field's value changes.
+ * @param [ff.options] - An array of options for select inputs, each with an `id` and `name`.
+ * @param [ff.placeholder] - Placeholder text for the input field.
+ * @param [ff.required] - Whether the field is required.
+ * @param [ff.error] - An error message to display below the field.
+ * @param [ff.autoComplete] - The `autocomplete` attribute for the input, to help with browser autofill.
+ * 
+ * @returns The JSX element for the FormField component.
  */
 const FormField: React.FC<FormFieldProps> = ({
   id,

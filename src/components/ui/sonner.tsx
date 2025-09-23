@@ -5,8 +5,10 @@ import { Toaster as Sonner } from 'sonner';
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 /**
+ * Toaster component that wraps the `Sonner` toaster to provide custom styles and options.
  *
- * @param props
+ * @param props - The props passed to the `Sonner` toaster component. These can include toast options and class names.
+ * @returns A React component that renders the `Sonner` toaster with customized styles.
  */
 function Toaster({ ...props }: ToasterProps) {
   return (
