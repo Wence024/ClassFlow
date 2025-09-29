@@ -233,6 +233,16 @@ const mockCourseBus: Course = {
   program_id: mockProgramBus.id,
 };
 
+const mockCourseShared: Course = {
+  id: 'course_shared',
+  name: 'Shared Course',
+  code: 'SHR101',
+  user_id: MOCK_USER_ID,
+  created_at: MOCK_CREATED_AT,
+  color: '#777777',
+  program_id: null, // or make it available to both programs
+};
+
 const classSession1: ClassSession = {
   id: 'session1',
   course: mockCourse1,
@@ -575,7 +585,138 @@ describe('checkConflicts', () => {
     });
   });
 
-  // You can add back the other test blocks (Multi-Period, Boundary, etc.) here
-  // using the new, complete mock data objects to ensure they continue to pass.
-  // For brevity, I am omitting them here but you should include them.
+  describe('Class Merging Scenarios', () => {
+    it('should NOT return a conflict for sessions with the same course, instructor, and classroom', () => {
+      // ARRANGE
+      // Session for Group 1, using shared resources
+      const sessionForGroup1: ClassSession = {
+        id: 'sessionG1',
+        course: mockCourseShared,
+        instructor: mockInstructorShared,
+        classroom: mockClassroomShared,
+        group: mockGroup1,
+        period_count: 2,
+        program_id: mockGroup1.program_id,
+      };
+
+      // Session for Group 2, using the exact same shared resources
+      const sessionForGroup2: ClassSession = {
+        id: 'sessionG2',
+        course: mockCourseShared, // Same course
+        instructor: mockInstructorShared, // Same instructor
+        classroom: mockClassroomShared, // Same classroom
+        group: mockGroup2,
+        period_count: 2,
+        program_id: mockGroup2.program_id,
+      };
+
+      // Place session for Group 1 on the timetable at period 5
+      timetable.get(mockGroup1.id)![5] = sessionForGroup1;
+      timetable.get(mockGroup1.id)![6] = sessionForGroup1;
+
+      // ACT
+      // Try to place the session for Group 2 at the same time slot
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionForGroup2,
+        mockSettings,
+        mockGroup2.id,
+        5,
+        [mockProgramCS, mockProgramBus]
+      );
+
+      // ASSERT
+      // There should be no conflict, as this is a valid merge
+      expect(result).toBe('');
+    });
+
+    it('should STILL return an instructor conflict for sessions with the same instructor but different courses', () => {
+      // ARRANGE
+      // Session for Group 1
+      const sessionForGroup1: ClassSession = {
+        id: 'sessionG1_inst_conflict',
+        course: mockCourse1, // Course 1
+        instructor: mockInstructorShared, // Shared instructor
+        classroom: mockClassroom1,
+        group: mockGroup1,
+        period_count: 1,
+        program_id: mockGroup1.program_id,
+      };
+
+      // Session for Group 2 with the same instructor but a different course
+      const sessionForGroup2: ClassSession = {
+        id: 'sessionG2_inst_conflict',
+        course: mockCourse2, // Course 2 (DIFFERENT)
+        instructor: mockInstructorShared, // Shared instructor (SAME)
+        classroom: mockClassroom2,
+        group: mockGroup2,
+        period_count: 1,
+        program_id: mockGroup2.program_id,
+      };
+
+      // Place session for Group 1 on the timetable
+      timetable.get(mockGroup1.id)![8] = sessionForGroup1;
+
+      // ACT
+      // Try to place the session for Group 2 at the same time
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionForGroup2,
+        mockSettings,
+        mockGroup2.id,
+        8,
+        [mockProgramCS, mockProgramBus]
+      );
+
+      // ASSERT
+      // This should be a conflict because the courses are different
+      expect(result).toContain('Instructor conflict');
+      expect(result).toContain('Shared Professor');
+    });
+
+    it('should STILL return a classroom conflict for sessions with the same classroom but different courses', () => {
+      // ARRANGE
+      // Session for Group 1
+      const sessionForGroup1: ClassSession = {
+        id: 'sessionG1_room_conflict',
+        course: mockCourse1, // Course 1
+        instructor: mockInstructor1,
+        classroom: mockClassroomShared, // Shared classroom
+        group: mockGroup1,
+        period_count: 1,
+        program_id: mockGroup1.program_id,
+      };
+
+      // Session for Group 2 with the same classroom but a different course
+      const sessionForGroup2: ClassSession = {
+        id: 'sessionG2_room_conflict',
+        course: mockCourse2, // Course 2 (DIFFERENT)
+        instructor: mockInstructor2,
+        classroom: mockClassroomShared, // Shared classroom (SAME)
+        group: mockGroup2,
+        period_count: 1,
+        program_id: mockGroup2.program_id,
+      };
+
+      // Place session for Group 1 on the timetable
+      timetable.get(mockGroup1.id)![9] = sessionForGroup1;
+
+      // ACT
+      // Try to place the session for Group 2 at the same time
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionForGroup2,
+        mockSettings,
+        mockGroup2.id,
+        9,
+        [mockProgramCS, mockProgramBus]
+      );
+
+      // ASSERT
+      // This should be a conflict because the courses are different
+      expect(result).toContain('Classroom conflict');
+      expect(result).toContain('Shared Auditorium');
+    });
+  });
+
 });
