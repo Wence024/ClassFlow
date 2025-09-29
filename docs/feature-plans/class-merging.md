@@ -4,12 +4,12 @@
 
 The goal of this phase is to teach the application's brain that sessions sharing a course, instructor, and classroom are allowed to exist at the same time.
 
-* **Task 1.1: Modify Conflict Detection for Instructors**
+* [x] **Task 1.1: Modify Conflict Detection for Instructors**
   * **File:** `src/features/timetabling/utils/checkConflicts.ts`
   * **Function to Edit:** `findInstructorConflictInPeriod` (or its parent `checkInstructorConflicts`).
   * **Action:** Inside the `if` condition that checks for a matching instructor ID (`conflictingSession.instructor.id === sessionToCheck.instructor.id`), add a nested check. If the `course.id` of both sessions is **also the same**, it is a valid merge, and you should `return null` or `continue` the loop. A conflict should only be returned if the courses are *different*.
 
-* **Task 1.2: Modify Conflict Detection for Classrooms**
+* [x] **Task 1.2: Modify Conflict Detection for Classrooms**
   * **File:** `src/features/timetabling/utils/checkConflicts.ts`
   * **Function to Edit:** `findClassroomConflictInPeriod` (or its parent `checkClassroomConflicts`).
   * **Action:** Apply the exact same logic as in Task 1.1. If a matching classroom is found, check if the `course.id` is also the same. If so, it is not a conflict.

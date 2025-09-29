@@ -208,10 +208,14 @@ function findInstructorConflictInPeriod(
   );
 
   for (const conflictingSession of conflicts) {
-    if (
-      conflictingSession.instructor.first_name === sessionToCheck.instructor.first_name &&
-      conflictingSession.instructor.last_name === sessionToCheck.instructor.last_name
-    ) {
+    // Check if the instructor is the same.
+    if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+      // If the course is also the same, it's a valid merge, so we skip it.
+      if (conflictingSession.course.id === sessionToCheck.course.id) {
+        continue;
+      }
+
+      // If the courses are different, it's a true conflict.
       const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
       const program = programs.find((p) => p.id === conflictingSession.group.program_id);
 
@@ -284,7 +288,14 @@ function findClassroomConflictInPeriod(
   );
 
   for (const conflictingSession of conflicts) {
-    if (conflictingSession.classroom.name === sessionToCheck.classroom.name) {
+    // Check if the classroom is the same.
+    if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+      // If the course is also the same, it's a valid merge, so we skip it.
+      if (conflictingSession.course.id === sessionToCheck.course.id) {
+        continue;
+      }
+
+      // If the courses are different, it's a true conflict.
       return `Classroom conflict: Classroom '${conflictingSession.classroom.name}' is already booked by group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
     }
   }
