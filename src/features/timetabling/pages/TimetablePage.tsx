@@ -49,8 +49,12 @@ const TimetablePage: React.FC = () => {
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
     for (const sessionsInGroup of timetable.values()) {
-      for (const session of sessionsInGroup) {
-        if (session) assignedIds.add(session.id);
+      for (const sessionsInCell of sessionsInGroup) {
+        if (sessionsInCell) {
+          for (const session of sessionsInCell) {
+            assignedIds.add(session.id);
+          }
+        }
       }
     }
 
