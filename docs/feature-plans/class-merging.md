@@ -25,7 +25,7 @@ The goal of this phase is to teach the application's brain that sessions sharing
 
 The goal here is to transform the raw list of assignments into a grid data structure that explicitly groups merged sessions together.
 
-* **Task 2.1: Update Timetable Grid Data Type**
+* [x] **Task 2.1: Update Timetable Grid Data Type**
   * **File:** `src/features/timetabling/utils/timetableLogic.ts`
   * **Action:** Change the type definition of `TimetableGrid` to hold an array of sessions per cell.
     * **From:** `Map<string, (ClassSession | null)[]>`
