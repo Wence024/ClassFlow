@@ -31,14 +31,14 @@ The goal here is to transform the raw list of assignments into a grid data struc
     * **From:** `Map<string, (ClassSession | null)[]>`
     * **To:** `Map<string, (ClassSession[] | null)[]>`
 
-* **Task 2.2: Rearchitect the `buildTimetableGrid` Function**
+* [x] **Task 2.2: Rearchitect the `buildTimetableGrid` Function**
   * **File:** `src/features/timetabling/utils/timetableLogic.ts`
   * **Action:** Refactor the function's implementation to perform a multi-pass process:
         1. Create an intermediate map that groups all assignments by their `period_index`.
         2. Iterate through this intermediate map to identify sets of assignments that are "mergeable" (same course, instructor, classroom).
         3. Build the final `TimetableGrid`. For each period, place either `null`, a single-session array `[session]`, or a merged-session array `[sessionA, sessionB, ...]` into the grid cells for all relevant groups. For a merged session, ensure the **exact same array instance** is placed in the row of every participating group.
 
-* **Task 2.3: Update Unit Tests for Grid Logic**
+* [x] **Task 2.3: Update Unit Tests for Grid Logic**
   * **File:** `src/features/timetabling/utils/tests/timetableLogic.test.ts`
   * **Action:**
         1. Add a new test suite for `buildTimetableGrid`.
@@ -64,3 +64,5 @@ Finally, update the React components to visually represent the merged data.
         2. If it matches, render the `<SessionCell />` as normal (it will have the correct `colSpan`).
         3. If it does **not** match, it means another row is responsible for rendering this merged block, so you should render **nothing** for this cell and all subsequent cells covered by its `colSpan`.
         4. Ensure your loop correctly skips the periods that are covered by another row's `colSpan` to avoid rendering extra `EmptyCell` components.
+
+New task: adjust capacity conflict check total sum for a classroom.
