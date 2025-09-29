@@ -7,7 +7,7 @@ import { useInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { InstructorFields, InstructorCard } from './components/instructor';
 import {
-  ActionButton,
+  Button,
   ConfirmModal,
   ErrorMessage,
   FormField,
@@ -15,7 +15,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Instructor } from '../types';
-import { showNotification } from '../../../lib/notificationsService';
+import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
@@ -85,7 +85,7 @@ const InstructorManagement: React.FC = () => {
     if (!user) return;
     await addInstructor({ ...data, user_id: user.id });
     formMethods.reset();
-    showNotification('Instructor added successfully!');
+    toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -93,7 +93,7 @@ const InstructorManagement: React.FC = () => {
     if (!editingInstructor) return;
     await updateInstructor(editingInstructor.id, data);
     setEditingInstructor(null);
-    showNotification('Instructor updated successfully!');
+    toast('Success', { description: 'Instructor updated successfully!' });
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -111,14 +111,14 @@ const InstructorManagement: React.FC = () => {
       (session) => session.instructor?.id === instructorToDelete.id
     );
     if (isUsed) {
-      showNotification(
-        `Cannot delete "${instructorToDelete.first_name} ${instructorToDelete.last_name}". They are assigned to one or more classes.`
-      );
+      toast('Error', {
+        description: `Cannot delete "${instructorToDelete.first_name} ${instructorToDelete.last_name}". They are assigned to one or more classes.`,
+      });
       setInstructorToDelete(null);
       return;
     }
     await removeInstructor(instructorToDelete.id);
-    showNotification('Instructor removed successfully.');
+    toast('Success', { description: 'Instructor removed successfully.' });
     setInstructorToDelete(null);
     if (editingInstructor?.id === instructorToDelete.id) {
       setEditingInstructor(null);
@@ -141,13 +141,13 @@ const InstructorManagement: React.FC = () => {
                     errors={formMethods.formState.errors}
                   />
                   <div className="flex gap-2 pt-4">
-                    <ActionButton type="submit" loading={isSubmitting} className="flex-1">
+                    <Button type="submit" loading={isSubmitting} className="flex-1">
                       {editingInstructor ? 'Save Changes' : 'Create'}
-                    </ActionButton>
+                    </Button>
                     {editingInstructor && (
-                      <ActionButton type="button" variant="secondary" onClick={handleCancel}>
+                      <Button type="button" variant="secondary" onClick={handleCancel}>
                         Cancel
-                      </ActionButton>
+                      </Button>
                     )}
                   </div>
                 </fieldset>

@@ -1,4 +1,3 @@
-
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { usePrograms } from '../usePrograms';
@@ -33,11 +32,14 @@ const createWrapper = () => {
 describe('usePrograms', () => {
   it('should fetch and return a list of all programs', async () => {
     const mockPrograms: Program[] = [
-      { id: '1', name: 'Computer Science', short_code: "BSCS", created_at: MOCK_CREATED_AT},
-      { id: '2', name: 'Mathematics', short_code: "MATH", created_at: MOCK_CREATED_AT },
+      { id: '1', name: 'Computer Science', short_code: 'BSCS', created_at: MOCK_CREATED_AT },
+      { id: '2', name: 'Mathematics', short_code: 'MATH', created_at: MOCK_CREATED_AT },
     ];
 
-    (supabase.from('programs').select as vi.Mock).mockResolvedValueOnce({ data: mockPrograms, error: null });
+    (supabase.from('programs').select as vi.Mock).mockResolvedValueOnce({
+      data: mockPrograms,
+      error: null,
+    });
 
     const { result } = renderHook(() => usePrograms(), { wrapper: createWrapper() });
 
@@ -58,7 +60,10 @@ describe('usePrograms', () => {
 
   it('should correctly handle and throw an error if the Supabase query fails', async () => {
     const errorMessage = 'Supabase query failed';
-    (supabase.from('programs').select as vi.Mock).mockResolvedValueOnce({ data: null, error: { message: errorMessage } });
+    (supabase.from('programs').select as vi.Mock).mockResolvedValueOnce({
+      data: null,
+      error: { message: errorMessage },
+    });
 
     const { result } = renderHook(() => usePrograms(), { wrapper: createWrapper() });
 

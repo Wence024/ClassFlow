@@ -12,8 +12,8 @@ export default {
     {
       files: '*.{css,scss}',
       options: {
-        singleQuote: false
-      }
-    }
-  ]
+        singleQuote: false,
+      },
+    },
+  ],
 };

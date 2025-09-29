@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { resetPasswordSchema } from '../types/validation';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
-import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
+import { Button, FormField, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page component for users to set a new password.
@@ -121,9 +121,9 @@ const ResetPasswordPage: React.FC = () => {
             required
             autoComplete="new-password"
           />
-          <ActionButton type="submit" loading={loading} className="w-full">
+          <Button type="submit" loading={loading} className="w-full">
             Reset Password
-          </ActionButton>
+          </Button>
         </fieldset>
         {apiError && (
           <ErrorMessage message={apiError} onDismiss={() => setApiError(null)} className="mt-4" />

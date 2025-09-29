@@ -1,6 +1,8 @@
 import React from 'react';
 import { AlertTriangle, CheckCircle, Edit, Info, ShieldAlert, Trash2 } from 'lucide-react';
-import ActionButton from './ActionButton';
+import { Button } from '../button/button';
+import { Card, CardContent } from '../card';
+import { cn } from '@/lib/utils';
 
 /** Represents a key-value pair for display. */
 interface CardDetail {
@@ -57,7 +59,7 @@ interface ItemCardProps {
 }
 
 /**
- * A highly reusable, presentation-only card for displaying item information.
+ * A highly reusable, presentation-only card for displaying item information using shadcn Card.
  *
  * @param ic The props for the component.
  * @param ic.title The main title of the card.
@@ -93,10 +95,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
     const { text, tooltip, variant = 'warning', icon: CustomIcon } = badge;
 
     const variantStyles = {
-      warning: 'bg-yellow-100 text-yellow-800',
-      info: 'bg-blue-100 text-blue-800',
-      danger: 'bg-red-100 text-red-800',
-      success: 'bg-green-100 text-green-800',
+      warning: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-300',
+      info: 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
+      danger: 'bg-destructive/10 text-destructive dark:text-red-300',
+      success: 'bg-green-500/10 text-green-700 dark:text-green-300',
     };
 
     const Icon =
@@ -110,7 +112,10 @@ const ItemCard: React.FC<ItemCardProps> = ({
 
     return (
       <div
-        className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${variantStyles[variant]}`}
+        className={cn(
+          'flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold',
+          variantStyles[variant]
+        )}
         title={tooltip}
       >
         <Icon className="h-3.5 w-3.5" />
@@ -120,60 +125,59 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   return (
-    <div
-      className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex items-center gap-4 ${className}`}
-    >
-      {/* Render a color swatch if a color is provided */}
-      {color && (
-        <div
-          className="w-2 h-8 rounded-lg"
-          style={{ backgroundColor: color }}
-          aria-label={`Color swatch ${color}`}
-        />
-      )}
+    <Card className={cn('flex items-center gap-4', className)}>
+      <CardContent className="p-4 flex items-center gap-4 w-full">
+        {/* Render a color swatch if a color is provided */}
+        {color && (
+          <div
+            className="w-2 h-8 rounded-lg"
+            style={{ backgroundColor: color }}
+            aria-label={`Color swatch ${color}`}
+          />
+        )}
 
-      {/* Main Content Area */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h3 className="text-md font-semibold text-gray-800 truncate">{title}</h3>
-          {renderBadge()}
-        </div>
-        {/* Render subtitle only if it's a non-empty string */}
-        {subtitle && <p className="text-gray-500 text-sm truncate">{subtitle}</p>}
-
-        {/* Render details only if the array is not empty */}
-        {details.length > 0 && (
-          <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
-            {details.map((detail, index) => (
-              <p key={index}>
-                <span className="font-medium">{detail.label}:</span>
-                {String(detail.value)}
-              </p>
-            ))}
+        {/* Main Content Area */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="text-md font-semibold text-card-foreground truncate">{title}</h3>
+            {renderBadge()}
           </div>
-        )}
-      </div>
+          {/* Render subtitle only if it's a non-empty string */}
+          {subtitle && <p className="text-muted-foreground text-sm truncate">{subtitle}</p>}
 
-      {/* Action Buttons */}
-      <div className="flex gap-2">
-        {onEdit && isOwner && (
-          <ActionButton variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
-            <Edit className="w-4 h-4" />
-          </ActionButton>
-        )}
-        {onDelete && isOwner && (
-          // Add a descriptive aria-label to the button.
-          <ActionButton
-            variant="danger"
-            size="sm"
-            onClick={onDelete}
-            aria-label={`Delete ${title}`}
-          >
-            <Trash2 className="w-4 h-4" />
-          </ActionButton>
-        )}
-      </div>
-    </div>
+          {/* Render details only if the array is not empty */}
+          {details.length > 0 && (
+            <div className="mt-2 text-sm text-muted-foreground flex flex-wrap gap-x-4 gap-y-1">
+              {details.map((detail, index) => (
+                <p key={index}>
+                  <span className="font-medium">{detail.label}:</span>
+                  {String(detail.value)}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          {onEdit && isOwner && (
+            <Button variant="secondary" size="sm" onClick={onEdit} aria-label={`Edit ${title}`}>
+              <Edit className="w-4 h-4" />
+            </Button>
+          )}
+          {onDelete && isOwner && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={onDelete}
+              aria-label={`Delete ${title}`}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

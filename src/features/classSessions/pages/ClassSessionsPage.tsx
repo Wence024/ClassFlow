@@ -18,7 +18,7 @@ import type { ClassSession } from '../types/classSession';
 import { classSessionSchema } from '../types/validation';
 // Import all necessary UI components
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
-import { showNotification } from '../../../lib/notificationsService';
+import { toast } from 'sonner';
 import {
   useCourses,
   useClassGroups,
@@ -108,14 +108,14 @@ const ClassSessionsPage: React.FC = () => {
     if (!user) return;
     await addClassSession({ ...data, user_id: user.id });
     formMethods.reset();
-    showNotification('Class session created successfully!');
+    toast('Success', { description: 'Class session created successfully!' });
   };
 
   const handleSave = async (data: ClassSessionFormData) => {
     if (!editingSession) return;
     await updateClassSession(editingSession.id, data);
     setEditingSession(null);
-    showNotification('Class session updated successfully!');
+    toast('Success', { description: 'Class session updated successfully!' });
   };
 
   const handleCancel = () => setEditingSession(null);
@@ -126,7 +126,7 @@ const ClassSessionsPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (!sessionToDelete) return;
     await removeClassSession(sessionToDelete.id);
-    showNotification('Class session removed successfully.');
+    toast('Success', { description: 'Class session removed successfully.' });
     setSessionToDelete(null);
     if (editingSession?.id === sessionToDelete.id) {
       setEditingSession(null);

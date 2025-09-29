@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTimetable } from '../hooks/useTimetable';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
-import { LoadingSpinner, Tooltip } from '../../../components/ui';
+import { LoadingSpinner, CustomTooltip } from '../../../components/ui';
 import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import TimetableContext from './components/timetable/TimetableContext';
@@ -87,7 +87,7 @@ const TimetablePage: React.FC = () => {
 
   return (
     <div>
-      {tooltip && <Tooltip content={tooltip.content} position={tooltip.position} />}
+      {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
       <main className="flex-1 space-y-6 min-w-0">
         {isInitialLoading ? (
           <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">

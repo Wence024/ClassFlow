@@ -1,23 +1,60 @@
 /**
  * @file This barrel file re-exports all components from the `ui` directory.
  * This allows for cleaner and more convenient imports from other parts of the application.
- *
- * For example, instead of:
- * import { FormField } from '../components/ui/FormField';
- * import { ActionButton } from '../components/ui/ActionButton';
- *
- * You can do:
- * import { FormField, ActionButton } from '../components/ui';.
  */
 
-export { default as ActionButton } from './ActionButton';
-export { default as ColorPicker } from './ColorPicker';
-export { default as ConfirmModal } from './ConfirmModal';
-export { default as ErrorBoundary } from './ErrorBoundary';
-export { default as ErrorMessage } from './ErrorMessage';
-export { default as FormField } from './FormField';
-export { default as ItemCard, type ItemCardBadge } from './ItemCard'; // Default export
-export { default as LoadingSpinner } from './LoadingSpinner';
-export { default as Notification } from './Notification';
-export { default as TabNavigation } from './TabNavigation';
-export { default as Tooltip } from './Tooltip';
+// Shadcn components
+export { Alert, AlertDescription, AlertTitle } from './alert';
+export { Button, buttonVariants } from './button';
+export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './card';
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from './dialog';
+export { Input } from './input';
+export { Label } from './label';
+export { Popover, PopoverContent, PopoverTrigger } from './popover';
+export {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from './select';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+export { Toaster } from './sonner';
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
+
+// Form components
+export {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from './form';
+
+// Custom components
+export { default as ColorPicker } from './custom/color-picker';
+export { default as ConfirmModal } from './custom/confirm-modal';
+export { default as ErrorBoundary } from './custom/error-boundary';
+export { default as ErrorMessage } from './custom/error-message';
+export { default as FormField } from './custom/form-field';
+export { default as ItemCard, type ItemCardBadge } from './custom/item-card';
+export { default as LoadingSpinner } from './custom/loading-spinner';
+export { default as TabNavigation } from './custom/tab-navigation';
+export { default as CustomTooltip } from './custom/tooltip';

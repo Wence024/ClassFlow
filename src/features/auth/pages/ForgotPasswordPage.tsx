@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { forgotPasswordSchema } from '../types/validation';
 import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
-import { FormField, ActionButton, ErrorMessage } from '../../../components/ui';
+import { FormField, Button, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page component that allows users to request a password reset link.
@@ -90,9 +90,9 @@ const ForgotPasswordPage: React.FC = () => {
           required
           autoComplete="email"
         />
-        <ActionButton type="submit" loading={loading} className="w-full">
+        <Button type="submit" loading={loading} className="w-full">
           Send Reset Link
-        </ActionButton>
+        </Button>
         {apiError && (
           <ErrorMessage message={apiError} onDismiss={() => setApiError(null)} className="mt-4" />
         )}

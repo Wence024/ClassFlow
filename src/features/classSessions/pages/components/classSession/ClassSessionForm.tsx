@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'; // Import useMemo
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { ActionButton, FormField } from '../../../../../components/ui';
+import { Button, FormField } from '../../../../../components/ui';
 import { classSessionSchema } from '../../../../classSessions/types/validation';
 import type {
   Course,
@@ -206,13 +206,13 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
             )}
           />
           <div className="flex gap-3 pt-2">
-            <ActionButton type="submit" loading={loading} disabled={!isDirty && !isEditing}>
+            <Button type="submit" loading={loading} disabled={!isDirty && !isEditing}>
               {isEditing ? 'Save Changes' : 'Add Class Session'}
-            </ActionButton>
+            </Button>
             {onCancel && (
-              <ActionButton type="button" variant="secondary" onClick={onCancel}>
+              <Button type="button" variant="secondary" onClick={onCancel}>
                 Cancel
-              </ActionButton>
+              </Button>
             )}
           </div>
         </fieldset>

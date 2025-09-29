@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { loginSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
-import { ActionButton, FormField, ErrorMessage } from '../../../components/ui';
+import { Button, FormField, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page component for user login.
@@ -99,9 +99,9 @@ const LoginPage: React.FC = () => {
             required
             autoComplete="current-password"
           />
-          <ActionButton type="submit" loading={loading} className="w-full">
+          <Button type="submit" loading={loading} className="w-full">
             Login
-          </ActionButton>
+          </Button>
         </fieldset>
         {apiError && <ErrorMessage message={apiError} onDismiss={clearError} className="mt-4" />}
       </form>
