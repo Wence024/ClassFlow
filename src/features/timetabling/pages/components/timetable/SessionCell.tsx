@@ -9,6 +9,8 @@ import {
 } from '../../../../../lib/colorUtils';
 import { useAuth } from '../../../../auth/hooks/useAuth';
 import { AlertTriangle, Users } from 'lucide-react';
+import { useMemo } from 'react';
+import { checkCellSoftConflicts } from '../../../utils/checkConflicts';
 
 // --- PROPS ---
 
@@ -34,6 +36,7 @@ interface VisibleBlockProps {
   textStyle: React.CSSProperties;
   onShowTooltip: (e: React.MouseEvent<HTMLElement>) => void;
   onHideTooltip: () => void;
+  softConflicts: string[];
 }
 
 // --- HELPER FUNCTIONS & COMPONENTS ---
@@ -108,19 +111,14 @@ const createCellBackground = (
     };
   }
 
-  // Create a gradient from the unique instructor colors
-  const uniqueColors = [
-    ...new Set(
-      sessions.map((s) =>
-        getSessionCellBgColor(s.instructor.color ?? DEFAULT_FALLBACK_COLOR, isDragged)
-      )
-    ),
-  ];
+  // For merged sessions, create a diagonal split effect to indicate a merge.
+  const color = getSessionCellBgColor(
+    primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
+    isDragged
+  );
 
-  const background =
-    uniqueColors.length > 1
-      ? `linear-gradient(135deg, ${uniqueColors.join(', ')})`
-      : uniqueColors[0];
+  // This creates a diagonal split. The bottom-right half is the same color but darkened by a semi-transparent black layer.
+  const background = `linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,0.15) 50.5%), ${color}`;
 
   return { background, border };
 };
@@ -136,9 +134,11 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
   textStyle,
   onShowTooltip,
   onHideTooltip,
+  softConflicts,
 }) => {
   const primarySession = sessions[0];
   const isMerged = sessions.length > 1;
+  const hasSoftConflicts = softConflicts.length > 0;
 
   return (
     <div
@@ -166,6 +166,28 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
             <span className="text-xs font-bold" style={textStyle}>
               {sessions.length}
             </span>
+          </div>
+        )}
+        {hasSoftConflicts && (
+          <div
+            className="absolute top-1 left-1 bg-yellow-400 rounded-full p-0.5 cursor-help z-20"
+            onMouseEnter={(e) => {
+              e.stopPropagation(); // Prevent card tooltip from showing
+              onShowTooltip(
+                <div>
+                  <p className="font-semibold">Warnings:</p>
+                  <ul className="list-disc list-inside">
+                    {softConflicts.map((conflict, i) => (
+                      <li key={i}>{conflict}</li>
+                    ))}
+                  </ul>
+                </div>,
+                e.currentTarget
+              );
+            }}
+            onMouseLeave={onHideTooltip}
+          >
+            <AlertTriangle className="w-3 h-3 text-black" />
           </div>
         )}
       </div>
@@ -255,6 +277,8 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isDragging = activeDraggedSession !== null;
   const numberOfPeriods = primarySession.period_count || 1;
 
+  const softConflicts = useMemo(() => checkCellSoftConflicts(sessions), [sessions]);
+
   const draggableSession = isOwner ? sessions.find((s) => s.program_id === user?.program_id) : null;
 
   const cellStyle = isOwner
@@ -297,6 +321,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
             textStyle={textStyle}
             onShowTooltip={(e) => onShowTooltip(buildTooltipContent(sessions), e.currentTarget)}
             onHideTooltip={onHideTooltip}
+            softConflicts={softConflicts}
           />
 
           {/* Layer 2: The Invisible Drop Zones */}

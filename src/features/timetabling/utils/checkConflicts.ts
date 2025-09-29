@@ -7,7 +7,7 @@ import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
  * Type definition for a timetable grid, where each group has an array of class sessions.
  * The grid is indexed by group ID and stores either a class session or null for an empty slot.
  */
-export type TimetableGrid = Map<string, (ClassSession | null)[]>;
+export type TimetableGrid = Map<string, (ClassSession[] | null)[]>;
 
 /**
  * Checks if the number of students in a class group exceeds the capacity of the assigned classroom.
@@ -50,6 +50,59 @@ export function checkSoftConflicts(session: ClassSession): string[] {
   // Future soft conflicts (e.g., instructor preferences, resource requirements) can be added here.
 
   return conflicts;
+}
+
+/**
+ * Checks for soft conflicts in a cell containing one or more sessions.
+ * Currently focuses on capacity issues in merged sessions.
+ *
+ * @param sessions - An array of class sessions in the cell.
+ * @returns An array of conflict message strings.
+ */
+export function checkCellSoftConflicts(sessions: ClassSession[]): string[] {
+  const conflicts: string[] = [];
+  if (!sessions || sessions.length <= 1) {
+    return conflicts;
+  }
+
+  const capacityConflict = getMergedCapacityConflictMessage(sessions);
+  if (capacityConflict) {
+    conflicts.push(capacityConflict);
+  }
+
+  return conflicts;
+}
+
+/**
+ * Generates a conflict message if the total student count of a merged session exceeds classroom capacity.
+ *
+ * @param sessionsInSlot The sessions to be combined in a merge.
+ * @returns A string error message if capacity is exceeded, otherwise an empty string.
+ */
+function getMergedCapacityConflictMessage(sessionsInSlot: ClassSession[]): string {
+  if (!sessionsInSlot || sessionsInSlot.length === 0) return '';
+
+  const classroom = sessionsInSlot[0].classroom;
+  if (!classroom) return '';
+
+  const allGroupsInMerge = new Map<string, ClassGroup>();
+  for (const session of sessionsInSlot) {
+    allGroupsInMerge.set(session.group.id, session.group);
+  }
+
+  let totalStudents = 0;
+  for (const group of allGroupsInMerge.values()) {
+    totalStudents += group.student_count;
+  }
+
+  if (totalStudents > classroom.capacity) {
+    const groupNames = Array.from(allGroupsInMerge.values())
+      .map((g) => g.name)
+      .join(', ');
+    return `Capacity conflict: The combined student count (${totalStudents}) of merged groups (${groupNames}) exceeds the capacity of classroom "${classroom.name}" (${classroom.capacity} seats).`;
+  }
+
+  return '';
 }
 
 /**
@@ -108,9 +161,13 @@ function checkGroupConflicts(
 
   // Check each period that the session spans to ensure no overlap.
   for (let i = 0; i < period_count; i++) {
-    const sessionInSlot = targetGroupSchedule[targetPeriodIndex + i];
-    if (sessionInSlot && sessionInSlot.id !== sessionToCheck.id) {
-      return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
+    const sessionsInSlot = targetGroupSchedule[targetPeriodIndex + i];
+    if (sessionsInSlot) {
+      for (const sessionInSlot of sessionsInSlot) {
+        if (sessionInSlot.id !== sessionToCheck.id) {
+          return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
+        }
+      }
     }
   }
 
@@ -139,10 +196,14 @@ export function findConflictingSessionsAtPeriod(
   for (const [groupId, schedule] of timetable.entries()) {
     if (groupId === targetGroupId) continue;
 
-    const otherSession = schedule[periodIndex];
-    if (!otherSession || otherSession.id === sessionToCheck.id) continue;
+    const sessionsInCell = schedule[periodIndex];
+    if (!sessionsInCell) continue;
 
-    conflicts.push(otherSession);
+    for (const otherSession of sessionsInCell) {
+      if (otherSession.id !== sessionToCheck.id) {
+        conflicts.push(otherSession);
+      }
+    }
   }
 
   return conflicts;
@@ -365,6 +426,7 @@ export default function checkTimetableConflicts(
   );
   if (groupError) return groupError;
 
+  // --- Standard Resource Conflict Check ---
   return checkResourceConflicts(
     timetable,
     classSessionToCheck,

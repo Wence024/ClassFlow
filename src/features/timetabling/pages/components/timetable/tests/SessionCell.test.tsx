@@ -79,8 +79,9 @@ const renderWithContext = (
   );
 };
 
-// Create a fully typed mock object for the ClassSession
-const mockSession: ClassSession = {
+// --- MOCK DATA ---
+
+const mockSession1: ClassSession = {
   id: '1',
   period_count: 1,
   program_id: 'p1',
@@ -131,57 +132,180 @@ const mockSession: ClassSession = {
   },
 };
 
+const mockSession2: ClassSession = {
+  ...mockSession1,
+  id: '2',
+  program_id: 'p1',
+  instructor: {
+    ...mockSession1.instructor,
+    id: 'i2',
+    color: '#3b82f6', // Blue
+  },
+  group: {
+    ...mockSession1.group,
+    id: 'g2',
+    name: 'Group B',
+  },
+};
+
+// --- TESTS ---
+
 describe('SessionCell', () => {
-  it('should apply the correct inline styles based on instructor color', () => {
-    renderWithContext(
-      <SessionCell
-        session={mockSession}
-        groupId="g1"
-        periodIndex={0}
-        isLastInDay={false}
-        isNotLastInTable={false}
-      />
-    );
+  describe('Single Session Rendering', () => {
+    it('should apply the correct inline styles based on instructor color', () => {
+      renderWithContext(
+        <SessionCell
+          sessions={[mockSession1]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
 
-    const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;
-    expect(cellContent).toBeInTheDocument();
+      const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;
+      expect(cellContent).toBeInTheDocument();
 
-    const instructorHex = mockSession.instructor.color || '#808080';
-    const expectedBgHex = getSessionCellBgColor(instructorHex, false);
-    const expectedTextColor = getSessionCellTextColor(instructorHex);
+      const instructorHex = mockSession1.instructor.color || '#808080';
+      const expectedBgHex = getSessionCellBgColor(instructorHex, false);
+      const expectedTextColor = getSessionCellTextColor(instructorHex);
 
-    // Assert against the rgba() value that JSDOM computes
-    expect(cellContent.style.backgroundColor).toBe(hexToRgba(expectedBgHex));
+      expect(cellContent.style.backgroundColor).toBe(hexToRgba(expectedBgHex));
 
-    const textElement = screen.getByText('T101');
-    expect(textElement).toHaveStyle({
-      color: expectedTextColor,
+      const textElement = screen.getByText('T101');
+      expect(textElement).toHaveStyle({
+        color: expectedTextColor,
+      });
+    });
+
+    it('should apply different styles when being dragged', () => {
+      renderWithContext(
+        <SessionCell
+          sessions={[mockSession1]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />,
+        { activeDraggedSession: mockSession1 }
+      );
+
+      const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;
+      const instructorHex = mockSession1.instructor.color || '#808080';
+
+      const expectedBgHex = getSessionCellBgColor(instructorHex, true);
+      const expectedBorderStyle = getSessionCellBorderStyle(instructorHex, true);
+
+      const borderHexColor = expectedBorderStyle.split(' ')[2];
+      const expectedRgbaBorder = `2px dashed ${hexToRgba(borderHexColor)}`;
+
+      expect(cellContent.style.backgroundColor).toBe(hexToRgba(expectedBgHex));
+      expect(cellContent.style.border).toBe(expectedRgbaBorder);
     });
   });
 
-  it('should apply different styles when being dragged', () => {
-    renderWithContext(
-      <SessionCell
-        session={mockSession}
-        groupId="g1"
-        periodIndex={0}
-        isLastInDay={false}
-        isNotLastInTable={false}
-      />,
-      { activeDraggedSession: mockSession }
-    );
+  describe('Merged Session Rendering', () => {
+    it('should render a gradient background for two merged sessions', () => {
+      renderWithContext(
+        <SessionCell
+          sessions={[mockSession1, mockSession2]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
 
-    const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;
-    const instructorHex = mockSession.instructor.color || '#808080';
+      const cellContent = screen.getByTestId('session-card-1').firstChild as HTMLElement;
+      const color1 = getSessionCellBgColor(mockSession1.instructor.color!, false);
+      const color2 = getSessionCellBgColor(mockSession2.instructor.color!, false);
 
-    const expectedBgHex = getSessionCellBgColor(instructorHex, true);
-    const expectedBorderStyle = getSessionCellBorderStyle(instructorHex, true);
+      // JSDOM will compute the full gradient string
+      const expectedGradient = `linear-gradient(135deg, ${hexToRgba(color1)}, ${hexToRgba(color2)})`;
 
-    // Extract hex color from the border style string to convert it for the assertion
-    const borderHexColor = expectedBorderStyle.split(' ')[2];
-    const expectedRgbaBorder = `2px dashed ${hexToRgba(borderHexColor)}`;
+      expect(cellContent.style.background).toBe(expectedGradient);
+    });
 
-    expect(cellContent.style.backgroundColor).toBe(hexToRgba(expectedBgHex));
-    expect(cellContent.style.border).toBe(expectedRgbaBorder);
+    it('should render a merged session indicator with the correct count', () => {
+      renderWithContext(
+        <SessionCell
+          sessions={[mockSession1, mockSession2]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
+
+      const countIndicator = screen.getByText('2');
+      expect(countIndicator).toBeInTheDocument();
+      // Check for the parent container which has the icon
+      expect(countIndicator.parentElement).toHaveClass('flex items-center');
+    });
+
+    it('should be draggable if the user owns at least one session in the merge', () => {
+      // User's program_id is 'p1', which matches both mock sessions
+      const { container } = renderWithContext(
+        <SessionCell
+          sessions={[mockSession1, mockSession2]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
+
+      const draggableDiv = container.querySelector('[draggable="true"]');
+      expect(draggableDiv).toBeInTheDocument();
+    });
+
+    it('should NOT be draggable if the user owns none of the sessions', () => {
+        const nonOwnedSession = { ...mockSession1, program_id: 'p2' };
+        const { container } = renderWithContext(
+          <SessionCell
+            sessions={[nonOwnedSession]}
+            groupId="g1"
+            periodIndex={0}
+            isLastInDay={false}
+            isNotLastInTable={false}
+          />
+        );
+  
+        const draggableDiv = container.querySelector('[draggable="true"]');
+        expect(draggableDiv).not.toBeInTheDocument();
+      });
+  });
+
+  describe('Invalid Data Handling', () => {
+    it('should render an invalid cell if sessions array is empty', () => {
+        const { container } = renderWithContext(
+            <SessionCell
+              sessions={[]}
+              groupId="g1"
+              periodIndex={0}
+              isLastInDay={false}
+              isNotLastInTable={false}
+            />
+          );
+      // It should render an empty <td> to not break the table layout
+      const td = container.querySelector('td');
+      expect(td).toBeInTheDocument();
+      expect(td?.childElementCount).toBe(0);
+    });
+
+    it('should render the invalid data fallback if the primary session is missing data', () => {
+        const invalidSession = { ...mockSession1, instructor: undefined as any };
+        renderWithContext(
+            <SessionCell
+              sessions={[invalidSession]}
+              groupId="g1"
+              periodIndex={0}
+              isLastInDay={false}
+              isNotLastInTable={false}
+            />
+          );
+
+        expect(screen.getByText('Invalid Session Data')).toBeInTheDocument();
+    });
   });
 });
