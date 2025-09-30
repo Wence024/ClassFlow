@@ -3,6 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import type { User } from '../types/auth';
 import * as authService from '../services/authService';
 import { AuthContext } from './AuthContext';
+import {
+  isAdmin as roleIsAdmin,
+  isDepartmentHead as roleIsDepartmentHead,
+  isProgramHead as roleIsProgramHead,
+  canManageInstructors as roleCanManageInstructors,
+  canManageClassrooms as roleCanManageClassrooms,
+  canReviewRequestsForDepartment as roleCanReviewRequestsForDepartment,
+} from '../utils/permissions';
 
 /**
  * Props for the AuthProvider component.
@@ -151,6 +159,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const authContextValue = {
     user,
     role: user?.role || null, // Derives the role from the user object
+    departmentId: user?.department_id || null,
     login,
     register,
     logout,
@@ -158,6 +167,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading,
     error,
     clearError,
+    isAdmin: () => roleIsAdmin(user?.role || null),
+    isDepartmentHead: () => roleIsDepartmentHead(user?.role || null),
+    isProgramHead: () => roleIsProgramHead(user?.role || null),
+    canManageInstructors: () => roleCanManageInstructors(user?.role || null),
+    canManageClassrooms: () => roleCanManageClassrooms(user?.role || null),
+    canReviewRequestsForDepartment: (departmentId: string) =>
+      roleCanReviewRequestsForDepartment(user?.role || null, user?.department_id || null, departmentId),
   };
 
   return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;

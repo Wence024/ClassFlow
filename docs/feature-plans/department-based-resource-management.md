@@ -151,8 +151,8 @@ Before implementing department-based resource management, we must:
 ### **Phase 3: Frontend Role-Based UI**
 
 #### **Task 3.1: Update Authentication System**
-- [ ] Update `AuthContext` to handle department information
-- [ ] Add department-based permission checks
+- [x] Update `AuthContext` to handle department information
+- [x] Add department-based permission checks
 - [ ] Update user profile management
 
 #### **Task 3.2: Create Department Management UI**
