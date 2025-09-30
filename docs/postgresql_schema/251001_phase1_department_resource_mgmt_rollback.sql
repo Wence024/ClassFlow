@@ -137,6 +137,24 @@ BEGIN
   END IF;
 END$$;
 
+-- Revert profiles.role from enum to text and drop enum type if possible
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'role' AND udt_name = 'user_role'
+  ) THEN
+    ALTER TABLE public.profiles ALTER COLUMN role DROP DEFAULT;
+    ALTER TABLE public.profiles ALTER COLUMN role TYPE text USING role::text;
+    ALTER TABLE public.profiles ALTER COLUMN role SET DEFAULT 'program_head';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_role') THEN
+    -- This will succeed only if no other columns depend on the type
+    DROP TYPE IF EXISTS user_role;
+  END IF;
+END$$;
+
 -- Restore legacy user_id-based policies (matching 250930 reference)
 DO $$
 BEGIN

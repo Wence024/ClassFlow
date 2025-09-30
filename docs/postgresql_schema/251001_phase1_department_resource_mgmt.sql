@@ -44,17 +44,69 @@ BEGIN
   END IF;
 END$$;
 
--- Note: The reference schema uses text roles; if you use an enum, add the new value here.
--- Example (only if you actually have an enum named user_role):
--- DO $$ BEGIN
---   IF NOT EXISTS (
---     SELECT 1 FROM pg_type t
---     JOIN pg_enum e ON t.oid = e.enumtypid
---     WHERE t.typname = 'user_role' AND e.enumlabel = 'department_head'
---   ) THEN
---     ALTER TYPE user_role ADD VALUE 'department_head';
---   END IF;
--- END$$;
+-- 2.1) Create user_role enum and migrate profiles.role from text to enum
+DO $$
+BEGIN
+  -- Create enum type if it does not exist
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type WHERE typname = 'user_role'
+  ) THEN
+    CREATE TYPE user_role AS ENUM ('admin', 'department_head', 'program_head');
+  ELSE
+    -- Ensure required enum values exist
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_type t
+      JOIN pg_enum e ON t.oid = e.enumtypid
+      WHERE t.typname = 'user_role' AND e.enumlabel = 'admin'
+    ) THEN
+      ALTER TYPE user_role ADD VALUE 'admin';
+    END IF;
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_type t
+      JOIN pg_enum e ON t.oid = e.enumtypid
+      WHERE t.typname = 'user_role' AND e.enumlabel = 'department_head'
+    ) THEN
+      ALTER TYPE user_role ADD VALUE 'department_head';
+    END IF;
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_type t
+      JOIN pg_enum e ON t.oid = e.enumtypid
+      WHERE t.typname = 'user_role' AND e.enumlabel = 'program_head'
+    ) THEN
+      ALTER TYPE user_role ADD VALUE 'program_head';
+    END IF;
+  END IF;
+
+  -- Migrate profiles.role to enum if it's not already
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'role' AND data_type <> 'USER-DEFINED'
+  ) THEN
+    -- Drop policies that depend on profiles.role type before altering
+    IF EXISTS (
+      SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'schedule_configuration' AND policyname = 'Allow admins to update schedule configuration'
+    ) THEN
+      DROP POLICY "Allow admins to update schedule configuration" ON public.schedule_configuration;
+    END IF;
+
+    -- Drop default, convert, then set enum default
+    ALTER TABLE public.profiles ALTER COLUMN role DROP DEFAULT;
+    ALTER TABLE public.profiles ALTER COLUMN role TYPE user_role USING role::user_role;
+    ALTER TABLE public.profiles ALTER COLUMN role SET DEFAULT 'program_head'::user_role;
+
+    -- Recreate the dropped policy with enum comparison
+    CREATE POLICY "Allow admins to update schedule configuration"
+      ON public.schedule_configuration
+      FOR UPDATE TO public
+      USING (((SELECT profiles.role FROM profiles WHERE (profiles.id = (SELECT auth.uid()))) = 'admin'::user_role));
+  ELSIF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'role' AND udt_name = 'user_role'
+  ) THEN
+    -- Ensure default is set correctly if already enum
+    ALTER TABLE public.profiles ALTER COLUMN role SET DEFAULT 'program_head'::user_role;
+  END IF;
+END$$;
 
 -- 3) Instructors: drop user_id, add department_id and created_by
 DO $$
@@ -232,17 +284,17 @@ BEGIN
       ON public.resource_requests FOR UPDATE TO authenticated
       USING (
         (
-          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'::user_role
         ) OR (
-          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'::user_role
           AND target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
         )
       )
       WITH CHECK (
         (
-          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'::user_role
         ) OR (
-          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'::user_role
           AND target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
         )
       );
@@ -270,8 +322,8 @@ BEGIN
   ) THEN
     CREATE POLICY instructors_manage_admin
       ON public.instructors FOR ALL TO authenticated
-      USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin')
-      WITH CHECK ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+      USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'::user_role)
+      WITH CHECK ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'::user_role);
   END IF;
 
   -- Manage by department heads within their department
@@ -281,11 +333,11 @@ BEGIN
     CREATE POLICY instructors_manage_department_head
       ON public.instructors FOR ALL TO authenticated
       USING (
-        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'::user_role
         AND department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
       )
       WITH CHECK (
-        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'::user_role
         AND department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
       );
   END IF;
@@ -308,8 +360,8 @@ BEGIN
   ) THEN
     CREATE POLICY classrooms_manage_admin
       ON public.classrooms FOR ALL TO authenticated
-      USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin')
-      WITH CHECK ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+      USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'::user_role)
+      WITH CHECK ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'::user_role);
   END IF;
 END$$;
 
