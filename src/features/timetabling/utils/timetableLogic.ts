@@ -37,7 +37,8 @@ function initializeGridRows(
 /**
  * Groups assignments by period index for efficient processing.
  *
- * @param assignments
+ * @param assignments - The assignments to group.
+ * @returns A map of period index to assignments.
  */
 function groupAssignmentsByPeriod(assignments: HydratedTimetableAssignment[]): Map<number, HydratedTimetableAssignment[]> {
   const assignmentsByPeriod = new Map<number, HydratedTimetableAssignment[]>();
@@ -53,9 +54,10 @@ function groupAssignmentsByPeriod(assignments: HydratedTimetableAssignment[]): M
 /**
  * Groups assignments in a period by what makes them mergeable.
  *
- * @param assignmentsInPeriod
- * @param grid
- * @param periodIndex
+ * @param assignmentsInPeriod - The assignments in the current period.
+ * @param grid - The timetable grid being built.
+ * @param periodIndex - The index of the current period.
+ * @returns Void.
  */
 function groupMergeableAssignments(
   assignmentsInPeriod: HydratedTimetableAssignment[],
@@ -86,11 +88,11 @@ function groupMergeableAssignments(
 /**
  * Updates a single group row with merged session data.
  *
- * @param groupRow
- * @param mergedSessionArray
- * @param periodIndex
- * @param periodCount
- * @param totalPeriods
+ * @param groupRow - The row for a specific group.
+ * @param mergedSessionArray - The array of merged sessions.
+ * @param periodIndex - The index of the period.
+ * @param periodCount - The number of periods this session spans.
+ * @param totalPeriods - The total number of periods.
  */
 function updateGroupRowWithMergedSessions(
   groupRow: (ClassSession[] | null)[],
@@ -109,10 +111,10 @@ function updateGroupRowWithMergedSessions(
 /**
  * Places a merge group onto the grid.
  *
- * @param mergeableAssignments
- * @param grid
- * @param periodIndex
- * @param totalPeriods
+ * @param mergeableAssignments - The assignments that can be merged.
+ * @param grid - The timetable grid being built.
+ * @param periodIndex - The index of the current period.
+ * @param totalPeriods - The total number of periods.
  */
 function placeMergeGroupOnGrid(
   mergeableAssignments: HydratedTimetableAssignment[],

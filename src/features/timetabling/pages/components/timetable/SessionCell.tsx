@@ -37,6 +37,7 @@ interface VisibleBlockProps {
   onShowTooltip: (e: React.MouseEvent<HTMLElement>) => void;
   onHideTooltip: () => void;
   softConflicts: string[];
+  contextOnShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
 }
 
 // --- HELPER FUNCTIONS & COMPONENTS ---
@@ -47,7 +48,7 @@ interface VisibleBlockProps {
  * @param sessions - An array of class sessions in this cell.
  * @returns The JSX element to be rendered inside the tooltip.
  */
-const buildTooltipContent = (sessions: ClassSession[]) => {
+const buildTooltipContent = (sessions: ClassSession[]): React.ReactElement => {
   const primary = sessions[0];
   return (
     <>
@@ -75,8 +76,9 @@ const buildTooltipContent = (sessions: ClassSession[]) => {
 /**
  * Renders a fallback UI for a class session with invalid or missing relational data.
  *
- * @param root0
- * @param root0.periodCount
+ * @param root0 - The props object.
+ * @param root0.periodCount - The number of periods this session spans.
+ * @returns The JSX element for the invalid session cell.
  */
 const InvalidSessionCell = ({ periodCount }: { periodCount: number }) => {
   console.warn('Rendering fallback for an invalid class session with missing relational data.');
@@ -94,8 +96,9 @@ const InvalidSessionCell = ({ periodCount }: { periodCount: number }) => {
  * Creates a background style for the session cell.
  * For a single session, it's a solid color. For merged sessions, it's a linear gradient.
  *
- * @param sessions
- * @param isDragged
+ * @param sessions - The array of sessions in this cell.
+ * @param isDragged - Whether the session is currently being dragged.
+ * @returns The CSS style object for the cell background.
  */
 const createCellBackground = (
   sessions: ClassSession[],
@@ -132,15 +135,16 @@ const createCellBackground = (
 /**
  * Renders the visible, colored, and draggable block representing the session(s).
  *
- * @param root0
- * @param root0.sessions
- * @param root0.isOwner
- * @param root0.isDraggedSession
- * @param root0.cellStyle
- * @param root0.textStyle
- * @param root0.onShowTooltip
- * @param root0.onHideTooltip
- * @param root0.softConflicts
+ * @param root0 - The props object.
+ * @param root0.sessions - The array of sessions in this cell.
+ * @param root0.isOwner - Whether the current user owns this session.
+ * @param root0.isDraggedSession - Whether this session is currently being dragged.
+ * @param root0.cellStyle - The CSS style for the cell.
+ * @param root0.textStyle - The CSS style for the text.
+ * @param root0.onShowTooltip - Callback to show tooltip.
+ * @param root0.onHideTooltip - Callback to hide tooltip.
+ * @param root0.softConflicts - Array of soft conflict messages.
+ * @returns The JSX element for the visible session block.
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
   sessions,
@@ -151,6 +155,7 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
   onShowTooltip,
   onHideTooltip,
   softConflicts,
+  contextOnShowTooltip,
 }) => {
   const primarySession = sessions[0];
   const isMerged = sessions.length > 1;
@@ -189,7 +194,7 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
             className="absolute top-1 left-1 bg-yellow-400 rounded-full p-0.5 cursor-help z-20"
             onMouseEnter={(e) => {
               e.stopPropagation(); // Prevent card tooltip from showing
-              onShowTooltip(
+              contextOnShowTooltip(
                 <div>
                   <p className="font-semibold">Warnings:</p>
                   <ul className="list-disc list-inside">
@@ -198,7 +203,7 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
                     ))}
                   </ul>
                 </div>,
-                e.currentTarget
+                e.currentTarget as HTMLElement
               );
             }}
             onMouseLeave={onHideTooltip}
@@ -214,10 +219,11 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
 /**
  * Renders an invisible drop zone that overlays a session cell period.
  *
- * @param root0
- * @param root0.groupId
- * @param root0.periodIndex
- * @param root0.sessionsInCell
+ * @param root0 - The props object.
+ * @param root0.groupId - The ID of the class group.
+ * @param root0.periodIndex - The index of the period.
+ * @param root0.sessionsInCell - The sessions currently in this cell.
+ * @returns The JSX element for the drop zone.
  */
 const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell }) => {
   const {
@@ -266,12 +272,13 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
  * Renders a table cell (`<td>`) containing one or more class sessions.
  * This component handles both single and merged class sessions.
  *
- * @param root0
- * @param root0.sessions
- * @param root0.groupId
- * @param root0.periodIndex
- * @param root0.isLastInDay
- * @param root0.isNotLastInTable
+ * @param root0 - The props object.
+ * @param root0.sessions - The array of sessions in this cell.
+ * @param root0.groupId - The ID of the class group.
+ * @param root0.periodIndex - The index of the period.
+ * @param root0.isLastInDay - Whether this is the last period in the day.
+ * @param root0.isNotLastInTable - Whether this is not the last period in the table.
+ * @returns The JSX element for the session cell.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
   sessions,
@@ -280,12 +287,17 @@ const SessionCell: React.FC<SessionCellProps> = ({
   isLastInDay,
   isNotLastInTable,
 }) => {
-  const { activeDraggedSession, handleDragStart, onShowTooltip, onHideTooltip } =
+  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip } =
     useTimetableContext();
   const { user } = useAuth();
 
   // --- Data and State Calculation ---
   const softConflicts = useMemo(() => checkCellSoftConflicts(sessions), [sessions]);
+
+  // Create a wrapper function for the VisibleSessionBlock
+  const handleShowTooltip = (e: React.MouseEvent<HTMLElement>) => {
+    contextOnShowTooltip(buildTooltipContent(sessions), e.currentTarget as HTMLElement);
+  };
 
   if (!sessions || sessions.length === 0) {
     return <td className="p-0.5 align-top h-20" />;
@@ -348,9 +360,10 @@ const SessionCell: React.FC<SessionCellProps> = ({
             isDraggedSession={isDraggedSession}
             cellStyle={cellStyle}
             textStyle={textStyle}
-            onShowTooltip={(e) => onShowTooltip(buildTooltipContent(sessions), e.currentTarget)}
+            onShowTooltip={handleShowTooltip}
             onHideTooltip={onHideTooltip}
             softConflicts={softConflicts}
+            contextOnShowTooltip={contextOnShowTooltip}
           />
 
           {/* Layer 2: The Invisible Drop Zones */}

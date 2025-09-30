@@ -7,9 +7,10 @@ import SessionCell from './SessionCell';
 /**
  * Determines if a period is the last period in a day.
  *
- * @param periodIndex
- * @param numberOfPeriods
- * @param periodsPerDay
+ * @param periodIndex - The index of the period.
+ * @param numberOfPeriods - The number of periods this session spans.
+ * @param periodsPerDay - The number of periods per day.
+ * @returns Whether this is the last period in the day.
  */
 const isLastPeriodInDay = (periodIndex: number, numberOfPeriods: number, periodsPerDay: number): boolean => {
   return (periodIndex + numberOfPeriods - 1) % periodsPerDay === periodsPerDay - 1;
@@ -18,9 +19,10 @@ const isLastPeriodInDay = (periodIndex: number, numberOfPeriods: number, periods
 /**
  * Determines if the current day is not the last day in the table.
  *
- * @param periodIndex
- * @param totalPeriods
- * @param periodsPerDay
+ * @param periodIndex - The index of the period.
+ * @param totalPeriods - The total number of periods in the table.
+ * @param periodsPerDay - The number of periods per day.
+ * @returns Whether this is not the last day in the table.
  */
 const isNotLastDayOfTable = (periodIndex: number, totalPeriods: number, periodsPerDay: number): boolean => {
   const currentDay = Math.floor(periodIndex / periodsPerDay);
@@ -31,9 +33,9 @@ const isNotLastDayOfTable = (periodIndex: number, totalPeriods: number, periodsP
 /**
  * Marks periods as rendered to avoid duplicate cells.
  *
- * @param renderedPeriods
- * @param periodIndex
- * @param numberOfPeriods
+ * @param renderedPeriods - Set of periods that have been rendered.
+ * @param periodIndex - The index of the period.
+ * @param numberOfPeriods - The number of periods this session spans.
  */
 const markPeriodsAsRendered = (renderedPeriods: Set<number>, periodIndex: number, numberOfPeriods: number): void => {
   for (let i = 0; i < numberOfPeriods; i++) {
@@ -44,11 +46,12 @@ const markPeriodsAsRendered = (renderedPeriods: Set<number>, periodIndex: number
 /**
  * Renders a session cell for the given parameters.
  *
- * @param sessionsInCell
- * @param group
- * @param periodIndex
- * @param periodsPerDay
- * @param totalPeriods
+ * @param sessionsInCell - The sessions in this cell.
+ * @param group - The class group.
+ * @param periodIndex - The index of the period.
+ * @param periodsPerDay - The number of periods per day.
+ * @param totalPeriods - The total number of periods.
+ * @returns The JSX element for the session cell.
  */
 const renderSessionCell = (
   sessionsInCell: ClassSession[],
@@ -77,10 +80,11 @@ const renderSessionCell = (
 /**
  * Renders an empty cell for the given parameters.
  *
- * @param group
- * @param periodIndex
- * @param periodsPerDay
- * @param totalPeriods
+ * @param group - The class group.
+ * @param periodIndex - The index of the period.
+ * @param periodsPerDay - The number of periods per day.
+ * @param totalPeriods - The total number of periods.
+ * @returns The JSX element for the empty cell.
  */
 const renderEmptyCell = (
   group: ClassGroup,
@@ -107,7 +111,7 @@ const renderEmptyCell = (
  */
 interface TimetableRowProps {
   group: ClassGroup;
-  timetable: Map<string, (ClassSession | null)[]>;
+  timetable: Map<string, (ClassSession[] | null)[]>;
   periodsPerDay: number;
   totalPeriods: number;
 }

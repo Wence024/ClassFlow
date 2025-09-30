@@ -92,10 +92,10 @@ function getMergedCapacityConflictMessage(sessionsInSlot: ClassSession[]): strin
 
   let totalStudents = 0;
   for (const group of allGroupsInMerge.values()) {
-    totalStudents += group.student_count;
+    totalStudents += group.student_count || 0;
   }
 
-  if (totalStudents > classroom.capacity) {
+  if (classroom.capacity && totalStudents > classroom.capacity) {
     const groupNames = Array.from(allGroupsInMerge.values())
       .map((g) => g.name)
       .join(', ');
@@ -150,8 +150,9 @@ function checkBoundaryConflicts(
 /**
  * Checks if a specific time slot has a conflict with the session being checked.
  *
- * @param sessionsInSlot
- * @param sessionToCheck
+ * @param sessionsInSlot - The sessions currently in the time slot.
+ * @param sessionToCheck - The session to check for conflicts.
+ * @returns A string error message if a conflict is detected, or null if no conflict is found.
  */
 function checkTimeSlotConflict(
   sessionsInSlot: ClassSession[] | null,

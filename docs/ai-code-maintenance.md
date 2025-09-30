@@ -38,7 +38,7 @@ List of test files:
 
 ### Recommended Testing Plan
 
-#### New Test File Required (1)
+#### New Test Files Required (3)
 
 1. **File:** `src/components/ui/custom/tests/color-picker.test.tsx`
     * **Purpose:** To verify the functionality of the new, refactored `ColorPicker` component.
@@ -48,6 +48,24 @@ List of test files:
         * `should call onChange and close when a preset color is selected`.
         * `should call onChange when the custom color input is used`.
         * `should call onChange with a random color when the random button is clicked`.
+
+2. **File:** `src/features/departments/hooks/tests/useDepartments.integration.test.tsx`
+    * **Purpose:** To verify department management functionality for the new department-based resource model.
+    * **Status:** **Needs Creation.**
+    * **Key Tests:**
+        * `should fetch departments for admin users`.
+        * `should create new departments as admin`.
+        * `should update department information`.
+        * `should handle department deletion with proper validation`.
+
+3. **File:** `src/features/resourceRequests/hooks/tests/useResourceRequests.integration.test.tsx`
+    * **Purpose:** To verify resource request functionality for cross-department resource sharing.
+    * **Status:** **Needs Creation.**
+    * **Key Tests:**
+        * `should create resource requests as program head`.
+        * `should approve/reject requests as department head`.
+        * `should filter requests by status and department`.
+        * `should handle request notifications`.
 
 #### Existing Test Files to Update (Crucial)
 
