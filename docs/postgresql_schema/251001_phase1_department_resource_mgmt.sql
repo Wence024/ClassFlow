@@ -385,5 +385,54 @@ COMMENT ON TABLE public.instructors IS 'Now owned by departments. Consider setti
 COMMENT ON TABLE public.classrooms IS 'Now owned by departments. Consider setting department_id NOT NULL after data backfill.';
 COMMENT ON TABLE public.resource_requests IS 'Cross-department resource request workflow.';
 
+-- 9) Request notifications (for department heads/admin)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'request_notifications'
+  ) THEN
+    CREATE TABLE public.request_notifications (
+      id uuid NOT NULL DEFAULT gen_random_uuid(),
+      request_id uuid NOT NULL REFERENCES public.resource_requests(id) ON DELETE CASCADE,
+      target_department_id uuid NOT NULL REFERENCES public.departments(id),
+      message text NOT NULL,
+      created_at timestamp with time zone DEFAULT now(),
+      read_at timestamp with time zone,
+      CONSTRAINT request_notifications_pkey PRIMARY KEY (id)
+    );
+  END IF;
+END$$;
+
+CREATE INDEX IF NOT EXISTS idx_request_notifications_target_department
+  ON public.request_notifications USING btree (target_department_id);
+
+ALTER TABLE public.request_notifications ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'request_notifications' AND policyname = 'request_notifications_select_department'
+  ) THEN
+    CREATE POLICY request_notifications_select_department
+      ON public.request_notifications FOR SELECT TO authenticated
+      USING (
+        target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+      );
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'request_notifications' AND policyname = 'request_notifications_update_department'
+  ) THEN
+    CREATE POLICY request_notifications_update_department
+      ON public.request_notifications FOR UPDATE TO authenticated
+      USING (
+        target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+      ) WITH CHECK (
+        target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+      );
+  END IF;
+END$$;
+
 
 Represents organizational units (e.g., colleges or faculties).
