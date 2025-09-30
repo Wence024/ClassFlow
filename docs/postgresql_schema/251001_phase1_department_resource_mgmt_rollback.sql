@@ -32,9 +32,15 @@ BEGIN
   END IF;
 
   IF EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'instructors' AND policyname = 'instructors_manage_department'
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'instructors' AND policyname = 'instructors_manage_admin'
   ) THEN
-    DROP POLICY instructors_manage_department ON public.instructors;
+    DROP POLICY instructors_manage_admin ON public.instructors;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'instructors' AND policyname = 'instructors_manage_department_head'
+  ) THEN
+    DROP POLICY instructors_manage_department_head ON public.instructors;
   END IF;
 
   IF EXISTS (
@@ -44,9 +50,9 @@ BEGIN
   END IF;
 
   IF EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'classrooms' AND policyname = 'classrooms_manage_department'
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'classrooms' AND policyname = 'classrooms_manage_admin'
   ) THEN
-    DROP POLICY classrooms_manage_department ON public.classrooms;
+    DROP POLICY classrooms_manage_admin ON public.classrooms;
   END IF;
 END$$;
 
@@ -76,6 +82,13 @@ BEGIN
     WHERE table_schema = 'public' AND table_name = 'classrooms' AND column_name = 'department_id'
   ) THEN
     ALTER TABLE public.classrooms DROP COLUMN department_id;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'classrooms' AND column_name = 'preferred_department_id'
+  ) THEN
+    ALTER TABLE public.classrooms DROP COLUMN preferred_department_id;
   END IF;
 
   IF NOT EXISTS (

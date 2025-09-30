@@ -74,6 +74,20 @@ BEGIN
     ALTER TABLE public.instructors DROP COLUMN user_id;
   END IF;
 
+  -- Drop legacy program_id if present (instructors are not under any program now)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'instructors' AND column_name = 'program_id'
+  ) THEN
+    -- Drop index if it exists
+    IF EXISTS (
+      SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_instructors_program_id'
+    ) THEN
+      DROP INDEX public.idx_instructors_program_id;
+    END IF;
+    ALTER TABLE public.instructors DROP COLUMN program_id;
+  END IF;
+
   -- Add department_id (required)
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns
@@ -112,6 +126,20 @@ BEGIN
     WHERE table_schema = 'public' AND table_name = 'classrooms' AND column_name = 'user_id'
   ) THEN
     ALTER TABLE public.classrooms DROP COLUMN user_id;
+  END IF;
+
+  -- Drop legacy program_id if present (classrooms are not under any program now)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'classrooms' AND column_name = 'program_id'
+  ) THEN
+    -- Drop index if it exists
+    IF EXISTS (
+      SELECT 1 FROM pg_indexes WHERE schemaname = 'public' AND indexname = 'idx_classrooms_program_id'
+    ) THEN
+      DROP INDEX public.idx_classrooms_program_id;
+    END IF;
+    ALTER TABLE public.classrooms DROP COLUMN program_id;
   END IF;
 
   -- Add department_id (required)
@@ -203,11 +231,20 @@ BEGIN
     CREATE POLICY resource_requests_update_reviewers
       ON public.resource_requests FOR UPDATE TO authenticated
       USING (
-        -- Example: a simple check allowing updates where the target department matches the user's profile department
-        target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+        (
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
+        ) OR (
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+          AND target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+        )
       )
       WITH CHECK (
-        target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+        (
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
+        ) OR (
+          (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+          AND target_department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+        )
       );
   END IF;
 END$$;
@@ -227,14 +264,30 @@ BEGIN
       USING (auth.role() = 'authenticated');
   END IF;
 
-  -- Manage within same department (department heads/admin logic refined later)
+  -- Manage by admin (all departments)
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'instructors' AND policyname = 'instructors_manage_department'
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'instructors' AND policyname = 'instructors_manage_admin'
   ) THEN
-    CREATE POLICY instructors_manage_department
+    CREATE POLICY instructors_manage_admin
       ON public.instructors FOR ALL TO authenticated
-      USING (department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid()))
-      WITH CHECK (department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid()));
+      USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin')
+      WITH CHECK ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
+  END IF;
+
+  -- Manage by department heads within their department
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'instructors' AND policyname = 'instructors_manage_department_head'
+  ) THEN
+    CREATE POLICY instructors_manage_department_head
+      ON public.instructors FOR ALL TO authenticated
+      USING (
+        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+        AND department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+      )
+      WITH CHECK (
+        (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'department_head'
+        AND department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid())
+      );
   END IF;
 END$$;
 
@@ -249,16 +302,31 @@ BEGIN
       USING (auth.role() = 'authenticated');
   END IF;
 
-  -- Manage within same department
+  -- Manage by admin only (department heads cannot manage classrooms)
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'classrooms' AND policyname = 'classrooms_manage_department'
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public' AND tablename = 'classrooms' AND policyname = 'classrooms_manage_admin'
   ) THEN
-    CREATE POLICY classrooms_manage_department
+    CREATE POLICY classrooms_manage_admin
       ON public.classrooms FOR ALL TO authenticated
-      USING (department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid()))
-      WITH CHECK (department_id = (SELECT department_id FROM public.profiles WHERE id = auth.uid()));
+      USING ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin')
+      WITH CHECK ((SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin');
   END IF;
 END$$;
+
+-- 7.2) Classroom preferred department (admin can mark primary/preferred department usage)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'classrooms' AND column_name = 'preferred_department_id'
+  ) THEN
+    ALTER TABLE public.classrooms
+      ADD COLUMN preferred_department_id uuid REFERENCES public.departments(id);
+  END IF;
+END$$;
+
+CREATE INDEX IF NOT EXISTS idx_classrooms_preferred_department
+  ON public.classrooms USING btree (preferred_department_id);
 
 -- 8) Helpful comment on future strictness
 COMMENT ON TABLE public.instructors IS 'Now owned by departments. Consider setting department_id NOT NULL after data backfill.';
