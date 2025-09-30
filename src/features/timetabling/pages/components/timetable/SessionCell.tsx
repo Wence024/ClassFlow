@@ -120,15 +120,24 @@ const createCellBackground = (
     };
   }
 
-  // For merged sessions, create a diagonal split effect to indicate a merge.
-  const color = getSessionCellBgColor(
+  // For merged sessions, create a gradient between the different session colors.
+  const color1 = getSessionCellBgColor(
     primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
     isDragged
   );
+  
+  // If there are multiple sessions with different colors, create a gradient
+  if (sessions.length > 1 && sessions[1].instructor.color !== primarySession.instructor.color) {
+    const color2 = getSessionCellBgColor(
+      sessions[1].instructor.color ?? DEFAULT_FALLBACK_COLOR,
+      isDragged
+    );
+    const background = `linear-gradient(135deg, ${color1}, ${color2})`;
+    return { background, border };
+  }
 
-  // This creates a diagonal split. The bottom-right half is the same color but darkened by a semi-transparent black layer.
-  const background = `linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,0.15) 50.5%), ${color}`;
-
+  // Fallback: create a diagonal split effect with the same color
+  const background = `linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,0.15) 50.5%), ${color1}`;
   return { background, border };
 };
 

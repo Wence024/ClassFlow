@@ -118,7 +118,7 @@ describe('SessionCell - Ownership Styling', () => {
   it('should render owned sessions with normal styling', () => {
     renderWithProviders(
       <SessionCell
-        session={ownedSession}
+        sessions={[ownedSession]}
         groupId="g1"
         periodIndex={0}
         isLastInDay={false}
@@ -137,7 +137,7 @@ describe('SessionCell - Ownership Styling', () => {
   it('should render non-owned sessions with "washed out" styling', () => {
     renderWithProviders(
       <SessionCell
-        session={otherSession}
+        sessions={[otherSession]}
         groupId="g1"
         periodIndex={0}
         isLastInDay={false}

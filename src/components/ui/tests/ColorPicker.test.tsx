@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import ColorPicker from '../ColorPicker';
+import ColorPicker from '../custom/color-picker';
 import { PRESET_COLORS_DATA } from '../../../lib/colorUtils';
+import React from 'react';
 
 // Mock the color utils
 vi.mock('../../../lib/colorUtils', async (importOriginal) => {

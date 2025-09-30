@@ -103,11 +103,11 @@ Before implementing department-based resource management, we must:
 ## **Implementation Phases**
 
 ### **Phase 0: Complete Stabilization (IMMEDIATE)**
-- [ ] Fix test failures from class merging implementation
-- [ ] Update all test mocks for new data structure
-- [ ] Add conflict check for moving sessions to non-corresponding class groups
-- [ ] Ensure all existing functionality works with merged sessions
-- [ ] Update ai-code-maintenance.md with new testing requirements
+- [x] Fix test failures from class merging implementation
+- [x] Update all test mocks for new data structure
+- [x] Add conflict check for moving sessions to non-corresponding class groups
+- [x] Ensure all existing functionality works with merged sessions
+- [x] Update ai-code-maintenance.md with new testing requirements
 
 ### **Phase 1: Database Schema Migration**
 

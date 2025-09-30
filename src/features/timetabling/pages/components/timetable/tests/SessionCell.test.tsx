@@ -220,8 +220,8 @@ describe('SessionCell', () => {
       const color1 = getSessionCellBgColor(mockSession1.instructor.color!, false);
       const color2 = getSessionCellBgColor(mockSession2.instructor.color!, false);
 
-      // JSDOM will compute the full gradient string
-      const expectedGradient = `linear-gradient(135deg, ${hexToRgba(color1)}, ${hexToRgba(color2)})`;
+      // The function returns hex colors with alpha, not rgba
+      const expectedGradient = `linear-gradient(135deg, ${color1}, ${color2})`;
 
       expect(cellContent.style.background).toBe(expectedGradient);
     });
