@@ -15,7 +15,10 @@ const TABLE = 'instructors';
  * @throws An error if the Supabase query fails.
  */
 export async function getInstructors(): Promise<Instructor[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .order('first_name');
   if (error) throw error;
   return data || [];
 }
@@ -66,7 +69,7 @@ export async function updateInstructor(
  * @returns A promise that resolves when the operation is complete.
  * @throws An error if the Supabase delete fails.
  */
-export async function removeInstructor(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
+export async function removeInstructor(id: string, _user_id: string): Promise<void> {
+  const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

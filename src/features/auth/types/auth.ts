@@ -7,6 +7,7 @@ export type User = {
   email: string;
   role: string;
   program_id: string | null;
+  department_id: string | null;
 };
 
 /**

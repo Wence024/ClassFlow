@@ -28,8 +28,7 @@ export function useClassrooms() {
   });
 
   const addMutation = useMutation({
-    mutationFn: (data: ClassroomInsert) =>
-      classroomsService.addClassroom({ ...data, user_id: user!.id }),
+    mutationFn: (data: ClassroomInsert) => classroomsService.addClassroom(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 

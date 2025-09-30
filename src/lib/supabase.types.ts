@@ -133,40 +133,50 @@ export type Database = {
           code: string | null
           color: string | null
           created_at: string | null
+          created_by: string | null
+          department_id: string | null
           id: string
           location: string | null
           name: string
-          program_id: string | null
-          user_id: string
+          preferred_department_id: string | null
         }
         Insert: {
           capacity?: number | null
           code?: string | null
           color?: string | null
           created_at?: string | null
+          created_by?: string | null
+          department_id?: string | null
           id?: string
           location?: string | null
           name: string
-          program_id?: string | null
-          user_id: string
+          preferred_department_id?: string | null
         }
         Update: {
           capacity?: number | null
           code?: string | null
           color?: string | null
           created_at?: string | null
+          created_by?: string | null
+          department_id?: string | null
           id?: string
           location?: string | null
           name?: string
-          program_id?: string | null
-          user_id?: string
+          preferred_department_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "classrooms_program_id_fkey"
-            columns: ["program_id"]
+            foreignKeyName: "classrooms_department_id_fkey"
+            columns: ["department_id"]
             isOneToOne: false
-            referencedRelation: "programs"
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "classrooms_preferred_department_id_fkey"
+            columns: ["preferred_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -211,22 +221,22 @@ export type Database = {
       }
       departments: {
         Row: {
-          code: string | null
-          created_at: string
-          id: number
-          name: string | null
+          code: string
+          created_at: string | null
+          id: string
+          name: string
         }
         Insert: {
-          code?: string | null
-          created_at?: string
-          id?: number
-          name?: string | null
+          code: string
+          created_at?: string | null
+          id?: string
+          name: string
         }
         Update: {
-          code?: string | null
-          created_at?: string
-          id?: number
-          name?: string | null
+          code?: string
+          created_at?: string | null
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -236,52 +246,52 @@ export type Database = {
           color: string | null
           contract_type: string | null
           created_at: string | null
+          created_by: string | null
+          department_id: string | null
           email: string | null
           first_name: string
           id: string
           last_name: string
           phone: string | null
           prefix: string | null
-          program_id: string | null
           suffix: string | null
-          user_id: string
         }
         Insert: {
           code?: string | null
           color?: string | null
           contract_type?: string | null
           created_at?: string | null
+          created_by?: string | null
+          department_id?: string | null
           email?: string | null
           first_name: string
           id?: string
           last_name: string
           phone?: string | null
           prefix?: string | null
-          program_id?: string | null
           suffix?: string | null
-          user_id: string
         }
         Update: {
           code?: string | null
           color?: string | null
           contract_type?: string | null
           created_at?: string | null
+          created_by?: string | null
+          department_id?: string | null
           email?: string | null
           first_name?: string
           id?: string
           last_name?: string
           phone?: string | null
           prefix?: string | null
-          program_id?: string | null
           suffix?: string | null
-          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "instructors_program_id_fkey"
-            columns: ["program_id"]
+            foreignKeyName: "instructors_department_id_fkey"
+            columns: ["department_id"]
             isOneToOne: false
-            referencedRelation: "programs"
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
         ]
@@ -289,26 +299,36 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          department_id: string | null
           full_name: string | null
           id: string
           program_id: string | null
-          role: string
+          role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
           avatar_url?: string | null
+          department_id?: string | null
           full_name?: string | null
           id: string
           program_id?: string | null
-          role?: string
+          role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
           avatar_url?: string | null
+          department_id?: string | null
           full_name?: string | null
           id?: string
           program_id?: string | null
-          role?: string
+          role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_program_id_fkey"
             columns: ["program_id"]
@@ -338,6 +358,63 @@ export type Database = {
           short_code?: string
         }
         Relationships: []
+      }
+      resource_requests: {
+        Row: {
+          id: string
+          notes: string | null
+          requested_at: string | null
+          requester_id: string
+          requesting_program_id: string
+          resource_id: string
+          resource_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_department_id: string
+        }
+        Insert: {
+          id?: string
+          notes?: string | null
+          requested_at?: string | null
+          requester_id: string
+          requesting_program_id: string
+          resource_id: string
+          resource_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_department_id: string
+        }
+        Update: {
+          id?: string
+          notes?: string | null
+          requested_at?: string | null
+          requester_id?: string
+          requesting_program_id?: string
+          resource_id?: string
+          resource_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_department_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_requests_requesting_program_id_fkey"
+            columns: ["requesting_program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resource_requests_target_department_id_fkey"
+            columns: ["target_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       schedule_configuration: {
         Row: {
@@ -456,30 +533,6 @@ export type Database = {
           },
         ]
       }
-      users: {
-        Row: {
-          created_at: string
-          department_id: string
-          email: string
-          id: number
-          role_id: string
-        }
-        Insert: {
-          created_at?: string
-          department_id: string
-          email: string
-          id?: number
-          role_id: string
-        }
-        Update: {
-          created_at?: string
-          department_id?: string
-          email?: string
-          id?: number
-          role_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -488,7 +541,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "department_head" | "program_head"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -615,6 +668,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "department_head", "program_head"],
+    },
   },
 } as const

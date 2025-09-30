@@ -29,7 +29,7 @@ export function useInstructors() {
 
   const addMutation = useMutation({
     mutationFn: (data: InstructorInsert) =>
-      instructorsService.addInstructor({ ...data, user_id: user!.id }),
+      instructorsService.addInstructor(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 

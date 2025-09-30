@@ -54,6 +54,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
       email: data.user.email!,
       role: data.user.user_metadata?.role || 'user',
       program_id: profile.program_id,
+      department_id: null
     },
     token: data.session.access_token,
   };
@@ -112,6 +113,7 @@ export async function register(
       email: data.user.email!,
       role: data.user.user_metadata?.role || 'user',
       program_id: profile.program_id,
+      department_id: null
     },
     token: data.session?.access_token || '',
     needsVerification: needsVerification,
@@ -154,7 +156,7 @@ export async function getStoredUser(): Promise<User | null> {
   // Instead of relying on metadata, we query the definitive profiles table.
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id')
+    .select('role, program_id, department_id')
     .eq('id', session.user.id)
     .single();
 
@@ -170,6 +172,7 @@ export async function getStoredUser(): Promise<User | null> {
     email: session.user.email!,
     role: profile.role,
     program_id: profile.program_id,
+    department_id: profile.department_id,
   };
 }
 /**
