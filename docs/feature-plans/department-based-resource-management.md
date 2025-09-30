@@ -112,21 +112,21 @@ Before implementing department-based resource management, we must:
 ### **Phase 1: Database Schema Migration**
 
 #### **Task 1.1: Create Department Management**
-- [ ] Create `departments` table
-- [ ] Add `department_id` to `profiles` table
-- [ ] Update user role enum to include `department_head`
-- [ ] Create migration script
+- [x] Create `departments` table
+- [x] Add `department_id` to `profiles` table
+- [x] Update user role enum to include `department_head`
+- [x] Create migration script
 
 #### **Task 1.2: Update Resource Tables**
-- [ ] Remove `user_id` from `instructors` and `classrooms` tables
-- [ ] Add `department_id` to both tables
-- [ ] Add `created_by` field to track creation
-- [ ] Update foreign key constraints
+- [x] Remove `user_id` from `instructors` and `classrooms` tables
+- [x] Add `department_id` to both tables
+- [x] Add `created_by` field to track creation
+- [x] Update foreign key constraints
 
 #### **Task 1.3: Create Resource Request System**
-- [ ] Create `resource_requests` table
-- [ ] Create RLS policies for request management
-- [ ] Add indexes for performance
+- [x] Create `resource_requests` table
+- [x] Create RLS policies for request management
+- [x] Add indexes for performance
 
 ### **Phase 2: Backend Services Refactoring**
 
