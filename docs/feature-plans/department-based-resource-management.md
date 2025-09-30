@@ -132,21 +132,21 @@ Before implementing department-based resource management, we must:
 
 #### **Task 2.1: Update Instructor Services**
 - [x] Modify `instructorsService.ts` to work with departments
-- [ ] Add department-based filtering
-- [ ] Implement permission checks for department heads
-- [ ] Update CRUD operations
+- [x] Add department-based filtering
+- [x] Implement permission checks for department heads
+- [x] Update CRUD operations
 
 #### **Task 2.2: Update Classroom Services**
 - [x] Modify `classroomsService.ts` to work with departments
-- [ ] Add department-based filtering
-- [ ] Implement permission checks for department heads
-- [ ] Update CRUD operations
+- [x] Add department-based filtering
+- [x] Implement permission checks for department heads
+- [x] Update CRUD operations
 
 #### **Task 2.3: Create Resource Request Services**
 - [x] Create `resourceRequestService.ts`
-- [ ] Implement request creation, approval, rejection
+- [x] Implement request creation, approval, rejection
 - [ ] Add notification system for requests
-- [ ] Create hooks for request management
+- [x] Create hooks for request management
 
 ### **Phase 3: Frontend Role-Based UI**
 

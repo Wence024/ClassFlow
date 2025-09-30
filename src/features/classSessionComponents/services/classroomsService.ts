@@ -18,11 +18,9 @@ export async function getClassrooms(params?: { role?: string | null; department_
   let query = supabase.from(TABLE).select('*').order('name');
   const role = params?.role ?? null;
   const departmentId = params?.department_id ?? null;
-  // Admin manages classrooms; for non-admin, we can show all for selection but no manage
-  // If you want to filter visibility to preferred_department or department ownership, apply here:
+  // Admin sees all; for non-admin management views, scope to user's department
   if (role !== 'admin' && departmentId) {
-    // Example: prioritize preferred department first (UI can sort), not strictly filtering
-    // Keeping no filter by default to allow viewing all classrooms for requests
+    query = query.eq('department_id', departmentId);
   }
   const { data, error } = await query;
   if (error) throw error;
