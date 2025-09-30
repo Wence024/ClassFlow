@@ -83,7 +83,12 @@ const InstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    await addInstructor({ ...data, user_id: user.id });
+    await addInstructor({
+      ...data,
+      // department and audit fields now set server-side by RLS/trigger; include if API supports
+      // department_id: (user as any).department_id,
+      // created_by: user.id,
+    } as any);
     formMethods.reset();
     toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());

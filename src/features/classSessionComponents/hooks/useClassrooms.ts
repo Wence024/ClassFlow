@@ -23,7 +23,10 @@ export function useClassrooms() {
     error,
   } = useQuery<Classroom[]>({
     queryKey,
-    queryFn: () => (user ? classroomsService.getClassrooms() : Promise.resolve([])),
+    queryFn: () =>
+      user
+        ? classroomsService.getClassrooms({ role: user.role, department_id: (user as any).department_id || null })
+        : Promise.resolve([]),
     enabled: !!user,
   });
 

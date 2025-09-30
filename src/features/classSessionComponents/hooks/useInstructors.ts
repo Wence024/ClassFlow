@@ -23,7 +23,10 @@ export function useInstructors() {
     error,
   } = useQuery<Instructor[]>({
     queryKey,
-    queryFn: () => (user ? instructorsService.getInstructors() : Promise.resolve([])),
+    queryFn: () =>
+      user
+        ? instructorsService.getInstructors({ role: user.role, department_id: (user as any).department_id || null })
+        : Promise.resolve([]),
     enabled: !!user,
   });
 

@@ -9,16 +9,33 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
 const TABLE = 'classrooms';
 
 /**
- * Fetches all classrooms from the database.
+ * Returns classrooms for the caller's own class session components workflow.
  *
- * @returns A promise that resolves to an array of Classroom objects.
- * @throws An error if the Supabase query fails.
+ * Admins manage classrooms; non-admins typically view (not manage). We do not hard-filter here
+ * to allow discovery for request flows; UI can emphasize preferred/owned first.
  */
-export async function getClassrooms(): Promise<Classroom[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('*')
-    .order('name');
+export async function getClassrooms(params?: { role?: string | null; department_id?: string | null }): Promise<Classroom[]> {
+  let query = supabase.from(TABLE).select('*').order('name');
+  const role = params?.role ?? null;
+  const departmentId = params?.department_id ?? null;
+  // Admin manages classrooms; for non-admin, we can show all for selection but no manage
+  // If you want to filter visibility to preferred_department or department ownership, apply here:
+  if (role !== 'admin' && departmentId) {
+    // Example: prioritize preferred department first (UI can sort), not strictly filtering
+    // Keeping no filter by default to allow viewing all classrooms for requests
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Returns all classrooms for class session authoring and timetabling workflows.
+ *
+ * This includes all classrooms; downstream logic handles approvals/conflicts.
+ */
+export async function getAllClassrooms(): Promise<Classroom[]> {
+  const { data, error } = await supabase.from(TABLE).select('*').order('name');
   if (error) throw error;
   return data || [];
 }

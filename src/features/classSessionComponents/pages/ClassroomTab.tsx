@@ -75,7 +75,10 @@ const ClassroomManagement: React.FC = () => {
 
   const handleAdd = async (data: ClassroomFormData) => {
     if (!user) return;
-    await addClassroom({ ...data, user_id: user.id });
+    await addClassroom({
+      ...data,
+      // created_by handled by DB; admin-only manage enforced by RLS
+    } as any);
     formMethods.reset();
     toast('Success', { description: 'Classroom created successfully!' });
     setRandomPresetColor(getRandomPresetColor());

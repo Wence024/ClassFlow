@@ -9,16 +9,31 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
 const TABLE = 'instructors';
 
 /**
- * Fetches all instructors from the database.
+ * Returns instructors for the caller's own class session components workflow.
  *
- * @returns A promise that resolves to an array of Instructor objects.
- * @throws An error if the Supabase query fails.
+ * Non-admins are filtered by their `department_id`. Admins receive all.
+ * This is intended for the Instructor management views (CRUD) owned by department heads/admins.
  */
-export async function getInstructors(): Promise<Instructor[]> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .select('*')
-    .order('first_name');
+export async function getInstructors(params?: { role?: string | null; department_id?: string | null }): Promise<Instructor[]> {
+  let query = supabase.from(TABLE).select('*').order('first_name');
+  const role = params?.role ?? null;
+  const departmentId = params?.department_id ?? null;
+  if (role !== 'admin' && departmentId) {
+    query = query.eq('department_id', departmentId);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Returns all instructors for class session authoring and timetabling workflows.
+ *
+ * This function does not filter by department, as timetabling may need
+ * to view cross-department resources (with conflicts/requests enforced elsewhere).
+ */
+export async function getAllInstructors(): Promise<Instructor[]> {
+  const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
   if (error) throw error;
   return data || [];
 }
