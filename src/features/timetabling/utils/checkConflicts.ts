@@ -138,16 +138,6 @@ function checkBoundaryConflicts(
 }
 
 /**
- * Checks for conflicts within the target group's own row in the timetable.
- * Ensures that no other session is already occupying the same time slot.
- *
- * @param timetable The full timetable grid.
- * @param sessionToCheck The class session to check for conflicts.
- * @param targetGroupId The ID of the target group that the session belongs to.
- * @param targetPeriodIndex The index of the period where the session is scheduled to start.
- * @returns A string error message if a conflict is detected, or an empty string if no conflict is found.
- */
-/**
  * Checks if a specific time slot has a conflict with the session being checked.
  *
  * @param sessionsInSlot - The sessions currently in the time slot.
@@ -168,6 +158,16 @@ function checkTimeSlotConflict(
   return null;
 }
 
+/**
+ * Checks for conflicts within the target group's own row in the timetable.
+ * Ensures that no other session is already occupying the same time slot.
+ *
+ * @param timetable The full timetable grid.
+ * @param sessionToCheck The class session to check for conflicts.
+ * @param targetGroupId The ID of the target group that the session belongs to.
+ * @param targetPeriodIndex The index of the period where the session is scheduled to start.
+ * @returns A string error message if a conflict is detected, or an empty string if no conflict is found.
+ */
 function checkGroupConflicts(
   timetable: TimetableGrid,
   sessionToCheck: ClassSession,

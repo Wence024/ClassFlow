@@ -35,3 +35,4 @@ In every code creation, remember:
   - Require descriptions for functions, params, returns
   - No multiple asterisks
   - Descriptions must be full sentences
+  - "root0" as in the linter's destructured object suggestion should be replaced instead by the capital letters of the component (e.g., "rl." for RootLayout, "sc." for SessionCell)

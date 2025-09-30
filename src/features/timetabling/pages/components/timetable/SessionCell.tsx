@@ -76,8 +76,8 @@ const buildTooltipContent = (sessions: ClassSession[]): React.ReactElement => {
 /**
  * Renders a fallback UI for a class session with invalid or missing relational data.
  *
- * @param root0 - The props object.
- * @param root0.periodCount - The number of periods this session spans.
+ * @param isc - The props object.
+ * @param isc.periodCount - The number of periods this session spans.
  * @returns The JSX element for the invalid session cell.
  */
 const InvalidSessionCell = ({ periodCount }: { periodCount: number }) => {
@@ -135,15 +135,15 @@ const createCellBackground = (
 /**
  * Renders the visible, colored, and draggable block representing the session(s).
  *
- * @param root0 - The props object.
- * @param root0.sessions - The array of sessions in this cell.
- * @param root0.isOwner - Whether the current user owns this session.
- * @param root0.isDraggedSession - Whether this session is currently being dragged.
- * @param root0.cellStyle - The CSS style for the cell.
- * @param root0.textStyle - The CSS style for the text.
- * @param root0.onShowTooltip - Callback to show tooltip.
- * @param root0.onHideTooltip - Callback to hide tooltip.
- * @param root0.softConflicts - Array of soft conflict messages.
+ * @param vsb - The props object.
+ * @param vsb.sessions - The array of sessions in this cell.
+ * @param vsb.isOwner - Whether the current user owns this session.
+ * @param vsb.isDraggedSession - Whether this session is currently being dragged.
+ * @param vsb.cellStyle - The CSS style for the cell.
+ * @param vsb.textStyle - The CSS style for the text.
+ * @param vsb.onShowTooltip - Callback to show tooltip.
+ * @param vsb.onHideTooltip - Callback to hide tooltip.
+ * @param vsb.softConflicts - Array of soft conflict messages.
  * @returns The JSX element for the visible session block.
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
@@ -219,10 +219,10 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
 /**
  * Renders an invisible drop zone that overlays a session cell period.
  *
- * @param root0 - The props object.
- * @param root0.groupId - The ID of the class group.
- * @param root0.periodIndex - The index of the period.
- * @param root0.sessionsInCell - The sessions currently in this cell.
+ * @param dz - The props object.
+ * @param dz.groupId - The ID of the class group.
+ * @param dz.periodIndex - The index of the period.
+ * @param dz.sessionsInCell - The sessions currently in this cell.
  * @returns The JSX element for the drop zone.
  */
 const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell }) => {
@@ -272,12 +272,12 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
  * Renders a table cell (`<td>`) containing one or more class sessions.
  * This component handles both single and merged class sessions.
  *
- * @param root0 - The props object.
- * @param root0.sessions - The array of sessions in this cell.
- * @param root0.groupId - The ID of the class group.
- * @param root0.periodIndex - The index of the period.
- * @param root0.isLastInDay - Whether this is the last period in the day.
- * @param root0.isNotLastInTable - Whether this is not the last period in the table.
+ * @param sc - The props object.
+ * @param sc.sessions - The array of sessions in this cell.
+ * @param sc.groupId - The ID of the class group.
+ * @param sc.periodIndex - The index of the period.
+ * @param sc.isLastInDay - Whether this is the last period in the day.
+ * @param sc.isNotLastInTable - Whether this is not the last period in the table.
  * @returns The JSX element for the session cell.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
