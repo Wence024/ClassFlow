@@ -10,6 +10,7 @@ import {
   canManageInstructors as roleCanManageInstructors,
   canManageClassrooms as roleCanManageClassrooms,
   canReviewRequestsForDepartment as roleCanReviewRequestsForDepartment,
+  canManageAssignmentsForProgram as roleCanManageAssignmentsForProgram,
 } from '../utils/permissions';
 
 /**
@@ -174,6 +175,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     canManageClassrooms: () => roleCanManageClassrooms(user?.role || null),
     canReviewRequestsForDepartment: (departmentId: string) =>
       roleCanReviewRequestsForDepartment(user?.role || null, user?.department_id || null, departmentId),
+  canManageInstructorRow: (instructorDepartmentId: string) =>
+      roleCanManageInstructors(user?.role || null) &&
+      roleCanReviewRequestsForDepartment(user?.role || null, user?.department_id || null, instructorDepartmentId),
+  canManageAssignmentsForProgram: (programId: string) =>
+      roleCanManageAssignmentsForProgram(user?.role || null, user?.program_id || null, programId),
   };
 
   return <AuthContext.Provider value={authContextValue}>{children}</AuthContext.Provider>;

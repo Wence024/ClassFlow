@@ -37,6 +37,10 @@ export type AuthContextType = {
   canManageClassrooms: () => boolean;
   /** Returns true if the user can review requests for the provided department. */
   canReviewRequestsForDepartment: (departmentId: string) => boolean;
+  /** Row-scoped: manage an instructor with department ownership */
+  canManageInstructorRow: (instructorDepartmentId: string) => boolean;
+  /** Row-scoped: manage timetable assignments for a program */
+  canManageAssignmentsForProgram: (programId: string) => boolean;
 };
 
 /**

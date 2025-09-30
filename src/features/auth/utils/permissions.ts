@@ -40,4 +40,24 @@ export function canReviewRequestsForDepartment(
   return role === 'department_head' && !!userDepartmentId && userDepartmentId === targetDepartmentId;
 }
 
+/** Admin or Department Head of the same department can manage a specific instructor row. */
+export function canManageInstructorRow(
+  role: RoleString | null | undefined,
+  userDepartmentId: string | null | undefined,
+  instructorDepartmentId: string
+): boolean {
+  if (role === 'admin') return true;
+  return role === 'department_head' && !!userDepartmentId && userDepartmentId === instructorDepartmentId;
+}
+
+/** Program Head can manage assignments for their own program (optionally allow admin). */
+export function canManageAssignmentsForProgram(
+  role: RoleString | null | undefined,
+  userProgramId: string | null | undefined,
+  targetProgramId: string
+): boolean {
+  if (role === 'admin') return true;
+  return role === 'program_head' && !!userProgramId && userProgramId === targetProgramId;
+}
+
 
