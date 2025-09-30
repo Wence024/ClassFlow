@@ -35,6 +35,111 @@ function initializeGridRows(
 }
 
 /**
+ * Groups assignments by period index for efficient processing.
+ *
+ * @param assignments
+ */
+function groupAssignmentsByPeriod(assignments: HydratedTimetableAssignment[]): Map<number, HydratedTimetableAssignment[]> {
+  const assignmentsByPeriod = new Map<number, HydratedTimetableAssignment[]>();
+  for (const assignment of assignments) {
+    if (!assignmentsByPeriod.has(assignment.period_index)) {
+      assignmentsByPeriod.set(assignment.period_index, []);
+    }
+    assignmentsByPeriod.get(assignment.period_index)!.push(assignment);
+  }
+  return assignmentsByPeriod;
+}
+
+/**
+ * Groups assignments in a period by what makes them mergeable.
+ *
+ * @param assignmentsInPeriod
+ * @param grid
+ * @param periodIndex
+ */
+function groupMergeableAssignments(
+  assignmentsInPeriod: HydratedTimetableAssignment[],
+  grid: TimetableGrid,
+  periodIndex: number
+): Map<string, HydratedTimetableAssignment[]> {
+  const mergeGroups = new Map<string, HydratedTimetableAssignment[]>();
+  
+  for (const assignment of assignmentsInPeriod) {
+    const row = grid.get(assignment.class_group_id);
+    if (!assignment.class_session || !row || row[periodIndex] !== null) {
+      continue;
+    }
+
+    const { course, instructor, classroom } = assignment.class_session;
+    if (!course || !instructor || !classroom) continue;
+
+    const mergeKey = `${course.id}-${instructor.id}-${classroom.id}`;
+    if (!mergeGroups.has(mergeKey)) {
+      mergeGroups.set(mergeKey, []);
+    }
+    mergeGroups.get(mergeKey)!.push(assignment);
+  }
+  
+  return mergeGroups;
+}
+
+/**
+ * Updates a single group row with merged session data.
+ *
+ * @param groupRow
+ * @param mergedSessionArray
+ * @param periodIndex
+ * @param periodCount
+ * @param totalPeriods
+ */
+function updateGroupRowWithMergedSessions(
+  groupRow: (ClassSession[] | null)[],
+  mergedSessionArray: ClassSession[],
+  periodIndex: number,
+  periodCount: number,
+  totalPeriods: number
+): void {
+  for (let i = 0; i < periodCount; i++) {
+    if (periodIndex + i < totalPeriods) {
+      groupRow[periodIndex + i] = mergedSessionArray;
+    }
+  }
+}
+
+/**
+ * Places a merge group onto the grid.
+ *
+ * @param mergeableAssignments
+ * @param grid
+ * @param periodIndex
+ * @param totalPeriods
+ */
+function placeMergeGroupOnGrid(
+  mergeableAssignments: HydratedTimetableAssignment[],
+  grid: TimetableGrid,
+  periodIndex: number,
+  totalPeriods: number
+): void {
+  if (mergeableAssignments.length === 0) return;
+
+  const mergedSessionArray = mergeableAssignments.map((a) => a.class_session!);
+  const period_count = mergedSessionArray[0]?.period_count || 1;
+
+  for (const assignmentToPlace of mergeableAssignments) {
+    const groupRowToUpdate = grid.get(assignmentToPlace.class_group_id);
+    if (groupRowToUpdate) {
+      updateGroupRowWithMergedSessions(
+        groupRowToUpdate,
+        mergedSessionArray,
+        periodIndex,
+        period_count,
+        totalPeriods
+      );
+    }
+  }
+}
+
+/**
  * Transforms a flat array of timetable assignments into a grid structure that supports merged sessions.
  *
  * This function processes assignments by:
@@ -61,52 +166,16 @@ export function buildTimetableGrid(
     return grid;
   }
 
-  // Create a map for quick lookup of assignments by period index
-  const assignmentsByPeriod = new Map<number, HydratedTimetableAssignment[]>();
-  for (const assignment of assignments) {
-    if (!assignmentsByPeriod.has(assignment.period_index)) {
-      assignmentsByPeriod.set(assignment.period_index, []);
-    }
-    assignmentsByPeriod.get(assignment.period_index)!.push(assignment);
-  }
+  const assignmentsByPeriod = groupAssignmentsByPeriod(assignments);
 
-  // Process each assignment to build the grid
-  for (const assignment of assignments) {
-    const { class_group_id, period_index, class_session } = assignment;
-    const row = grid.get(class_group_id);
+  for (let periodIndex = 0; periodIndex < totalPeriods; periodIndex++) {
+    const assignmentsInPeriod = assignmentsByPeriod.get(periodIndex) || [];
+    if (assignmentsInPeriod.length === 0) continue;
 
-    // If there's no session, or no row, or the cell is already filled, skip.
-    if (!class_session || !row || row[period_index] !== null) {
-      continue;
-    }
+    const mergeGroups = groupMergeableAssignments(assignmentsInPeriod, grid, periodIndex);
 
-    // Find all mergeable sessions at this exact period index
-    const assignmentsInPeriod = assignmentsByPeriod.get(period_index) || [];
-    const mergeableAssignments = assignmentsInPeriod.filter(
-      (otherAssignment) =>
-        otherAssignment.class_session &&
-        otherAssignment.class_session.course.id === class_session.course.id &&
-        otherAssignment.class_session.instructor.id === class_session.instructor.id &&
-        otherAssignment.class_session.classroom.id === class_session.classroom.id
-    );
-
-    // This is the array that will be shared across all merged cells
-    const mergedSessionArray = mergeableAssignments.map((a) => a.class_session!);
-
-    // Get period count from the first session (they should all be the same)
-    const period_count = class_session.period_count || 1;
-
-    // Place the shared array into the grid for all participating groups and all spanned periods
-    for (const mergedAssignment of mergeableAssignments) {
-      const groupRowToUpdate = grid.get(mergedAssignment.class_group_id);
-      if (groupRowToUpdate) {
-        for (let i = 0; i < period_count; i++) {
-          const periodToFill = period_index + i;
-          if (periodToFill < totalPeriods) {
-            groupRowToUpdate[periodToFill] = mergedSessionArray;
-          }
-        }
-      }
+    for (const [, mergeableAssignments] of mergeGroups.entries()) {
+      placeMergeGroupOnGrid(mergeableAssignments, grid, periodIndex, totalPeriods);
     }
   }
 

@@ -5,6 +5,104 @@ import EmptyCell from './EmptyCell';
 import SessionCell from './SessionCell';
 
 /**
+ * Determines if a period is the last period in a day.
+ *
+ * @param periodIndex
+ * @param numberOfPeriods
+ * @param periodsPerDay
+ */
+const isLastPeriodInDay = (periodIndex: number, numberOfPeriods: number, periodsPerDay: number): boolean => {
+  return (periodIndex + numberOfPeriods - 1) % periodsPerDay === periodsPerDay - 1;
+};
+
+/**
+ * Determines if the current day is not the last day in the table.
+ *
+ * @param periodIndex
+ * @param totalPeriods
+ * @param periodsPerDay
+ */
+const isNotLastDayOfTable = (periodIndex: number, totalPeriods: number, periodsPerDay: number): boolean => {
+  const currentDay = Math.floor(periodIndex / periodsPerDay);
+  const totalDays = Math.floor(totalPeriods / periodsPerDay);
+  return currentDay < totalDays - 1;
+};
+
+/**
+ * Marks periods as rendered to avoid duplicate cells.
+ *
+ * @param renderedPeriods
+ * @param periodIndex
+ * @param numberOfPeriods
+ */
+const markPeriodsAsRendered = (renderedPeriods: Set<number>, periodIndex: number, numberOfPeriods: number): void => {
+  for (let i = 0; i < numberOfPeriods; i++) {
+    renderedPeriods.add(periodIndex + i);
+  }
+};
+
+/**
+ * Renders a session cell for the given parameters.
+ *
+ * @param sessionsInCell
+ * @param group
+ * @param periodIndex
+ * @param periodsPerDay
+ * @param totalPeriods
+ */
+const renderSessionCell = (
+  sessionsInCell: ClassSession[],
+  group: ClassGroup,
+  periodIndex: number,
+  periodsPerDay: number,
+  totalPeriods: number
+): React.ReactElement => {
+  const primarySession = sessionsInCell[0];
+  const numberOfPeriods = primarySession.period_count || 1;
+  const isLastInDay = isLastPeriodInDay(periodIndex, numberOfPeriods, periodsPerDay);
+  const isNotLastInTable = isNotLastDayOfTable(periodIndex, totalPeriods, periodsPerDay);
+
+  return (
+    <SessionCell
+      key={`${group.id}-${periodIndex}`}
+      sessions={sessionsInCell}
+      groupId={group.id}
+      periodIndex={periodIndex}
+      isLastInDay={isLastInDay}
+      isNotLastInTable={isNotLastInTable}
+    />
+  );
+};
+
+/**
+ * Renders an empty cell for the given parameters.
+ *
+ * @param group
+ * @param periodIndex
+ * @param periodsPerDay
+ * @param totalPeriods
+ */
+const renderEmptyCell = (
+  group: ClassGroup,
+  periodIndex: number,
+  periodsPerDay: number,
+  totalPeriods: number
+): React.ReactElement => {
+  const isLastInDay = periodIndex % periodsPerDay === periodsPerDay - 1;
+  const isNotLastInTable = isNotLastDayOfTable(periodIndex, totalPeriods, periodsPerDay);
+
+  return (
+    <EmptyCell
+      key={`${group.id}-${periodIndex}`}
+      groupId={group.id}
+      periodIndex={periodIndex}
+      isLastInDay={isLastInDay}
+      isNotLastInTable={isNotLastInTable}
+    />
+  );
+};
+
+/**
  * Props for the TimetableRow component.
  */
 interface TimetableRowProps {
@@ -33,70 +131,28 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
 }) => {
   const cells = [];
   const rowData = timetable.get(group.id) || [];
-
-  // Use a Set to track periods that have already been rendered by a colSpan > 1
   const renderedPeriods = new Set<number>();
 
   for (let periodIndex = 0; periodIndex < totalPeriods; periodIndex++) {
     if (renderedPeriods.has(periodIndex)) {
-      continue; // This period is already covered by a previous session's colSpan
+      continue;
     }
 
-    const sessionsInCell = rowData[periodIndex]; // This is ClassSession[] | null
+    const sessionsInCell = rowData[periodIndex];
 
     if (sessionsInCell && sessionsInCell.length > 0) {
       const primarySession = sessionsInCell[0];
       const numberOfPeriods = primarySession.period_count || 1;
 
-      // Rule: Only the row whose group matches the *first* session in a merged
-      // block is responsible for rendering it.
       if (primarySession.group.id !== group.id) {
-        // This merged session is rendered by another row. Render nothing.
-        // We still need to mark these periods as 'rendered' to avoid empty cells later.
-        for (let i = 0; i < numberOfPeriods; i++) {
-          renderedPeriods.add(periodIndex + i);
-        }
+        markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
         continue;
       }
 
-      // This row IS responsible for rendering the cell.
-      const isLastPeriodInDay =
-        (periodIndex + numberOfPeriods - 1) % periodsPerDay === periodsPerDay - 1;
-      const currentDay = Math.floor(periodIndex / periodsPerDay);
-      const totalDays = Math.floor(totalPeriods / periodsPerDay);
-      const isNotLastDayOfTable = currentDay < totalDays - 1;
-
-      // Mark all periods covered by this session's colSpan as rendered
-      for (let i = 0; i < numberOfPeriods; i++) {
-        renderedPeriods.add(periodIndex + i);
-      }
-
-      cells.push(
-        <SessionCell
-          key={`${group.id}-${periodIndex}`}
-          sessions={sessionsInCell}
-          groupId={group.id}
-          periodIndex={periodIndex}
-          isLastInDay={isLastPeriodInDay}
-          isNotLastInTable={isNotLastDayOfTable}
-        />
-      );
+      markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
+      cells.push(renderSessionCell(sessionsInCell, group, periodIndex, periodsPerDay, totalPeriods));
     } else {
-      // This is an empty slot in the timetable
-      const isLastPeriodInDay = periodIndex % periodsPerDay === periodsPerDay - 1;
-      const currentDay = Math.floor(periodIndex / periodsPerDay);
-      const totalDays = Math.floor(totalPeriods / periodsPerDay);
-      const isNotLastDayOfTable = currentDay < totalDays - 1;
-
-      cells.push(
-        <EmptyCell
-          key={`${group.id}-${periodIndex}`}
-          groupId={group.id}
-          periodIndex={periodIndex}
-          isLastInDay={isLastPeriodInDay}
-          isNotLastInTable={isNotLastDayOfTable}
-        />
-      );
+      cells.push(renderEmptyCell(group, periodIndex, periodsPerDay, totalPeriods));
     }
   }
 

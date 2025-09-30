@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as timetableService from '../services/timetableService';
@@ -229,24 +229,27 @@ export function useTimetable() {
    * @param classSession - The class session to be assigned.
    * @returns - An error message string on failure.
    */
-  const assignClassSession = async (
-    class_group_id: string,
-    period_index: number,
-    classSession: ClassSession
-  ): Promise<string> => {
-    if (!settings) return 'Schedule settings are not loaded yet.';
-    const conflict = checkTimetableConflicts(
-      timetable,
-      classSession,
-      settings,
-      class_group_id,
-      period_index,
-      programs
-    );
-    if (conflict) return conflict;
-    await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
-    return '';
-  };
+  const assignClassSession = useCallback(
+    async (
+      class_group_id: string,
+      period_index: number,
+      classSession: ClassSession
+    ): Promise<string> => {
+      if (!settings) return 'Schedule settings are not loaded yet.';
+      const conflict = checkTimetableConflicts(
+        timetable,
+        classSession,
+        settings,
+        class_group_id,
+        period_index,
+        programs
+      );
+      if (conflict) return conflict;
+      await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
+      return '';
+    },
+    [settings, timetable, programs, assignClassSessionMutation]
+  );
 
   /**
    * Removes a class session from the timetable.
@@ -255,12 +258,12 @@ export function useTimetable() {
    * @param period_index - The index of the period.
    * @returns A promise that resolves when the operation is complete.
    */
-  const removeClassSession = async (
-    class_group_id: string,
-    period_index: number
-  ): Promise<void> => {
-    await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
-  };
+  const removeClassSession = useCallback(
+    async (class_group_id: string, period_index: number): Promise<void> => {
+      await removeClassSessionMutation.mutateAsync({ class_group_id, period_index });
+    },
+    [removeClassSessionMutation]
+  );
 
   /**
    * Moves a class session after performing a conflict check. Returns an error message string on failure.
@@ -274,24 +277,27 @@ export function useTimetable() {
    * @param classSession - The class session to be moved.
    * @returns - An error message string on failure.
    */
-  const moveClassSession = async (
-    from: { class_group_id: string; period_index: number },
-    to: { class_group_id: string; period_index: number },
-    classSession: ClassSession
-  ): Promise<string> => {
-    if (!settings) return 'Schedule settings are not loaded yet.';
-    const conflict = checkTimetableConflicts(
-      timetable,
-      classSession,
-      settings,
-      to.class_group_id,
-      to.period_index,
-      programs
-    );
-    if (conflict) return conflict;
-    await moveClassSessionMutation.mutateAsync({ from, to, classSession });
-    return '';
-  };
+  const moveClassSession = useCallback(
+    async (
+      from: { class_group_id: string; period_index: number },
+      to: { class_group_id: string; period_index: number },
+      classSession: ClassSession
+    ): Promise<string> => {
+      if (!settings) return 'Schedule settings are not loaded yet.';
+      const conflict = checkTimetableConflicts(
+        timetable,
+        classSession,
+        settings,
+        to.class_group_id,
+        to.period_index,
+        programs
+      );
+      if (conflict) return conflict;
+      await moveClassSessionMutation.mutateAsync({ from, to, classSession });
+      return '';
+    },
+    [settings, timetable, programs, moveClassSessionMutation]
+  );
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */
   const loading = isFetching || !settings;

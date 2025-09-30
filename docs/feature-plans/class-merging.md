@@ -14,7 +14,7 @@ The goal of this phase is to teach the application's brain that sessions sharing
   * **Function to Edit:** `findClassroomConflictInPeriod` (or its parent `checkClassroomConflicts`).
   * **Action:** Apply the exact same logic as in Task 1.1. If a matching classroom is found, check if the `course.id` is also the same. If so, it is not a conflict.
 
-* **Task 1.3: Update Unit Tests for Conflict Logic**
+* [x] **Task 1.3: Update Unit Tests for Conflict Logic**
   * **File:** `src/features/timetabling/utils/tests/checkConflicts.test.ts`
   * **Action:**
         1. Add a new test case: "should NOT return a conflict for sessions with the same course, instructor, and classroom but different groups."

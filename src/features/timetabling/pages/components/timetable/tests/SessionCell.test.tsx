@@ -294,7 +294,7 @@ describe('SessionCell', () => {
     });
 
     it('should render the invalid data fallback if the primary session is missing data', () => {
-        const invalidSession = { ...mockSession1, instructor: undefined as any };
+        const invalidSession = { ...mockSession1, instructor: undefined as unknown as Instructor };
         renderWithContext(
             <SessionCell
               sessions={[invalidSession]}

@@ -147,6 +147,26 @@ function checkBoundaryConflicts(
  * @param targetPeriodIndex The index of the period where the session is scheduled to start.
  * @returns A string error message if a conflict is detected, or an empty string if no conflict is found.
  */
+/**
+ * Checks if a specific time slot has a conflict with the session being checked.
+ *
+ * @param sessionsInSlot
+ * @param sessionToCheck
+ */
+function checkTimeSlotConflict(
+  sessionsInSlot: ClassSession[] | null,
+  sessionToCheck: ClassSession
+): string | null {
+  if (!sessionsInSlot) return null;
+
+  for (const sessionInSlot of sessionsInSlot) {
+    if (sessionInSlot.id !== sessionToCheck.id) {
+      return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
+    }
+  }
+  return null;
+}
+
 function checkGroupConflicts(
   timetable: TimetableGrid,
   sessionToCheck: ClassSession,
@@ -156,19 +176,12 @@ function checkGroupConflicts(
   const period_count = sessionToCheck.period_count || 1;
   const targetGroupSchedule = timetable.get(targetGroupId);
 
-  // Return empty if the group has no schedule.
   if (!targetGroupSchedule) return '';
 
-  // Check each period that the session spans to ensure no overlap.
   for (let i = 0; i < period_count; i++) {
     const sessionsInSlot = targetGroupSchedule[targetPeriodIndex + i];
-    if (sessionsInSlot) {
-      for (const sessionInSlot of sessionsInSlot) {
-        if (sessionInSlot.id !== sessionToCheck.id) {
-          return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
-        }
-      }
-    }
+    const conflict = checkTimeSlotConflict(sessionsInSlot, sessionToCheck);
+    if (conflict) return conflict;
   }
 
   return '';

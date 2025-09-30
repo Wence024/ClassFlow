@@ -74,6 +74,9 @@ const buildTooltipContent = (sessions: ClassSession[]) => {
 
 /**
  * Renders a fallback UI for a class session with invalid or missing relational data.
+ *
+ * @param root0
+ * @param root0.periodCount
  */
 const InvalidSessionCell = ({ periodCount }: { periodCount: number }) => {
   console.warn('Rendering fallback for an invalid class session with missing relational data.');
@@ -90,6 +93,9 @@ const InvalidSessionCell = ({ periodCount }: { periodCount: number }) => {
 /**
  * Creates a background style for the session cell.
  * For a single session, it's a solid color. For merged sessions, it's a linear gradient.
+ *
+ * @param sessions
+ * @param isDragged
  */
 const createCellBackground = (
   sessions: ClassSession[],
@@ -125,6 +131,16 @@ const createCellBackground = (
 
 /**
  * Renders the visible, colored, and draggable block representing the session(s).
+ *
+ * @param root0
+ * @param root0.sessions
+ * @param root0.isOwner
+ * @param root0.isDraggedSession
+ * @param root0.cellStyle
+ * @param root0.textStyle
+ * @param root0.onShowTooltip
+ * @param root0.onHideTooltip
+ * @param root0.softConflicts
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
   sessions,
@@ -197,6 +213,11 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
 
 /**
  * Renders an invisible drop zone that overlays a session cell period.
+ *
+ * @param root0
+ * @param root0.groupId
+ * @param root0.periodIndex
+ * @param root0.sessionsInCell
  */
 const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell }) => {
   const {
@@ -244,6 +265,13 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
 /**
  * Renders a table cell (`<td>`) containing one or more class sessions.
  * This component handles both single and merged class sessions.
+ *
+ * @param root0
+ * @param root0.sessions
+ * @param root0.groupId
+ * @param root0.periodIndex
+ * @param root0.isLastInDay
+ * @param root0.isNotLastInTable
  */
 const SessionCell: React.FC<SessionCellProps> = ({
   sessions,
@@ -257,11 +285,14 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const { user } = useAuth();
 
   // --- Data and State Calculation ---
+  const softConflicts = useMemo(() => checkCellSoftConflicts(sessions), [sessions]);
+
   if (!sessions || sessions.length === 0) {
     return <td className="p-0.5 align-top h-20" />;
   }
 
   const primarySession = sessions[0];
+
   const isDataInvalid =
     !primarySession.instructor ||
     !primarySession.course ||
@@ -276,8 +307,6 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isDraggedSession = sessions.some((s) => s.id === activeDraggedSession?.id);
   const isDragging = activeDraggedSession !== null;
   const numberOfPeriods = primarySession.period_count || 1;
-
-  const softConflicts = useMemo(() => checkCellSoftConflicts(sessions), [sessions]);
 
   const draggableSession = isOwner ? sessions.find((s) => s.program_id === user?.program_id) : null;
 
