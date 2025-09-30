@@ -76,7 +76,38 @@ CREATE TABLE public.resource_requests (
 );
 ```
 
+## **Current Status & Immediate Priorities**
+
+### **✅ Completed (Class Merging Implementation)**
+- Fixed all linting and TypeScript errors
+- Updated data structures to support merged sessions (`ClassSession[]` instead of `ClassSession`)
+- Implemented class merging logic in conflict detection and timetable grid
+- Updated TimetableGrid type to support merged sessions
+- Fixed tooltip function signatures and null safety issues
+
+### **❌ Current Issues**
+- Test failures due to data structure changes from class merging
+- Missing ColorPicker component causing test failures
+- Integration tests need updates for new data structure
+- Need to add conflict check for moving sessions to non-corresponding class groups
+
+### **🚨 Immediate Priority: Stabilization**
+Before implementing department-based resource management, we must:
+1. Fix all test failures caused by class merging data structure changes
+2. Update test mocks to use `ClassSession[]` instead of `ClassSession`
+3. Fix TimetablePage integration tests
+4. Fix SessionCell component tests
+5. Create missing ColorPicker component or remove its test
+6. Add conflict check for moving sessions to wrong class groups
+
 ## **Implementation Phases**
+
+### **Phase 0: Complete Stabilization (IMMEDIATE)**
+- [ ] Fix test failures from class merging implementation
+- [ ] Update all test mocks for new data structure
+- [ ] Add conflict check for moving sessions to non-corresponding class groups
+- [ ] Ensure all existing functionality works with merged sessions
+- [ ] Update ai-code-maintenance.md with new testing requirements
 
 ### **Phase 1: Database Schema Migration**
 

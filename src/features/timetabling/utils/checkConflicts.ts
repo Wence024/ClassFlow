@@ -159,6 +159,21 @@ function checkTimeSlotConflict(
 }
 
 /**
+ * Checks if a class session belongs to the target group.
+ * Prevents moving sessions to rows that don't correspond to their class group.
+ *
+ * @param sessionToCheck The class session to check.
+ * @param targetGroupId The ID of the target group.
+ * @returns A string error message if there's a group mismatch, or null if the session belongs to the group.
+ */
+function checkGroupMismatch(sessionToCheck: ClassSession, targetGroupId: string): string | null {
+  if (sessionToCheck.group.id !== targetGroupId) {
+    return `Group mismatch: Cannot move session for class group '${sessionToCheck.group.name}' to row for class group '${targetGroupId}'. Sessions can only be moved within their own class group row.`;
+  }
+  return null;
+}
+
+/**
  * Checks for conflicts within the target group's own row in the timetable.
  * Ensures that no other session is already occupying the same time slot.
  *
@@ -431,6 +446,10 @@ export default function checkTimetableConflicts(
 
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);
   if (boundaryError) return boundaryError;
+
+  // Check if the session belongs to the target group
+  const groupMismatchError = checkGroupMismatch(classSessionToCheck, targetGroupId);
+  if (groupMismatchError) return groupMismatchError;
 
   const groupError = checkGroupConflicts(
     timetable,

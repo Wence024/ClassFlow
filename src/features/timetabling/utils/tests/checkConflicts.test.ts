@@ -308,7 +308,7 @@ describe('checkConflicts', () => {
     });
 
     it('should detect a group conflict if any part of the multi-period class overlaps', () => {
-      timetable.get(mockGroup2.id)![2] = classSession1; // Existing class
+      timetable.get(mockGroup2.id)![2] = [classSession1]; // Existing class
       // Try to place a 2-period class at index 1, which overlaps at index 2
       const result = checkTimetableConflicts(
         timetable,
@@ -324,8 +324,8 @@ describe('checkConflicts', () => {
 
     it('should detect a group conflict when a multi-period class completely overlaps an existing class', () => {
       // ARRANGE
-      timetable.get(mockGroup2.id)![1] = classSession1;
-      timetable.get(mockGroup2.id)![2] = classSession1;
+      timetable.get(mockGroup2.id)![1] = [classSession1];
+      timetable.get(mockGroup2.id)![2] = [classSession1];
 
       // ACT
       const result = checkTimetableConflicts(
@@ -361,8 +361,8 @@ describe('checkConflicts', () => {
       };
 
       timetable.set(otherGroup.id, Array(totalPeriods).fill(null));
-      timetable.get(mockGroup2.id)![1] = conflictingInstructorSession;
-      timetable.get(otherGroup.id)![1] = otherSession;
+      timetable.get(mockGroup2.id)![1] = [conflictingInstructorSession];
+      timetable.get(otherGroup.id)![1] = [otherSession];
 
       const result = findConflictingSessionsAtPeriod(timetable, 1, mockGroup1.id, classSession1);
 
@@ -379,10 +379,10 @@ describe('checkConflicts', () => {
 
     it('should detect an instructor conflict in the second period of a multi-period class', () => {
       // Setup existing session that conflicts
-      timetable.get(mockGroup1.id)![0] = {
+      timetable.get(mockGroup1.id)![0] = [{
         ...classSession1,
         instructor: mockInstructor1,
-      };
+      }];
 
       // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
       const result = checkTimetableConflicts(
@@ -398,11 +398,11 @@ describe('checkConflicts', () => {
 
     it('should detect a classroom conflict in the second period of a multi-period class', () => {
       // Place conflicting session for classroom at period 1
-      timetable.get(mockGroup1.id)![1] = {
+      timetable.get(mockGroup1.id)![1] = [{
         ...classSession1,
         id: 'session-other',
         instructor: mockInstructor1,
-      }; // same classroom1
+      }]; // same classroom1
 
       // Try to place a 2-period class starting at index 0
       const result = checkTimetableConflicts(
@@ -451,7 +451,7 @@ describe('checkConflicts', () => {
     });
 
     it('should not report a conflict with itself when moving a multi-period class', () => {
-      timetable.get(mockGroup2.id)![5] = classSession2;
+      timetable.get(mockGroup2.id)![5] = [classSession2];
       const result = checkTimetableConflicts(
         timetable,
         classSession2,
@@ -467,14 +467,14 @@ describe('checkConflicts', () => {
   it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
     // ARRANGE: Set up a specific, tricky timetable layout.
     // Session A is at [1, 2], Session B is at [3, 4].
-    const sessionA = { ...classSession2, id: 'sessionA', program_id: 'mockProgram' };
-    const sessionB = { ...classSession2, id: 'sessionB', program_id: 'mockProgram' };
+    const sessionA = { ...classSession1, id: 'sessionA', program_id: 'mockProgram' };
+    const sessionB = { ...classSession1, id: 'sessionB', program_id: 'mockProgram' };
 
     const groupSessions = timetable.get(mockGroup1.id)!;
-    groupSessions[1] = sessionA;
-    groupSessions[2] = sessionA;
-    groupSessions[3] = sessionB;
-    groupSessions[4] = sessionB;
+    groupSessions[1] = [sessionA];
+    groupSessions[2] = [sessionA];
+    groupSessions[3] = [sessionB];
+    groupSessions[4] = [sessionB];
 
     // Define the move operation
     const targetPeriodIndex = 2; // Target is [2, 3]
@@ -493,7 +493,7 @@ describe('checkConflicts', () => {
     // ASSERT: The function must detect the conflict and not return an empty string.
     expect(result).not.toBe('');
     expect(result).toContain('conflict');
-    expect(result).toContain('CS-1B');
+    expect(result).toContain('CS-1A');
   });
 
   describe('Cross-Program Conflict Detection', () => {
@@ -509,8 +509,8 @@ describe('checkConflicts', () => {
         program_id: mockProgramBus.id,
       };
       // Place it at period 5 (and 6 because its duration is 2)
-      timetable.get(mockGroupBus101.id)![5] = existingBusinessSession;
-      timetable.get(mockGroupBus101.id)![6] = existingBusinessSession;
+      timetable.get(mockGroupBus101.id)![5] = [existingBusinessSession];
+      timetable.get(mockGroupBus101.id)![6] = [existingBusinessSession];
     });
 
     it('should DETECT an instructor conflict with a session from another program', () => {
@@ -611,8 +611,8 @@ describe('checkConflicts', () => {
       };
 
       // Place session for Group 1 on the timetable at period 5
-      timetable.get(mockGroup1.id)![5] = sessionForGroup1;
-      timetable.get(mockGroup1.id)![6] = sessionForGroup1;
+      timetable.get(mockGroup1.id)![5] = [sessionForGroup1];
+      timetable.get(mockGroup1.id)![6] = [sessionForGroup1];
 
       // ACT
       // Try to place the session for Group 2 at the same time slot
@@ -655,7 +655,7 @@ describe('checkConflicts', () => {
       };
 
       // Place session for Group 1 on the timetable
-      timetable.get(mockGroup1.id)![8] = sessionForGroup1;
+      timetable.get(mockGroup1.id)![8] = [sessionForGroup1];
 
       // ACT
       // Try to place the session for Group 2 at the same time
@@ -699,7 +699,7 @@ describe('checkConflicts', () => {
       };
 
       // Place session for Group 1 on the timetable
-      timetable.get(mockGroup1.id)![9] = sessionForGroup1;
+      timetable.get(mockGroup1.id)![9] = [sessionForGroup1];
 
       // ACT
       // Try to place the session for Group 2 at the same time
@@ -716,6 +716,75 @@ describe('checkConflicts', () => {
       // This should be a conflict because the courses are different
       expect(result).toContain('Classroom conflict');
       expect(result).toContain('Shared Auditorium');
+    });
+  });
+
+  describe('Group Mismatch Detection', () => {
+    it('should return a group mismatch error when trying to move a session to a different class group row', () => {
+      // ARRANGE
+      const sessionForGroup1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockGroup1.id, new Array(40).fill(null));
+      timetable.set(mockGroup2.id, new Array(40).fill(null));
+
+      // ACT
+      // Try to move a session from Group 1 to Group 2's row
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionForGroup1,
+        mockSettings,
+        mockGroup2.id, // Target group is different from session's group
+        5,
+        [mockProgramCS]
+      );
+
+      // ASSERT
+      expect(result).toContain('Group mismatch');
+      expect(result).toContain('Cannot move session for class group');
+      expect(result).toContain(mockGroup1.name); // CS-1A
+      expect(result).toContain(mockGroup2.id); // group2
+    });
+
+    it('should NOT return a group mismatch error when moving a session within its own class group row', () => {
+      // ARRANGE
+      const sessionForGroup1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockGroup1.id, new Array(40).fill(null));
+
+      // ACT
+      // Try to move a session within the same group's row
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionForGroup1,
+        mockSettings,
+        mockGroup1.id, // Target group is the same as session's group
+        5,
+        [mockProgramCS]
+      );
+
+      // ASSERT
+      // Should not contain group mismatch error (may contain other conflicts, but not group mismatch)
+      expect(result).not.toContain('Group mismatch');
     });
   });
 
