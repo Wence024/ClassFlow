@@ -156,7 +156,7 @@ Before implementing department-based resource management, we must:
 - [ ] Update user profile management
 
 #### **Task 3.2: Create Department Management UI**
-- [ ] Create department management page (admin only)
+- [x] Create department management page (admin only)
 - [ ] Create department head dashboard
 - [ ] Add department selection for program heads
 

@@ -10,6 +10,7 @@ import ClassSessions from './features/classSessions/pages/ClassSessionsPage'; //
 import TimetablePage from './features/timetabling/pages/TimetablePage';
 import ComponentManagement from './features/classSessionComponents/pages';
 import ScheduleConfigPage from './features/scheduleConfig/pages/ScheduleConfigPage';
+import DepartmentManagementPage from './features/departments/pages/DepartmentManagementPage';
 
 /**
  * The root component of the application.
@@ -38,6 +39,7 @@ function App() {
                   <Route path="/scheduler" element={<TimetablePage />} />
                   <Route path="/component-management" element={<ComponentManagement />} />
                   <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
+                  <Route path="/departments" element={<DepartmentManagementPage />} />
                 </Route>
               </Route>
 
