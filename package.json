@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "precommit": "npm run format && npm run prep-commit-msg",
-    "prep-commit-msg": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
+    "pcm": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
     "premerge": "npm run lint && npm run type-check && npm run test && npm run format",
     "preview": "vite preview",
     "test": "vitest",

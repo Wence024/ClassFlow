@@ -166,3 +166,5 @@ Sir B's Feedback:
 * [ ] CSV Import
 * [ ] Classroom/instructor View
 * [ ] Reports per instructor and class group.
+
+* [ ] Keep the merged capacity check as a soft conflict instead of a hard conflict.

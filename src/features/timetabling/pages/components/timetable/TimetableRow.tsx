@@ -5,11 +5,113 @@ import EmptyCell from './EmptyCell';
 import SessionCell from './SessionCell';
 
 /**
+ * Determines if a period is the last period in a day.
+ *
+ * @param periodIndex - The index of the period.
+ * @param numberOfPeriods - The number of periods this session spans.
+ * @param periodsPerDay - The number of periods per day.
+ * @returns Whether this is the last period in the day.
+ */
+const isLastPeriodInDay = (periodIndex: number, numberOfPeriods: number, periodsPerDay: number): boolean => {
+  return (periodIndex + numberOfPeriods - 1) % periodsPerDay === periodsPerDay - 1;
+};
+
+/**
+ * Determines if the current day is not the last day in the table.
+ *
+ * @param periodIndex - The index of the period.
+ * @param totalPeriods - The total number of periods in the table.
+ * @param periodsPerDay - The number of periods per day.
+ * @returns Whether this is not the last day in the table.
+ */
+const isNotLastDayOfTable = (periodIndex: number, totalPeriods: number, periodsPerDay: number): boolean => {
+  const currentDay = Math.floor(periodIndex / periodsPerDay);
+  const totalDays = Math.floor(totalPeriods / periodsPerDay);
+  return currentDay < totalDays - 1;
+};
+
+/**
+ * Marks periods as rendered to avoid duplicate cells.
+ *
+ * @param renderedPeriods - Set of periods that have been rendered.
+ * @param periodIndex - The index of the period.
+ * @param numberOfPeriods - The number of periods this session spans.
+ */
+const markPeriodsAsRendered = (renderedPeriods: Set<number>, periodIndex: number, numberOfPeriods: number): void => {
+  for (let i = 0; i < numberOfPeriods; i++) {
+    renderedPeriods.add(periodIndex + i);
+  }
+};
+
+/**
+ * Renders a session cell for the given parameters.
+ *
+ * @param sessionsInCell - The sessions in this cell.
+ * @param group - The class group.
+ * @param periodIndex - The index of the period.
+ * @param periodsPerDay - The number of periods per day.
+ * @param totalPeriods - The total number of periods.
+ * @returns The JSX element for the session cell.
+ */
+const renderSessionCell = (
+  sessionsInCell: ClassSession[],
+  group: ClassGroup,
+  periodIndex: number,
+  periodsPerDay: number,
+  totalPeriods: number
+): React.ReactElement => {
+  const primarySession = sessionsInCell[0];
+  const numberOfPeriods = primarySession.period_count || 1;
+  const isLastInDay = isLastPeriodInDay(periodIndex, numberOfPeriods, periodsPerDay);
+  const isNotLastInTable = isNotLastDayOfTable(periodIndex, totalPeriods, periodsPerDay);
+
+  return (
+    <SessionCell
+      key={`${group.id}-${periodIndex}`}
+      sessions={sessionsInCell}
+      groupId={group.id}
+      periodIndex={periodIndex}
+      isLastInDay={isLastInDay}
+      isNotLastInTable={isNotLastInTable}
+    />
+  );
+};
+
+/**
+ * Renders an empty cell for the given parameters.
+ *
+ * @param group - The class group.
+ * @param periodIndex - The index of the period.
+ * @param periodsPerDay - The number of periods per day.
+ * @param totalPeriods - The total number of periods.
+ * @returns The JSX element for the empty cell.
+ */
+const renderEmptyCell = (
+  group: ClassGroup,
+  periodIndex: number,
+  periodsPerDay: number,
+  totalPeriods: number
+): React.ReactElement => {
+  const isLastInDay = periodIndex % periodsPerDay === periodsPerDay - 1;
+  const isNotLastInTable = isNotLastDayOfTable(periodIndex, totalPeriods, periodsPerDay);
+
+  return (
+    <EmptyCell
+      key={`${group.id}-${periodIndex}`}
+      groupId={group.id}
+      periodIndex={periodIndex}
+      isLastInDay={isLastInDay}
+      isNotLastInTable={isNotLastInTable}
+    />
+  );
+};
+
+/**
  * Props for the TimetableRow component.
  */
 interface TimetableRowProps {
   group: ClassGroup;
-  timetable: Map<string, (ClassSession | null)[]>;
+  timetable: Map<string, (ClassSession[] | null)[]>;
   periodsPerDay: number;
   totalPeriods: number;
 }
@@ -31,45 +133,30 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
   periodsPerDay,
   totalPeriods,
 }) => {
-  const renderedPeriods = new Set<number>();
   const cells = [];
+  const rowData = timetable.get(group.id) || [];
+  const renderedPeriods = new Set<number>();
 
   for (let periodIndex = 0; periodIndex < totalPeriods; periodIndex++) {
-    if (renderedPeriods.has(periodIndex)) continue;
+    if (renderedPeriods.has(periodIndex)) {
+      continue;
+    }
 
-    const classSession = timetable.get(group.id)?.[periodIndex] || null;
-    const numberOfPeriods = classSession?.period_count || 1;
+    const sessionsInCell = rowData[periodIndex];
 
-    const isLastPeriodInDay =
-      (periodIndex + numberOfPeriods - 1) % periodsPerDay === periodsPerDay - 1;
-    const currentDay = Math.floor(periodIndex / periodsPerDay);
-    const totalDays = Math.floor(totalPeriods / periodsPerDay);
-    const isNotLastDayOfTable = currentDay < totalDays - 1;
+    if (sessionsInCell && sessionsInCell.length > 0) {
+      const primarySession = sessionsInCell[0];
+      const numberOfPeriods = primarySession.period_count || 1;
 
-    if (classSession) {
-      for (let i = 1; i < numberOfPeriods; i++) {
-        renderedPeriods.add(periodIndex + i);
+      if (primarySession.group.id !== group.id) {
+        markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
+        continue;
       }
-      cells.push(
-        <SessionCell
-          key={periodIndex}
-          session={classSession}
-          groupId={group.id}
-          periodIndex={periodIndex}
-          isLastInDay={isLastPeriodInDay}
-          isNotLastInTable={isNotLastDayOfTable}
-        />
-      );
+
+      markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
+      cells.push(renderSessionCell(sessionsInCell, group, periodIndex, periodsPerDay, totalPeriods));
     } else {
-      cells.push(
-        <EmptyCell
-          key={periodIndex}
-          groupId={group.id}
-          periodIndex={periodIndex}
-          isLastInDay={isLastPeriodInDay}
-          isNotLastInTable={isNotLastDayOfTable}
-        />
-      );
+      cells.push(renderEmptyCell(group, periodIndex, periodsPerDay, totalPeriods));
     }
   }
 

@@ -12,7 +12,7 @@ import { useTimetableContext } from './useTimetableContext';
 
 interface TimetableProps {
   groups: ClassGroup[];
-  timetable: Map<string, (ClassSession | null)[]>;
+  timetable: Map<string, (ClassSession[] | null)[]>;
   isLoading: boolean;
 }
 

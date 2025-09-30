@@ -8,12 +8,14 @@ import {
   getSessionCellTextColor,
 } from '../../../../../lib/colorUtils';
 import { useAuth } from '../../../../auth/hooks/useAuth';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Users } from 'lucide-react';
+import { useMemo } from 'react';
+import { checkCellSoftConflicts } from '../../../utils/checkConflicts';
 
 // --- PROPS ---
 
 interface SessionCellProps {
-  session: ClassSession;
+  sessions: ClassSession[];
   groupId: string;
   periodIndex: number;
   isLastInDay: boolean;
@@ -23,53 +25,65 @@ interface SessionCellProps {
 interface DropZoneProps {
   groupId: string;
   periodIndex: number;
-  sessionInCell: ClassSession;
+  sessionsInCell: ClassSession[];
 }
 
 interface VisibleBlockProps {
-  session: ClassSession;
+  sessions: ClassSession[];
   isOwner: boolean;
   isDraggedSession: boolean;
   cellStyle: React.CSSProperties;
   textStyle: React.CSSProperties;
   onShowTooltip: (e: React.MouseEvent<HTMLElement>) => void;
   onHideTooltip: () => void;
+  softConflicts: string[];
+  contextOnShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
 }
 
 // --- HELPER FUNCTIONS & COMPONENTS ---
 
 /**
- * Builds the JSX content for a class session tooltip.
+ * Builds the JSX content for a class session tooltip, adapting for merged sessions.
  *
- * @param session - The class session object.
+ * @param sessions - An array of class sessions in this cell.
  * @returns The JSX element to be rendered inside the tooltip.
  */
-const buildTooltipContent = (session: ClassSession) => (
-  <>
-    <p className="font-bold text-sm">{session.course.name}</p>
-    <p className="text-gray-300">{session.course.code}</p>
-    <p className="mt-1">
-      Instructor: {session.instructor.first_name} {session.instructor.last_name}
-    </p>
-    <p>Classroom: {session.classroom.name}</p>
-    <p>Group: {session.group.name}</p>
-  </>
-);
+const buildTooltipContent = (sessions: ClassSession[]): React.ReactElement => {
+  const primary = sessions[0];
+  return (
+    <>
+      <p className="font-bold text-sm">{primary.course.name}</p>
+      <p className="text-gray-300">{primary.course.code}</p>
+      <p className="mt-1">
+        Instructor: {primary.instructor.first_name} {primary.instructor.last_name}
+      </p>
+      <p>Classroom: {primary.classroom.name}</p>
+      {sessions.length > 1 && (
+        <>
+          <hr className="my-1 border-gray-400" />
+          <p className="font-semibold">Merged Groups:</p>
+          <ul className="list-disc list-inside">
+            {sessions.map((s) => (
+              <li key={s.id}>{s.group.name}</li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
+  );
+};
 
 /**
  * Renders a fallback UI for a class session with invalid or missing relational data.
  *
- * @param isc - The component props.
- * @param isc.session - The invalid class session data.
- * @returns The rendered fallback table cell component.
+ * @param isc - The props object.
+ * @param isc.periodCount - The number of periods this session spans.
+ * @returns The JSX element for the invalid session cell.
  */
-const InvalidSessionCell = ({ session }: { session: ClassSession }) => {
-  console.warn(
-    'Rendering fallback for an invalid class session with missing relational data. Session ID:',
-    session.id
-  );
+const InvalidSessionCell = ({ periodCount }: { periodCount: number }) => {
+  console.warn('Rendering fallback for an invalid class session with missing relational data.');
   return (
-    <td colSpan={session.period_count || 1} className="p-0.5 align-top">
+    <td colSpan={periodCount} className="p-0.5 align-top">
       <div className="h-20 bg-red-100 border-2 border-dashed border-red-300 rounded-md flex flex-col items-center justify-center text-center p-1">
         <AlertTriangle className="w-4 h-4 text-red-600" />
         <p className="text-xs font-semibold text-red-700">Invalid Session Data</p>
@@ -79,58 +93,148 @@ const InvalidSessionCell = ({ session }: { session: ClassSession }) => {
 };
 
 /**
- * Renders the visible, colored, and draggable block representing the session.
+ * Creates a background style for the session cell.
+ * For a single session, it's a solid color. For merged sessions, it's a linear gradient.
  *
- * @param vsb - The props for the component.
- * @param vsb.session - The class session data to display.
- * @param vsb.isOwner - Whether the current user owns this session, controlling draggable status.
- * @param vsb.isDraggedSession - Whether this is the specific session currently being dragged.
- * @param vsb.cellStyle - The calculated CSS styles for the cell's background and border.
- * @param vsb.textStyle - The calculated CSS styles for the text.
- * @param vsb.onShowTooltip - The callback handler for showing the tooltip on mouse enter.
- * @param vsb.onHideTooltip - The callback handler for hiding the tooltip on mouse leave.
- * @returns The rendered visible block component.
+ * @param sessions - The array of sessions in this cell.
+ * @param isDragged - Whether the session is currently being dragged.
+ * @returns The CSS style object for the cell background.
+ */
+const createCellBackground = (
+  sessions: ClassSession[],
+  isDragged: boolean
+): React.CSSProperties => {
+  const primarySession = sessions[0];
+  const border = getSessionCellBorderStyle(
+    primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
+    isDragged
+  );
+
+  if (sessions.length === 1) {
+    return {
+      backgroundColor: getSessionCellBgColor(
+        primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
+        isDragged
+      ),
+      border,
+    };
+  }
+
+  // For merged sessions, create a gradient between the different session colors.
+  const color1 = getSessionCellBgColor(
+    primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
+    isDragged
+  );
+  
+  // If there are multiple sessions with different colors, create a gradient
+  if (sessions.length > 1 && sessions[1].instructor.color !== primarySession.instructor.color) {
+    const color2 = getSessionCellBgColor(
+      sessions[1].instructor.color ?? DEFAULT_FALLBACK_COLOR,
+      isDragged
+    );
+    const background = `linear-gradient(135deg, ${color1}, ${color2})`;
+    return { background, border };
+  }
+
+  // Fallback: create a diagonal split effect with the same color
+  const background = `linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,0.15) 50.5%), ${color1}`;
+  return { background, border };
+};
+
+/**
+ * Renders the visible, colored, and draggable block representing the session(s).
+ *
+ * @param vsb - The props object.
+ * @param vsb.sessions - The array of sessions in this cell.
+ * @param vsb.isOwner - Whether the current user owns this session.
+ * @param vsb.isDraggedSession - Whether this session is currently being dragged.
+ * @param vsb.cellStyle - The CSS style for the cell.
+ * @param vsb.textStyle - The CSS style for the text.
+ * @param vsb.onShowTooltip - Callback to show tooltip.
+ * @param vsb.onHideTooltip - Callback to hide tooltip.
+ * @param vsb.softConflicts - Array of soft conflict messages.
+ * @returns The JSX element for the visible session block.
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
-  session,
+  sessions,
   isOwner,
   isDraggedSession,
   cellStyle,
   textStyle,
   onShowTooltip,
   onHideTooltip,
-}) => (
-  <div
-    data-testid={`session-card-${session.id}`}
-    onMouseEnter={onShowTooltip}
-    onMouseLeave={onHideTooltip}
-    className={`relative w-full h-full ${isOwner ? 'cursor-grab' : 'cursor-not-allowed'} ${
-      isDraggedSession ? 'opacity-50' : ''
-    }`}
-  >
-    {/* Layer 1: The Visible Block */}
+  softConflicts,
+  contextOnShowTooltip,
+}) => {
+  const primarySession = sessions[0];
+  const isMerged = sessions.length > 1;
+  const hasSoftConflicts = softConflicts.length > 0;
+
+  return (
     <div
-      className="absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200"
-      style={cellStyle}
+      data-testid={`session-card-${primarySession.id}`}
+      onMouseEnter={onShowTooltip}
+      onMouseLeave={onHideTooltip}
+      className={`relative w-full h-full ${isOwner ? 'cursor-grab' : 'cursor-not-allowed'} ${
+        isDraggedSession ? 'opacity-50' : ''
+      }`}
     >
-      <p className="font-bold text-xs pointer-events-none" style={textStyle}>
-        {session.course.code}
-      </p>
+      {/* Layer 1: The Visible Block */}
+      <div
+        className="absolute inset-0 rounded-md flex items-center justify-center p-1 text-center z-10 transition-all duration-200"
+        style={cellStyle}
+      >
+        <p className="font-bold text-xs pointer-events-none" style={textStyle}>
+          {primarySession.course.code}
+        </p>
+        {isMerged && (
+          <div
+            className="absolute bottom-1 right-1 flex items-center gap-1 rounded-full px-1.5 py-0.5"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}
+          >
+            <Users className="w-2.5 h-2.5" style={textStyle} />
+            <span className="text-xs font-bold" style={textStyle}>
+              {sessions.length}
+            </span>
+          </div>
+        )}
+        {hasSoftConflicts && (
+          <div
+            className="absolute top-1 left-1 bg-yellow-400 rounded-full p-0.5 cursor-help z-20"
+            onMouseEnter={(e) => {
+              e.stopPropagation(); // Prevent card tooltip from showing
+              contextOnShowTooltip(
+                <div>
+                  <p className="font-semibold">Warnings:</p>
+                  <ul className="list-disc list-inside">
+                    {softConflicts.map((conflict, i) => (
+                      <li key={i}>{conflict}</li>
+                    ))}
+                  </ul>
+                </div>,
+                e.currentTarget as HTMLElement
+              );
+            }}
+            onMouseLeave={onHideTooltip}
+          >
+            <AlertTriangle className="w-3 h-3 text-black" />
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /**
- * Renders an invisible drop zone that overlays a session cell period, providing visual feedback on hover.
- * It consumes D&D logic directly from the `TimetableContext`.
+ * Renders an invisible drop zone that overlays a session cell period.
  *
- * @param dz - The props for the component.
- * @param dz.groupId - The ID of the group row this drop zone belongs to.
- * @param dz.periodIndex - The specific period index of this drop zone within the row.
- * @param dz.sessionInCell - The session contained within the parent cell, used to prevent dropping on itself.
- * @returns The rendered DropZone component.
+ * @param dz - The props object.
+ * @param dz.groupId - The ID of the class group.
+ * @param dz.periodIndex - The index of the period.
+ * @param dz.sessionsInCell - The sessions currently in this cell.
+ * @returns The JSX element for the drop zone.
  */
-const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionInCell }) => {
+const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell }) => {
   const {
     dragOverCell,
     activeDraggedSession,
@@ -142,7 +246,7 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionInCell
   } = useTimetableContext();
 
   const isDragging = activeDraggedSession !== null;
-  const isSelf = activeDraggedSession?.id === sessionInCell.id;
+  const isSelf = sessionsInCell.some((s) => s.id === activeDraggedSession?.id);
 
   const isDragOver = dragOverCell?.groupId === groupId && dragOverCell?.periodIndex === periodIndex;
   const isSlotValidForDrop = isDragging && !isSelf && isSlotAvailable(groupId, periodIndex);
@@ -174,52 +278,65 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionInCell
 // --- MAIN COMPONENT ---
 
 /**
- * Renders a table cell (`<td>`) containing a class session.
- * This component orchestrates the rendering of the visible session block and the
- * invisible, interactive drop zones that overlay it. It derives all its interactive
- * logic and state from the `TimetableContext`.
+ * Renders a table cell (`<td>`) containing one or more class sessions.
+ * This component handles both single and merged class sessions.
  *
- * @param sc - The props for the component.
- * @param sc.session - The class session data for this cell.
- * @param sc.groupId - The ID of the group row this cell belongs to.
- * @param sc.periodIndex - The starting period index of the cell.
- * @param sc.isLastInDay - Whether this is the last cell in a day's block, used for styling.
- * @param sc.isNotLastInTable - Whether this is not the last cell in the entire row, used for styling.
- * @returns The rendered `SessionCell` component.
+ * @param sc - The props object.
+ * @param sc.sessions - The array of sessions in this cell.
+ * @param sc.groupId - The ID of the class group.
+ * @param sc.periodIndex - The index of the period.
+ * @param sc.isLastInDay - Whether this is the last period in the day.
+ * @param sc.isNotLastInTable - Whether this is not the last period in the table.
+ * @returns The JSX element for the session cell.
  */
 const SessionCell: React.FC<SessionCellProps> = ({
-  session,
+  sessions,
   groupId,
   periodIndex,
   isLastInDay,
   isNotLastInTable,
 }) => {
-  const { activeDraggedSession, handleDragStart, onShowTooltip, onHideTooltip } =
+  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip } =
     useTimetableContext();
   const { user } = useAuth();
 
   // --- Data and State Calculation ---
-  const isDataInvalid =
-    !session.instructor || !session.course || !session.group || !session.classroom;
-  if (isDataInvalid) {
-    return <InvalidSessionCell session={session} />;
+  const softConflicts = useMemo(() => checkCellSoftConflicts(sessions), [sessions]);
+
+  // Create a wrapper function for the VisibleSessionBlock
+  const handleShowTooltip = (e: React.MouseEvent<HTMLElement>) => {
+    contextOnShowTooltip(buildTooltipContent(sessions), e.currentTarget as HTMLElement);
+  };
+
+  if (!sessions || sessions.length === 0) {
+    return <td className="p-0.5 align-top h-20" />;
   }
 
-  const isOwner = !!user?.program_id && user.program_id === session.program_id;
-  const isDraggedSession = activeDraggedSession?.id === session.id;
-  const isDragging = activeDraggedSession !== null;
-  const instructorHex = session.instructor.color ?? DEFAULT_FALLBACK_COLOR;
-  const numberOfPeriods = session.period_count || 1;
+  const primarySession = sessions[0];
 
-  const cellStyle: React.CSSProperties = isOwner
-    ? {
-        backgroundColor: getSessionCellBgColor(instructorHex, isDraggedSession),
-        border: getSessionCellBorderStyle(instructorHex, isDraggedSession),
-      }
+  const isDataInvalid =
+    !primarySession.instructor ||
+    !primarySession.course ||
+    !primarySession.group ||
+    !primarySession.classroom;
+
+  if (isDataInvalid) {
+    return <InvalidSessionCell periodCount={primarySession.period_count || 1} />;
+  }
+
+  const isOwner = !!user?.program_id && sessions.some((s) => s.program_id === user.program_id);
+  const isDraggedSession = sessions.some((s) => s.id === activeDraggedSession?.id);
+  const isDragging = activeDraggedSession !== null;
+  const numberOfPeriods = primarySession.period_count || 1;
+
+  const draggableSession = isOwner ? sessions.find((s) => s.program_id === user?.program_id) : null;
+
+  const cellStyle = isOwner
+    ? createCellBackground(sessions, isDraggedSession)
     : { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
 
   const textStyle: React.CSSProperties = isOwner
-    ? { color: getSessionCellTextColor(instructorHex) }
+    ? { color: getSessionCellTextColor(primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR) }
     : { color: '#4B5563' };
 
   const borderClass =
@@ -235,24 +352,27 @@ const SessionCell: React.FC<SessionCellProps> = ({
         <div
           className="relative w-full h-full"
           draggable={isOwner}
-          onDragStart={(e) =>
-            isOwner &&
-            handleDragStart(e, {
-              from: 'timetable',
-              class_session_id: session.id,
-              class_group_id: groupId,
-              period_index: periodIndex,
-            })
-          }
+          onDragStart={(e) => {
+            if (isOwner && draggableSession) {
+              handleDragStart(e, {
+                from: 'timetable',
+                class_session_id: draggableSession.id,
+                class_group_id: draggableSession.group.id,
+                period_index: periodIndex,
+              });
+            }
+          }}
         >
           <VisibleSessionBlock
-            session={session}
+            sessions={sessions}
             isOwner={isOwner}
             isDraggedSession={isDraggedSession}
             cellStyle={cellStyle}
             textStyle={textStyle}
-            onShowTooltip={(e) => onShowTooltip(buildTooltipContent(session), e.currentTarget)}
+            onShowTooltip={handleShowTooltip}
             onHideTooltip={onHideTooltip}
+            softConflicts={softConflicts}
+            contextOnShowTooltip={contextOnShowTooltip}
           />
 
           {/* Layer 2: The Invisible Drop Zones */}
@@ -262,7 +382,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
                 key={periodIndex + i}
                 groupId={groupId}
                 periodIndex={periodIndex + i}
-                sessionInCell={session}
+                sessionsInCell={sessions}
               />
             ))}
           </div>

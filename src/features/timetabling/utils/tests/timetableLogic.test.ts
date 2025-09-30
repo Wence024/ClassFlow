@@ -165,27 +165,28 @@ describe('buildTimetableGrid', () => {
     expect(grid.get('group2')?.every((cell) => cell === null)).toBe(true);
   });
 
-  it('should correctly place assignments into the grid', () => {
+  it('should correctly place single-session assignments into the grid', () => {
     const groups = [mockGroup1, mockGroup2];
     const assignments = [mockAssignment1, mockAssignment2];
     const grid = buildTimetableGrid(assignments, groups, totalPeriods);
 
-    expect(grid.get('group1')?.[0]).toEqual(mockAssignment1.class_session);
+    // Expect cell to contain an array with the single session
+    expect(grid.get('group1')?.[0]).toEqual([mockClassSession1]);
     expect(grid.get('group1')?.[1]).toBeNull();
 
-    expect(grid.get('group2')?.[3]).toEqual(mockAssignment2.class_session);
+    expect(grid.get('group2')?.[3]).toEqual([mockClassSession2]);
     expect(grid.get('group2')?.[4]).toBeNull();
   });
 
   it('should handle assignments for groups that might not be in the group list (graceful handling)', () => {
-    const groups = [mockGroup1];
+    const groups = [mockGroup1]; // mockGroup2 is not in this list
     const assignments = [mockAssignment1, mockAssignment2];
     const grid = buildTimetableGrid(assignments, groups, totalPeriods);
 
     expect(grid.size).toBe(1);
     expect(grid.has('group1')).toBe(true);
-    expect(grid.has('group2')).toBe(false);
-    expect(grid.get('group1')?.[0]).toEqual(mockAssignment1.class_session);
+    expect(grid.has('group2')).toBe(false); // Grid should not have a row for group2
+    expect(grid.get('group1')?.[0]).toEqual([mockClassSession1]);
   });
 
   it('should create a "dense" grid for multi-period class sessions', () => {
@@ -195,9 +196,144 @@ describe('buildTimetableGrid', () => {
     const grid = buildTimetableGrid(assignments, groups, totalPeriods);
     const group1Row = grid.get('group1');
 
-    expect(group1Row?.[5]).toEqual(mockMultiPeriodSession);
-    expect(group1Row?.[6]).toEqual(mockMultiPeriodSession);
+    const expectedCellContent = [mockMultiPeriodSession];
+    expect(group1Row?.[5]).toEqual(expectedCellContent);
+    expect(group1Row?.[6]).toEqual(expectedCellContent);
+
+    // Also check that the same array instance is used
+    expect(group1Row?.[5]).toBe(group1Row?.[6]);
+
     expect(group1Row?.[4]).toBeNull();
     expect(group1Row?.[7]).toBeNull();
+  });
+
+  describe('Class Merging Logic', () => {
+    it('should merge two sessions with the same course, instructor, and classroom', () => {
+      // ARRANGE
+      const totalPeriods = 10;
+      const mergeableSession1: ClassSession = {
+        id: 'merge_session1',
+        course: mockCourse,
+        instructor: mockInstructor,
+        classroom: mockClassroom,
+        group: mockGroup1,
+        period_count: 2,
+        program_id: 'p1',
+      };
+
+      const mergeableSession2: ClassSession = {
+        id: 'merge_session2',
+        course: mockCourse, // Same course
+        instructor: mockInstructor, // Same instructor
+        classroom: mockClassroom, // Same classroom
+        group: mockGroup2, // Different group
+        period_count: 2,
+        program_id: 'p1',
+      };
+
+      const assignment1: HydratedTimetableAssignment = {
+        id: 'merge_assign1',
+        class_group_id: mockGroup1.id,
+        period_index: 2,
+        class_session: mergeableSession1,
+        user_id: 'user1',
+        created_at: '',
+        semester_id: 'sem1',
+      };
+
+      const assignment2: HydratedTimetableAssignment = {
+        id: 'merge_assign2',
+        class_group_id: mockGroup2.id,
+        period_index: 2, // Same period index
+        class_session: mergeableSession2,
+        user_id: 'user1',
+        created_at: '',
+        semester_id: 'sem1',
+      };
+
+      const assignments = [assignment1, assignment2];
+      const groups = [mockGroup1, mockGroup2];
+
+      // ACT
+      const grid = buildTimetableGrid(assignments, groups, totalPeriods);
+
+      // ASSERT
+      const group1Row = grid.get(mockGroup1.id);
+      const group2Row = grid.get(mockGroup2.id);
+
+      // 1. Check that the cell contains an array with both sessions
+      const cellContent = group1Row?.[2];
+      expect(cellContent).toBeInstanceOf(Array);
+      expect(cellContent).toHaveLength(2);
+      // Check if the array contains the correct sessions (order might not be guaranteed)
+      expect(cellContent).toEqual(expect.arrayContaining([mergeableSession1, mergeableSession2]));
+
+      // 2. Check that both groups have the IDENTICAL array instance in their cells
+      expect(group1Row?.[2]).toBe(group2Row?.[2]); // Same array instance
+      expect(group1Row?.[3]).toBe(group2Row?.[3]); // Also for the second period of the session
+
+      // 3. Check that the session spans correctly for both groups
+      expect(group1Row?.[3]).toEqual(cellContent);
+      expect(group2Row?.[3]).toEqual(cellContent);
+
+      // 4. Check that other cells are null
+      expect(group1Row?.[1]).toBeNull();
+      expect(group1Row?.[4]).toBeNull();
+      expect(group2Row?.[1]).toBeNull();
+      expect(group2Row?.[4]).toBeNull();
+    });
+
+    it('should not merge sessions with different courses', () => {
+      // ARRANGE
+      const totalPeriods = 10;
+      const session1: ClassSession = {
+        id: 's1',
+        course: mockCourse, // Course A
+        instructor: mockInstructor,
+        classroom: mockClassroom,
+        group: mockGroup1,
+        period_count: 1,
+        program_id: 'p1',
+      };
+      const differentCourse: Course = { ...mockCourse, id: 'course2', name: 'Different Course' };
+      const session2: ClassSession = {
+        id: 's2',
+        course: differentCourse, // Course B
+        instructor: mockInstructor,
+        classroom: mockClassroom,
+        group: mockGroup2,
+        period_count: 1,
+        program_id: 'p1',
+      };
+      const assignment1: HydratedTimetableAssignment = {
+        id: 'a1',
+        class_group_id: 'group1',
+        period_index: 0,
+        class_session: session1,
+        user_id: 'u1',
+        created_at: '',
+        semester_id: 's1',
+      };
+      const assignment2: HydratedTimetableAssignment = {
+        id: 'a2',
+        class_group_id: 'group2',
+        period_index: 0,
+        class_session: session2,
+        user_id: 'u1',
+        created_at: '',
+        semester_id: 's1',
+      };
+
+      // ACT
+      const grid = buildTimetableGrid([assignment1, assignment2], [mockGroup1, mockGroup2], totalPeriods);
+
+      // ASSERT
+      const group1Cell = grid.get('group1')?.[0];
+      const group2Cell = grid.get('group2')?.[0];
+
+      expect(group1Cell).toEqual([session1]);
+      expect(group2Cell).toEqual([session2]);
+      expect(group1Cell).not.toBe(group2Cell);
+    });
   });
 });

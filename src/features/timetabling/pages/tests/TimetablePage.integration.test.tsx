@@ -152,7 +152,7 @@ describe('TimetablePage Integration Tests', () => {
   it("should render the user's own groups first, followed by a separator and other groups", async () => {
     const allGroups = [mockMyGroup, mockOtherGroup];
     const timetable: TimetableGrid = new Map([
-      ['g1', [mockOwnedSession, null]],
+      ['g1', [[mockOwnedSession], null]],
       ['g2', [null, null]],
     ]);
 
@@ -188,9 +188,13 @@ describe('TimetablePage Integration Tests', () => {
 
   it('should render a fallback UI for sessions with invalid/orphaned data', async () => {
     // @ts-expect-error - Intentionally creating an invalid session for testing
-    const invalidSession: Partial<ClassSession> = { id: 's-invalid', course: null };
+    const invalidSession: Partial<ClassSession> = { 
+      id: 's-invalid', 
+      course: null,
+      group: mockMyGroup // Add group to prevent undefined access
+    };
     const timetableWithInvalidData: TimetableGrid = new Map([
-      ['g1', [invalidSession as ClassSession]],
+      ['g1', [[invalidSession as ClassSession]]],
     ]);
 
     useTimetableSpy.mockReturnValue({
@@ -219,7 +223,7 @@ describe('TimetablePage Integration Tests', () => {
     // `mockOwnedSession` is assigned, `unassignedOtherSession` is not.
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup, mockOtherGroup],
-      timetable: new Map([['g1', [mockOwnedSession]]]),
+      timetable: new Map([['g1', [[mockOwnedSession]]]]),
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -243,7 +247,7 @@ describe('TimetablePage Integration Tests', () => {
 
   it('should not crash when dragging a session from the grid and dropping it on an empty cell', async () => {
     const timetable: TimetableGrid = new Map([
-      ['g1', [mockOwnedSession, null]], // One session and one empty cell
+      ['g1', [[mockOwnedSession], null]], // One session and one empty cell
     ]);
 
     const handleDropToGrid = vi.fn();

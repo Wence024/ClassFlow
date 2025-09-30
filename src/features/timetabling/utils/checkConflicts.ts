@@ -7,7 +7,7 @@ import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
  * Type definition for a timetable grid, where each group has an array of class sessions.
  * The grid is indexed by group ID and stores either a class session or null for an empty slot.
  */
-export type TimetableGrid = Map<string, (ClassSession | null)[]>;
+export type TimetableGrid = Map<string, (ClassSession[] | null)[]>;
 
 /**
  * Checks if the number of students in a class group exceeds the capacity of the assigned classroom.
@@ -53,6 +53,59 @@ export function checkSoftConflicts(session: ClassSession): string[] {
 }
 
 /**
+ * Checks for soft conflicts in a cell containing one or more sessions.
+ * Currently focuses on capacity issues in merged sessions.
+ *
+ * @param sessions - An array of class sessions in the cell.
+ * @returns An array of conflict message strings.
+ */
+export function checkCellSoftConflicts(sessions: ClassSession[]): string[] {
+  const conflicts: string[] = [];
+  if (!sessions || sessions.length <= 1) {
+    return conflicts;
+  }
+
+  const capacityConflict = getMergedCapacityConflictMessage(sessions);
+  if (capacityConflict) {
+    conflicts.push(capacityConflict);
+  }
+
+  return conflicts;
+}
+
+/**
+ * Generates a conflict message if the total student count of a merged session exceeds classroom capacity.
+ *
+ * @param sessionsInSlot The sessions to be combined in a merge.
+ * @returns A string error message if capacity is exceeded, otherwise an empty string.
+ */
+function getMergedCapacityConflictMessage(sessionsInSlot: ClassSession[]): string {
+  if (!sessionsInSlot || sessionsInSlot.length === 0) return '';
+
+  const classroom = sessionsInSlot[0].classroom;
+  if (!classroom) return '';
+
+  const allGroupsInMerge = new Map<string, ClassGroup>();
+  for (const session of sessionsInSlot) {
+    allGroupsInMerge.set(session.group.id, session.group);
+  }
+
+  let totalStudents = 0;
+  for (const group of allGroupsInMerge.values()) {
+    totalStudents += group.student_count || 0;
+  }
+
+  if (classroom.capacity && totalStudents > classroom.capacity) {
+    const groupNames = Array.from(allGroupsInMerge.values())
+      .map((g) => g.name)
+      .join(', ');
+    return `Capacity conflict: The combined student count (${totalStudents}) of merged groups (${groupNames}) exceeds the capacity of classroom "${classroom.name}" (${classroom.capacity} seats).`;
+  }
+
+  return '';
+}
+
+/**
  * Checks for boundary conflicts in the timetable, ensuring the session doesn't extend beyond the available time range.
  *
  * @param period_count The number of periods the class session spans.
@@ -85,6 +138,42 @@ function checkBoundaryConflicts(
 }
 
 /**
+ * Checks if a specific time slot has a conflict with the session being checked.
+ *
+ * @param sessionsInSlot - The sessions currently in the time slot.
+ * @param sessionToCheck - The session to check for conflicts.
+ * @returns A string error message if a conflict is detected, or null if no conflict is found.
+ */
+function checkTimeSlotConflict(
+  sessionsInSlot: ClassSession[] | null,
+  sessionToCheck: ClassSession
+): string | null {
+  if (!sessionsInSlot) return null;
+
+  for (const sessionInSlot of sessionsInSlot) {
+    if (sessionInSlot.id !== sessionToCheck.id) {
+      return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks if a class session belongs to the target group.
+ * Prevents moving sessions to rows that don't correspond to their class group.
+ *
+ * @param sessionToCheck The class session to check.
+ * @param targetGroupId The ID of the target group.
+ * @returns A string error message if there's a group mismatch, or null if the session belongs to the group.
+ */
+function checkGroupMismatch(sessionToCheck: ClassSession, targetGroupId: string): string | null {
+  if (sessionToCheck.group.id !== targetGroupId) {
+    return `Group mismatch: Cannot move session for class group '${sessionToCheck.group.name}' to row for class group '${targetGroupId}'. Sessions can only be moved within their own class group row.`;
+  }
+  return null;
+}
+
+/**
  * Checks for conflicts within the target group's own row in the timetable.
  * Ensures that no other session is already occupying the same time slot.
  *
@@ -103,15 +192,12 @@ function checkGroupConflicts(
   const period_count = sessionToCheck.period_count || 1;
   const targetGroupSchedule = timetable.get(targetGroupId);
 
-  // Return empty if the group has no schedule.
   if (!targetGroupSchedule) return '';
 
-  // Check each period that the session spans to ensure no overlap.
   for (let i = 0; i < period_count; i++) {
-    const sessionInSlot = targetGroupSchedule[targetPeriodIndex + i];
-    if (sessionInSlot && sessionInSlot.id !== sessionToCheck.id) {
-      return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
-    }
+    const sessionsInSlot = targetGroupSchedule[targetPeriodIndex + i];
+    const conflict = checkTimeSlotConflict(sessionsInSlot, sessionToCheck);
+    if (conflict) return conflict;
   }
 
   return '';
@@ -139,10 +225,14 @@ export function findConflictingSessionsAtPeriod(
   for (const [groupId, schedule] of timetable.entries()) {
     if (groupId === targetGroupId) continue;
 
-    const otherSession = schedule[periodIndex];
-    if (!otherSession || otherSession.id === sessionToCheck.id) continue;
+    const sessionsInCell = schedule[periodIndex];
+    if (!sessionsInCell) continue;
 
-    conflicts.push(otherSession);
+    for (const otherSession of sessionsInCell) {
+      if (otherSession.id !== sessionToCheck.id) {
+        conflicts.push(otherSession);
+      }
+    }
   }
 
   return conflicts;
@@ -208,10 +298,14 @@ function findInstructorConflictInPeriod(
   );
 
   for (const conflictingSession of conflicts) {
-    if (
-      conflictingSession.instructor.first_name === sessionToCheck.instructor.first_name &&
-      conflictingSession.instructor.last_name === sessionToCheck.instructor.last_name
-    ) {
+    // Check if the instructor is the same.
+    if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+      // If the course is also the same, it's a valid merge, so we skip it.
+      if (conflictingSession.course.id === sessionToCheck.course.id) {
+        continue;
+      }
+
+      // If the courses are different, it's a true conflict.
       const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
       const program = programs.find((p) => p.id === conflictingSession.group.program_id);
 
@@ -284,7 +378,14 @@ function findClassroomConflictInPeriod(
   );
 
   for (const conflictingSession of conflicts) {
-    if (conflictingSession.classroom.name === sessionToCheck.classroom.name) {
+    // Check if the classroom is the same.
+    if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+      // If the course is also the same, it's a valid merge, so we skip it.
+      if (conflictingSession.course.id === sessionToCheck.course.id) {
+        continue;
+      }
+
+      // If the courses are different, it's a true conflict.
       return `Classroom conflict: Classroom '${conflictingSession.classroom.name}' is already booked by group '${conflictingSession.group.name}' at this time (class: '${conflictingSession.course.code}').`;
     }
   }
@@ -346,6 +447,10 @@ export default function checkTimetableConflicts(
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);
   if (boundaryError) return boundaryError;
 
+  // Check if the session belongs to the target group
+  const groupMismatchError = checkGroupMismatch(classSessionToCheck, targetGroupId);
+  if (groupMismatchError) return groupMismatchError;
+
   const groupError = checkGroupConflicts(
     timetable,
     classSessionToCheck,
@@ -354,6 +459,7 @@ export default function checkTimetableConflicts(
   );
   if (groupError) return groupError;
 
+  // --- Standard Resource Conflict Check ---
   return checkResourceConflicts(
     timetable,
     classSessionToCheck,
