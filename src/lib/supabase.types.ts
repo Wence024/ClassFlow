@@ -134,7 +134,6 @@ export type Database = {
           color: string | null
           created_at: string | null
           created_by: string | null
-          department_id: string | null
           id: string
           location: string | null
           name: string
@@ -146,7 +145,6 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           created_by?: string | null
-          department_id?: string | null
           id?: string
           location?: string | null
           name: string
@@ -158,20 +156,12 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           created_by?: string | null
-          department_id?: string | null
           id?: string
           location?: string | null
           name?: string
           preferred_department_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "classrooms_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "classrooms_preferred_department_id_fkey"
             columns: ["preferred_department_id"]
@@ -186,28 +176,28 @@ export type Database = {
           code: string
           color: string | null
           created_at: string | null
+          created_by: string
           id: string
           name: string
           program_id: string | null
-          user_id: string
         }
         Insert: {
           code: string
           color?: string | null
           created_at?: string | null
+          created_by: string
           id?: string
           name: string
           program_id?: string | null
-          user_id: string
         }
         Update: {
           code?: string
           color?: string | null
           created_at?: string | null
+          created_by?: string
           id?: string
           name?: string
           program_id?: string | null
-          user_id?: string
         }
         Relationships: [
           {
@@ -358,6 +348,48 @@ export type Database = {
           short_code?: string
         }
         Relationships: []
+      }
+      request_notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read_at: string | null
+          request_id: string
+          target_department_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read_at?: string | null
+          request_id: string
+          target_department_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read_at?: string | null
+          request_id?: string
+          target_department_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_notifications_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "resource_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "request_notifications_target_department_id_fkey"
+            columns: ["target_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resource_requests: {
         Row: {

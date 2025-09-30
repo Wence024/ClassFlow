@@ -145,7 +145,7 @@ Before implementing department-based resource management, we must:
 #### **Task 2.3: Create Resource Request Services**
 - [x] Create `resourceRequestService.ts`
 - [x] Implement request creation, approval, rejection
-- [ ] Add notification system for requests
+- [x] Add notification system for requests
 - [x] Create hooks for request management
 
 ### **Phase 3: Frontend Role-Based UI**

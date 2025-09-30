@@ -170,7 +170,8 @@ Sir B's Feedback:
 * [ ] Reports per instructor and class group.
 
 * [ ] Remove null usage of department_head except for admin roles.
+* [ ] Adjust type alias for import paths to be cleaner.
 
 Solved:
 
-* [ ] Keep the merged capacity check as a soft conflict instead of a hard conflict.
+* [x] Keep the merged capacity check as a soft conflict instead of a hard conflict.
