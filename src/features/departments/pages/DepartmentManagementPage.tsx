@@ -36,12 +36,12 @@ export default function DepartmentManagementPage() {
     }
   }, [editing, formMethods]);
 
-  if (!isAdmin()) {
-    return <Alert variant="destructive">You do not have access to this page.</Alert>;
-  }
-
-  if (listQuery.isLoading) return <LoadingSpinner text="Loading departments..." />;
-  if (listQuery.error) return <ErrorMessage message="Failed to load departments." />;
+  const filtered = useMemo(() => {
+    const list = listQuery.data || [];
+    if (!searchTerm) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter((d) => d.name.toLowerCase().includes(q) || d.code.toLowerCase().includes(q));
+  }, [listQuery.data, searchTerm]);
 
   const onCreate = async (data: DepartmentFormData) => {
     await createMutation.mutateAsync({ name: data.name, code: data.code });
@@ -55,12 +55,12 @@ export default function DepartmentManagementPage() {
     setEditing(null);
   };
 
-  const filtered = useMemo(() => {
-    const list = listQuery.data || [];
-    if (!searchTerm) return list;
-    const q = searchTerm.toLowerCase();
-    return list.filter((d) => d.name.toLowerCase().includes(q) || d.code.toLowerCase().includes(q));
-  }, [listQuery.data, searchTerm]);
+  if (!isAdmin()) {
+    return <Alert variant="destructive">You do not have access to this page.</Alert>;
+  }
+
+  if (listQuery.isLoading) return <LoadingSpinner text="Loading departments..." />;
+  if (listQuery.error) return <ErrorMessage message="Failed to load departments." />;
 
   return (
     <>
