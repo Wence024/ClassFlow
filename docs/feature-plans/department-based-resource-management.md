@@ -153,7 +153,7 @@ Before implementing department-based resource management, we must:
 #### **Task 3.1: Update Authentication System**
 - [x] Update `AuthContext` to handle department information
 - [x] Add department-based permission checks
-- [ ] Update user profile management
+- [x] Update user profile management
 
 #### **Task 3.2: Create Department Management UI**
 - [x] Create department management page (admin only)

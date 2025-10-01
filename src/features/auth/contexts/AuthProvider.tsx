@@ -131,6 +131,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  /** Updates current user's profile in public.profiles and refreshes local user. */
+  const updateMyProfile = async (update: { name?: string }) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await authService.updateMyProfileRow(update);
+      // Refresh stored user
+      const refreshed = await authService.getStoredUser();
+      if (refreshed) {
+        // Preserve email/role/program/department from profile, overlay name
+        setUser({ ...refreshed, name: update.name ?? refreshed.name });
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update profile';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /**
    * Triggers the resending of a verification email.
    *
@@ -165,6 +186,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     register,
     logout,
     resendVerificationEmail,
+    updateMyProfile,
     loading,
     error,
     clearError,

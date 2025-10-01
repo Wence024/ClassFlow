@@ -41,6 +41,8 @@ export type AuthContextType = {
   canManageInstructorRow: (instructorDepartmentId: string) => boolean;
   /** Row-scoped: manage timetable assignments for a program */
   canManageAssignmentsForProgram: (programId: string) => boolean;
+  /** Update current user's profile metadata (display name). */
+  updateMyProfile: (update: { name?: string }) => Promise<void>;
 };
 
 /**

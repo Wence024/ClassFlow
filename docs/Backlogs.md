@@ -171,6 +171,7 @@ Sir B's Feedback:
 
 * [ ] Remove null usage of department_head except for admin roles.
 * [ ] Adjust type alias for import paths to be cleaner.
+* [ ] Realign the stylings of all pages.
 
 Solved:
 
