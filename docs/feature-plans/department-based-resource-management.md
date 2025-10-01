@@ -157,11 +157,11 @@ Before implementing department-based resource management, we must:
 
 #### **Task 3.2: Create Department Management UI**
 - [x] Create department management page (admin only)
-- [ ] Create department head dashboard
-- [ ] Add department selection for program heads
+- [x] Create department head dashboard
+- [x] Add department selection for program heads
 
 #### **Task 3.3: Update Resource Management UI**
-- [ ] Update instructor management to show department-based resources
+- [x] Update instructor management to show department-based resources (Dept Head Dashboard)
 - [ ] Update classroom management to show department-based resources
 - [ ] Add resource request interface for program heads
 - [ ] Add approval interface for department heads

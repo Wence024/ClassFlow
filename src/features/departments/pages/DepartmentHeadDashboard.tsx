@@ -1,0 +1,25 @@
+import { useAuth } from '../../auth/hooks/useAuth';
+import { Alert, Card } from '../../../components/ui';
+import InstructorManagement from '../../classSessionComponents/pages/InstructorTab';
+
+export default function DepartmentHeadDashboard() {
+  const { isDepartmentHead, isAdmin } = useAuth();
+
+  if (!isDepartmentHead() && !isAdmin()) {
+    return <Alert variant="destructive">You do not have access to this page.</Alert>;
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Department Head Dashboard</h1>
+      </div>
+      <Card className="p-4">
+        <div className="text-sm text-gray-600 mb-2">Manage instructors for your department</div>
+        <InstructorManagement />
+      </Card>
+    </div>
+  );
+}
+
+

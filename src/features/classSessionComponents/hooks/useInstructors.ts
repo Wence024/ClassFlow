@@ -80,3 +80,21 @@ export function useInstructors() {
     removeInstructor: removeMutation.mutateAsync,
   };
 }
+
+export function useInstructorsByDepartment(departmentId?: string) {
+  const queryClient = useQueryClient();
+  const { getAllInstructors, getInstructors, addInstructor, updateInstructor, removeInstructor } = instructorsService;
+  const { user } = useAuth();
+
+  const listQuery = useQuery({
+    queryKey: ['instructors', 'by-dept', departmentId],
+    queryFn: async () => {
+      if (!departmentId) return [];
+      // Admins/Dept heads can see by specific department
+      return getInstructors({ departmentId, role: user?.role });
+    },
+    enabled: !!departmentId,
+  });
+
+  return listQuery;
+}

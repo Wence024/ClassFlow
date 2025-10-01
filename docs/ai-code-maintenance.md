@@ -38,7 +38,7 @@ List of test files:
 
 ### Recommended Testing Plan
 
-#### New Test Files Required (3)
+#### New Test Files Required (5)
 
 1. **File:** `src/components/ui/custom/tests/color-picker.test.tsx`
     * **Purpose:** To verify the functionality of the new, refactored `ColorPicker` component.
@@ -59,6 +59,21 @@ List of test files:
         * `should handle department deletion with proper validation`.
 
 3. **File:** `src/features/resourceRequests/hooks/tests/useResourceRequests.integration.test.tsx`
+4. **File:** `src/features/classSessionComponents/pages/tests/ProgramHeadInstructors.integration.test.tsx`
+    * **Purpose:** Verify program head can browse instructors by department.
+    * **Status:** **Needs Creation**
+    * **Key Tests:**
+        * `should list departments for selection`.
+        * `should fetch instructors for selected department`.
+        * `should filter instructors by search`.
+
+5. **File:** `src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx`
+    * **Purpose:** Verify department head dashboard renders instructor management and respects permissions.
+    * **Status:** **Needs Creation**
+    * **Key Tests:**
+        * `should deny access for non dept head/admin`.
+        * `should render instructor management for dept head`.
+        * `should show department-scoped instructors`.
     * **Purpose:** To verify resource request functionality for cross-department resource sharing.
     * **Status:** **Needs Creation** - Required for Phase 4 of department-based resource management.
     * **Key Tests:**
@@ -202,7 +217,7 @@ All Phase 0 tasks have been completed successfully:
 
 ### **Next Steps:**
 
-The codebase is now ready for Phase 1 of the department-based resource management implementation. The class merging feature is fully functional and all tests are passing.
+The codebase has progressed into Phase 3 UI tasks (dept head dashboard and program head department selection for instructors). Create the new integration tests listed above and update any affected mocks.
 
 ### **Test Results:**
 - **Total Tests**: 105 tests
