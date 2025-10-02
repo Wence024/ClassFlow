@@ -10,7 +10,7 @@ export function useResourceRequests() {
 
   const listQuery = useQuery({
     queryKey,
-    queryFn: () => (user ? service.listMyRequests() : Promise.resolve([])),
+    queryFn: () => (user ? service.getMyRequests() : Promise.resolve([])),
     enabled: !!user,
   });
 
@@ -30,6 +30,30 @@ export function useResourceRequests() {
     isLoading: listQuery.isLoading,
     error: listQuery.error as Error | null,
     createRequest: createMutation.mutateAsync,
+    updateRequest: updateMutation.mutateAsync,
+  };
+}
+
+export function useDepartmentRequests(departmentId?: string) {
+  const queryClient = useQueryClient();
+  const queryKey = ['resource_requests', 'dept', departmentId];
+
+  const listQuery = useQuery({
+    queryKey,
+    queryFn: () => (departmentId ? service.getRequestsForDepartment(departmentId) : Promise.resolve([])),
+    enabled: !!departmentId,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, update }: { id: string; update: ResourceRequestUpdate }) =>
+      service.updateRequest(id, update),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
+  return {
+    requests: (listQuery.data as any) || [],
+    isLoading: listQuery.isLoading,
+    error: listQuery.error as Error | null,
     updateRequest: updateMutation.mutateAsync,
   };
 }

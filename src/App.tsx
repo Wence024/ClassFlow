@@ -14,6 +14,8 @@ import DepartmentManagementPage from './features/departments/pages/DepartmentMan
 import UserProfilePage from './features/auth/pages/UserProfilePage';
 import DepartmentHeadDashboard from './features/departments/pages/DepartmentHeadDashboard';
 import ProgramHeadInstructors from './features/classSessionComponents/pages/ProgramHeadInstructors';
+import ProgramHeadRequestPage from './features/resourceRequests/pages/ProgramHeadRequestPage';
+import DepartmentHeadApprovalsPage from './features/resourceRequests/pages/DepartmentHeadApprovalsPage';
 
 /**
  * The root component of the application.
@@ -45,6 +47,8 @@ function App() {
                   <Route path="/departments" element={<DepartmentManagementPage />} />
                   <Route path="/dept-head" element={<DepartmentHeadDashboard />} />
                   <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
+                  <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
+                  <Route path="/requests/approvals" element={<DepartmentHeadApprovalsPage />} />
                   <Route path="/profile" element={<UserProfilePage />} />
                 </Route>
               </Route>

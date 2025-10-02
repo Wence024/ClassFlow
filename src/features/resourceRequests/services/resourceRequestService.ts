@@ -18,10 +18,20 @@ async function createNotificationForRequest(request: ResourceRequest): Promise<v
   if (error) throw error;
 }
 
-export async function listMyRequests(): Promise<ResourceRequest[]> {
+export async function getMyRequests(): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
+    .order('requested_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getRequestsForDepartment(departmentId: string): Promise<ResourceRequest[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('target_department_id', departmentId)
     .order('requested_at', { ascending: false });
   if (error) throw error;
   return data || [];
