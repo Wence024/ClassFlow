@@ -5,26 +5,23 @@ import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { useDepartments } from '../../departments/hooks/useDepartments';
-import { InstructorFields, InstructorCard } from './components/instructor';
+import { InstructorCard } from './components/instructor';
+import { AdminInstructorFields } from './components/instructor/AdminInstructorFields';
 import {
   Button,
   ConfirmModal,
   ErrorMessage,
   FormField,
   LoadingSpinner,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Instructor } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
-type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
+type InstructorFormData = z.infer<typeof componentSchemas.instructor> & {
+  department_id?: string;
+};
 
 /**
  * Enhanced instructor management for admins and department heads.
@@ -45,14 +42,11 @@ const AdminInstructorManagement: React.FC = () => {
     error,
   } = useInstructors();
   const { classSessions } = useClassSessions();
-  const { listQuery: departmentsQuery } = useDepartments();
   
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
-  const [instructorToReassign, setInstructorToReassign] = useState<Instructor | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [presetColor, setRandomPresetColor] = useState(getRandomPresetColor());
-  const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>('');
 
   const formMethods = useForm<InstructorFormData>({
     resolver: zodResolver(componentSchemas.instructor),
@@ -74,17 +68,13 @@ const AdminInstructorManagement: React.FC = () => {
       formMethods.reset({
         ...editingInstructor,
         last_name: editingInstructor.last_name ?? '',
+        department_id: (editingInstructor as any).department_id,
       });
     } else {
       formMethods.reset();
     }
   }, [editingInstructor, formMethods]);
 
-  const departments = departmentsQuery.data || [];
-  const departmentOptions = departments.map((d: any) => ({
-    label: `${d.name} (${d.code})`,
-    value: d.id,
-  }));
 
   const filteredInstructors = useMemo(() => {
     if (!searchTerm) return instructors;
@@ -108,29 +98,24 @@ const AdminInstructorManagement: React.FC = () => {
 
   const handleSave = async (data: InstructorFormData) => {
     if (!editingInstructor) return;
+    
+    // Check if department was changed (for admins)
+    const currentDeptId = (editingInstructor as any).department_id;
+    const newDeptId = data.department_id;
+    const departmentChanged = isAdmin() && currentDeptId !== newDeptId;
+    
     await updateInstructor(editingInstructor.id, data);
     setEditingInstructor(null);
-    toast('Success', { description: 'Instructor updated successfully!' });
-    setRandomPresetColor(getRandomPresetColor());
-  };
-
-  const handleReassign = async () => {
-    if (!instructorToReassign || !selectedDepartmentId) return;
     
-    try {
-      await updateInstructor(instructorToReassign.id, {
-        department_id: selectedDepartmentId,
-      } as any);
+    if (departmentChanged) {
       toast('Success', { 
-        description: `Instructor reassigned to new department successfully!` 
+        description: 'Instructor updated and reassigned to new department!' 
       });
-      setInstructorToReassign(null);
-      setSelectedDepartmentId('');
-    } catch (error) {
-      toast('Error', { 
-        description: 'Failed to reassign instructor. Please try again.' 
-      });
+    } else {
+      toast('Success', { description: 'Instructor updated successfully!' });
     }
+    
+    setRandomPresetColor(getRandomPresetColor());
   };
 
   const handleCancel = () => {
@@ -142,11 +127,6 @@ const AdminInstructorManagement: React.FC = () => {
   
   const handleDeleteRequest = (id: string) =>
     setInstructorToDelete(instructors.find((i) => i.id === id) || null);
-
-  const handleReassignRequest = (instructor: Instructor) => {
-    setInstructorToReassign(instructor);
-    setSelectedDepartmentId('');
-  };
 
   const handleConfirmDelete = async () => {
     if (!instructorToDelete) return;
@@ -179,9 +159,11 @@ const AdminInstructorManagement: React.FC = () => {
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
                 <fieldset disabled={isSubmitting} className="space-y-1">
-                  <InstructorFields
+                  <AdminInstructorFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
+                    isEditing={!!editingInstructor}
+                    currentDepartmentId={(editingInstructor as any)?.department_id}
                   />
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" loading={isSubmitting} className="flex-1">
@@ -225,25 +207,12 @@ const AdminInstructorManagement: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {filteredInstructors.map((instructor) => (
-                    <div key={instructor.id} className="relative">
-                      <InstructorCard
-                        instructor={instructor}
-                        onEdit={handleEdit}
-                        onDelete={handleDeleteRequest}
-                      />
-                      {isAdmin() && (
-                        <div className="absolute top-2 right-2">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => handleReassignRequest(instructor)}
-                            className="text-xs"
-                          >
-                            Reassign Dept
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+                    <InstructorCard
+                      key={instructor.id}
+                      instructor={instructor}
+                      onEdit={handleEdit}
+                      onDelete={handleDeleteRequest}
+                    />
                   ))}
                 </div>
               )}
@@ -265,38 +234,6 @@ const AdminInstructorManagement: React.FC = () => {
         {instructorToDelete?.last_name}"?
       </ConfirmModal>
 
-      {/* Reassign Department Modal */}
-      <Dialog open={!!instructorToReassign} onOpenChange={(open) => !open && setInstructorToReassign(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reassign Instructor to Department</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <strong>Instructor:</strong> {instructorToReassign?.first_name} {instructorToReassign?.last_name}
-            </div>
-            <FormField
-              id="reassign-department"
-              label="New Department"
-              placeholder="Select department..."
-              value={selectedDepartmentId}
-              onChange={setSelectedDepartmentId}
-              options={departmentOptions}
-            />
-            <div className="flex gap-2 justify-end">
-              <Button variant="secondary" onClick={() => setInstructorToReassign(null)}>
-                Cancel
-              </Button>
-              <Button 
-                onClick={handleReassign}
-                disabled={!selectedDepartmentId}
-              >
-                Reassign
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
