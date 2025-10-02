@@ -1,6 +1,6 @@
 import { useAuth } from '../../auth/hooks/useAuth';
 import { Alert, Card } from '../../../components/ui';
-import InstructorManagement from '../../classSessionComponents/pages/InstructorTab';
+import AdminInstructorManagement from '../../classSessionComponents/pages/AdminInstructorManagement';
 
 export default function DepartmentHeadDashboard() {
   const { isDepartmentHead, isAdmin } = useAuth();
@@ -15,8 +15,10 @@ export default function DepartmentHeadDashboard() {
         <h1 className="text-3xl font-bold">Department Head Dashboard</h1>
       </div>
       <Card className="p-4">
-        <div className="text-sm text-gray-600 mb-2">Manage instructors for your department</div>
-        <InstructorManagement />
+        <div className="text-sm text-gray-600 mb-2">
+          {isAdmin() ? 'Manage instructors across all departments' : 'Manage instructors for your department'}
+        </div>
+        <AdminInstructorManagement />
       </Card>
     </div>
   );
