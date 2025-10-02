@@ -79,9 +79,11 @@ export const AdminInstructorFields: React.FC<{
                 value={field.value ?? currentDepartmentId ?? ''}
                 id="department_id"
                 label="Department"
+                type="select"
                 placeholder="Select department..."
-                options={departmentOptions}
+                options={departmentOptions.map((d) => ({ id: d.value, name: d.label }))}
                 error={errors.department_id?.message}
+                required
               />
             )}
           />
