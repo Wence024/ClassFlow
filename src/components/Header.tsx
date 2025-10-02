@@ -4,6 +4,7 @@
  */
 import { Link } from 'react-router-dom';
 import UserAvatar from './UserAvatar';
+import RequestNotifications from './RequestNotifications';
 
 /**
  * Renders the main application header.
@@ -27,6 +28,7 @@ const Header = () => {
             <h2 className="text-lg font-semibold text-gray-700">Timeline Matrix</h2>
           </div>
           <div className="flex items-center gap-4">
+            <RequestNotifications />
             <UserAvatar />
           </div>
         </div>

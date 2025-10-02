@@ -164,7 +164,7 @@ Before implementing department-based resource management, we must:
 - [x] Update instructor management to show department-based resources (Dept Head Dashboard)
 - [ ] Update classroom management to show department-based resources
 - [x] Add resource request interface for program heads (instructor requests)
-- [x] Add approval interface for department heads (review instructor requests)
+- [x] Add approval interface for department heads (notification dropdown in header)
 
 ### **Phase 4: Resource Request System**
 

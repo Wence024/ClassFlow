@@ -2,7 +2,7 @@
  * @file A static sidebar component for application navigation.
  * This component is purely presentational.
  */
-import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2 } from 'lucide-react';
+import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth'; // Step 1: Import useAuth
 
@@ -18,6 +18,17 @@ const adminNavLinks = [
   { to: '/departments', icon: Building2, label: 'Departments' },
   { to: '/schedule-configuration', icon: Settings, label: 'Settings' },
 ];
+
+/** An array defining the navigation links for department heads. */
+const departmentHeadNavLinks = [
+  { to: '/dept-head', icon: Users, label: 'Department Dashboard' },
+];
+
+/** An array defining the navigation links for program heads. */
+const programHeadNavLinks = [
+  { to: '/browse/instructors', icon: Search, label: 'Browse Instructors' },
+  { to: '/requests/instructor', icon: Send, label: 'Request Instructor' },
+];
 /**
  * Renders a role-aware main application sidebar for navigation.
  *
@@ -28,11 +39,22 @@ const adminNavLinks = [
  * @returns The rendered sidebar component with navigation links tailored to the user's permissions.
  */
 const Sidebar = () => {
-  const { user } = useAuth(); // Step 2: Get user role
-  const isAdmin = user?.role === 'admin';
+  const { user, isAdmin, isDepartmentHead, isProgramHead } = useAuth();
 
-  // Step 3: Conditionally combine the link arrays
-  const navLinks = isAdmin ? [...baseNavLinks, ...adminNavLinks] : baseNavLinks;
+  // Build navigation links based on user role
+  let navLinks = [...baseNavLinks];
+  
+  if (isAdmin()) {
+    navLinks = [...navLinks, ...adminNavLinks];
+  }
+  
+  if (isDepartmentHead()) {
+    navLinks = [...navLinks, ...departmentHeadNavLinks];
+  }
+  
+  if (isProgramHead()) {
+    navLinks = [...navLinks, ...programHeadNavLinks];
+  }
 
   return (
     <aside className="w-64 flex-shrink-0">
