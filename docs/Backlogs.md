@@ -174,9 +174,15 @@ Refactor backlogs:
 
 * [ ] Use React Query for usePrograms.ts
 
+Maam Z's Feedback:
+
+* [ ] Class merging
+  * [ ] Requires management of shared classrooms (admin) and instructors (department heads) instead of solely program heads
+
 Sir B's Feedback:
 
-* [ ] Approval feature: Program Head, when other program heads assign class sessions.
+* Approval/Notify feature to Program Head When other program heads assign class sessions from instructors under him?
+  * [ ] Need revision when managers of instructors are department heads: notify them/admin instead?
 * [ ] CSV Import
 * [ ] Classroom/instructor View
 * [ ] Reports per instructor and class group.
@@ -184,6 +190,10 @@ Sir B's Feedback:
 * [ ] Remove null usage of department_head except for admin roles.
 * [ ] Adjust type alias for import paths to be cleaner.
 * [ ] Realign the stylings of all pages.
+
+Sir D's Feedback (School IT/Networking Head)
+
+* [ ] (Haven't consulted yet)
 
 Solved:
 
