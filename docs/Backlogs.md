@@ -198,3 +198,7 @@ Sir D's Feedback (School IT/Networking Head)
 Solved:
 
 * [x] Keep the merged capacity check as a soft conflict instead of a hard conflict.
+
+Ponderings:
+
+* [ ] Examine why sessioncell UI logic is separate and decentralized from timetablelogic. It gave me a headache when trying to manually deal with class-merging renders.
