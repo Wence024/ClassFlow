@@ -104,6 +104,13 @@ const createCellBackground = (
   sessions: ClassSession[],
   isDragged: boolean
 ): React.CSSProperties => {
+  console.log('[SessionCell] createCellBackground called with:', {
+    sessionCount: sessions.length,
+    sessionIds: sessions.map(s => s.id),
+    instructorColors: sessions.map(s => s.instructor?.color),
+    isDragged
+  });
+
   const primarySession = sessions[0];
   const border = getSessionCellBorderStyle(
     primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
@@ -111,6 +118,7 @@ const createCellBackground = (
   );
 
   if (sessions.length === 1) {
+    console.log('[SessionCell] Rendering single session');
     return {
       backgroundColor: getSessionCellBgColor(
         primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
@@ -126,6 +134,12 @@ const createCellBackground = (
     isDragged
   );
   
+  console.log('[SessionCell] Multiple sessions detected. Checking colors:', {
+    color1FromInstructor: primarySession.instructor.color,
+    color2FromInstructor: sessions[1].instructor.color,
+    areColorsDifferent: sessions[1].instructor.color !== primarySession.instructor.color
+  });
+  
   // If there are multiple sessions with different colors, create a gradient
   if (sessions.length > 1 && sessions[1].instructor.color !== primarySession.instructor.color) {
     const color2 = getSessionCellBgColor(
@@ -133,11 +147,13 @@ const createCellBackground = (
       isDragged
     );
     const background = `linear-gradient(135deg, ${color1}, ${color2})`;
+    console.log('[SessionCell] Creating gradient background:', background);
     return { background, border };
   }
 
   // Fallback: create a diagonal split effect with the same color
   const background = `linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,0.15) 50.5%), ${color1}`;
+  console.log('[SessionCell] Creating diagonal split pattern:', background);
   return { background, border };
 };
 
