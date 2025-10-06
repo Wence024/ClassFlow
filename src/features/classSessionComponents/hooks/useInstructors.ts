@@ -82,8 +82,6 @@ export function useInstructors() {
 }
 
 export function useInstructorsByDepartment(departmentId?: string) {
-  const queryClient = useQueryClient();
-  const { getAllInstructors, getInstructors, addInstructor, updateInstructor, removeInstructor } = instructorsService;
   const { user } = useAuth();
 
   const listQuery = useQuery({
@@ -91,7 +89,7 @@ export function useInstructorsByDepartment(departmentId?: string) {
     queryFn: async () => {
       if (!departmentId) return [];
       // Admins/Dept heads can see by specific department
-      return getInstructors({ departmentId, role: user?.role });
+      return instructorsService.getInstructors({ department_id: departmentId, role: user?.role });
     },
     enabled: !!departmentId,
   });

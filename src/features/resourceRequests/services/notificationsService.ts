@@ -20,7 +20,10 @@ export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
     .is('read_at', null)
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return data || [];
+  return (data || []).map(d => ({
+    ...d,
+    created_at: d.created_at || new Date().toISOString()
+  }));
 }
 
 /** Marks a notification as read. */

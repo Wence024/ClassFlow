@@ -39,7 +39,7 @@ const programHeadNavLinks = [
  * @returns The rendered sidebar component with navigation links tailored to the user's permissions.
  */
 const Sidebar = () => {
-  const { user, isAdmin, isDepartmentHead, isProgramHead } = useAuth();
+  const { isAdmin, isDepartmentHead, isProgramHead } = useAuth();
 
   // Build navigation links based on user role
   let navLinks = [...baseNavLinks];

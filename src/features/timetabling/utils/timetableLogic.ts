@@ -87,29 +87,40 @@ function groupMergeableAssignments(
 
 /**
  * Updates a single group row with merged session data.
+ * For merged sessions, we now create separate arrays for each group to enable
+ * individual ownership tracking.
  *
  * @param groupRow - The row for a specific group.
- * @param mergedSessionArray - The array of merged sessions.
+ * @param sessionForThisGroup - The session belonging to this specific group.
+ * @param allMergedSessions - All sessions that are merged together.
  * @param periodIndex - The index of the period.
  * @param periodCount - The number of periods this session spans.
  * @param totalPeriods - The total number of periods.
  */
 function updateGroupRowWithMergedSessions(
   groupRow: (ClassSession[] | null)[],
-  mergedSessionArray: ClassSession[],
+  sessionForThisGroup: ClassSession,
+  allMergedSessions: ClassSession[],
   periodIndex: number,
   periodCount: number,
   totalPeriods: number
 ): void {
+  // Create array with this group's session first, followed by others
+  const orderedSessions = [
+    sessionForThisGroup,
+    ...allMergedSessions.filter(s => s.id !== sessionForThisGroup.id)
+  ];
+  
   for (let i = 0; i < periodCount; i++) {
     if (periodIndex + i < totalPeriods) {
-      groupRow[periodIndex + i] = mergedSessionArray;
+      groupRow[periodIndex + i] = orderedSessions;
     }
   }
 }
 
 /**
  * Places a merge group onto the grid.
+ * Each group gets its own session array with its session first.
  *
  * @param mergeableAssignments - The assignments that can be merged.
  * @param grid - The timetable grid being built.
@@ -124,15 +135,17 @@ function placeMergeGroupOnGrid(
 ): void {
   if (mergeableAssignments.length === 0) return;
 
-  const mergedSessionArray = mergeableAssignments.map((a) => a.class_session!);
-  const period_count = mergedSessionArray[0]?.period_count || 1;
+  const allMergedSessions = mergeableAssignments.map((a) => a.class_session!);
+  const period_count = allMergedSessions[0]?.period_count || 1;
 
+  // Place each session in its respective group's row
   for (const assignmentToPlace of mergeableAssignments) {
     const groupRowToUpdate = grid.get(assignmentToPlace.class_group_id);
-    if (groupRowToUpdate) {
+    if (groupRowToUpdate && assignmentToPlace.class_session) {
       updateGroupRowWithMergedSessions(
         groupRowToUpdate,
-        mergedSessionArray,
+        assignmentToPlace.class_session,
+        allMergedSessions,
         periodIndex,
         period_count,
         totalPeriods

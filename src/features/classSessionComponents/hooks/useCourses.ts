@@ -28,7 +28,7 @@ export function useCourses() {
   });
 
   const addMutation = useMutation({
-    mutationFn: (data: CourseInsert) => coursesService.addCourse({ ...data, user_id: user!.id }),
+    mutationFn: (data: CourseInsert) => coursesService.addCourse(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
