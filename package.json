@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "migrate-repository": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-to-new-git-repo.ps1",
     "precommit": "npm run format && npm run prep-commit-msg",
     "pcm": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
     "premerge": "npm run lint && npm run type-check && npm run test && npm run format",
