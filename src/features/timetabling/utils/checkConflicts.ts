@@ -301,7 +301,7 @@ function findInstructorConflictInPeriod(
     // Check if the instructor is the same.
     if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
       // If the course is also the same, it's a valid merge, so we skip it.
-      if (conflictingSession.course.id === sessionToCheck.course.id) {
+      if (conflictingSession.course.code === sessionToCheck.course.code) {
         continue;
       }
 
@@ -381,7 +381,7 @@ function findClassroomConflictInPeriod(
     // Check if the classroom is the same.
     if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
       // If the course is also the same, it's a valid merge, so we skip it.
-      if (conflictingSession.course.id === sessionToCheck.course.id) {
+      if (conflictingSession.course.code === sessionToCheck.course.code) {
         continue;
       }
 
