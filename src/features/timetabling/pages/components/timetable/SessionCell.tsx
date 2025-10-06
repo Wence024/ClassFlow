@@ -104,6 +104,14 @@ const createCellBackground = (
   sessions: ClassSession[],
   isDragged: boolean
 ): React.CSSProperties => {
+  // DEBUG: Log sessions data
+  console.log('🎨 createCellBackground called:', {
+    sessionCount: sessions.length,
+    sessionIds: sessions.map(s => s.id),
+    instructorColors: sessions.map(s => s.instructor.color),
+    instructorNames: sessions.map(s => `${s.instructor.first_name} ${s.instructor.last_name}`),
+  });
+
   const primarySession = sessions[0];
   const border = getSessionCellBorderStyle(
     primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
@@ -111,6 +119,7 @@ const createCellBackground = (
   );
 
   if (sessions.length === 1) {
+    console.log('✅ Single session - using solid color');
     return {
       backgroundColor: getSessionCellBgColor(
         primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR,
@@ -126,6 +135,12 @@ const createCellBackground = (
     isDragged
   );
   
+  console.log('🔍 Checking for color difference:', {
+    session1Color: primarySession.instructor.color,
+    session2Color: sessions[1]?.instructor.color,
+    areEqual: sessions[1]?.instructor.color === primarySession.instructor.color,
+  });
+  
   // If there are multiple sessions with different colors, create a gradient
   if (sessions.length > 1 && sessions[1].instructor.color !== primarySession.instructor.color) {
     const color2 = getSessionCellBgColor(
@@ -133,11 +148,13 @@ const createCellBackground = (
       isDragged
     );
     const background = `linear-gradient(135deg, ${color1}, ${color2})`;
+    console.log('🌈 Multi-color gradient:', background);
     return { background, border };
   }
 
   // Fallback: create a diagonal split effect with the same color
   const background = `linear-gradient(to bottom right, transparent 49.5%, rgba(0,0,0,0.15) 50.5%), ${color1}`;
+  console.log('📐 Same-color pattern:', background);
   return { background, border };
 };
 
@@ -334,6 +351,9 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const cellStyle = isOwner
     ? createCellBackground(sessions, isDraggedSession)
     : { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
+
+  // DEBUG: Log final cell style
+  console.log('🎯 Final cellStyle applied:', cellStyle);
 
   const textStyle: React.CSSProperties = isOwner
     ? { color: getSessionCellTextColor(primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR) }
