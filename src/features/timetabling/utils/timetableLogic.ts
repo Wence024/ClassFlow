@@ -127,14 +127,6 @@ function placeMergeGroupOnGrid(
   const mergedSessionArray = mergeableAssignments.map((a) => a.class_session!);
   const period_count = mergedSessionArray[0]?.period_count || 1;
 
-  console.log('[timetableLogic] Placing merge group:', {
-    periodIndex,
-    mergeCount: mergeableAssignments.length,
-    sessionIds: mergedSessionArray.map(s => s.id),
-    groupIds: mergeableAssignments.map(a => a.class_group_id),
-    instructorColors: mergedSessionArray.map(s => s.instructor?.color)
-  });
-
   for (const assignmentToPlace of mergeableAssignments) {
     const groupRowToUpdate = grid.get(assignmentToPlace.class_group_id);
     if (groupRowToUpdate) {
@@ -184,13 +176,7 @@ export function buildTimetableGrid(
 
     const mergeGroups = groupMergeableAssignments(assignmentsInPeriod, grid, periodIndex);
 
-    console.log('[timetableLogic] Period', periodIndex, 'merge groups:', mergeGroups.size);
-
-    for (const [mergeKey, mergeableAssignments] of mergeGroups.entries()) {
-      console.log('[timetableLogic] Processing merge group:', {
-        mergeKey,
-        assignmentCount: mergeableAssignments.length
-      });
+    for (const [, mergeableAssignments] of mergeGroups.entries()) {
       placeMergeGroupOnGrid(mergeableAssignments, grid, periodIndex, totalPeriods);
     }
   }
