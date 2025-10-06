@@ -75,7 +75,7 @@ function groupMergeableAssignments(
     const { course, instructor, classroom } = assignment.class_session;
     if (!course || !instructor || !classroom) continue;
 
-    const mergeKey = `${course.id}-${instructor.id}-${classroom.id}`;
+    const mergeKey = `${course.code}-${instructor.id}-${classroom.id}`;
     if (!mergeGroups.has(mergeKey)) {
       mergeGroups.set(mergeKey, []);
     }
