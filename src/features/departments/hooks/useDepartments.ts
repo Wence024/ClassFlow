@@ -6,6 +6,14 @@ const qk = {
   list: ['departments', 'list'] as const,
 };
 
+/**
+ * Custom hook to manage departments data.
+ *
+ * Provides React Query-based operations for fetching, creating, updating, and deleting departments.
+ * All mutations automatically invalidate the departments list cache on success.
+ *
+ * @returns An object containing the list query and CRUD mutation functions.
+ */
 export function useDepartments() {
   const qc = useQueryClient();
 
