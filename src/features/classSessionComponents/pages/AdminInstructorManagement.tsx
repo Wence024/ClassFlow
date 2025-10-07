@@ -68,7 +68,7 @@ const AdminInstructorManagement: React.FC = () => {
       formMethods.reset({
         ...editingInstructor,
         last_name: editingInstructor.last_name ?? '',
-        department_id: editingInstructor.department_id,
+        department_id: editingInstructor.department_id ?? undefined,
       });
     } else {
       formMethods.reset();
@@ -163,7 +163,7 @@ const AdminInstructorManagement: React.FC = () => {
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
                     isEditing={!!editingInstructor}
-                    currentDepartmentId={editingInstructor?.department_id}
+                    currentDepartmentId={editingInstructor?.department_id ?? undefined}
                   />
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" loading={isSubmitting} className="flex-1">

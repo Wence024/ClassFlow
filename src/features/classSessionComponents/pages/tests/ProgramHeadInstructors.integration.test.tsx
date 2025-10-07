@@ -1,3 +1,4 @@
+/// <reference types="@testing-library/jest-dom" />
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ import type { AuthContextType } from '../../../auth/types/auth';
 import type { ReactNode } from 'react';
 import * as departmentsService from '../../../departments/services/departmentsService';
 import * as instructorsService from '../../services/instructorsService';
+import type { Instructor } from '../../types';
 
 // Mock the services
 vi.mock('../../../departments/services/departmentsService');
@@ -46,6 +48,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
       role: 'program_head',
       program_id: 'prog-1',
       name: 'Program Head',
+      department_id: null,
     },
     loading: false,
     isDepartmentHead: vi.fn(() => false),
@@ -54,11 +57,11 @@ describe('ProgramHeadInstructors Integration Tests', () => {
   };
 
   const mockDepartments = [
-    { id: 'dept-1', name: 'Computer Science', code: 'CS' },
-    { id: 'dept-2', name: 'Mathematics', code: 'MATH' },
+    { id: 'dept-1', name: 'Computer Science', code: 'CS', created_at: new Date().toISOString() },
+    { id: 'dept-2', name: 'Mathematics', code: 'MATH', created_at: new Date().toISOString() },
   ];
 
-  const mockInstructors = [
+  const mockInstructors: Instructor[] = [
     {
       id: 'inst-1',
       first_name: 'John',
@@ -66,6 +69,13 @@ describe('ProgramHeadInstructors Integration Tests', () => {
       code: 'JD',
       email: 'john@example.com',
       department_id: 'dept-1',
+      color: null,
+      contract_type: null,
+      created_at: new Date().toISOString(),
+      created_by: 'user-1',
+      phone: null,
+      prefix: null,
+      suffix: null,
     },
     {
       id: 'inst-2',
@@ -74,6 +84,13 @@ describe('ProgramHeadInstructors Integration Tests', () => {
       code: 'JS',
       email: 'jane@example.com',
       department_id: 'dept-1',
+      color: null,
+      contract_type: null,
+      created_at: new Date().toISOString(),
+      created_by: 'user-1',
+      phone: null,
+      prefix: null,
+      suffix: null,
     },
   ];
 
@@ -149,6 +166,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
         role: 'department_head',
         department_id: 'dept-1',
         name: 'Department Head',
+        program_id: null,
       },
       loading: false,
       isDepartmentHead: vi.fn(() => true),

@@ -14,7 +14,8 @@ import {
   LoadingSpinner,
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
-import type { Instructor, InstructorInsert } from '../types';
+import type { Instructor } from '../types';
+import type { InstructorInsert } from '../types/instructor';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 

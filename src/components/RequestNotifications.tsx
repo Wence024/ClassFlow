@@ -12,7 +12,7 @@ import type { ResourceRequest } from '@/features/resourceRequests/types/resource
  */
 export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId } = useAuth();
-  const { requests, updateRequest } = useDepartmentRequests(departmentId);
+  const { requests, updateRequest } = useDepartmentRequests(departmentId || undefined);
 
   // Only show for department heads and admins
   if (!isDepartmentHead() && !isAdmin()) {

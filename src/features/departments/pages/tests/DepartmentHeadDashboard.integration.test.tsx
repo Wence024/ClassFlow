@@ -1,3 +1,4 @@
+/// <reference types="@testing-library/jest-dom" />
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -50,6 +51,7 @@ describe('DepartmentHeadDashboard Integration Tests', () => {
         role: 'program_head',
         program_id: 'prog-1',
         name: 'Program Head',
+        department_id: null,
       },
       loading: false,
       isDepartmentHead: vi.fn(() => false),
@@ -72,6 +74,7 @@ describe('DepartmentHeadDashboard Integration Tests', () => {
         role: 'department_head',
         department_id: 'dept-1',
         name: 'Department Head',
+        program_id: null,
       },
       loading: false,
       isDepartmentHead: vi.fn(() => true),
@@ -94,6 +97,8 @@ describe('DepartmentHeadDashboard Integration Tests', () => {
         email: 'admin@example.com',
         role: 'admin',
         name: 'Admin User',
+        program_id: null,
+        department_id: null,
       },
       loading: false,
       isDepartmentHead: vi.fn(() => false),
@@ -117,6 +122,7 @@ describe('DepartmentHeadDashboard Integration Tests', () => {
         role: 'department_head',
         department_id: 'dept-2',
         name: 'Department Head 2',
+        program_id: null,
       },
       loading: false,
       isDepartmentHead: vi.fn(() => true),
