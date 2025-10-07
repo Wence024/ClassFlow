@@ -29,7 +29,7 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
  * @returns The ClassroomManagement component.
  */
 const ClassroomManagement: React.FC = () => {
-  const { user } = useAuth();
+  const { user, canManageClassrooms } = useAuth();
   const {
     classrooms,
     addClassroom,
@@ -129,7 +129,7 @@ const ClassroomManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting} className="space-y-1">
+                                <fieldset disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
                   <ClassroomFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
