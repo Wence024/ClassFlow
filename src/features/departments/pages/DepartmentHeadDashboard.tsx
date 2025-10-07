@@ -2,6 +2,14 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import { Alert, Card } from '../../../components/ui';
 import AdminInstructorManagement from '../../classSessionComponents/pages/AdminInstructorManagement';
 
+/**
+ * Renders the main dashboard for Department Heads.
+ * This page provides access to department-specific management tools,
+ * primarily for managing instructors within their department.
+ * Admins also use this view to manage instructors across all departments.
+ *
+ * @returns The Department Head Dashboard component.
+ */
 export default function DepartmentHeadDashboard() {
   const { isDepartmentHead, isAdmin } = useAuth();
 
@@ -23,5 +31,3 @@ export default function DepartmentHeadDashboard() {
     </div>
   );
 }
-
-

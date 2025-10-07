@@ -8,7 +8,7 @@ import {
   ErrorMessage,
   LoadingSpinner,
   Alert,
-} from '../../../components/ui';
+} from '@/components/ui';
 import type { Department } from '../types/department';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,12 @@ import { departmentSchema, type DepartmentFormData } from '../types/validation';
 import { DepartmentFields, DepartmentCard } from './components/department';
 import FormField from '@/components/ui/custom/form-field';
 
+/**
+ * A page for administrators to create, read, update, and delete departments.
+ * It provides a form for creating/editing and a searchable list of existing departments.
+ *
+ * @returns The department management page component.
+ */
 export default function DepartmentManagementPage() {
   const { isAdmin } = useAuth();
   const { listQuery, createMutation, updateMutation, deleteMutation } = useDepartments();
@@ -137,5 +143,3 @@ export default function DepartmentManagementPage() {
     </>
   );
 }
-
-

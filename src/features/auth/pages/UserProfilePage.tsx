@@ -6,6 +6,11 @@ import { Input } from '../../../components/ui/input';
 import { Alert } from '../../../components/ui/alert';
 import { toast } from 'sonner';
 
+/**
+ * A page for the authenticated user to view and update their profile information.
+ *
+ * @returns The user profile page component.
+ */
 export default function UserProfilePage() {
   const { user, updateMyProfile, loading, error } = useAuth();
   const [name, setName] = useState(user?.name || '');
@@ -17,6 +22,7 @@ export default function UserProfilePage() {
       await updateMyProfile({ name });
       toast('Success', { description: 'Profile updated successfully.' });
     } catch (e) {
+      console.error('Failed to update profile:', e);
       toast('Error', { description: error || 'Failed to update profile.' });
     }
   };
@@ -51,6 +57,3 @@ export default function UserProfilePage() {
     </div>
   );
 }
-
-
-

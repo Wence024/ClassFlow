@@ -24,8 +24,8 @@ describe('ProgramHeadInstructors Integration Tests', () => {
   /**
    * Creates a test wrapper with all required providers.
    *
-   * @param props - The wrapper props including children and auth context.
-   * @returns The wrapper component.
+   * @param authContext - The authentication context value to use for the test.
+   * @returns A wrapper component for rendering.
    */
   const createWrapper =
     (authContext: Partial<AuthContextType>) =>

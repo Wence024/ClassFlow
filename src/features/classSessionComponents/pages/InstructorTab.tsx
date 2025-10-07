@@ -14,7 +14,7 @@ import {
   LoadingSpinner,
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
-import type { Instructor } from '../types';
+import type { Instructor, InstructorInsert } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
@@ -88,7 +88,7 @@ const InstructorManagement: React.FC = () => {
       // department and audit fields now set server-side by RLS/trigger; include if API supports
       // department_id: (user as any).department_id,
       // created_by: user.id,
-    } as any);
+    } as InstructorInsert);
     formMethods.reset();
     toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());

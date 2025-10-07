@@ -12,6 +12,8 @@ export type RequestNotification = {
 /**
  * Returns unread notifications for the current user's department.
  * Server-side RLS should restrict access by department via profiles.department_id.
+ *
+ * @returns A promise resolving to an array of unread notifications.
  */
 export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
   const { data, error } = await supabase
@@ -26,7 +28,12 @@ export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
   }));
 }
 
-/** Marks a notification as read. */
+/**
+ * Marks a notification as read.
+ *
+ * @param id - The ID of the notification to mark as read.
+ * @returns A promise that resolves when the operation is complete.
+ */
 export async function markRead(id: string): Promise<void> {
   const { error } = await supabase
     .from('request_notifications')
@@ -34,5 +41,3 @@ export async function markRead(id: string): Promise<void> {
     .eq('id', id);
   if (error) throw error;
 }
-
-

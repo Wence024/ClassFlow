@@ -153,6 +153,7 @@ const createCellBackground = (
  * @param vsb.onShowTooltip - Callback to show tooltip.
  * @param vsb.onHideTooltip - Callback to hide tooltip.
  * @param vsb.softConflicts - Array of soft conflict messages.
+ * @param vsb.contextOnShowTooltip - Callback to show tooltip from context.
  * @returns The JSX element for the visible session block.
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({

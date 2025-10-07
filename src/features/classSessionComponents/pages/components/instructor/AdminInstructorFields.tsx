@@ -5,6 +5,7 @@ import { ColorPicker, FormField } from '../../../../../components/ui';
 import { componentSchemas } from '../../../types/validation';
 import { useAuth } from '../../../../auth/hooks/useAuth';
 import { useDepartments } from '../../../../departments/hooks/useDepartments';
+import type { Department } from '../../../../departments/types/department';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor> & {
   department_id?: string;
@@ -34,7 +35,7 @@ export const AdminInstructorFields: React.FC<{
   const [isCodeManuallyEdited, setIsCodeManuallyEdited] = useState(false);
 
   const departments = departmentsQuery.data || [];
-  const departmentOptions = departments.map((d: any) => ({
+  const departmentOptions = departments.map((d: Department) => ({
     label: `${d.name} (${d.code})`,
     value: d.id,
   }));

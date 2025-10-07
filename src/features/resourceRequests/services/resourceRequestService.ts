@@ -18,6 +18,11 @@ async function createNotificationForRequest(request: ResourceRequest): Promise<v
   if (error) throw error;
 }
 
+/**
+ * Fetches all resource requests initiated by the current user.
+ *
+ * @returns A promise resolving to an array of the user's resource requests.
+ */
 export async function getMyRequests(): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
     .from(TABLE)
@@ -27,6 +32,12 @@ export async function getMyRequests(): Promise<ResourceRequest[]> {
   return data || [];
 }
 
+/**
+ * Fetches all resource requests targeted at a specific department.
+ *
+ * @param departmentId - The ID of the target department.
+ * @returns A promise resolving to an array of resource requests for the department.
+ */
 export async function getRequestsForDepartment(departmentId: string): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
     .from(TABLE)
@@ -37,6 +48,12 @@ export async function getRequestsForDepartment(departmentId: string): Promise<Re
   return data || [];
 }
 
+/**
+ * Creates a new resource request and a corresponding notification.
+ *
+ * @param payload - The data for the new resource request.
+ * @returns A promise resolving to the created resource request.
+ */
 export async function createRequest(payload: ResourceRequestInsert): Promise<ResourceRequest> {
   const { data, error } = await supabase
     .from(TABLE)
@@ -53,6 +70,13 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
   return created;
 }
 
+/**
+ * Updates an existing resource request.
+ *
+ * @param id - The ID of the resource request to update.
+ * @param update - The update payload.
+ * @returns A promise resolving to the updated resource request.
+ */
 export async function updateRequest(id: string, update: ResourceRequestUpdate): Promise<ResourceRequest> {
   const { data, error } = await supabase
     .from(TABLE)

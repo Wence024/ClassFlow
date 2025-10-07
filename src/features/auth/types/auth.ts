@@ -16,7 +16,7 @@ export type User = {
 export type AuthContextType = {
   user: User | null;
   role: string | null;
-  /** Convenience accessor for the current user's department id */
+  /** Convenience accessor for the current user's department id. */
   departmentId: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -37,9 +37,9 @@ export type AuthContextType = {
   canManageClassrooms: () => boolean;
   /** Returns true if the user can review requests for the provided department. */
   canReviewRequestsForDepartment: (departmentId: string) => boolean;
-  /** Row-scoped: manage an instructor with department ownership */
+  /** Row-scoped: manage an instructor with department ownership. */
   canManageInstructorRow: (instructorDepartmentId: string) => boolean;
-  /** Row-scoped: manage timetable assignments for a program */
+  /** Row-scoped: manage timetable assignments for a program. */
   canManageAssignmentsForProgram: (programId: string) => boolean;
   /** Update current user's profile metadata (display name). */
   updateMyProfile: (update: { name?: string }) => Promise<void>;

@@ -29,8 +29,8 @@ interface AuthProviderProps {
  * functions to handle login, registration, logout, and other auth-related actions.
  * It should wrap the entire application or the parts that need access to authentication.
  *
- * @param a The component props.
- * @param a.children The child components that will have access to the authentication context.
+ * @param a - The component props.
+ * @param a.children - The child components that will have access to the authentication context.
  * @returns The AuthProvider component.
  */
 export const AuthProvider = ({ children }: AuthProviderProps) => {
@@ -61,8 +61,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Handles user login.
    *
-   * @param email The user's email address.
-   * @param password The user's password.
+   * @param email - The user's email address.
+   * @param password - The user's password.
    * @returns A Promise that resolves on successful login or rejects on failure.
    */
   const login = async (email: string, password: string) => {
@@ -88,9 +88,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Handles new user registration.
    *
-   * @param name The user's name.
-   * @param email The user's email address.
-   * @param password The user's password.
+   * @param name - The user's name.
+   * @param email - The user's email address.
+   * @param password - The user's password.
    * @returns A Promise that resolves on successful registration or rejects on failure.
    */
   const register = async (name: string, email: string, password: string) => {
@@ -131,7 +131,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  /** Updates current user's profile in public.profiles and refreshes local user. */
+  /**
+   * Updates current user's profile in public.profiles and refreshes local user.
+   *
+   * @param update - An object containing the profile fields to update.
+   * @param update.name - The user's new display name.
+   */
   const updateMyProfile = async (update: { name?: string }) => {
     setLoading(true);
     setError(null);
@@ -155,7 +160,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   /**
    * Triggers the resending of a verification email.
    *
-   * @param email The user's email address.
+   * @param email - The user's email address.
    * @returns A Promise that resolves on successful resend or rejects on failure.
    */
   const resendVerificationEmail = async (email: string) => {

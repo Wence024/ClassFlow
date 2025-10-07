@@ -18,7 +18,8 @@ describe('useDepartments Integration Tests', () => {
   /**
    * Creates a wrapper component with QueryClient for testing hooks.
    *
-   * @param children - The child components to wrap.
+   * @param props - The wrapper props.
+   * @param props.children - The child components to wrap.
    * @returns The wrapper component.
    */
   const createWrapper = ({ children }: { children: ReactNode }) => (

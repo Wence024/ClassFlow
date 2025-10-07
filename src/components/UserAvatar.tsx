@@ -2,12 +2,23 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 
+/**
+ * Calculates the initials from a user's name or email.
+ *
+ * @param name - The user's full name or email.
+ * @returns The uppercase initials.
+ */
 function getInitials(name?: string | null) {
   if (!name) return '?';
   const first = name.trim()[0];
   return (first || '?').toUpperCase();
 }
 
+/**
+ * Renders a user avatar with a dropdown menu for profile and logout actions.
+ *
+ * @returns The UserAvatar component.
+ */
 export default function UserAvatar() {
   const { user, logout } = useAuth();
   const initials = getInitials(user?.name || user?.email);
@@ -28,5 +39,3 @@ export default function UserAvatar() {
     </Popover>
   );
 }
-
-

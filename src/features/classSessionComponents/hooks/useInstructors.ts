@@ -25,7 +25,7 @@ export function useInstructors() {
     queryKey,
     queryFn: () =>
       user
-        ? instructorsService.getInstructors({ role: user.role, department_id: (user as any).department_id || null })
+        ? instructorsService.getInstructors({ role: user.role, department_id: (user as { department_id?: string | null })?.department_id || null })
         : Promise.resolve([]),
     enabled: !!user,
   });
@@ -69,8 +69,8 @@ export function useInstructors() {
     /**
      * An async function to update an instructor.
      *
-     * @param id The ID of the instructor to update.
-     * @param data The data to update the instructor with.
+     * @param id - The ID of the instructor to update.
+     * @param data - The data to update the instructor with.
      * @returns A Promise that resolves when the update is complete.
      */
     updateInstructor: (id: string, data: InstructorUpdate) =>

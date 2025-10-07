@@ -5,7 +5,14 @@
 
 export const DEBUG_MERGED_SESSIONS = false;
 
-export const logMergeGroup = (context: string, data: any) => {
+/**
+ * Logs data to the console with a context label for debugging purposes.
+ * Only logs if DEBUG_MERGED_SESSIONS is true.
+ *
+ * @param context - A string describing the context of the log message.
+ * @param data - The data to be logged.
+ */
+export const logMergeGroup = (context: string, data: unknown) => {
   if (DEBUG_MERGED_SESSIONS) {
     console.log(`[${context}]`, data);
   }

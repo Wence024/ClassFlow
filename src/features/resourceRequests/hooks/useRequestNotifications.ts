@@ -1,18 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/notificationsService';
+import type { RequestNotification } from '../services/notificationsService';
+import { type SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Hook for cross-department request notifications.
- * - Lists unread dept notifications
- * - Subscribes to realtime inserts
- * - Provides markRead
+ * - Lists unread dept notifications.
+ * - Subscribes to realtime inserts.
+ * - Provides markRead mutation.
+ *
+ * @returns An object with notifications data, loading state, and mutation functions.
  */
 export function useRequestNotifications() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = ['request-notifications', (user as any)?.department_id || null];
+  const queryKey = useMemo(() => ['request-notifications', user?.department_id || null], [user?.department_id]);
 
   const listQuery = useQuery({
     queryKey,
@@ -27,7 +31,7 @@ export function useRequestNotifications() {
 
   useEffect(() => {
     if (!user) return;
-    const channel = (window as any).supabase
+    const channel = (window as { supabase?: SupabaseClient }).supabase
       ?.channel('request_notifications')
       .on(
         'postgres_changes',
@@ -38,14 +42,12 @@ export function useRequestNotifications() {
     return () => {
       channel?.unsubscribe?.();
     };
-  }, [user, queryClient]);
+  }, [user, queryClient, queryKey]);
 
   return {
-    notifications: (listQuery.data as any) || [],
+    notifications: (listQuery.data as RequestNotification[]) || [],
     isLoading: listQuery.isLoading,
     error: (listQuery.error as Error) || null,
     markRead: markReadMutation.mutateAsync,
   };
 }
-
-

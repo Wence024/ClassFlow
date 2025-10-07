@@ -53,7 +53,6 @@ interface FormFieldProps {
  * @param [ff.disabled] - Whether the field is disabled.
  * @param [ff.error] - An error message to display below the field.
  * @param [ff.autoComplete] - The `autocomplete` attribute for the input, to help with browser autofill.
- * 
  * @returns The JSX element for the FormField component.
  */
 const FormField: React.FC<FormFieldProps> = ({
@@ -72,7 +71,7 @@ const FormField: React.FC<FormFieldProps> = ({
   const errorId = error ? `${id}-error` : undefined;
 
   // Helper to check if option has 'id' property (SelectOption) or 'value' property (FlexSelectOption)
-  const isSelectOption = (opt: any): opt is SelectOption => 'id' in opt && 'name' in opt;
+  const isSelectOption = (opt: SelectOption | FlexSelectOption): opt is SelectOption => 'id' in opt && 'name' in opt;
 
   return (
     <div className="mb-4">

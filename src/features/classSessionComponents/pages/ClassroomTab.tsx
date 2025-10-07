@@ -15,7 +15,7 @@ import {
   LoadingSpinner,
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
-import type { Classroom } from '../types';
+import type { Classroom, ClassroomInsert } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
@@ -78,7 +78,7 @@ const ClassroomManagement: React.FC = () => {
     await addClassroom({
       ...data,
       // created_by handled by DB; admin-only manage enforced by RLS
-    } as any);
+    } as ClassroomInsert);
     formMethods.reset();
     toast('Success', { description: 'Classroom created successfully!' });
     setRandomPresetColor(getRandomPresetColor());

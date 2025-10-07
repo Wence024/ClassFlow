@@ -160,17 +160,18 @@ Created three critical integration test files:
 3. **✅ `src/features/classSessionComponents/pages/tests/ProgramHeadInstructors.integration.test.tsx`** - Tests Program Head's ability to browse instructors by department.
 
 **JSDoc Coverage:**
-- Added comprehensive JSDoc comments to `useDepartments` hook
-- Added JSDoc to `useInstructorsByDepartment` function
-- Verified existing JSDoc coverage across core hooks and utilities
+
+* Added comprehensive JSDoc comments to `useDepartments` hook
+* Added JSDoc to `useInstructorsByDepartment` function
+* Verified existing JSDoc coverage across core hooks and utilities
 
 ### **Key Changes Made:**
 
-- **Data Structure**: Updated `TimetableGrid` type from `Map<string, (ClassSession | null)[]>` to `Map<string, (ClassSession[] | null)[]>`.
-- **Conflict Detection**: Added `checkGroupMismatch` function to prevent cross-group session assignments.
-- **Test Updates**: Fixed all test mocks to use the new data structure format.
-- **Component Updates**: Updated `SessionCell`, `TimetableRow`, and `TimetablePage` components to handle merged sessions.
-- **Gradient Rendering**: Fixed gradient background rendering for merged sessions with different colors.
+* **Data Structure**: Updated `TimetableGrid` type from `Map<string, (ClassSession | null)[]>` to `Map<string, (ClassSession[] | null)[]>`.
+* **Conflict Detection**: Added `checkGroupMismatch` function to prevent cross-group session assignments.
+* **Test Updates**: Fixed all test mocks to use the new data structure format.
+* **Component Updates**: Updated `SessionCell`, `TimetableRow`, and `TimetablePage` components to handle merged sessions.
+* **Gradient Rendering**: Fixed gradient background rendering for merged sessions with different colors.
 
 ### **Next Steps:**
 

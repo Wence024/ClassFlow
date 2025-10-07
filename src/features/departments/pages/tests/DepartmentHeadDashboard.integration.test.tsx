@@ -17,7 +17,7 @@ describe('DepartmentHeadDashboard Integration Tests', () => {
   /**
    * Creates a test wrapper with all required providers.
    *
-   * @param props - The wrapper props including children and auth context.
+   * @param authContext - The authentication context value for the test.
    * @returns The wrapper component.
    */
   const createWrapper =

@@ -192,10 +192,11 @@ export async function logout(): Promise<void> {
  * Updates the authenticated user's profile metadata (e.g., display name).
  * This updates Supabase auth user metadata, not the public.profiles row.
  *
- * @param update An object containing profile fields to update (currently: name)
+ * @param update - An object containing profile fields to update.
+ * @param update.name - The user's new display name.
  */
 export async function updateMyProfileRow(update: { name?: string }): Promise<void> {
-  // For display name, we use auth metadata since profiles does not have a name column
+  // For display name, we use auth metadata since profiles does not have a name column.
   const { error } = await supabase.auth.updateUser({ data: { name: update.name } });
   if (error) throw new Error(error.message);
 }

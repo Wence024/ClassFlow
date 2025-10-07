@@ -2,6 +2,7 @@ import { Bell } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
+import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -11,14 +12,14 @@ import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
  */
 export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId } = useAuth();
-  const { requests, updateRequest } = useDepartmentRequests(departmentId || undefined);
+  const { requests, updateRequest } = useDepartmentRequests(departmentId);
 
   // Only show for department heads and admins
   if (!isDepartmentHead() && !isAdmin()) {
     return null;
   }
 
-  const pendingRequests = requests.filter((r: any) => r.status === 'pending');
+  const pendingRequests = requests.filter((r) => r.status === 'pending');
   const hasNotifications = pendingRequests.length > 0;
 
   const handleApprove = async (requestId: string) => {
@@ -52,7 +53,7 @@ export default function RequestNotifications() {
           {pendingRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No pending requests</div>
           ) : (
-            pendingRequests.map((request: any) => (
+            pendingRequests.map((request: ResourceRequest) => (
               <div key={request.id} className="p-3 border-b last:border-b-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -63,7 +64,7 @@ export default function RequestNotifications() {
                       Resource ID: {request.resource_id}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {new Date(request.requested_at).toLocaleDateString()}
+                      {new Date(request.requested_at || '').toLocaleDateString()}
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">

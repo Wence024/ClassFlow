@@ -5,6 +5,11 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Alert } from '../../../components/ui/alert';
 
+/**
+ * Renders the user's profile page, allowing them to view and update their display name.
+ *
+ * @returns The profile page component.
+ */
 export default function ProfilePage() {
   const { user, updateMyProfile, loading, error } = useAuth();
   const [name, setName] = useState(user?.name || '');

@@ -1,8 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/resourceRequestService';
-import type { ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
+import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
 
+/**
+ * A hook for managing resource requests initiated by the current user.
+ *
+ * @returns An object with the user's requests, loading state, and mutation functions.
+ */
 export function useResourceRequests() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -26,7 +31,7 @@ export function useResourceRequests() {
   });
 
   return {
-    requests: (listQuery.data as any) || [],
+    requests: (listQuery.data as ResourceRequest[]) || [],
     isLoading: listQuery.isLoading,
     error: listQuery.error as Error | null,
     createRequest: createMutation.mutateAsync,
@@ -34,6 +39,12 @@ export function useResourceRequests() {
   };
 }
 
+/**
+ * A hook for managing resource requests targeted at a specific department.
+ *
+ * @param departmentId - The ID of the department to fetch requests for.
+ * @returns An object with the department's requests, loading state, and update mutation.
+ */
 export function useDepartmentRequests(departmentId?: string) {
   const queryClient = useQueryClient();
   const queryKey = ['resource_requests', 'dept', departmentId];
@@ -51,7 +62,7 @@ export function useDepartmentRequests(departmentId?: string) {
   });
 
   return {
-    requests: (listQuery.data as any) || [],
+    requests: (listQuery.data as ResourceRequest[]) || [],
     isLoading: listQuery.isLoading,
     error: listQuery.error as Error | null,
     updateRequest: updateMutation.mutateAsync,

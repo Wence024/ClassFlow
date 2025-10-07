@@ -25,7 +25,7 @@ export function useClassrooms() {
     queryKey,
     queryFn: () =>
       user
-        ? classroomsService.getClassrooms({ role: user.role, department_id: (user as any).department_id || null })
+        ? classroomsService.getClassrooms({ role: user.role, department_id: (user as { department_id?: string | null })?.department_id || null })
         : Promise.resolve([]),
     enabled: !!user,
   });
@@ -68,8 +68,8 @@ export function useClassrooms() {
     /**
      * An async function to update a classroom.
      *
-     * @param id The ID of the classroom to update.
-     * @param data The data to update the classroom with.
+     * @param id - The ID of the classroom to update.
+     * @param data - The data to update the classroom with.
      * @returns A Promise that resolves when the update is complete.
      */
     updateClassroom: (id: string, data: ClassroomUpdate) =>

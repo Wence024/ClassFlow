@@ -13,6 +13,11 @@ const TABLE = 'instructors';
  *
  * Non-admins are filtered by their `department_id`. Admins receive all.
  * This is intended for the Instructor management views (CRUD) owned by department heads/admins.
+ *
+ * @param params - Optional parameters for filtering instructors.
+ * @param params.role - The role of the user requesting the instructors.
+ * @param params.department_id - The department ID to filter by for non-admin users.
+ * @returns A promise that resolves to an array of Instructor objects.
  */
 export async function getInstructors(params?: { role?: string | null; department_id?: string | null }): Promise<Instructor[]> {
   let query = supabase.from(TABLE).select('*').order('first_name');
@@ -31,6 +36,8 @@ export async function getInstructors(params?: { role?: string | null; department
  *
  * This function does not filter by department, as timetabling may need
  * to view cross-department resources (with conflicts/requests enforced elsewhere).
+ * 
+ * @returns A promise that resolves to an array of all Instructor objects.
  */
 export async function getAllInstructors(): Promise<Instructor[]> {
   const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
@@ -77,10 +84,10 @@ export async function updateInstructor(
 
 /**
  * Removes an instructor from the database.
- * This operation is protected by RLS policies in the database, ensuring a user can only delete their own records.
+ * This operation is protected by RLS policies in the database.
  *
  * @param id - The unique identifier of the instructor to remove.
- * @param user_id - The ID of the user, used here for an explicit check.
+ * @param _user_id - The user ID, kept for API consistency but unused due to RLS.
  * @returns A promise that resolves when the operation is complete.
  * @throws An error if the Supabase delete fails.
  */

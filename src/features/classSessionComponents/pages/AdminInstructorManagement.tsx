@@ -68,7 +68,7 @@ const AdminInstructorManagement: React.FC = () => {
       formMethods.reset({
         ...editingInstructor,
         last_name: editingInstructor.last_name ?? '',
-        department_id: (editingInstructor as any).department_id,
+        department_id: editingInstructor.department_id,
       });
     } else {
       formMethods.reset();
@@ -90,7 +90,7 @@ const AdminInstructorManagement: React.FC = () => {
     if (!user) return;
     await addInstructor({
       ...data,
-    } as any);
+    });
     formMethods.reset();
     toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());
@@ -100,7 +100,7 @@ const AdminInstructorManagement: React.FC = () => {
     if (!editingInstructor) return;
     
     // Check if department was changed (for admins)
-    const currentDeptId = (editingInstructor as any).department_id;
+    const currentDeptId = editingInstructor.department_id;
     const newDeptId = data.department_id;
     const departmentChanged = isAdmin() && currentDeptId !== newDeptId;
     
@@ -163,7 +163,7 @@ const AdminInstructorManagement: React.FC = () => {
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
                     isEditing={!!editingInstructor}
-                    currentDepartmentId={(editingInstructor as any)?.department_id}
+                    currentDepartmentId={editingInstructor?.department_id}
                   />
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" loading={isSubmitting} className="flex-1">
