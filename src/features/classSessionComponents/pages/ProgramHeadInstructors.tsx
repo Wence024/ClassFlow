@@ -43,6 +43,7 @@ export default function ProgramHeadInstructors() {
         <FormField
           id="department-select"
           label="Department"
+          type="select"
           placeholder="Select department..."
           value={selectedDepartmentId || ''}
           onChange={(v) => setSelectedDepartmentId(v || undefined)}

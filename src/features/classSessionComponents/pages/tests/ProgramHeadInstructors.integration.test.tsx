@@ -129,13 +129,23 @@ describe('ProgramHeadInstructors Integration Tests', () => {
       expect(departmentsService.listDepartments).toHaveBeenCalled();
     });
 
-    // Select a department
+    // Click the department select to open the dropdown
     const deptSelect = screen.getByLabelText(/department/i);
     await user.click(deptSelect);
 
-    // The actual selection behavior depends on the FormField component
-    // For now, we just verify the component renders correctly
-    expect(deptSelect).toBeInTheDocument();
+    // Click the desired option
+    const option = await screen.findByText('Computer Science (CS)');
+    await user.click(option);
+
+    await waitFor(() => {
+        expect(instructorsService.getInstructors).toHaveBeenCalledWith({ department_id: 'dept-1', role: 'program_head' });
+    });
+
+    // Assert that instructors are displayed
+    await waitFor(() => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+        expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+    });
   });
 
   it('should filter the displayed instructors based on a search term', async () => {
