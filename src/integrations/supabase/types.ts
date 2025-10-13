@@ -570,7 +570,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      update_schedule_configuration_safely: {
+        Args: {
+          config_id: string
+          new_class_days_per_week: number
+          new_period_duration_mins: number
+          new_periods_per_day: number
+          new_start_time: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       user_role: "admin" | "department_head" | "program_head"

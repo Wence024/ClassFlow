@@ -1,4 +1,4 @@
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '../../../integrations/supabase/client';
 import type { ScheduleConfig, ScheduleConfigUpdate } from '../types/scheduleConfig';
 
 /**
@@ -44,12 +44,12 @@ export async function updateScheduleConfig(
     'update_schedule_configuration_safely',
     {
       config_id: configId,
-      new_periods_per_day: settings.periods_per_day,
-      new_class_days_per_week: settings.class_days_per_week,
-      new_start_time: settings.start_time,
-      new_period_duration_mins: settings.period_duration_mins,
+      new_periods_per_day: settings.periods_per_day ?? 8,
+      new_class_days_per_week: settings.class_days_per_week ?? 5,
+      new_start_time: settings.start_time ?? '09:00',
+      new_period_duration_mins: settings.period_duration_mins ?? 60,
     }
-  ) as { data: { success: boolean; conflict_count: number } | null; error: Error | null };
+  );
 
   if (rpcError) {
     console.error('Error calling update RPC:', rpcError);
@@ -57,8 +57,9 @@ export async function updateScheduleConfig(
   }
 
   // Handle the custom response from our RPC function
-  if (rpcResponse && !rpcResponse.success) {
-    const count = rpcResponse.conflict_count;
+  const result = rpcResponse as { success: boolean; conflict_count: number };
+  if (result && !result.success) {
+    const count = result.conflict_count;
     throw new Error(
       `Cannot save: ${count} class(es) are scheduled outside the new time slots. Please move them before reducing the schedule size.`
     );
