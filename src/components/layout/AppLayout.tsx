@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../Sidebar'; // We will move Sidebar here
-import Header from '../Header'; // We will move Header here
+import Sidebar from '../Sidebar';
+import Header from '../Header';
+import DevRoleSwitcher from './DevRoleSwitcher';
 
 /**
  * Renders the main visual shell for all authenticated pages in the application.
@@ -20,10 +21,11 @@ const AppLayout = () => {
           <Sidebar />
           <main className="flex-1 space-y-6 min-w-0" role="main">
             <h1 className="sr-only">Main Content</h1>
-            <Outlet /> {/* This is where the actual page content will be rendered */}
+            <Outlet />
           </main>
         </div>
       </div>
+      <DevRoleSwitcher />
     </div>
   );
 };

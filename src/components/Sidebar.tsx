@@ -16,6 +16,8 @@ const baseNavLinks = [
 /** An array defining the navigation links for admin users only. */
 const adminNavLinks = [
   { to: '/departments', icon: Building2, label: 'Departments' },
+  { to: '/programs', icon: Blocks, label: 'Programs' },
+  { to: '/user-management', icon: Users, label: 'User Management' },
   { to: '/schedule-configuration', icon: Settings, label: 'Settings' },
 ];
 
