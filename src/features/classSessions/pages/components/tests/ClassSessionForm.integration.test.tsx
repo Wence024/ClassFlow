@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import ClassSessionForm from '../classSession/ClassSessionForm';
@@ -124,10 +125,18 @@ const FormWrapper: React.FC<Partial<React.ComponentProps<typeof ClassSessionForm
 
 describe('ClassSessionForm', () => {
   it('should display a conflict warning when group size exceeds classroom capacity', async () => {
+    const user = userEvent.setup();
     render(<FormWrapper />);
 
-    fireEvent.change(screen.getByLabelText(/Class Group/i), { target: { value: 'g2' } }); // Large Group (30)
-    fireEvent.change(screen.getByLabelText(/Classroom/i), { target: { value: 'r1' } }); // Small Room (20)
+    // Select the "Large Group"
+    await user.click(screen.getByLabelText(/Class Group/i));
+    const groupListbox = await screen.findByRole('listbox');
+    await user.click(within(groupListbox).getByText('Large Group'));
+
+    // Select the "Small Room"
+    await user.click(screen.getByLabelText(/Classroom/i));
+    const classroomListbox = await screen.findByRole('listbox');
+    await user.click(within(classroomListbox).getByText('Small Room'));
 
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
     expect(
@@ -138,13 +147,22 @@ describe('ClassSessionForm', () => {
   });
 
   it('should remove the conflict warning when selections are changed to be valid', async () => {
+    const user = userEvent.setup();
     render(<FormWrapper />);
 
-    fireEvent.change(screen.getByLabelText(/Class Group/i), { target: { value: 'g2' } });
-    fireEvent.change(screen.getByLabelText(/Classroom/i), { target: { value: 'r1' } });
+    // Create the conflict
+    await user.click(screen.getByLabelText(/Class Group/i));
+    const groupListbox = await screen.findByRole('listbox');
+    await user.click(within(groupListbox).getByText('Large Group'));
+    await user.click(screen.getByLabelText(/Classroom/i));
+    const classroomListbox = await screen.findByRole('listbox');
+    await user.click(within(classroomListbox).getByText('Small Room'));
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText(/Classroom/i), { target: { value: 'r2' } });
+    // Fix the conflict
+    await user.click(screen.getByLabelText(/Classroom/i));
+    const classroomListbox2 = await screen.findByRole('listbox');
+    await user.click(within(classroomListbox2).getByText('Large Room'));
 
     await waitFor(() => {
       expect(screen.queryByText('Potential Conflicts')).not.toBeInTheDocument();

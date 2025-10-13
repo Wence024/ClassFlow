@@ -7,9 +7,17 @@ import { cn } from '@/lib/utils';
 /**
  * Represents a single option for a select input.
  */
-interface SelectOption {
+export interface SelectOption {
   id: string;
   name: string;
+}
+
+/**
+ * Flexible option format for select inputs.
+ */
+export interface FlexSelectOption {
+  label: string;
+  value: string;
 }
 
 /**
@@ -21,9 +29,10 @@ interface FormFieldProps {
   type?: 'text' | 'email' | 'password' | 'select' | 'time' | 'number' | 'color';
   value: string;
   onChange: (value: string) => void;
-  options?: SelectOption[];
+  options?: SelectOption[] | FlexSelectOption[];
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   error?: string;
   autoComplete?: string;
 }
@@ -41,9 +50,9 @@ interface FormFieldProps {
  * @param [ff.options] - An array of options for select inputs, each with an `id` and `name`.
  * @param [ff.placeholder] - Placeholder text for the input field.
  * @param [ff.required] - Whether the field is required.
+ * @param [ff.disabled] - Whether the field is disabled.
  * @param [ff.error] - An error message to display below the field.
  * @param [ff.autoComplete] - The `autocomplete` attribute for the input, to help with browser autofill.
- * 
  * @returns The JSX element for the FormField component.
  */
 const FormField: React.FC<FormFieldProps> = ({
@@ -55,10 +64,14 @@ const FormField: React.FC<FormFieldProps> = ({
   options,
   placeholder,
   required = false,
+  disabled = false,
   error,
   autoComplete,
 }) => {
   const errorId = error ? `${id}-error` : undefined;
+
+  // Helper to check if option has 'id' property (SelectOption) or 'value' property (FlexSelectOption)
+  const isSelectOption = (opt: SelectOption | FlexSelectOption): opt is SelectOption => 'id' in opt && 'name' in opt;
 
   return (
     <div className="mb-4">
@@ -68,20 +81,30 @@ const FormField: React.FC<FormFieldProps> = ({
       </Label>
 
       {type === 'select' ? (
-        <Select value={value} onValueChange={onChange} required={required}>
+        <Select value={value} onValueChange={onChange} required={required} disabled={disabled}>
           <SelectTrigger
             id={id}
             className={cn(error && 'border-destructive focus:ring-destructive')}
             aria-describedby={errorId}
           >
-            <SelectValue placeholder={`Select ${label}`} />
+            <SelectValue placeholder={placeholder || `Select ${label}`} />
           </SelectTrigger>
           <SelectContent>
-            {options?.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.name}
-              </SelectItem>
-            ))}
+            {options?.map((option) => {
+              if (isSelectOption(option)) {
+                return (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.name}
+                  </SelectItem>
+                );
+              } else {
+                return (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                );
+              }
+            })}
           </SelectContent>
         </Select>
       ) : (
@@ -93,6 +116,7 @@ const FormField: React.FC<FormFieldProps> = ({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           required={required}
+          disabled={disabled}
           autoComplete={autoComplete}
           className={cn(error && 'border-destructive focus:ring-destructive')}
           aria-describedby={errorId}

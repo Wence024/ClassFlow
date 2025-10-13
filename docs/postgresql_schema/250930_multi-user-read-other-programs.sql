@@ -172,25 +172,6 @@ AFTER INSERT ON auth.users
 FOR EACH ROW
 EXECUTE FUNCTION public.handle_new_user();
 
--- Create "departments" and "users" tables, which are not directly related to the core scheduling schema.
-CREATE TABLE public.departments (
-    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-    name character varying,
-    code character varying,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    CONSTRAINT departments_pkey PRIMARY KEY (id)
-);
-
-CREATE TABLE public.users (
-    id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-    email character varying NOT NULL,
-    role_id character varying NOT NULL,
-    department_id character varying NOT NULL,
-    created_at timestamp with time zone NOT NULL DEFAULT now(),
-    CONSTRAINT users_pkey PRIMARY KEY (id)
-);
-
-
 /**************************************************************************************************/
 /* 1. ENABLE ROW-LEVEL SECURITY (RLS) ON ALL RELEVANT TABLES                                      */
 /* This is a prerequisite. Without this, the policies below will have no effect.                  */

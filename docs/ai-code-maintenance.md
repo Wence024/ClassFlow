@@ -29,111 +29,70 @@
 
 ---
 
-## **Step 3: Iterative Testing Pass**
+## **Step 3: Iterative Testing Pass (RE-PRIORITIZED)**
 
 Process the following list of test files sequentially. For each file in the list, you must complete the entire sub-workflow before moving to the next.
 
-**List of Target Test Files:**
-List of test files:
-
 ### Recommended Testing Plan
 
-#### New Test Files Required (3)
+#### ✅ High Priority - Create Now (3)
 
-1. **File:** `src/components/ui/custom/tests/color-picker.test.tsx`
-    * **Purpose:** To verify the functionality of the new, refactored `ColorPicker` component.
-    * **Status:** **✅ COMPLETED** - Fixed import path and test expectations.
+These tests are critical for stabilizing the foundational features of the new role-based system.
+
+1. **File:** `src/features/departments/hooks/tests/useDepartments.integration.test.tsx`
+    * **Purpose:** To verify core department management functionality for Admins.
+    * **Status:** **High Priority**
     * **Key Tests:**
-        * `should open the popover when the trigger button is clicked`.
-        * `should call onChange and close when a preset color is selected`.
-        * `should call onChange when the custom color input is used`.
-        * `should call onChange with a random color when the random button is clicked`.
+        * `should fetch all departments for admin users`.
+        * `should allow admin users to create a new department`.
+        * `should allow admin users to update an existing department`.
+        * `should handle department deletion correctly`.
 
-2. **File:** `src/features/departments/hooks/tests/useDepartments.integration.test.tsx`
-    * **Purpose:** To verify department management functionality for the new department-based resource model.
-    * **Status:** **Needs Creation** - Required for Phase 1 of department-based resource management.
+2. **File:** `src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx`
+    * **Purpose:** Verify the Department Head's main dashboard renders correctly and respects permissions.
+    * **Status:** **High Priority**
     * **Key Tests:**
-        * `should fetch departments for admin users`.
-        * `should create new departments as admin`.
-        * `should update department information`.
-        * `should handle department deletion with proper validation`.
+        * `should deny access for users who are not a Department Head or Admin`.
+        * `should render the instructor management component for a Department Head`.
+        * `should correctly show instructors scoped to the user's own department`.
 
-3. **File:** `src/features/resourceRequests/hooks/tests/useResourceRequests.integration.test.tsx`
+3. **File:** `src/features/classSessionComponents/pages/tests/ProgramHeadInstructors.integration.test.tsx`
+    * **Purpose:** Verify a Program Head can successfully browse instructors from various departments.
+    * **Status:** **High Priority**
+    * **Key Tests:**
+        * `should render a list of departments for selection`.
+        * `should fetch and display instructors when a department is selected`.
+        * `should filter the displayed instructors based on a search term`.
+
+#### ⏸️ On Hold - Pending Stakeholder Feedback (1)
+
+Development on the formal resource request system is paused. Do not create this test file until the workflow has been confirmed with stakeholders.
+
+1. **File:** `src/features/resourceRequests/hooks/tests/useResourceRequests.integration.test.tsx`
     * **Purpose:** To verify resource request functionality for cross-department resource sharing.
-    * **Status:** **Needs Creation** - Required for Phase 4 of department-based resource management.
-    * **Key Tests:**
+    * **Status:** **On Hold**
+    * **Key Tests (Do Not Implement):**
         * `should create resource requests as program head`.
         * `should approve/reject requests as department head`.
         * `should filter requests by status and department`.
-        * `should handle request notifications`.
 
-#### Existing Test Files to Update (Crucial)
+#### 📝 Existing Test Files to Update (As Needed)
 
-The class merging implementation has changed the underlying data structure from single sessions to arrays of sessions. The existing integration tests have been updated to work with the new data structure.
+Ensure these files are up-to-date with any changes made while implementing the high-priority features.
 
-1. **`src/features/classSessionComponents/pages/tests/CourseTab.integration.test.tsx`**
-    * **Status:** **✅ COMPLETED** - Updated to work with new data structure.
-    * **Reason:** The form and item cards are now built with Shadcn's `Button`, `Card`, `Input`, etc. Queries for elements and assertions about their state will need to be updated. For example, `getByRole('button', { name: /Edit/i })` will now find a Shadcn button.
-
-2. **`src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx`**
-    * **Status:** **✅ COMPLETED** - Fixed data structure issues and updated test mocks.
-    * **Reason:** This was a high-priority update. The drawer, session cells, and any interactive elements have been changed. Updated test mocks to use `ClassSession[]` instead of `ClassSession`.
-
-3. **`src/features/timetabling/pages/components/timetable/tests/SessionCell.integration.test.tsx`**
-    * **Status:** **✅ COMPLETED** - Fixed session card rendering and gradient tests.
-    * **Reason:** The internal structure of the `SessionCell` has changed. Tests verifying styling for "owned" vs. "non-owned" sessions and `draggable` attributes need to be validated against the new DOM and class structure.
-
-4. **`src/features/scheduleConfig/pages/tests/ScheduleConfigPage.integration.test.tsx`**
-    * **Status:** **✅ COMPLETED** - Updated to work with new data structure.
-    * **Reason:** The form fields are no longer custom `FormField` components but are now Shadcn `Input` and `Label` components. Tests that check if fields are `disabled` for non-admins must be updated to work with the new structure.
-
-#### Additional Test Files Updated
-
-5. **`src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx`**
-    * **Status:** **✅ COMPLETED** - Fixed conflict detection logic in tests.
-    * **Reason:** Updated to work with the new semester-based scoping and conflict detection logic.
-
-6. **`src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx`**
-    * **Status:** **✅ COMPLETED** - Updated conflict detection expectations.
-    * **Reason:** Updated to work with the new conflict detection system and form validation.
-
-#### Department-Based Resource Management Testing Requirements
-
-The following test files will be required for the upcoming department-based resource management feature implementation:
-
-7. **`src/features/departments/hooks/tests/useDepartments.integration.test.tsx`**
-    * **Status:** **Needs Creation** - Required for Phase 1.
-    * **Purpose:** Test department management functionality.
-    * **Key Tests:**
-        * `should fetch departments for admin users`.
-        * `should create new departments as admin`.
-        * `should update department information`.
-        * `should handle department deletion with proper validation`.
-
-8. **`src/features/resourceRequests/hooks/tests/useResourceRequests.integration.test.tsx`**
-    * **Status:** **Needs Creation** - Required for Phase 4.
-    * **Purpose:** Test resource request functionality.
-    * **Key Tests:**
-        * `should create resource requests as program head`.
-        * `should approve/reject requests as department head`.
-        * `should filter requests by status and department`.
-        * `should handle request notifications`.
-
-9. **`src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx`**
+1. **`src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx`**
     * **Status:** **Needs Update** - Required for Phase 2.
-    * **Purpose:** Update to test department-based instructor management.
+    * **Purpose:** Update to test department-based instructor management from the perspective of a Department Head.
     * **Key Tests:**
-        * `should show only department instructors for department heads`.
-        * `should allow cross-department resource requests`.
-        * `should handle instructor assignment permissions`.
+        * `should show only department-owned instructors for department heads`.
+        * `should allow department heads to create, update, and delete instructors in their department`.
 
-10. **`src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx`**
+2. **`src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx`**
     * **Status:** **Needs Update** - Required for Phase 2.
-    * **Purpose:** Update to test department-based classroom management.
+    * **Purpose:** Update to test department-based classroom management (Admin-only).
     * **Key Tests:**
-        * `should show only department classrooms for department heads`.
-        * `should allow cross-department resource requests`.
-        * `should handle classroom assignment permissions`.
+        * `should allow Admins to create, update, and delete classrooms`.
+        * `should show all classrooms to all roles (as they are a shared resource)`.
 
 **Sub-Workflow (for each file):**
 
@@ -192,20 +151,32 @@ All Phase 0 tasks have been completed successfully:
 4. **✅ Added conflict detection** - Implemented group mismatch conflict detection to prevent moving sessions to wrong class groups.
 5. **✅ Updated documentation** - Updated `ai-code-maintenance.md` with current testing requirements.
 
+### **Phase 1: High-Priority Integration Tests - ✅ IN PROGRESS**
+
+Created three critical integration test files:
+
+1. **✅ `src/features/departments/hooks/tests/useDepartments.integration.test.tsx`** - Tests department CRUD operations for Admins.
+2. **✅ `src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx`** - Tests role-based access and department-scoped instructor display.
+3. **✅ `src/features/classSessionComponents/pages/tests/ProgramHeadInstructors.integration.test.tsx`** - Tests Program Head's ability to browse instructors by department.
+
+**JSDoc Coverage:**
+
+* Added comprehensive JSDoc comments to `useDepartments` hook
+* Added JSDoc to `useInstructorsByDepartment` function
+* Verified existing JSDoc coverage across core hooks and utilities
+
 ### **Key Changes Made:**
 
-- **Data Structure**: Updated `TimetableGrid` type from `Map<string, (ClassSession | null)[]>` to `Map<string, (ClassSession[] | null)[]>`.
-- **Conflict Detection**: Added `checkGroupMismatch` function to prevent cross-group session assignments.
-- **Test Updates**: Fixed all test mocks to use the new data structure format.
-- **Component Updates**: Updated `SessionCell`, `TimetableRow`, and `TimetablePage` components to handle merged sessions.
-- **Gradient Rendering**: Fixed gradient background rendering for merged sessions with different colors.
+* **Data Structure**: Updated `TimetableGrid` type from `Map<string, (ClassSession | null)[]>` to `Map<string, (ClassSession[] | null)[]>`.
+* **Conflict Detection**: Added `checkGroupMismatch` function to prevent cross-group session assignments.
+* **Test Updates**: Fixed all test mocks to use the new data structure format.
+* **Component Updates**: Updated `SessionCell`, `TimetableRow`, and `TimetablePage` components to handle merged sessions.
+* **Gradient Rendering**: Fixed gradient background rendering for merged sessions with different colors.
 
 ### **Next Steps:**
 
-The codebase is now ready for Phase 1 of the department-based resource management implementation. The class merging feature is fully functional and all tests are passing.
+The codebase has progressed into implementing the foundational UI for the new role-based system. The immediate priority is to stabilize these core features.
 
-### **Test Results:**
-- **Total Tests**: 105 tests
-- **Passing**: 95 tests  
-- **Failing**: 10 tests (minor issues with ColorPicker and conflict detection in test environment)
-- **Core Functionality**: All class merging and conflict detection features are working correctly.
+1. **Create the new high-priority integration tests** listed above to ensure the `DepartmentHeadDashboard` and `ProgramHeadInstructors` pages are working as expected.
+2. **Fix any remaining test failures** (currently 10 failing) to get the entire suite to pass.
+3. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.

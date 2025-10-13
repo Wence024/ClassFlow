@@ -10,6 +10,11 @@ import ClassSessions from './features/classSessions/pages/ClassSessionsPage'; //
 import TimetablePage from './features/timetabling/pages/TimetablePage';
 import ComponentManagement from './features/classSessionComponents/pages';
 import ScheduleConfigPage from './features/scheduleConfig/pages/ScheduleConfigPage';
+import DepartmentManagementPage from './features/departments/pages/DepartmentManagementPage';
+import UserProfilePage from './features/auth/pages/UserProfilePage';
+import DepartmentHeadDashboard from './features/departments/pages/DepartmentHeadDashboard';
+import ProgramHeadInstructors from './features/classSessionComponents/pages/ProgramHeadInstructors';
+import ProgramHeadRequestPage from './features/resourceRequests/pages/ProgramHeadRequestPage';
 
 /**
  * The root component of the application.
@@ -38,6 +43,11 @@ function App() {
                   <Route path="/scheduler" element={<TimetablePage />} />
                   <Route path="/component-management" element={<ComponentManagement />} />
                   <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
+                  <Route path="/departments" element={<DepartmentManagementPage />} />
+                  <Route path="/dept-head" element={<DepartmentHeadDashboard />} />
+                  <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
+                  <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
+                  <Route path="/profile" element={<UserProfilePage />} />
                 </Route>
               </Route>
 

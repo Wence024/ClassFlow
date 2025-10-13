@@ -9,12 +9,37 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
 const TABLE = 'instructors';
 
 /**
- * Fetches all instructors from the database.
+ * Returns instructors for the caller's own class session components workflow.
  *
+ * Non-admins are filtered by their `department_id`. Admins receive all.
+ * This is intended for the Instructor management views (CRUD) owned by department heads/admins.
+ *
+ * @param params - Optional parameters for filtering instructors.
+ * @param params.role - The role of the user requesting the instructors.
+ * @param params.department_id - The department ID to filter by for non-admin users.
  * @returns A promise that resolves to an array of Instructor objects.
- * @throws An error if the Supabase query fails.
  */
-export async function getInstructors(): Promise<Instructor[]> {
+export async function getInstructors(params?: { role?: string | null; department_id?: string | null }): Promise<Instructor[]> {
+  let query = supabase.from(TABLE).select('*').order('first_name');
+  const role = params?.role ?? null;
+  const departmentId = params?.department_id ?? null;
+  if (role !== 'admin' && departmentId) {
+    query = query.eq('department_id', departmentId);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Returns all instructors for class session authoring and timetabling workflows.
+ *
+ * This function does not filter by department, as timetabling may need
+ * to view cross-department resources (with conflicts/requests enforced elsewhere).
+ * 
+ * @returns A promise that resolves to an array of all Instructor objects.
+ */
+export async function getAllInstructors(): Promise<Instructor[]> {
   const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
   if (error) throw error;
   return data || [];
@@ -59,14 +84,14 @@ export async function updateInstructor(
 
 /**
  * Removes an instructor from the database.
- * This operation is protected by RLS policies in the database, ensuring a user can only delete their own records.
+ * This operation is protected by RLS policies in the database.
  *
  * @param id - The unique identifier of the instructor to remove.
- * @param user_id - The ID of the user, used here for an explicit check.
+ * @param _user_id - The user ID, kept for API consistency but unused due to RLS.
  * @returns A promise that resolves when the operation is complete.
  * @throws An error if the Supabase delete fails.
  */
-export async function removeInstructor(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
+export async function removeInstructor(id: string, _user_id: string): Promise<void> {
+  const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

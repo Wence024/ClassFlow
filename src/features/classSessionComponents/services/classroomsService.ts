@@ -9,12 +9,37 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
 const TABLE = 'classrooms';
 
 /**
- * Fetches all classrooms from the database.
+ * Returns classrooms for the caller's own class session components workflow.
  *
+ * Admins manage classrooms; non-admins typically view (not manage). We do not hard-filter here
+ * to allow discovery for request flows; UI can emphasize preferred/owned first.
+ *
+ * @param params - Optional parameters for filtering classrooms.
+ * @param params.role - The role of the user requesting the classrooms.
+ * @param params.department_id - The department ID to filter by for non-admin users.
  * @returns A promise that resolves to an array of Classroom objects.
- * @throws An error if the Supabase query fails.
  */
-export async function getClassrooms(): Promise<Classroom[]> {
+export async function getClassrooms(params?: { role?: string | null; department_id?: string | null }): Promise<Classroom[]> {
+  let query = supabase.from(TABLE).select('*').order('name');
+  const role = params?.role ?? null;
+  const departmentId = params?.department_id ?? null;
+  // Admin sees all; for non-admin management views, scope to user's department
+  if (role !== 'admin' && departmentId) {
+    query = query.eq('department_id', departmentId);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Returns all classrooms for class session authoring and timetabling workflows.
+ *
+ * This includes all classrooms; downstream logic handles approvals/conflicts.
+ * 
+ * @returns A promise that resolves to an array of all Classroom objects.
+ */
+export async function getAllClassrooms(): Promise<Classroom[]> {
   const { data, error } = await supabase.from(TABLE).select('*').order('name');
   if (error) throw error;
   return data || [];
@@ -29,7 +54,11 @@ export async function getClassrooms(): Promise<Classroom[]> {
  * @throws An error if the Supabase insert fails.
  */
 export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
-  const { data, error } = await supabase.from(TABLE).insert([classroom]).select().single();
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert([classroom])
+    .select()
+    .single();
   if (error) throw error;
   return data;
 }
@@ -56,14 +85,14 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 
 /**
  * Removes a classroom from the database.
- * This operation is protected by RLS policies in the database, ensuring a user can only delete their own records.
+ * This operation is protected by RLS policies in the database.
  *
  * @param id - The unique identifier of the classroom to remove.
- * @param user_id - The ID of the user, used here for an explicit check.
+ * @param _user_id - The user ID, kept for API consistency but unused due to RLS.
  * @returns A promise that resolves when the operation is complete.
  * @throws An error if the Supabase delete fails.
  */
-export async function removeClassroom(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
+export async function removeClassroom(id: string, _user_id: string): Promise<void> {
+  const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

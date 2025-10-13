@@ -36,10 +36,10 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed due to an unexpected issue. Please try again.');
   }
 
-  // Fetch role and program_id from profiles table
+  // Fetch role, program_id, department_id from profiles table
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id')
+    .select('role, program_id, department_id')
     .eq('id', data.user.id)
     .single();
 
@@ -52,8 +52,9 @@ export async function login(email: string, password: string): Promise<AuthRespon
       id: data.user.id,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
       email: data.user.email!,
-      role: data.user.user_metadata?.role || 'user',
+      role: profile.role,
       program_id: profile.program_id,
+      department_id: profile.department_id
     },
     token: data.session.access_token,
   };
@@ -91,10 +92,10 @@ export async function register(
     throw new Error('Registration failed due to an unexpected issue.');
   }
 
-  // Fetch role and program_id from profiles table
+  // Fetch role, program_id, department_id from profiles table
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id')
+    .select('role, program_id, department_id')
     .eq('id', data.user.id)
     .single();
 
@@ -110,8 +111,9 @@ export async function register(
       id: data.user.id,
       name: data.user.user_metadata?.name || name,
       email: data.user.email!,
-      role: data.user.user_metadata?.role || 'user',
+      role: profile.role,
       program_id: profile.program_id,
+      department_id: profile.department_id
     },
     token: data.session?.access_token || '',
     needsVerification: needsVerification,
@@ -154,7 +156,7 @@ export async function getStoredUser(): Promise<User | null> {
   // Instead of relying on metadata, we query the definitive profiles table.
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id')
+    .select('role, program_id, department_id')
     .eq('id', session.user.id)
     .single();
 
@@ -170,6 +172,7 @@ export async function getStoredUser(): Promise<User | null> {
     email: session.user.email!,
     role: profile.role,
     program_id: profile.program_id,
+    department_id: profile.department_id,
   };
 }
 /**
@@ -183,4 +186,17 @@ export async function logout(): Promise<void> {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+/**
+ * Updates the authenticated user's profile metadata (e.g., display name).
+ * This updates Supabase auth user metadata, not the public.profiles row.
+ *
+ * @param update - An object containing profile fields to update.
+ * @param update.name - The user's new display name.
+ */
+export async function updateMyProfileRow(update: { name?: string }): Promise<void> {
+  // For display name, we use auth metadata since profiles does not have a name column.
+  const { error } = await supabase.auth.updateUser({ data: { name: update.name } });
+  if (error) throw new Error(error.message);
 }

@@ -47,7 +47,19 @@ Here is a rearranged, consolidated, and prioritized to-do list.
     * **Task:** `Timetabling: Availability marks for moving class sessions across periods`
     * **Action:** In `Timetable.tsx`, use the `onDragOver` event to call the conflict detection logic and conditionally apply a class to the target cell for instant feedback.
 
-4. **[Data Integrity] Restrict Invalid Timetabling Moves**
+4. [x] **[Data Integrity] Restrict Invalid Timetabling Moves**
+5. **[RBAC/UI] Add protected navigation links**
+    * **Task:** Add nav links to `/dept-head` and `/browse/instructors` for authorized roles only.
+    * **Status:** Pending
+
+6. **[UX] Improve ProgramHeadInstructors selection UX**
+    * **Task:** Replace generic `FormField` with `Select` component, add empty state guidance.
+    * **Status:** Pending
+
+7. **[Tests] Add integration tests for new pages**
+    * **Task:** Create tests for DepartmentHeadDashboard and ProgramHeadInstructors.
+    * **Status:** Pending
+
     * **Task:** `Timetabling: Restrict moving Class sessions to other unintended class groups`
     * **Action:** In the `onDropToGrid` handler within `useTimetableDnd.ts`, check if the dragged `ClassSession`'s `group.id` matches the target `groupId`. If they don't match, show a notification and abort the update.
 
@@ -55,7 +67,7 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 
 *This phase expands the application's capabilities for multiple users, administrators, and larger data sets.*
 
-1. **[Auth] Implement User Roles and Permissions**
+1. [x] **[Auth] Implement User Roles and Permissions**
     * **Tasks:**
         * `User management: Add Profile, roles (program head vs admin) and program to each user.`
         * `User/Timetabling: Assign class session timetabling ownership based on program instead of user`
@@ -106,28 +118,28 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 
 *These items are valuable but are lower priority than the core roadmap.*
 
-* **[UX]** Fix: success update in forms has a red color instead of green.
-* **[UI]** Add a zoom feature to timetable.
-* **[UI]** Consolidate management pages into a single, more integrated UI.
+* [ ] **[UX]** Fix: success/error update in forms has a white color instead of red/green.
+* [ ] **[UI]** Add a zoom feature to timetable.
+* [ ] **[UI]** Consolidate management pages into a single, more integrated UI.
 * [ ] Implement captcha in login
-* **[UI]** Implement a light/dark mode theme.
-* **[UX]** Add tooltips and placeholder hints for all form fields.
-* **[UX]** Show assigned component colors in the timetable class session box.
-* **[Auth]** Implement CAPTCHA in the login/register forms.
-* **[Data Model]** Allow classrooms and instructors to be optional in class sessions.
-* **[Architecture]** Centralize error handling with a `useApiMutation` hook.
+* [ ]**[UI]** Implement a light/dark mode theme.
+* [ ] **[UX]** Add tooltips and placeholder hints for all form fields.
+* [x] **[UX]** Show assigned component colors in the timetable class session box.
+* [ ] **[Auth]** Implement CAPTCHA in the login/register forms.
+* [ ] **[Data Model]** Allow classrooms and instructors to be optional in class sessions.
+* [ ] **[Architecture]** Centralize error handling with a `useApiMutation` hook.
 * [ ] Keyboard shortcuts and navigation
 * [ ] Allow classrooms and instructors to be optional in class sessions.
-* [ ] Add program assignment: Create an instructor entity to be assigned temporarily to another program
+* [x] Add program assignment: Create an instructor entity to be assigned temporarily to another program
 * [ ] Add location field to classroom component UI
 * [ ] Add keyboard input in class session assignment UI
 * [ ] Sort/filter issue in class sessions and components
   * Majors vs general subjects
   * Teachers in program/department vs other programs/departments
-* [ ] The prop drilling issue is very rampant for `timetable/index.tsx`. Perhaps a local context-based usage is effective on some of the variables.
-* [ ] Major feature: multi-user workflow
-  * [ ] Data models: user attributes as program head role and assigned workflow
-  * [ ] Prerequisite: Role access and admin schedule config controls
+* [x] The prop drilling issue is very rampant for `timetable/index.tsx`. Perhaps a local context-based usage is effective on some of the variables.
+* [x] Major feature: multi-user workflow
+  * [x] Data models: user attributes as program head role and assigned workflow
+  * [x] Prerequisite: Role access and admin schedule config controls
 
 Refactor backlogs:
 
@@ -137,21 +149,23 @@ Refactor backlogs:
 * [ ] **[Bug]** The `ColorPicker` popover closes immediately when the custom color input is clicked, preventing users from selecting a custom color.
 
 
-// TODO: Break down the forms and viewing into individual components (CourseTab, ClassroomTab, ClassGroupsTab, InstructorsTab)
-// TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
-// TODO: Consider duplicate courses, class groups, classrooms and instructors a data anomaly; such entities should be singleton. (ClassSessionComponentsPage)
+* [x] TODO: Break down the forms and viewing into individual components (CourseTab, ClassroomTab, ClassGroupsTab, InstructorsTab)
+* [ ] TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
 
-// TODO: Make drawer stick to the bottom, or limit the height size of the timetable to accomodate the drawer. (TimetablePage)
-// TODO: Do scrolling behavior when placing the moved object around the edge of the viewport. (Timetable)
-// TODO: In drawer, only make visible the class sessions that belong to the user's assigned program. (Drawer)
+* [ ] TODO: Consider duplicate courses, class groups, classrooms and instructors a data anomaly; such entities should be singleton. (ClassSessionComponentsPage)
 
-// TODO: Apply refactor to prop drilling later (Timetable/index)
+* [ ] TODO: Make drawer stick to the bottom, or limit the height size of the timetable to accomodate the drawer. (TimetablePage)
 
-// TODO: Change name check to id check for the long term (checkConflicts)
+* [x] TODO: Do scrolling behavior when placing the moved object around the edge of the viewport. (Timetable)
+* [ ] TODO: In drawer, only make visible the class sessions that belong to the user's assigned program. (Drawer)
 
-// TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16. (timeLogic.ts)
+* [x] TODO: Apply refactor to prop drilling later (Timetable/index)
 
-// TODO: Fix bug where choosing a custom color closes the color picker, making it unable to choose or type a custom color. (colorUtils.ts)
+* [ ] TODO: Change name check to id check for the long term (checkConflicts)
+
+* [x] TODO: Simplify buildTimetableGrid to alleviate cognitive complexity 16. (timeLogic.ts)
+
+* [ ] TODO: Fix bug where choosing a custom color closes the color picker, making it unable to choose or type a custom color. (colorUtils.ts)
 
 * [ ] ClassSessionComponents - Prioritize owned components
 * [ ] Refactor ClassSessions/Courses - assess if course entity shall be merged with class session entity.
@@ -160,11 +174,31 @@ Refactor backlogs:
 
 * [ ] Use React Query for usePrograms.ts
 
+Maam Z's Feedback:
+
+* [ ] Class merging
+  * [ ] Requires management of shared classrooms (admin) and instructors (department heads) instead of solely program heads
+
 Sir B's Feedback:
 
-* [ ] Approval feature: Program Head, when other program heads assign class sessions.
+* Approval/Notify feature to Program Head When other program heads assign class sessions from instructors under him?
+  * [ ] Need revision when managers of instructors are department heads: notify them/admin instead?
 * [ ] CSV Import
 * [ ] Classroom/instructor View
 * [ ] Reports per instructor and class group.
 
-* [ ] Keep the merged capacity check as a soft conflict instead of a hard conflict.
+* [ ] Remove null usage of department_head except for admin roles.
+* [ ] Adjust type alias for import paths to be cleaner.
+* [ ] Realign the stylings of all pages.
+
+Sir D's Feedback (School IT/Networking Head)
+
+* [ ] (Haven't consulted yet)
+
+Solved:
+
+* [x] Keep the merged capacity check as a soft conflict instead of a hard conflict.
+
+Ponderings:
+
+* [ ] Examine why sessioncell UI logic is separate and decentralized from timetablelogic. It gave me a headache when trying to manually deal with class-merging renders.

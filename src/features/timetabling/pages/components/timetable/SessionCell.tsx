@@ -153,6 +153,7 @@ const createCellBackground = (
  * @param vsb.onShowTooltip - Callback to show tooltip.
  * @param vsb.onHideTooltip - Callback to hide tooltip.
  * @param vsb.softConflicts - Array of soft conflict messages.
+ * @param vsb.contextOnShowTooltip - Callback to show tooltip from context.
  * @returns The JSX element for the visible session block.
  */
 const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
@@ -324,18 +325,19 @@ const SessionCell: React.FC<SessionCellProps> = ({
     return <InvalidSessionCell periodCount={primarySession.period_count || 1} />;
   }
 
-  const isOwner = !!user?.program_id && sessions.some((s) => s.program_id === user.program_id);
   const isDraggedSession = sessions.some((s) => s.id === activeDraggedSession?.id);
   const isDragging = activeDraggedSession !== null;
   const numberOfPeriods = primarySession.period_count || 1;
 
-  const draggableSession = isOwner ? sessions.find((s) => s.program_id === user?.program_id) : null;
+  // The first session in the array is always the one belonging to this row's group
+  const ownSession = sessions[0];
+  const isOwnSession = !!user?.program_id && ownSession.program_id === user.program_id;
 
-  const cellStyle = isOwner
+  const cellStyle = isOwnSession
     ? createCellBackground(sessions, isDraggedSession)
     : { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
 
-  const textStyle: React.CSSProperties = isOwner
+  const textStyle: React.CSSProperties = isOwnSession
     ? { color: getSessionCellTextColor(primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR) }
     : { color: '#4B5563' };
 
@@ -351,13 +353,13 @@ const SessionCell: React.FC<SessionCellProps> = ({
       <div className="h-20">
         <div
           className="relative w-full h-full"
-          draggable={isOwner}
+          draggable={isOwnSession}
           onDragStart={(e) => {
-            if (isOwner && draggableSession) {
+            if (isOwnSession) {
               handleDragStart(e, {
                 from: 'timetable',
-                class_session_id: draggableSession.id,
-                class_group_id: draggableSession.group.id,
+                class_session_id: ownSession.id,
+                class_group_id: ownSession.group.id,
                 period_index: periodIndex,
               });
             }
@@ -365,7 +367,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
         >
           <VisibleSessionBlock
             sessions={sessions}
-            isOwner={isOwner}
+            isOwner={isOwnSession}
             isDraggedSession={isDraggedSession}
             cellStyle={cellStyle}
             textStyle={textStyle}

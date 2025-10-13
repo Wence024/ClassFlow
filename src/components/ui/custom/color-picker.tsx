@@ -74,7 +74,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             </Button>
           </PopoverTrigger>
 
-          <PopoverContent className="w-80" align="start">
+          <PopoverContent className="w-80" align="start" aria-label="Color Picker">
             {/* Preset Colors Section */}
             <div className="space-y-3">
               <h4 className="font-medium leading-none">Preset Colors</h4>

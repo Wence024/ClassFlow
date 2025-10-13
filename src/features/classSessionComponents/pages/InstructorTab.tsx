@@ -15,6 +15,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Instructor } from '../types';
+import type { InstructorInsert } from '../types/instructor';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
@@ -27,7 +28,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  * @returns The InstructorManagement component.
  */
 const InstructorManagement: React.FC = () => {
-  const { user } = useAuth();
+  const { user, canManageInstructors } = useAuth();
   const {
     instructors,
     addInstructor,
@@ -83,7 +84,12 @@ const InstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    await addInstructor({ ...data, user_id: user.id });
+    await addInstructor({
+      ...data,
+      // department and audit fields now set server-side by RLS/trigger; include if API supports
+      // department_id: (user as any).department_id,
+      // created_by: user.id,
+    } as InstructorInsert);
     formMethods.reset();
     toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());
@@ -135,7 +141,7 @@ const InstructorManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting} className="space-y-1">
+                                <fieldset disabled={isSubmitting || !canManageInstructors()} className="space-y-1">
                   <InstructorFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}

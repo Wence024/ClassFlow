@@ -16,6 +16,7 @@ import {
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
 import type { Classroom } from '../types';
+import type { ClassroomInsert } from '../types/classroom';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
@@ -28,7 +29,7 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
  * @returns The ClassroomManagement component.
  */
 const ClassroomManagement: React.FC = () => {
-  const { user } = useAuth();
+  const { user, canManageClassrooms } = useAuth();
   const {
     classrooms,
     addClassroom,
@@ -75,7 +76,10 @@ const ClassroomManagement: React.FC = () => {
 
   const handleAdd = async (data: ClassroomFormData) => {
     if (!user) return;
-    await addClassroom({ ...data, user_id: user.id });
+    await addClassroom({
+      ...data,
+      // created_by handled by DB; admin-only manage enforced by RLS
+    } as ClassroomInsert);
     formMethods.reset();
     toast('Success', { description: 'Classroom created successfully!' });
     setRandomPresetColor(getRandomPresetColor());
@@ -125,7 +129,7 @@ const ClassroomManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting} className="space-y-1">
+                                <fieldset disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
                   <ClassroomFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
