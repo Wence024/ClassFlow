@@ -34,6 +34,7 @@ export const classroomSchema = z.object({
   capacity: z.number().int().min(0, 'Cannot be negative').nullable().optional(),
   code: z.string().max(10, 'Cannot exceed 10 characters').nullable().optional(),
   color: hexColorSchema,
+  preferred_department_id: z.string().uuid().optional().nullable(),
 });
 
 export const instructorSchema = z.object({

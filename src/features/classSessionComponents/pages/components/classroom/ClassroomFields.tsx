@@ -12,12 +12,14 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
  * @param cf The component's props.
  * @param cf.control The control object from react-hook-form.
  * @param cf.errors The errors object from react-hook-form.
+ * @param cf.departmentOptions The list of departments for the preferred department dropdown.
  * @returns The rendered form fields for a classroom.
  */
 export const ClassroomFields: React.FC<{
   control: Control<ClassroomFormData>;
   errors: FieldErrors<ClassroomFormData>;
-}> = ({ control, errors }) => (
+  departmentOptions: { id: string; name: string }[];
+}> = ({ control, errors, departmentOptions }) => (
   <>
     <Controller
       name="name"
@@ -58,6 +60,22 @@ export const ClassroomFields: React.FC<{
           label="Capacity / Size"
           type="number"
           error={errors.capacity?.message}
+        />
+      )}
+    />
+    <Controller
+      name="preferred_department_id"
+      control={control}
+      render={({ field }) => (
+        <FormField
+          {...field}
+          value={field.value ?? ''}
+          id="preferred_department_id"
+          label="Preferred Department (Optional)"
+          type="select"
+          placeholder="None"
+          options={departmentOptions}
+          error={errors.preferred_department_id?.message}
         />
       )}
     />

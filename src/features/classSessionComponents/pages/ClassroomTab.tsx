@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useClassrooms } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+import { useDepartments } from '../../departments/hooks/useDepartments';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
 import {
   Button,
@@ -41,6 +42,9 @@ const ClassroomManagement: React.FC = () => {
     error,
   } = useClassrooms();
   const { classSessions } = useClassSessions();
+  const { listQuery: departmentsQuery } = useDepartments();
+  const departmentOptions =
+    departmentsQuery.data?.map((d) => ({ id: d.id, name: `${d.name} (${d.code})` })) || [];
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
@@ -133,6 +137,7 @@ const ClassroomManagement: React.FC = () => {
                   <ClassroomFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
+                    departmentOptions={departmentOptions}
                   />
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" loading={isSubmitting} className="flex-1">
