@@ -102,4 +102,28 @@ describe('ScheduleConfigPage - Admin Access', () => {
       });
     });
   });
+
+  it('should prevent saving and show an error if assignments exist outside new bounds', async () => {
+    const conflictErrorMessage =
+      'Cannot save: 3 class(es) are scheduled outside the new time slots.';
+    const mockUpdateSettingsConflict = vi.fn().mockRejectedValue(new Error(conflictErrorMessage));
+
+    vi.spyOn(useScheduleConfigHook, 'useScheduleConfig').mockReturnValue({
+      settings: mockSettings,
+      updateSettings: mockUpdateSettingsConflict,
+      isLoading: false,
+      isUpdating: false,
+      error: null,
+    });
+
+    renderPage({ id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' });
+
+    const saveButton = await screen.findByRole('button', { name: /Save Settings/i });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockUpdateSettingsConflict).toHaveBeenCalled();
+      expect(screen.getByText(conflictErrorMessage)).toBeInTheDocument();
+    });
+  });
 });

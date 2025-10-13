@@ -28,27 +28,47 @@ export async function getScheduleConfig(): Promise<ScheduleConfig | null> {
 }
 
 /**
- * Updates the single, global schedule configuration.
- * This operation is protected by RLS and should only be callable by an 'admin' role.
+ * Safely updates the single, global schedule configuration by calling a database RPC.
+ * The RPC first checks for orphaned assignments before applying the update.
  *
- * @param id The unique ID of the single configuration row to update.
+ * @param configId The unique ID of the single configuration row to update.
  * @param settings The configuration settings to persist.
  * @returns The updated schedule configuration.
+ * @throws An error if the update fails or if conflicts are found.
  */
 export async function updateScheduleConfig(
-  id: string, // Changed from userId
+  configId: string,
   settings: ScheduleConfigUpdate
 ): Promise<ScheduleConfig> {
-  const { data, error } = await supabase
-    .from('schedule_configuration')
-    .update(settings) // Changed from upsert
-    .eq('id', id)     // Target the row by its actual primary key
-    .select()
-    .single();
+  const { data: rpcResponse, error: rpcError } = await supabase.rpc(
+    'update_schedule_configuration_safely',
+    {
+      config_id: configId,
+      new_periods_per_day: settings.periods_per_day,
+      new_class_days_per_week: settings.class_days_per_week,
+      new_start_time: settings.start_time,
+      new_period_duration_mins: settings.period_duration_mins,
+    }
+  ) as { data: { success: boolean; conflict_count: number } | null; error: Error | null };
 
-  if (error || !data) {
-    console.error('Error updating schedule configuration:', error);
-    throw new Error('Could not update schedule configuration.');
+  if (rpcError) {
+    console.error('Error calling update RPC:', rpcError);
+    throw new Error('A database error occurred while trying to save settings.');
   }
-  return data;
+
+  // Handle the custom response from our RPC function
+  if (rpcResponse && !rpcResponse.success) {
+    const count = rpcResponse.conflict_count;
+    throw new Error(
+      `Cannot save: ${count} class(es) are scheduled outside the new time slots. Please move them before reducing the schedule size.`
+    );
+  }
+
+  // If successful, we need to fetch the updated settings to return the full object
+  const updatedSettings = await getScheduleConfig();
+  if (!updatedSettings) {
+    throw new Error('Failed to re-fetch settings after update.');
+  }
+
+  return updatedSettings;
 }

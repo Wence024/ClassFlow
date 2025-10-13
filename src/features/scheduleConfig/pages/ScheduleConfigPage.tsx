@@ -4,6 +4,7 @@ import { useAuth } from '../../auth/hooks/useAuth';
 import React, { useEffect, useState } from 'react';
 import { useScheduleConfig } from '../hooks/useScheduleConfig';
 import { FormField, Button, LoadingSpinner, ErrorMessage } from '../../../components/ui';
+import { Alert } from '../../../components/ui/alert';
 import { toast } from 'sonner';
 
 /**
@@ -18,13 +19,14 @@ import { toast } from 'sonner';
  */
 const ScheduleConfigPage: React.FC = () => {
   const { user } = useAuth();
-  const { settings, updateSettings, isLoading, isUpdating, error } = useScheduleConfig();
+  const { settings, updateSettings, isLoading, isUpdating, error: queryError } = useScheduleConfig();
   const [formData, setFormData] = useState({
     periods_per_day: 8,
     class_days_per_week: 5,
     start_time: '09:00',
     period_duration_mins: 90,
   });
+  const [conflictError, setConflictError] = useState<string | null>(null);
 
   useEffect(() => {
     if (settings) {
@@ -41,11 +43,20 @@ const ScheduleConfigPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setConflictError(null);
+
     try {
       await updateSettings(formData);
       toast('Success', { description: 'Settings saved successfully!' });
-    } catch {
-      toast('Error', { description: 'Failed to save settings.' });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
+      
+      if (errorMessage.includes('Cannot save')) {
+        setConflictError(errorMessage);
+        toast('Action Blocked', { description: 'Please resolve the conflicts shown on the page.' });
+      } else {
+        toast('Error', { description: 'Failed to save settings.' });
+      }
     }
   };
 
@@ -53,13 +64,20 @@ const ScheduleConfigPage: React.FC = () => {
     return <LoadingSpinner text="Loading schedule configuration..." />;
   }
 
-  if (error) {
-    return <ErrorMessage message="Failed to load settings." />;
+  if (queryError) {
+    return <ErrorMessage message={(queryError as Error).message || "Failed to load settings."} />;
   }
 
   return (
     <div className="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-6 text-center">Academic Schedule Configuration</h1>
+      
+      {conflictError && (
+        <Alert variant="destructive" className="mb-4">
+          {conflictError}
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit}>
         {/* The fieldset will disable all inputs for non-admins */}
         <fieldset disabled={!isAdmin || isUpdating}>
