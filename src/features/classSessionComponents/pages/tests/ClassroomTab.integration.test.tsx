@@ -104,4 +104,117 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
     const fieldset = screen.getByRole('group');
     expect(fieldset).toBeDisabled();
   });
+
+  it('should show "Preferred Department" dropdown for admin users', async () => {
+    const user = userEvent.setup();
+    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
+    mockedClassroomsService.updateClassroom.mockImplementation(async (_id, data) => ({
+      ...allClassrooms[0],
+      ...data,
+    } as Classroom));
+
+    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    });
+
+    // Verify the preferred department field exists in the form
+    const preferredDeptLabel = screen.getByText(/Preferred Department/i);
+    expect(preferredDeptLabel).toBeInTheDocument();
+  });
+
+  it('should allow admin to update a classroom with a preferred department', async () => {
+    const user = userEvent.setup();
+    const departmentList = [
+      { id: 'dept1', name: 'Computer Science', code: 'CS' },
+      { id: 'dept2', name: 'Mathematics', code: 'MATH' },
+    ];
+
+    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
+    mockedClassroomsService.updateClassroom.mockImplementation(async (id, data) => ({
+      ...allClassrooms[0],
+      ...data,
+      id,
+    } as Classroom));
+
+    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    });
+
+    // Click edit button
+    const editButtons = screen.getAllByRole('button', { name: /Edit Room 101/i });
+    await user.click(editButtons[0]);
+
+    // Form should now be in edit mode
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
+    });
+
+    // Update the classroom
+    const saveButton = screen.getByRole('button', { name: /Save Changes/i });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockedClassroomsService.updateClassroom).toHaveBeenCalledWith(
+        'room1',
+        expect.any(Object)
+      );
+    });
+  });
+
+  it('should render edit/delete buttons only for admin users', async () => {
+    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
+
+    // Render as admin
+    const { unmount } = render(<ClassroomTab />, { 
+      wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> 
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    });
+
+    // Assert edit and delete buttons are present for admin
+    expect(screen.getByRole('button', { name: /Edit Room 101/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Delete Room 101/i })).toBeInTheDocument();
+
+    unmount();
+
+    // Render as program head
+    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
+    render(<ClassroomTab />, { 
+      wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper> 
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    });
+
+    // Assert edit and delete buttons are NOT present for non-admin
+    expect(screen.queryByRole('button', { name: /Edit Room 101/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Delete Room 101/i })).not.toBeInTheDocument();
+  });
+
+  it('should disable the form for non-admin users', async () => {
+    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
+
+    render(<ClassroomTab />, { 
+      wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper> 
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    });
+
+    // Assert form is disabled for non-admins
+    const fieldset = screen.getByRole('group');
+    expect(fieldset).toBeDisabled();
+
+    // Assert Create button is also disabled
+    const createButton = screen.getByRole('button', { name: /Create/i });
+    expect(createButton).toBeDisabled();
+  });
 });

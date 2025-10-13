@@ -185,6 +185,7 @@ const ClassroomManagement: React.FC = () => {
                       classroom={classroom}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
+                      isOwner={canManageClassrooms()}
                     />
                   ))}
                 </div>
