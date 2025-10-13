@@ -28,7 +28,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  * @returns The InstructorManagement component.
  */
 const InstructorManagement: React.FC = () => {
-  const { user } = useAuth();
+  const { user, canManageInstructors } = useAuth();
   const {
     instructors,
     addInstructor,
@@ -141,7 +141,7 @@ const InstructorManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting} className="space-y-1">
+                                <fieldset disabled={isSubmitting || !canManageInstructors()} className="space-y-1">
                   <InstructorFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}

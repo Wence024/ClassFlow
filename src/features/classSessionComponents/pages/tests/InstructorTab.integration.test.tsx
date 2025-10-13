@@ -42,7 +42,7 @@ const deptHeadUser = {
 
 const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContextType['user'] }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ user } as AuthContextType}>
+    <AuthContext.Provider value={{ user, canManageInstructors: () => user?.role === 'department_head' || user?.role === 'admin' } as AuthContextType}>
       {children}
     </AuthContext.Provider>
   </QueryClientProvider>
@@ -112,6 +112,12 @@ describe('InstructorTab Integration Tests (Department Head)', () => {
         await waitFor(() => expect(screen.getByText('John Doe')).toBeInTheDocument());
         
         await user.click(screen.getByRole('button', { name: /Edit/i }));
+
+        // Ensure the form is in edit mode and has no validation errors
+        await waitFor(() => {
+            expect(screen.getByRole('heading', { name: /Edit Instructor/i })).toBeInTheDocument();
+        });
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
         const firstNameInput = screen.getByLabelText(/First Name/i);
         await user.clear(firstNameInput);
