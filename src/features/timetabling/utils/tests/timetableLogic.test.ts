@@ -17,10 +17,10 @@ const mockCourse: Course = {
   id: 'course1',
   name: 'Course 1',
   code: 'C101',
-  user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   color: '#db2777',
   program_id: 'p1',
+  created_by: MOCK_USER_ID,
 };
 
 const mockGroup1: ClassGroup = {
@@ -51,7 +51,6 @@ const mockInstructor: Instructor = {
   first_name: 'John',
   last_name: 'Doe',
   email: 'john.doe@example.com',
-  user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
 
   code: 'JD',
@@ -60,7 +59,8 @@ const mockInstructor: Instructor = {
   suffix: null,
   phone: null,
   contract_type: null,
-  program_id: 'p1',
+  created_by: MOCK_USER_ID,
+  department_id: 'd1',
 };
 
 const mockClassroom: Classroom = {
@@ -68,11 +68,11 @@ const mockClassroom: Classroom = {
   name: 'Room 101',
   location: 'Building A',
   capacity: 30,
-  user_id: MOCK_USER_ID,
   created_at: MOCK_CREATED_AT,
   code: 'R101',
   color: '#65a30d',
-  program_id: 'p1',
+  created_by: MOCK_USER_ID,
+  preferred_department_id: null,
 };
 
 const mockClassSession1: ClassSession = {
@@ -121,10 +121,10 @@ const mockMultiPeriodCourse: Course = {
   id: 'course-multi',
   name: 'Multi-Period Course',
   code: 'MP202',
-  user_id: 'user1',
   created_at: MOCK_CREATED_AT,
   color: '#ffffff',
   program_id: 'p1',
+  created_by: 'user1',
 };
 
 const mockMultiPeriodSession: ClassSession = {

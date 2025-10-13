@@ -1,3 +1,4 @@
+/// <reference types="@testing-library/jest-dom" />
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -21,10 +22,10 @@ const mockCourses: Course[] = [
     id: 'c1',
     name: 'Test Course',
     code: 'T101',
-    user_id: 'u1',
     created_at: '',
     color: '#fff',
     program_id: MOCK_PROGRAM_ID,
+    created_by: 'u1',
   },
 ];
 const mockInstructors: Instructor[] = [
@@ -33,7 +34,6 @@ const mockInstructors: Instructor[] = [
     first_name: 'Test',
     last_name: 'Instructor',
     email: 't@t.com',
-    user_id: 'u1',
     created_at: '',
     code: 'TI',
     color: '#fff',
@@ -41,7 +41,8 @@ const mockInstructors: Instructor[] = [
     phone: null,
     prefix: null,
     suffix: null,
-    program_id: MOCK_PROGRAM_ID,
+    created_by: 'u1',
+    department_id: null,
   },
 ];
 const mockClassrooms: Classroom[] = [
@@ -49,23 +50,23 @@ const mockClassrooms: Classroom[] = [
     id: 'r1',
     name: 'Small Room',
     capacity: 20,
-    user_id: 'u1',
     created_at: '',
     code: 'R1',
     color: '#fff',
     location: 'A',
-    program_id: MOCK_PROGRAM_ID,
+    created_by: 'u1',
+    preferred_department_id: null,
   },
   {
     id: 'r2',
     name: 'Large Room',
     capacity: 40,
-    user_id: 'u1',
     created_at: '',
     code: 'R2',
     color: '#fff',
     location: 'B',
-    program_id: MOCK_PROGRAM_ID,
+    created_by: 'u1',
+    preferred_department_id: null,
   },
 ];
 const mockClassGroups: ClassGroup[] = [
@@ -128,12 +129,13 @@ describe('ClassSessionForm', () => {
     const user = userEvent.setup();
     render(<FormWrapper />);
 
-    // Select the "Large Group"
+    await waitFor(() => expect(screen.getByLabelText(/Class Group/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Class Group/i));
     const groupListbox = await screen.findByRole('listbox');
     await user.click(within(groupListbox).getByText('Large Group'));
 
     // Select the "Small Room"
+    await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
     const classroomListbox = await screen.findByRole('listbox');
     await user.click(within(classroomListbox).getByText('Small Room'));
@@ -150,16 +152,18 @@ describe('ClassSessionForm', () => {
     const user = userEvent.setup();
     render(<FormWrapper />);
 
-    // Create the conflict
+    await waitFor(() => expect(screen.getByLabelText(/Class Group/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Class Group/i));
     const groupListbox = await screen.findByRole('listbox');
     await user.click(within(groupListbox).getByText('Large Group'));
+    await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
     const classroomListbox = await screen.findByRole('listbox');
     await user.click(within(classroomListbox).getByText('Small Room'));
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
 
     // Fix the conflict
+    await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
     const classroomListbox2 = await screen.findByRole('listbox');
     await user.click(within(classroomListbox2).getByText('Large Room'));

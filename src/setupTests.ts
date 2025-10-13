@@ -10,3 +10,17 @@ if (!Element.prototype.hasPointerCapture) {
 if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
+
+// Mock MutationObserver for testing-library's findBy queries
+if (!global.MutationObserver) {
+  global.MutationObserver = class MutationObserver {
+    constructor(callback) {
+      this.callback = callback;
+    }
+    observe(element, options) {}
+    disconnect() {}
+    takeRecords() {
+      return [];
+    }
+  };
+}
