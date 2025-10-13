@@ -9,6 +9,7 @@ const renderSidebar = (authContextValue: Partial<AuthContextType>) => {
   const mockAuthContext: AuthContextType = {
     user: null,
     role: null,
+    departmentId: null,
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
@@ -16,6 +17,15 @@ const renderSidebar = (authContextValue: Partial<AuthContextType>) => {
     loading: false,
     error: null,
     clearError: vi.fn(),
+    isAdmin: () => authContextValue.user?.role === 'admin',
+    isDepartmentHead: () => authContextValue.user?.role === 'department_head',
+    isProgramHead: () => authContextValue.user?.role === 'program_head',
+    canManageInstructors: () => false,
+    canManageClassrooms: () => false,
+    canReviewRequestsForDepartment: () => false,
+    canManageInstructorRow: () => false,
+    canManageAssignmentsForProgram: () => false,
+    updateMyProfile: vi.fn(),
     ...authContextValue,
   };
 

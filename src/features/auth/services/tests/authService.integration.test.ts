@@ -34,7 +34,7 @@ describe('authService.getStoredUser - profile hydration', () => {
     },
     error: null,
   };
-  const mockProfile = { role: 'admin', program_id: 'p1' };
+  const mockProfile = { role: 'admin', program_id: 'p1', department_id: 'd1' };
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -61,10 +61,11 @@ describe('authService.getStoredUser - profile hydration', () => {
         name: 'Test User',
         role: 'admin',
         program_id: 'p1',
+        department_id: 'd1',
       })
     );
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
-    expect(fromMock.select).toHaveBeenCalledWith('role, program_id');
+    expect(fromMock.select).toHaveBeenCalledWith('role, program_id, department_id');
     expect(fromMock.eq).toHaveBeenCalledWith('id', 'u1');
     expect(fromMock.single).toHaveBeenCalled();
   });

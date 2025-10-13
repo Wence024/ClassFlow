@@ -192,7 +192,7 @@ describe('useTimetable - semester scope', () => {
     await waitFor(() => !result.current.loading);
 
     // Call the mutation function returned by the hook
-    await result.current.assignClassSession('group1', 0, mockSession);
+    await result.current.assignClassSession('g1', 1, mockSession);
 
     // Assert that the service was called with the correct semester_id
     expect(assignSpy).toHaveBeenCalledWith(

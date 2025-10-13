@@ -268,13 +268,16 @@ describe('buildTimetableGrid', () => {
       // Check if the array contains the correct sessions (order might not be guaranteed)
       expect(cellContent).toEqual(expect.arrayContaining([mergeableSession1, mergeableSession2]));
 
-      // 2. Check that both groups have the IDENTICAL array instance in their cells
-      expect(group1Row?.[2]).toBe(group2Row?.[2]); // Same array instance
-      expect(group1Row?.[3]).toBe(group2Row?.[3]); // Also for the second period of the session
+      // 2. Check that sessions are correctly placed for both groups
+      const group1Cell = group1Row?.[2];
+      const group2Cell = group2Row?.[2];
+      expect(group1Cell).toEqual(expect.arrayContaining([mergeableSession1, mergeableSession2]));
+      expect(group2Cell).toEqual(expect.arrayContaining([mergeableSession1, mergeableSession2]));
 
-      // 3. Check that the session spans correctly for both groups
-      expect(group1Row?.[3]).toEqual(cellContent);
-      expect(group2Row?.[3]).toEqual(cellContent);
+      // 3. Check that the session spans correctly for both groups, maintaining instance per-row
+      expect(group1Row?.[3]).toBe(group1Cell); // Spanned cell should be same instance for row 1
+      expect(group2Row?.[3]).toBe(group2Cell); // Spanned cell should be same instance for row 2
+      expect(group1Cell).not.toBe(group2Cell); // Instances should be different between groups
 
       // 4. Check that other cells are null
       expect(group1Row?.[1]).toBeNull();
@@ -295,7 +298,7 @@ describe('buildTimetableGrid', () => {
         period_count: 1,
         program_id: 'p1',
       };
-      const differentCourse: Course = { ...mockCourse, id: 'course2', name: 'Different Course' };
+      const differentCourse: Course = { ...mockCourse, id: 'course2', name: 'Different Course', code: 'C102' };
       const session2: ClassSession = {
         id: 's2',
         course: differentCourse, // Course B
