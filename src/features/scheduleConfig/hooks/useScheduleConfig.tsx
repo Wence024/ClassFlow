@@ -26,10 +26,19 @@ export function useScheduleConfig() {
 
   const updateMutation = useMutation({
     mutationFn: (updatedSettings: ScheduleConfigUpdate) => {
+      // The user check is still good for authorization context.
       if (!user) throw new Error('User not authenticated');
-      return scheduleConfigService.updateScheduleConfig(user.id, updatedSettings);
+
+      // Add a guard to ensure the settings object (and its ID) has been loaded.
+      if (!settings?.id) {
+        throw new Error('Schedule configuration has not been loaded yet.');
+      }
+
+      // Call the updated service function with the correct parameters.
+      return scheduleConfigService.updateScheduleConfig(settings.id, updatedSettings);
     },
     onSuccess: (updatedData) => {
+      // Optimistically update the cache with the new data from the server.
       queryClient.setQueryData(queryKey, updatedData);
     },
   });

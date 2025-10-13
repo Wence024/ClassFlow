@@ -28,26 +28,21 @@ export async function getScheduleConfig(): Promise<ScheduleConfig | null> {
 }
 
 /**
- * ✅ CURRENT BEHAVIOR:
- * Updates the user's personal schedule configuration. If a record doesn't exist for the user,
- * it is created using an UPSERT (based on a unique constraint on `user_id`).
+ * Updates the single, global schedule configuration.
+ * This operation is protected by RLS and should only be callable by an 'admin' role.
  *
- * 🛠️ FUTURE PLAN:
- * This will be converted to a singleton configuration update (where id = 1),
- * only accessible by admin users. Non-admins will no longer be able to update their own configs.
- * Supabase RLS will enforce this restriction.
- *
- * @param userId The ID of the user (currently required).
+ * @param id The unique ID of the single configuration row to update.
  * @param settings The configuration settings to persist.
  * @returns The updated schedule configuration.
  */
 export async function updateScheduleConfig(
-  userId: string,
+  id: string, // Changed from userId
   settings: ScheduleConfigUpdate
 ): Promise<ScheduleConfig> {
   const { data, error } = await supabase
     .from('schedule_configuration')
-    .upsert({ ...settings, user_id: userId }, { onConflict: 'user_id' }) // 🛠️ Will be changed to { id: 1 }
+    .update(settings) // Changed from upsert
+    .eq('id', id)     // Target the row by its actual primary key
     .select()
     .single();
 
