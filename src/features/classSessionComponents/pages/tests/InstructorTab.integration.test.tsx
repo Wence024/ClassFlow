@@ -24,11 +24,11 @@ const queryClient = new QueryClient({
 
 // Mock Data
 const department1Instructors: Instructor[] = [
-  { id: 'inst1', first_name: 'John', last_name: 'Doe', department_id: 'dept1', created_at: '', color: '#fff', code: 'JD', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
+  { id: 'inst1', first_name: 'John', last_name: 'Doe', department_id: 'dept1', created_at: '', color: '#ffffff', code: 'JD', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
 ];
 const allInstructors: Instructor[] = [
   ...department1Instructors,
-  { id: 'inst2', first_name: 'Jane', last_name: 'Smith', department_id: 'dept2', created_at: '', color: '#fff', code: 'JS', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
+  { id: 'inst2', first_name: 'Jane', last_name: 'Smith', department_id: 'dept2', created_at: '', color: '#ffffff', code: 'JS', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
 ];
 
 const deptHeadUser = {
