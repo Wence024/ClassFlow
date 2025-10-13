@@ -14,13 +14,13 @@ if (!Element.prototype.scrollIntoView) {
 // Mock MutationObserver for testing-library's findBy queries
 if (!global.MutationObserver) {
   global.MutationObserver = class MutationObserver {
-    constructor(callback) {
-      this.callback = callback;
+    constructor(_callback: MutationCallback) {
+      // Mock implementation
     }
-    observe(element, options) {}
+    observe(_element: Element, _options?: MutationObserverInit) {}
     disconnect() {}
     takeRecords() {
       return [];
     }
-  };
+  } as unknown as typeof MutationObserver;
 }
