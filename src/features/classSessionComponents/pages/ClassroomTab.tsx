@@ -43,8 +43,15 @@ const ClassroomManagement: React.FC = () => {
   } = useClassrooms();
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
-  const departmentOptions =
-    departmentsQuery.data?.map((d) => ({ id: d.id, name: `${d.name} (${d.code})` })) || [];
+  
+  // Memoize department options with a "None" option at the top
+  const departmentOptions = useMemo(() => {
+    const departments = departmentsQuery.data || [];
+    const noneOption = { id: '', name: '-- None --' };
+    const mappedDepartments = departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
+    return [noneOption, ...mappedDepartments];
+  }, [departmentsQuery.data]);
+  
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
