@@ -17,9 +17,10 @@ interface ClassroomCardProps {
  * @param cc.classroom The classroom object to display.
  * @param cc.onEdit Callback function to handle edit action.
  * @param cc.onDelete Callback function to handle delete action.
+ * @param cc.isOwner Indicator if user can edit this or not.
  * @returns The rendered item card component for the classroom.
  */
-export const ClassroomCard: React.FC<ClassroomCardProps> = ({ classroom, onEdit, onDelete }) => {
+export const ClassroomCard: React.FC<ClassroomCardProps> = ({ classroom, onEdit, onDelete, isOwner }) => {
   const details = [];
   if (classroom.code) {
     details.push({ label: 'Code', value: classroom.code });
@@ -35,6 +36,7 @@ export const ClassroomCard: React.FC<ClassroomCardProps> = ({ classroom, onEdit,
       color={classroom.color}
       onEdit={() => onEdit(classroom)}
       onDelete={() => onDelete(classroom.id)}
+      isOwner={isOwner ? isOwner : false}
     />
   );
 };
