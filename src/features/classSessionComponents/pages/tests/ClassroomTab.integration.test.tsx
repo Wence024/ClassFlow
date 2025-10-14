@@ -3,13 +3,13 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
-import ClassroomTab from '../ClassroomTab';
+import ClassroomManagement from '../ClassroomTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import * as useClassroomsHook from '../../hooks/useClassrooms';
 import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
-import type { AuthContextType } from '../../../../auth/types/auth';
-import type { Classroom } from '../../types';
+import type { AuthContextType } from '../../../auth/types/auth';
+import type { Classroom } from '../../types/classroom';
 import type { Department } from '../../../departments/types/department';
 import { User } from '../../../auth/types/auth';
 
@@ -39,19 +39,19 @@ const mockProgramHeadUser: User = {
   name: 'Program Head',
   email: 'ph@test.com',
   role: 'program_head',
-  department_id: 'dept-cs', // For prioritization test
+  department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', // For prioritization test
   program_id: 'prog-cs',
 };
 
 const mockDepartments: Department[] = [
-  { id: 'dept-cs', name: 'Computer Science', code: 'CS', created_at: new Date().toISOString(), program_id: 'prog-cs' },
-  { id: 'dept-math', name: 'Mathematics', code: 'MATH', created_at: new Date().toISOString(), program_id: 'prog-math' },
+  { id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', name: 'Computer Science', code: 'CS', created_at: new Date().toISOString() },
+  { id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1', name: 'Mathematics', code: 'MATH', created_at: new Date().toISOString() },
 ];
 
 const mockClassrooms: Classroom[] = [
-  { id: 'room-cs', name: 'CS Room', capacity: 50, preferred_department_id: 'dept-cs', color: '#ff0000', code: 'CS101', created_at: '', created_by: 'admin', location: '', department_id: 'dept-cs' },
-  { id: 'room-math', name: 'Math Room', capacity: 40, preferred_department_id: 'dept-math', color: '#00ff00', code: 'MA101', created_at: '', created_by: 'admin', location: '', department_id: 'dept-math' },
-  { id: 'room-none', name: 'General Room', capacity: 60, preferred_department_id: null, color: '#0000ff', code: 'GEN101', created_at: '', created_by: 'admin', location: '', department_id: null },
+  { id: 'room-cs', name: 'CS Room', capacity: 50, preferred_department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', color: '#ff0000', code: 'CS101', created_at: '', created_by: 'admin', location: '' },
+  { id: 'room-math', name: 'Math Room', capacity: 40, preferred_department_id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1', color: '#00ff00', code: 'MA101', created_at: '', created_by: 'admin', location: '' },
+  { id: 'room-none', name: 'General Room', capacity: 60, preferred_department_id: null, color: '#0000ff', code: 'GEN101', created_at: '', created_by: 'admin', location: '' },
 ];
 
 const TestWrapper = ({ children, user }: { children: ReactNode; user: User | null }) => (
@@ -105,14 +105,14 @@ describe('ClassroomTab Integration Tests', () => {
         removeClassroom: vi.fn(),
       } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
       expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
     });
 
     it('should disable the creation/edit form', () => {
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
       const fieldset = screen.getByTestId('classroom-form-fieldset');
       expect(fieldset).toBeDisabled();
@@ -133,7 +133,7 @@ describe('ClassroomTab Integration Tests', () => {
         removeClassroom: vi.fn(),
       } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
       const allCards = screen.getAllByRole('article');
       expect(within(allCards[0]).getByText('CS Room')).toBeInTheDocument();
@@ -168,14 +168,14 @@ describe('ClassroomTab Integration Tests', () => {
         removeClassroom: vi.fn(),
       } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
       expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
     });
 
     it('should enable the creation/edit form', () => {
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
       const fieldset = screen.getByTestId('classroom-form-fieldset');
       expect(fieldset).not.toBeDisabled();
@@ -194,7 +194,7 @@ describe('ClassroomTab Integration Tests', () => {
         removeClassroom: vi.fn(),
       } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
       await user.click(screen.getByRole('button', { name: /edit/i }));
       
@@ -214,7 +214,7 @@ describe('ClassroomTab Integration Tests', () => {
             code: 'GEN101',
             capacity: 60,
             color: '#0000ff',
-            preferred_department_id: 'dept-cs',
+            preferred_department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
           })
         );
       });
@@ -233,7 +233,7 @@ describe('ClassroomTab Integration Tests', () => {
         removeClassroom: vi.fn(),
       } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-      render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
       await user.click(screen.getByRole('button', { name: /edit/i }));
 
