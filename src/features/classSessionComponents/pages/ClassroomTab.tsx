@@ -44,10 +44,12 @@ const ClassroomManagement: React.FC = () => {
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
   
-  // Memoize department options (no manual "None" - we use placeholder instead)
+  // Memoize department options with a "None" option using sentinel value
   const departmentOptions = useMemo(() => {
     const departments = departmentsQuery.data || [];
-    return departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
+    const noneOption = { id: '__none__', name: '-- None --' };
+    const mappedDepartments = departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
+    return [noneOption, ...mappedDepartments];
   }, [departmentsQuery.data]);
   
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
