@@ -74,10 +74,12 @@ describe('ClassroomTab Integration Tests', () => {
     mockedUseClassrooms.useClassrooms.mockReturnValue({
       classrooms: [],
       isLoading: false,
+      isSubmitting: false,
+      isRemoving: false,
       error: null,
+      addClassroom: vi.fn(),
       updateClassroom: mockUpdateClassroom,
-      createClassroom: mockCreateClassroom,
-      deleteClassroom: mockDeleteClassroom,
+      removeClassroom: mockDeleteClassroom,
     } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
     mockedUseDepartments.useDepartments.mockReturnValue({
@@ -93,9 +95,15 @@ describe('ClassroomTab Integration Tests', () => {
   describe('as a Non-Admin User (Program Head)', () => {
     it('should hide Edit/Delete buttons on classroom cards', () => {
       mockedUseClassrooms.useClassrooms.mockReturnValue({
-        ...mockedUseClassrooms.useClassrooms(),
         classrooms: mockClassrooms,
-      });
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
       render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
@@ -115,9 +123,15 @@ describe('ClassroomTab Integration Tests', () => {
       // The hook returns prioritized classrooms, so we need to provide them in the correct order
       // CS Room should be first (matches user's dept), then Math and General
       mockedUseClassrooms.useClassrooms.mockReturnValue({
-        ...mockedUseClassrooms.useClassrooms(),
         classrooms: [mockClassrooms[0], mockClassrooms[1], mockClassrooms[2]], // CS Room, Math Room, General Room
-      });
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
       render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
@@ -144,9 +158,15 @@ describe('ClassroomTab Integration Tests', () => {
   describe('as an Admin User', () => {
     it('should show Edit/Delete buttons on classroom cards', () => {
       mockedUseClassrooms.useClassrooms.mockReturnValue({
-        ...mockedUseClassrooms.useClassrooms(),
         classrooms: [mockClassrooms[0]],
-      });
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
       render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
@@ -164,9 +184,15 @@ describe('ClassroomTab Integration Tests', () => {
     it('should call the update mutation with a department ID when a preferred department is assigned', async () => {
       const user = userEvent.setup();
       mockedUseClassrooms.useClassrooms.mockReturnValue({
-        ...mockedUseClassrooms.useClassrooms(),
         classrooms: [mockClassrooms[2]], // General Room with no preferred dept
-      });
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
       render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
@@ -197,9 +223,15 @@ describe('ClassroomTab Integration Tests', () => {
     it('should call the update mutation with null when a preferred department is cleared', async () => {
       const user = userEvent.setup();
       mockedUseClassrooms.useClassrooms.mockReturnValue({
-        ...mockedUseClassrooms.useClassrooms(),
         classrooms: [mockClassrooms[0]], // CS Room with preferred dept
-      });
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
       render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
