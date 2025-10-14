@@ -108,6 +108,11 @@ type UserCardProps = {
  * Renders a card for managing a single user's profile.
  *
  * @param uc - The props for the component.
+ * @param uc.user - The user profile data.
+ * @param uc.programs - The list of available programs.
+ * @param uc.departments - The list of available departments.
+ * @param uc.onUpdate - The function to call when updating the user.
+ * @param uc.isUpdating - A boolean indicating if the user is being updated.
  * @returns The rendered user card.
  */
 const UserCard: React.FC<UserCardProps> = ({ user, programs, departments, onUpdate, isUpdating }) => {

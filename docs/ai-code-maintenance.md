@@ -31,68 +31,37 @@
 
 ## **Step 3: Iterative Testing Pass (RE-PRIORITIZED)**
 
-Process the following list of test files sequentially. For each file in the list, you must complete the entire sub-workflow before moving to the next.
+You will now focus on a single test file to validate all new functionality on the Classrooms tab.
 
-### Recommended Testing Plan
+**Target Test File**: `src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx`
 
-#### ✅ High Priority - Create Now (3)
+**Sub-Workflow**:
 
-These tests are critical for stabilizing the foundational features of the new role-based system.
+1. Announce that you are processing the target test file.
+2. Check if the file exists. If it does not, create it with the necessary boilerplate.
+3. **Update and add the following test cases** to ensure complete coverage of the new features:
 
-1. **File:** `src/features/departments/hooks/tests/useDepartments.integration.test.tsx`
-    * **Purpose:** To verify core department management functionality for Admins.
-    * **Status:** **High Priority**
-    * **Key Tests:**
-        * `should fetch all departments for admin users`.
-        * `should allow admin users to create a new department`.
-        * `should allow admin users to update an existing department`.
-        * `should handle department deletion correctly`.
+    * **Test Case 1: Admin - Form UI**
+        * **Description**: `should show "Preferred Department" dropdown for admin users`.
+        * **Action**: Render the component as an `admin`, simulate an "Edit" click, and assert that the "Preferred Department (Optional)" dropdown is visible and enabled.
 
-2. **File:** `src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx`
-    * **Purpose:** Verify the Department Head's main dashboard renders correctly and respects permissions.
-    * **Status:** **High Priority**
-    * **Key Tests:**
-        * `should deny access for users who are not a Department Head or Admin`.
-        * `should render the instructor management component for a Department Head`.
-        * `should correctly show instructors scoped to the user's own department`.
+    * **Test Case 2: Admin - Functionality**
+        * **Description**: `should allow admins to set and clear the preferred department`.
+        * **Action (Part A - Set)**: Mock the `useDepartments` hook. As an `admin`, simulate editing a classroom, selecting a department from the dropdown, and saving. Assert that the `updateClassroom` mutation is called with the correct `preferred_department_id`.
+        * **Action (Part B - Clear)**: Simulate editing the same classroom again, selecting the `"-- None --"` option, and saving. Assert that the `updateClassroom` mutation is called with `preferred_department_id: null`.
 
-3. **File:** `src/features/classSessionComponents/pages/tests/ProgramHeadInstructors.integration.test.tsx`
-    * **Purpose:** Verify a Program Head can successfully browse instructors from various departments.
-    * **Status:** **High Priority**
-    * **Key Tests:**
-        * `should render a list of departments for selection`.
-        * `should fetch and display instructors when a department is selected`.
-        * `should filter the displayed instructors based on a search term`.
+    * **Test Case 3: Non-Admin - View Prioritization**
+        * **Description**: `should render a prioritized list for users with a department ID`.
+        * **Action**: Render the component as a `program_head` or `department_head` associated with "Department A". Mock the `useClassrooms` hook to return a mix of classrooms (some preferred for "Department A", some for "Department B", some with `null`). Assert that the "Department A" classrooms appear first, followed by a separator element, followed by the rest.
 
-#### ⏸️ On Hold - Pending Stakeholder Feedback (1)
+    * **Test Case 4: Non-Admin - Permissions**
+        * **Description**: `should hide Edit/Delete buttons and disable the form for non-admin roles`.
+        * **Action**: Render the component as a `program_head`. Assert that the "Edit" and "Delete" buttons are **not present** in the DOM for any `ClassroomCard`. Assert that the main form's `<fieldset>` is disabled.
 
-Development on the formal resource request system is paused. Do not create this test file until the workflow has been confirmed with stakeholders.
-
-1. **File:** `src/features/resourceRequests/hooks/tests/useResourceRequests.integration.test.tsx`
-    * **Purpose:** To verify resource request functionality for cross-department resource sharing.
-    * **Status:** **On Hold**
-    * **Key Tests (Do Not Implement):**
-        * `should create resource requests as program head`.
-        * `should approve/reject requests as department head`.
-        * `should filter requests by status and department`.
-
-#### 📝 Existing Test Files to Update (As Needed)
-
-Ensure these files are up-to-date with any changes made while implementing the high-priority features.
-
-1. **`src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx`**
-    * **Status:** **Needs Update** - Required for Phase 2.
-    * **Purpose:** Update to test department-based instructor management from the perspective of a Department Head.
-    * **Key Tests:**
-        * `should show only department-owned instructors for department heads`.
-        * `should allow department heads to create, update, and delete instructors in their department`.
-
-2. **`src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx`**
-    * **Status:** **Needs Update** - Required for Phase 2.
-    * **Purpose:** Update to test department-based classroom management (Admin-only).
-    * **Key Tests:**
-        * `should allow Admins to create, update, and delete classrooms`.
-        * `should show all classrooms to all roles (as they are a shared resource)`.
+4. Execute the test for **only this file**: `npx vitest run src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx`.
+5. Analyze the test output. If any tests fail, modify the source code or the test file itself until all tests for this file pass.
+6. Once all tests pass, create a dedicated Git commit for all changes made.
+    * **Commit Message**: `test(classrooms): :white_check_mark: add department assignment and permission tests`
 
 **Sub-Workflow (for each file):**
 

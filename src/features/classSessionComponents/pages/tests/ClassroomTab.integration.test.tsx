@@ -1,5 +1,5 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
@@ -11,6 +11,7 @@ import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../../auth/types/auth';
 import type { Classroom } from '../../types';
+import type { Department } from '../../../departments/types/department';
 
 // Mocks
 vi.mock('../../services/classroomsService');
@@ -26,9 +27,15 @@ const queryClient = new QueryClient({
 });
 
 // Mock Data
-const allClassrooms: Classroom[] = [
-  { id: 'room1', name: 'Room 101', capacity: 30, department_id: 'dept1', created_at: '', color: '#fff', code: 'R101', created_by: 'admin', location: null, preferred_department_id: null },
-  { id: 'room2', name: 'Room 202', capacity: 50, department_id: 'dept2', created_at: '', color: '#fff', code: 'R202', created_by: 'admin', location: null, preferred_department_id: null },
+const mockDepartments: Department[] = [
+  { id: 'dept-a', name: 'Department A', code: 'DEPTA', created_at: '' },
+  { id: 'dept-b', name: 'Department B', code: 'DEPTB', created_at: '' },
+];
+
+const mockClassrooms: Classroom[] = [
+  { id: 'room1', name: 'Room 101', capacity: 30, preferred_department_id: 'dept-a', created_at: '', color: '#fff', code: 'R101', created_by: 'admin', location: null, department_id: null },
+  { id: 'room2', name: 'Room 202', capacity: 50, preferred_department_id: 'dept-b', created_at: '', color: '#fff', code: 'R202', created_by: 'admin', location: null, department_id: null },
+  { id: 'room3', name: 'Room 303', capacity: 40, preferred_department_id: null, created_at: '', color: '#fff', code: 'R303', created_by: 'admin', location: null, department_id: null },
 ];
 
 const adminUser = {
@@ -71,7 +78,7 @@ const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContex
   </QueryClientProvider>
 );
 
-describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
+describe('ClassroomTab Integration Tests', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     queryClient.clear();
@@ -129,21 +136,13 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
 
   it('should show "Preferred Department" dropdown for admin users', async () => {
     const user = userEvent.setup();
-    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
-    mockedClassroomsService.updateClassroom.mockImplementation(async (_id, data) => ({
-      ...allClassrooms[0],
-      ...data,
-    } as Classroom));
-
     render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
 
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
-    });
+    await user.click(screen.getByRole('button', { name: /Edit Room 101/i }));
 
-    // Verify the preferred department field exists in the form
-    const preferredDeptLabel = screen.getByText(/Preferred Department/i);
-    expect(preferredDeptLabel).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Preferred Department/i)).toBeInTheDocument();
+    });
   });
 
   it('should allow admins to set preferred department', async () => {
@@ -157,8 +156,22 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
 
     render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
 
+    // --- Part A: Set a preferred department ---
+    await user.click(screen.getByRole('button', { name: /Edit Room 303/i }));
+
+    const preferredDeptSelect = await screen.findByLabelText(/Preferred Department/i);
+    await user.click(preferredDeptSelect);
+    const listbox = await screen.findByRole('listbox');
+    await user.click(within(listbox).getByText('Department A (DEPTA)'));
+
+    await user.click(screen.getByRole('button', { name: /Save Changes/i }));
+
     await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
+      expect(updateClassroomMock).toHaveBeenCalledWith('room3', 
+        expect.objectContaining({
+          preferred_department_id: 'dept-a',
+        })
+      );
     });
 
     // Click edit button

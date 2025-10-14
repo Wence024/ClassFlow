@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTimetable } from './useTimetable';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
@@ -25,7 +25,7 @@ export const useTimetableDnd = () => {
   const { classSessions } = useClassSessions();
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
-  const programs = listQuery.data || [];
+  const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);
