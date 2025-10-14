@@ -64,7 +64,6 @@ const TestWrapper = ({ children, user }: { children: ReactNode; user: User | nul
 
 describe('ClassroomTab Integration Tests', () => {
   const mockUpdateClassroom = vi.fn();
-  const mockCreateClassroom = vi.fn();
   const mockDeleteClassroom = vi.fn();
 
   beforeEach(() => {
