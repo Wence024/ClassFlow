@@ -198,7 +198,7 @@ const ClassroomManagement: React.FC = () => {
                       {/* Visual separator between preferred and other classrooms */}
                       {index === firstOtherIndex && user?.department_id && firstOtherIndex > 0 && (
                         <div className="py-2 my-2 text-center text-sm font-semibold text-gray-500 bg-gray-100 rounded-md border-t border-b border-gray-300">
-                          Other Available Classrooms
+                          Other Classrooms
                         </div>
                       )}
                       <ClassroomCard
