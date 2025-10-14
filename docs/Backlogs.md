@@ -202,3 +202,8 @@ Solved:
 Ponderings:
 
 * [ ] Examine why sessioncell UI logic is separate and decentralized from timetablelogic. It gave me a headache when trying to manually deal with class-merging renders.
+
+* A collapsible sidebar would be great.
+* A single-page UI for timetabling would be intuitive.
+* A folder restructure according to use case would be clarifying.
+

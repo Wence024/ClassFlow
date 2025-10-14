@@ -125,7 +125,7 @@ const ItemCard: React.FC<ItemCardProps> = ({
   };
 
   return (
-    <Card className={cn('flex items-center gap-4', className)} data-testid="item-card">
+    <Card className={cn('flex items-center gap-4', className)} data-testid="item-card" role="article">
       <CardContent className="p-4 flex items-center gap-4 w-full">
         {/* Render a color swatch if a color is provided */}
         {color && (

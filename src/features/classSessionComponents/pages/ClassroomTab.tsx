@@ -147,7 +147,7 @@ const ClassroomManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
-                                <fieldset disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
+                                <fieldset data-testid="classroom-form-fieldset" disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
                   <ClassroomFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
