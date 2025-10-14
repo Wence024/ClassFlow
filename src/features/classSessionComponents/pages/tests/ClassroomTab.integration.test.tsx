@@ -7,6 +7,7 @@ import ClassroomTab from '../ClassroomTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import * as classroomsService from '../../services/classroomsService';
 import * as useClassSessionsHook from '../../../classSessions/hooks/useClassSessions';
+import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../../auth/types/auth';
 import type { Classroom } from '../../types';
@@ -14,9 +15,11 @@ import type { Classroom } from '../../types';
 // Mocks
 vi.mock('../../services/classroomsService');
 vi.mock('../../../classSessions/hooks/useClassSessions');
+vi.mock('../../../departments/hooks/useDepartments');
 
 const mockedClassroomsService = vi.mocked(classroomsService, true);
 const mockedUseClassSessions = vi.mocked(useClassSessionsHook, true);
+const mockedUseDepartments = vi.mocked(useDepartmentsHook, true);
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
@@ -46,6 +49,20 @@ const programHeadUser = {
   program_id: 'prog1',
 };
 
+const departmentHeadUser = {
+  id: 'user-dh',
+  name: 'Department Head',
+  email: 'dh@test.com',
+  role: 'department_head',
+  department_id: 'dept1',
+  program_id: null,
+};
+
+const mockDepartments = [
+  { id: 'dept1', name: 'Computer Science', code: 'CS', created_at: '', created_by: 'admin' },
+  { id: 'dept2', name: 'Mathematics', code: 'MATH', created_at: '', created_by: 'admin' },
+];
+
 const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContextType['user'] }) => (
   <QueryClientProvider client={queryClient}>
     <AuthContext.Provider value={{ user, canManageClassrooms: () => user?.role === 'admin' } as AuthContextType}>
@@ -61,6 +78,11 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
     mockedUseClassSessions.useClassSessions.mockReturnValue({
       classSessions: [],
     } as ReturnType<typeof useClassSessionsHook.useClassSessions>);
+    mockedUseDepartments.useDepartments.mockReturnValue({
+      departments: mockDepartments,
+      isLoading: false,
+      error: null,
+    } as ReturnType<typeof useDepartmentsHook.useDepartments>);
   });
 
   it('should allow Admins to create, update, and delete classrooms', async () => {
@@ -124,13 +146,8 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
     expect(preferredDeptLabel).toBeInTheDocument();
   });
 
-  it('should allow admin to update a classroom with a preferred department', async () => {
+  it('should allow admins to set preferred department', async () => {
     const user = userEvent.setup();
-    const departmentList = [
-      { id: 'dept1', name: 'Computer Science', code: 'CS' },
-      { id: 'dept2', name: 'Mathematics', code: 'MATH' },
-    ];
-
     mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
     mockedClassroomsService.updateClassroom.mockImplementation(async (id, data) => ({
       ...allClassrooms[0],
@@ -153,14 +170,74 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
       expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
     });
 
-    // Update the classroom
+    // Select a department from the dropdown
+    const departmentSelect = screen.getByLabelText(/Preferred Department/i);
+    await user.click(departmentSelect);
+    
+    // Select Computer Science department
+    const csOption = await screen.findByText('Computer Science');
+    await user.click(csOption);
+
+    // Save the changes
     const saveButton = screen.getByRole('button', { name: /Save Changes/i });
     await user.click(saveButton);
 
     await waitFor(() => {
       expect(mockedClassroomsService.updateClassroom).toHaveBeenCalledWith(
         'room1',
-        expect.any(Object)
+        expect.objectContaining({
+          preferred_department_id: 'dept1',
+        })
+      );
+    });
+  });
+
+  it('should allow admins to clear preferred department by selecting "-- None --"', async () => {
+    const user = userEvent.setup();
+    const classroomWithDept: Classroom = {
+      ...allClassrooms[0],
+      preferred_department_id: 'dept1',
+    };
+
+    mockedClassroomsService.getClassrooms.mockResolvedValue([classroomWithDept]);
+    mockedClassroomsService.updateClassroom.mockImplementation(async (id, data) => ({
+      ...classroomWithDept,
+      ...data,
+      id,
+    } as Classroom));
+
+    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    });
+
+    // Click edit button
+    const editButtons = screen.getAllByRole('button', { name: /Edit Room 101/i });
+    await user.click(editButtons[0]);
+
+    // Form should now be in edit mode
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
+    });
+
+    // Select "-- None --" option from the dropdown
+    const departmentSelect = screen.getByLabelText(/Preferred Department/i);
+    await user.click(departmentSelect);
+    
+    const noneOption = await screen.findByText('-- None --');
+    await user.click(noneOption);
+
+    // Save the changes
+    const saveButton = screen.getByRole('button', { name: /Save Changes/i });
+    await user.click(saveButton);
+
+    await waitFor(() => {
+      expect(mockedClassroomsService.updateClassroom).toHaveBeenCalledWith(
+        'room1',
+        expect.objectContaining({
+          preferred_department_id: null,
+        })
       );
     });
   });
@@ -216,5 +293,55 @@ describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
     // Assert Create button is also disabled
     const createButton = screen.getByRole('button', { name: /Create/i });
     expect(createButton).toBeDisabled();
+  });
+
+  it('should render a prioritized list for users with a department ID', async () => {
+    const classroomsWithPreferences: Classroom[] = [
+      { ...allClassrooms[0], preferred_department_id: 'dept1', name: 'Dept1 Room A' },
+      { ...allClassrooms[0], id: 'room3', preferred_department_id: 'dept1', name: 'Dept1 Room B' },
+      { ...allClassrooms[1], id: 'room4', preferred_department_id: 'dept2', name: 'Dept2 Room' },
+      { ...allClassrooms[1], id: 'room5', preferred_department_id: null, name: 'No Preference Room' },
+    ];
+
+    mockedClassroomsService.getClassrooms.mockResolvedValue(classroomsWithPreferences);
+
+    render(<ClassroomTab />, { 
+      wrapper: ({ children }) => <TestWrapper user={departmentHeadUser}>{children}</TestWrapper> 
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Dept1 Room A')).toBeInTheDocument();
+    });
+
+    // Get all classroom names in order
+    const classroomNames = screen.getAllByText(/Room/).map((el) => el.textContent);
+
+    // Assert dept1 classrooms appear first
+    expect(classroomNames[0]).toContain('Dept1 Room A');
+    expect(classroomNames[1]).toContain('Dept1 Room B');
+
+    // Assert separator is present
+    expect(screen.getByText('Other Classrooms')).toBeInTheDocument();
+
+    // Assert other classrooms appear after separator
+    expect(screen.getByText('Dept2 Room')).toBeInTheDocument();
+    expect(screen.getByText('No Preference Room')).toBeInTheDocument();
+  });
+
+  it('should hide Edit/Delete buttons for non-admin roles', async () => {
+    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0], allClassrooms[1]]);
+
+    render(<ClassroomTab />, { 
+      wrapper: ({ children }) => <TestWrapper user={departmentHeadUser}>{children}</TestWrapper> 
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Room 101')).toBeInTheDocument();
+      expect(screen.getByText('Room 202')).toBeInTheDocument();
+    });
+
+    // Assert Edit and Delete buttons are NOT present for any classroom
+    expect(screen.queryByRole('button', { name: /Edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Delete/i })).not.toBeInTheDocument();
   });
 });
