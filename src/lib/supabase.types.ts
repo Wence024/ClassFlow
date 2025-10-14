@@ -570,7 +570,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_update_user_profile: {
+        Args: {
+          target_user_id: string
+          new_role?: string
+          new_program_id?: string | null
+          new_department_id?: string | null
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       user_role: "admin" | "department_head" | "program_head"

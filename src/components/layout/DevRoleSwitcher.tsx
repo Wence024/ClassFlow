@@ -11,16 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui';
 
-/**
- * Developer-only role switcher for testing different user personas.
- * Only renders in development mode.
- *
- * @returns The dev role switcher component or null in production.
- */
-export default function DevRoleSwitcher() {
-  // Don't render in production
-  if (import.meta.env.PROD) return null;
-
+function RoleSwitcher() {
   const { listQuery: programsQuery } = usePrograms();
   const { listQuery: departmentsQuery } = useDepartments();
   
@@ -120,4 +111,16 @@ export default function DevRoleSwitcher() {
       </div>
     </Card>
   );
+}
+
+/**
+ * Developer-only role switcher for testing different user personas.
+ * Only renders in development mode.
+ *
+ * @returns The dev role switcher component or null in production.
+ */
+export default function DevRoleSwitcher() {
+  if (import.meta.env.PROD) return null;
+
+  return <RoleSwitcher />;
 }

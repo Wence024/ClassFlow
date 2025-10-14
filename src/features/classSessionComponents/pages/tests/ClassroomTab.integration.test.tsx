@@ -1,52 +1,60 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
-import ClassroomTab from '../ClassroomTab';
+import ClassroomManagement from '../ClassroomTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
-import * as classroomsService from '../../services/classroomsService';
-import * as useClassSessionsHook from '../../../classSessions/hooks/useClassSessions';
+import * as useClassroomsHook from '../../hooks/useClassrooms';
+import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../../auth/types/auth';
-import type { Classroom } from '../../types';
+import type { Classroom } from '../../types/classroom';
+import type { Department } from '../../../departments/types/department';
+import { User } from '../../../auth/types/auth';
 
 // Mocks
-vi.mock('../../services/classroomsService');
-vi.mock('../../../classSessions/hooks/useClassSessions');
+vi.mock('../../hooks/useClassrooms');
+vi.mock('../../../departments/hooks/useDepartments');
 
-const mockedClassroomsService = vi.mocked(classroomsService, true);
-const mockedUseClassSessions = vi.mocked(useClassSessionsHook, true);
+const mockedUseClassrooms = vi.mocked(useClassroomsHook, true);
+const mockedUseDepartments = vi.mocked(useDepartmentsHook, true);
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false } },
 });
 
 // Mock Data
-const allClassrooms: Classroom[] = [
-  { id: 'room1', name: 'Room 101', capacity: 30, department_id: 'dept1', created_at: '', color: '#fff', code: 'R101', created_by: 'admin', location: null, preferred_department_id: null },
-  { id: 'room2', name: 'Room 202', capacity: 50, department_id: 'dept2', created_at: '', color: '#fff', code: 'R202', created_by: 'admin', location: null, preferred_department_id: null },
-];
-
-const adminUser = {
+const mockAdminUser: User = {
   id: 'user-admin',
-  name: 'Admin',
+  name: 'Admin User',
   email: 'admin@test.com',
   role: 'admin',
   department_id: null,
-  program_id: null,
+  program_id: 'prog-admin',
 };
 
-const programHeadUser = {
+const mockProgramHeadUser: User = {
   id: 'user-ph',
   name: 'Program Head',
   email: 'ph@test.com',
   role: 'program_head',
-  department_id: null,
-  program_id: 'prog1',
+  department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', // For prioritization test
+  program_id: 'prog-cs',
 };
 
-const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContextType['user'] }) => (
+const mockDepartments: Department[] = [
+  { id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', name: 'Computer Science', code: 'CS', created_at: new Date().toISOString() },
+  { id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1', name: 'Mathematics', code: 'MATH', created_at: new Date().toISOString() },
+];
+
+const mockClassrooms: Classroom[] = [
+  { id: 'room-cs', name: 'CS Room', capacity: 50, preferred_department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', color: '#ff0000', code: 'CS101', created_at: '', created_by: 'admin', location: '' },
+  { id: 'room-math', name: 'Math Room', capacity: 40, preferred_department_id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1', color: '#00ff00', code: 'MA101', created_at: '', created_by: 'admin', location: '' },
+  { id: 'room-none', name: 'General Room', capacity: 60, preferred_department_id: null, color: '#0000ff', code: 'GEN101', created_at: '', created_by: 'admin', location: '' },
+];
+
+const TestWrapper = ({ children, user }: { children: ReactNode; user: User | null }) => (
   <QueryClientProvider client={queryClient}>
     <AuthContext.Provider value={{ user, canManageClassrooms: () => user?.role === 'admin' } as AuthContextType}>
       {children}
@@ -54,167 +62,196 @@ const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContex
   </QueryClientProvider>
 );
 
-describe('ClassroomTab Integration Tests (Admin-Only Management)', () => {
+describe('ClassroomTab Integration Tests', () => {
+  const mockUpdateClassroom = vi.fn();
+  const mockDeleteClassroom = vi.fn();
+
   beforeEach(() => {
     vi.resetAllMocks();
     queryClient.clear();
-    mockedUseClassSessions.useClassSessions.mockReturnValue({
-      classSessions: [],
-    } as ReturnType<typeof useClassSessionsHook.useClassSessions>);
+
+    mockedUseClassrooms.useClassrooms.mockReturnValue({
+      classrooms: [],
+      isLoading: false,
+      isSubmitting: false,
+      isRemoving: false,
+      error: null,
+      addClassroom: vi.fn(),
+      updateClassroom: mockUpdateClassroom,
+      removeClassroom: mockDeleteClassroom,
+    } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+
+    mockedUseDepartments.useDepartments.mockReturnValue({
+      listQuery: {
+        data: mockDepartments,
+        isLoading: false,
+        error: null,
+      },
+    } as unknown as ReturnType<typeof useDepartmentsHook.useDepartments>);
   });
 
-  it('should allow Admins to create, update, and delete classrooms', async () => {
-    const user = userEvent.setup();
-    mockedClassroomsService.getClassrooms.mockResolvedValue([]);
-    mockedClassroomsService.addClassroom.mockImplementation(async (classroom) => ({
-      ...classroom,
-      id: 'new-room',
-      created_at: new Date().toISOString(),
-    } as Classroom));
+  // --- Persona: Non-Admin ---
+  describe('as a Non-Admin User (Program Head)', () => {
+    it('should hide Edit/Delete buttons on classroom cards', () => {
+      mockedUseClassrooms.useClassrooms.mockReturnValue({
+        classrooms: mockClassrooms,
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-    // CREATE
-    await user.type(screen.getByLabelText(/Classroom Name/i), 'New Auditorium');
-    await user.type(screen.getByLabelText(/Capacity/i), '150');
-    await user.click(screen.getByRole('button', { name: /Create/i }));
-
-    await waitFor(() => {
-      expect(mockedClassroomsService.addClassroom).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'New Auditorium',
-          capacity: 150,
-        })
-      );
-    });
-  });
-
-  it('should show all classrooms to all roles (read-only for non-admins)', async () => {
-    mockedClassroomsService.getClassrooms.mockResolvedValue(allClassrooms);
-
-    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper> });
-
-    // Assert both classrooms are visible
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
-      expect(screen.getByText('Room 202')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
     });
 
-    // Assert form is disabled for non-admins
-    const fieldset = screen.getByRole('group');
-    expect(fieldset).toBeDisabled();
-  });
+    it('should disable the creation/edit form', () => {
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-  it('should show "Preferred Department" dropdown for admin users', async () => {
-    const user = userEvent.setup();
-    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
-    mockedClassroomsService.updateClassroom.mockImplementation(async (_id, data) => ({
-      ...allClassrooms[0],
-      ...data,
-    } as Classroom));
-
-    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
-
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
+      const fieldset = screen.getByTestId('classroom-form-fieldset');
+      expect(fieldset).toBeDisabled();
+      expect(screen.getByRole('button', { name: /Create/i })).toBeDisabled();
     });
 
-    // Verify the preferred department field exists in the form
-    const preferredDeptLabel = screen.getByText(/Preferred Department/i);
-    expect(preferredDeptLabel).toBeInTheDocument();
-  });
+    it('should display classrooms with a matching preferred department first, followed by a separator', () => {
+      // The hook returns prioritized classrooms, so we need to provide them in the correct order
+      // CS Room should be first (matches user's dept), then Math and General
+      mockedUseClassrooms.useClassrooms.mockReturnValue({
+        classrooms: [mockClassrooms[0], mockClassrooms[1], mockClassrooms[2]], // CS Room, Math Room, General Room
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-  it('should allow admin to update a classroom with a preferred department', async () => {
-    const user = userEvent.setup();
-    const departmentList = [
-      { id: 'dept1', name: 'Computer Science', code: 'CS' },
-      { id: 'dept2', name: 'Mathematics', code: 'MATH' },
-    ];
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
-    mockedClassroomsService.updateClassroom.mockImplementation(async (id, data) => ({
-      ...allClassrooms[0],
-      ...data,
-      id,
-    } as Classroom));
+      const allCards = screen.getAllByRole('article');
+      expect(within(allCards[0]).getByText('CS Room')).toBeInTheDocument();
 
-    render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> });
+      const separator = screen.getByText('Other Classrooms');
+      expect(separator).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
-    });
+      // Check that the CS room is before the separator and the others are after.
+      // The DOM order should be [CS Room, Separator, Math Room, General Room]
+      const parent = separator.parentElement!;
+      const children = Array.from(parent.children);
+      const csIndex = children.findIndex(el => el.textContent?.includes('CS Room'));
+      const separatorIndex = children.findIndex(el => el.textContent?.includes('Other Classrooms'));
+      const mathIndex = children.findIndex(el => el.textContent?.includes('Math Room'));
 
-    // Click edit button
-    const editButtons = screen.getAllByRole('button', { name: /Edit Room 101/i });
-    await user.click(editButtons[0]);
-
-    // Form should now be in edit mode
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
-    });
-
-    // Update the classroom
-    const saveButton = screen.getByRole('button', { name: /Save Changes/i });
-    await user.click(saveButton);
-
-    await waitFor(() => {
-      expect(mockedClassroomsService.updateClassroom).toHaveBeenCalledWith(
-        'room1',
-        expect.any(Object)
-      );
+      expect(csIndex).toBeLessThan(separatorIndex);
+      expect(mathIndex).toBeGreaterThan(separatorIndex);
     });
   });
 
-  it('should render edit/delete buttons only for admin users', async () => {
-    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
+  // --- Persona: Admin ---
+  describe('as an Admin User', () => {
+    it('should show Edit/Delete buttons on classroom cards', () => {
+      mockedUseClassrooms.useClassrooms.mockReturnValue({
+        classrooms: [mockClassrooms[0]],
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-    // Render as admin
-    const { unmount } = render(<ClassroomTab />, { 
-      wrapper: ({ children }) => <TestWrapper user={adminUser}>{children}</TestWrapper> 
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+
+      expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
     });
 
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    it('should enable the creation/edit form', () => {
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+
+      const fieldset = screen.getByTestId('classroom-form-fieldset');
+      expect(fieldset).not.toBeDisabled();
     });
 
-    // Assert edit and delete buttons are present for admin
-    expect(screen.getByRole('button', { name: /Edit Room 101/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Delete Room 101/i })).toBeInTheDocument();
+    it('should call the update mutation with a department ID when a preferred department is assigned', async () => {
+      const user = userEvent.setup();
+      mockedUseClassrooms.useClassrooms.mockReturnValue({
+        classrooms: [mockClassrooms[2]], // General Room with no preferred dept
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
 
-    unmount();
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
-    // Render as program head
-    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
-    render(<ClassroomTab />, { 
-      wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper> 
+      await user.click(screen.getByRole('button', { name: /edit/i }));
+      
+      const select = await screen.findByLabelText(/Preferred Department/i);
+      await user.click(select);
+      
+      const listbox = await screen.findByRole('listbox');
+      await user.click(within(listbox).getByText('Computer Science (CS)'));
+
+      await user.click(screen.getByRole('button', { name: /Save Changes/i }));
+
+      await waitFor(() => {
+        expect(mockUpdateClassroom).toHaveBeenCalledWith(
+          'room-none',
+          expect.objectContaining({
+            name: 'General Room',
+            code: 'GEN101',
+            capacity: 60,
+            color: '#0000ff',
+            preferred_department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+          })
+        );
+      });
     });
 
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
+    it('should call the update mutation with null when a preferred department is cleared', async () => {
+      const user = userEvent.setup();
+      mockedUseClassrooms.useClassrooms.mockReturnValue({
+        classrooms: [mockClassrooms[0]], // CS Room with preferred dept
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: vi.fn(),
+      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+
+      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+
+      await user.click(screen.getByRole('button', { name: /edit/i }));
+
+      const select = await screen.findByLabelText(/Preferred Department/i);
+      await user.click(select);
+
+      const listbox = await screen.findByRole('listbox');
+      await user.click(within(listbox).getByText('-- None --'));
+
+      await user.click(screen.getByRole('button', { name: /Save Changes/i }));
+
+      await waitFor(() => {
+        expect(mockUpdateClassroom).toHaveBeenCalledWith(
+          'room-cs',
+          expect.objectContaining({
+            preferred_department_id: null,
+          })
+        );
+      });
     });
-
-    // Assert edit and delete buttons are NOT present for non-admin
-    expect(screen.queryByRole('button', { name: /Edit Room 101/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Delete Room 101/i })).not.toBeInTheDocument();
-  });
-
-  it('should disable the form for non-admin users', async () => {
-    mockedClassroomsService.getClassrooms.mockResolvedValue([allClassrooms[0]]);
-
-    render(<ClassroomTab />, { 
-      wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper> 
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Room 101')).toBeInTheDocument();
-    });
-
-    // Assert form is disabled for non-admins
-    const fieldset = screen.getByRole('group');
-    expect(fieldset).toBeDisabled();
-
-    // Assert Create button is also disabled
-    const createButton = screen.getByRole('button', { name: /Create/i });
-    expect(createButton).toBeDisabled();
   });
 });

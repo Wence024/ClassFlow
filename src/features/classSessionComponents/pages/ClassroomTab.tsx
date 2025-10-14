@@ -43,8 +43,15 @@ const ClassroomManagement: React.FC = () => {
   } = useClassrooms();
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
-  const departmentOptions =
-    departmentsQuery.data?.map((d) => ({ id: d.id, name: `${d.name} (${d.code})` })) || [];
+  
+  // Memoize department options with a "None" option using sentinel value
+  const departmentOptions = useMemo(() => {
+    const departments = departmentsQuery.data || [];
+    const noneOption = { id: '__none__', name: '-- None --' };
+    const mappedDepartments = departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
+    return [noneOption, ...mappedDepartments];
+  }, [departmentsQuery.data]);
+  
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
@@ -77,6 +84,13 @@ const ClassroomManagement: React.FC = () => {
         classroom.code?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [classrooms, searchTerm]);
+
+  // Find the index where "other" classrooms begin (for separator)
+  const firstOtherIndex = useMemo(() => {
+    return filteredClassrooms.findIndex(
+      (c) => c.preferred_department_id !== user?.department_id
+    );
+  }, [filteredClassrooms, user?.department_id]);
 
   const handleAdd = async (data: ClassroomFormData) => {
     if (!user) return;
@@ -133,7 +147,7 @@ const ClassroomManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
-                                <fieldset disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
+                                <fieldset data-testid="classroom-form-fieldset" disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
                   <ClassroomFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
@@ -179,14 +193,21 @@ const ClassroomManagement: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {/* Use the filtered list for rendering */}
-                  {filteredClassrooms.map((classroom) => (
-                    <ClassroomCard
-                      key={classroom.id}
-                      classroom={classroom}
-                      onEdit={handleEdit}
-                      onDelete={handleDeleteRequest}
-                      isOwner={canManageClassrooms()}
-                    />
+                  {filteredClassrooms.map((classroom, index) => (
+                    <React.Fragment key={classroom.id}>
+                      {/* Visual separator between preferred and other classrooms */}
+                      {index === firstOtherIndex && user?.department_id && firstOtherIndex > 0 && (
+                        <div className="py-2 my-2 text-center text-sm font-semibold text-gray-500 bg-gray-100 rounded-md border-t border-b border-gray-300">
+                          Other Classrooms
+                        </div>
+                      )}
+                      <ClassroomCard
+                        classroom={classroom}
+                        onEdit={handleEdit}
+                        onDelete={handleDeleteRequest}
+                        isOwner={canManageClassrooms()}
+                      />
+                    </React.Fragment>
                   ))}
                 </div>
               )}

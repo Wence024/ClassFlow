@@ -26,7 +26,7 @@ export async function getUsers(): Promise<UserProfile[]> {
 export async function updateUserProfile(userId: string, updates: UserProfileUpdate): Promise<void> {
   // Note: This requires the admin_update_user_profile RPC function to exist in Supabase
   // Run the migration first before using this function
-  const { error } = await (supabase.rpc as any)('admin_update_user_profile', {
+  const { error } = await supabase.rpc('admin_update_user_profile', {
     target_user_id: userId,
     new_role: updates.role,
     new_program_id: updates.program_id,
