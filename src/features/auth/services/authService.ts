@@ -36,10 +36,10 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed due to an unexpected issue. Please try again.');
   }
 
-  // Fetch role, program_id, department_id from profiles table
+  // Fetch program_id, department_id from profiles table
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id, department_id')
+    .select('program_id, department_id')
     .eq('id', data.user.id)
     .single();
 
@@ -47,12 +47,16 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed: could not find user profile.');
   }
 
+  // Fetch role from user_roles table
+  const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', data.user.id).single();
+  const role = (roleResult.data as any)?.role;
+
   return {
     user: {
       id: data.user.id,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
       email: data.user.email!,
-      role: profile.role,
+      role: role || 'program_head',
       program_id: profile.program_id,
       department_id: profile.department_id
     },
@@ -92,16 +96,20 @@ export async function register(
     throw new Error('Registration failed due to an unexpected issue.');
   }
 
-  // Fetch role, program_id, department_id from profiles table
+  // Fetch program_id, department_id from profiles table
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id, department_id')
+    .select('program_id, department_id')
     .eq('id', data.user.id)
     .single();
 
   if (profileError || !profile) {
     throw new Error('Login successful, but could not find user profile.');
   }
+
+  // Fetch role from user_roles table
+  const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', data.user.id).single();
+  const role = (roleResult.data as any)?.role;
 
   // If `data.session` is null, it means Supabase requires email verification.
   const needsVerification = !data.session;
@@ -111,7 +119,7 @@ export async function register(
       id: data.user.id,
       name: data.user.user_metadata?.name || name,
       email: data.user.email!,
-      role: profile.role,
+      role: role || 'program_head',
       program_id: profile.program_id,
       department_id: profile.department_id
     },
@@ -156,7 +164,7 @@ export async function getStoredUser(): Promise<User | null> {
   // Instead of relying on metadata, we query the definitive profiles table.
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id, department_id')
+    .select('program_id, department_id')
     .eq('id', session.user.id)
     .single();
 
@@ -166,11 +174,15 @@ export async function getStoredUser(): Promise<User | null> {
     return null; // Or return a default user object
   }
 
+  // Fetch role from user_roles table
+  const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', session.user.id).single();
+  const role = (roleResult.data as any)?.role;
+
   return {
     id: session.user.id,
     name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
     email: session.user.email!,
-    role: profile.role,
+    role: role || 'program_head',
     program_id: profile.program_id,
     department_id: profile.department_id,
   };

@@ -2,18 +2,37 @@ import { supabase } from '../../../lib/supabase';
 import type { UserProfile, UserProfileUpdate } from '../types/user';
 
 /**
- * Fetches all users with their profile information.
+ * Fetches all users with their profile information and roles.
  *
  * @returns A promise that resolves to an array of UserProfile objects.
  */
 export async function getUsers(): Promise<UserProfile[]> {
-  const { data, error } = await supabase
+  // Fetch profiles
+  const { data: profiles, error: profileError } = await supabase
     .from('profiles')
-    .select('id, full_name, role, program_id, department_id')
+    .select('id, full_name, program_id, department_id')
     .order('full_name');
   
-  if (error) throw error;
-  return (data || []) as UserProfile[];
+  if (profileError) throw profileError;
+  if (!profiles) return [];
+
+  // Fetch all user roles
+  const rolePromises = profiles.map(async (profile) => {
+    const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', profile.id).single();
+    return { userId: profile.id, role: (roleResult.data as any)?.role || 'program_head' };
+  });
+
+  const roles = await Promise.all(rolePromises);
+  const roleMap = new Map(roles.map(r => [r.userId, r.role]));
+
+  // Combine profiles with roles
+  return profiles.map(profile => ({
+    id: profile.id,
+    full_name: profile.full_name,
+    role: roleMap.get(profile.id) || 'program_head',
+    program_id: profile.program_id,
+    department_id: profile.department_id,
+  }));
 }
 
 /**
