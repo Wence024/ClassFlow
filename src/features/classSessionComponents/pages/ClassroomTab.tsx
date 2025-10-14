@@ -78,6 +78,13 @@ const ClassroomManagement: React.FC = () => {
     );
   }, [classrooms, searchTerm]);
 
+  // Find the index where "other" classrooms begin (for separator)
+  const firstOtherIndex = useMemo(() => {
+    return filteredClassrooms.findIndex(
+      (c) => c.preferred_department_id !== user?.department_id
+    );
+  }, [filteredClassrooms, user?.department_id]);
+
   const handleAdd = async (data: ClassroomFormData) => {
     if (!user) return;
     await addClassroom({
@@ -179,14 +186,21 @@ const ClassroomManagement: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   {/* Use the filtered list for rendering */}
-                  {filteredClassrooms.map((classroom) => (
-                    <ClassroomCard
-                      key={classroom.id}
-                      classroom={classroom}
-                      onEdit={handleEdit}
-                      onDelete={handleDeleteRequest}
-                      isOwner={canManageClassrooms()}
-                    />
+                  {filteredClassrooms.map((classroom, index) => (
+                    <React.Fragment key={classroom.id}>
+                      {/* Visual separator between preferred and other classrooms */}
+                      {index === firstOtherIndex && user?.department_id && firstOtherIndex > 0 && (
+                        <div className="py-2 my-2 text-center text-sm font-semibold text-gray-500 bg-gray-100 rounded-md border-t border-b border-gray-300">
+                          Other Available Classrooms
+                        </div>
+                      )}
+                      <ClassroomCard
+                        classroom={classroom}
+                        onEdit={handleEdit}
+                        onDelete={handleDeleteRequest}
+                        isOwner={canManageClassrooms()}
+                      />
+                    </React.Fragment>
                   ))}
                 </div>
               )}

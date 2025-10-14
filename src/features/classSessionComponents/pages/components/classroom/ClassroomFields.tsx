@@ -70,10 +70,11 @@ export const ClassroomFields: React.FC<{
         <FormField
           {...field}
           value={field.value ?? ''}
+          onChange={(value) => field.onChange(value === '' ? null : value)}
           id="preferred_department_id"
           label="Preferred Department (Optional)"
           type="select"
-          placeholder="None"
+          placeholder="-- None --"
           options={departmentOptions}
           error={errors.preferred_department_id?.message}
         />

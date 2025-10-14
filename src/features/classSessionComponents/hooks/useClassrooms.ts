@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as classroomsService from '../services/classroomsService';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
@@ -6,29 +7,40 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
 /**
  * Custom hook to manage classrooms data.
  *
- * This hook abstracts the logic for fetching, adding, updating, and removing classrooms
- * for the currently authenticated user. It uses React Query for server state management.
+ * This hook abstracts the logic for fetching, adding, updating, and removing classrooms.
+ * It fetches all classrooms and prioritizes them based on the user's department preference.
+ * Uses React Query for server state management.
  *
- * @returns An object containing the classrooms data, granular loading and error states, and mutation functions.
+ * @returns An object containing the prioritized classrooms data, granular loading and error states, and mutation functions.
  */
 export function useClassrooms() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = ['classrooms', user?.id];
+  const queryKey = ['allClassrooms'];
 
   const {
-    data: classrooms = [],
+    data: allClassrooms = [],
     isLoading: isListLoading,
     isFetching,
     error,
   } = useQuery<Classroom[]>({
     queryKey,
-    queryFn: () =>
-      user
-        ? classroomsService.getClassrooms({ role: user.role, department_id: (user as { department_id?: string | null })?.department_id || null })
-        : Promise.resolve([]),
+    queryFn: () => classroomsService.getAllClassrooms(),
     enabled: !!user,
   });
+
+  const prioritizedClassrooms = useMemo(() => {
+    if (!user?.department_id) return allClassrooms;
+
+    const preferred = allClassrooms.filter(
+      (c) => c.preferred_department_id === user.department_id
+    );
+    const other = allClassrooms.filter(
+      (c) => c.preferred_department_id !== user.department_id
+    );
+
+    return [...preferred, ...other];
+  }, [allClassrooms, user?.department_id]);
 
   const addMutation = useMutation({
     mutationFn: (data: ClassroomInsert) => classroomsService.addClassroom(data),
@@ -47,8 +59,8 @@ export function useClassrooms() {
   });
 
   return {
-    /** The cached array of classrooms for the current user. */
-    classrooms,
+    /** The prioritized array of classrooms (preferred first, then others). */
+    classrooms: prioritizedClassrooms,
 
     /** A boolean indicating if the list of classrooms is currently being fetched. */
     isLoading: isListLoading || isFetching,
