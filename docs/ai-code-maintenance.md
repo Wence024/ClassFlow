@@ -31,94 +31,21 @@
 
 ## **Step 3: Iterative Testing Pass (RE-PRIORITIZED)**
 
-You will now focus on a single test file to validate all new functionality on the Classrooms tab.
-
-Of course. Having a complete checklist of test cases is the best way to ensure full coverage and build confidence. Here are all the essential test cases that should be added to `src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx` to fully validate the `feat/classroom-department-assignment` branch.
-
-We'll structure these from the perspective of different user roles to ensure all permission-based logic is covered.
-
----
-
-### Test Plan for `ClassroomTab.integration.test.tsx`
-
-#### Persona: Non-Admin (e.g., Program Head or Department Head)
-
-These tests confirm that the UI is correctly restricted and prioritized for users without administrative privileges.
-
-1. **Test Case: UI Permissions**
-    * **Description**: `should hide Edit/Delete buttons on classroom cards for non-admin users`.
-    * **Steps**:
-        1. Render the `ClassroomTab` component with the user context of a `program_head`.
-        2. Mock the `useClassrooms` hook to return a list of sample classrooms.
-        3. Assert that `queryByRole('button', { name: /edit/i })` returns `null`.
-        4. Assert that `queryByRole('button', { name: /delete/i })` returns `null`.
-
-2. **Test Case: Form Permissions**
-    * **Description**: `should disable the creation/edit form for non-admin users`.
-    * **Steps**:
-        1. Render the component as a `program_head`.
-        2. Find the `<fieldset>` that wraps the form inputs.
-        3. Assert that the `fieldset` has the `disabled` attribute.
-        4. Assert that the "Create" or "Save Changes" button is also disabled.
-
-3. **Test Case: View Prioritization**
-    * **Description**: `should display classrooms with a matching preferred department first, followed by a separator`.
-    * **Steps**:
-        1. Create a mock `user` object with `department_id: 'dept-cs'`.
-        2. Mock the `useClassrooms` hook to return an unsorted list of classrooms:
-            * One classroom with `preferred_department_id: 'dept-math'`.
-            * One classroom with `preferred_department_id: 'dept-cs'`.
-            * One classroom with `preferred_department_id: null`.
-        3. Render the component with this user and mocked data.
-        4. Use `getAllByRole('article')` (or another selector for the cards) to get all rendered classroom cards in order.
-        5. Assert that the first card in the array is the "CS" classroom.
-        6. Assert that an element with the text "Other Available Classrooms" exists in the document.
-        7. Check that the "CS" classroom appears *before* the separator element in the DOM, and the "Math" and `null` classrooms appear *after* it.
-
----
-
-#### Persona: Admin
-
-These tests confirm that an administrator has full control over all classroom management functionalities.
-
-4. **Test Case: UI Permissions**
-    * **Description**: `should show Edit/Delete buttons on classroom cards for admin users`.
-    * **Steps**:
-        1. Render the component with the user context of an `admin`.
-        2. Mock the `useClassrooms` hook to return a list of sample classrooms.
-        3. Assert that `getByRole('button', { name: /edit/i })` finds the buttons.
-        4. Assert that `getByRole('button', { name: /delete/i })` finds the buttons.
-
-5. **Test Case: Form Permissions**
-    * **Description**: `should enable the creation/edit form for admin users`.
-    * **Steps**:
-        1. Render the component as an `admin`.
-        2. Find the `<fieldset>` wrapping the form inputs.
-        3. Assert that the `fieldset` does **not** have the `disabled` attribute.
-
-6. **Test Case: Functionality - Assigning a Preferred Department**
-    * **Description**: `should call the update mutation with a department ID when a preferred department is assigned`.
-    * **Steps**:
-        1. Render as an `admin`.
-        2. Mock `useClassrooms` to return a classroom with `preferred_department_id: null`.
-        3. Mock `useDepartments` to return a list of departments (e.g., "Computer Science").
-        4. Mock the `updateClassroom` mutation function from the `useClassrooms` hook to be a spy (`vi.fn()`).
-        5. Simulate a user clicking the "Edit" button on the classroom.
-        6. Simulate the user selecting "Computer Science" from the "Preferred Department" dropdown.
-        7. Simulate clicking "Save Changes".
-        8. Assert that the mocked `updateClassroom` function was called with the correct `classroomId` and an object containing `preferred_department_id: 'dept-cs-id'`.
-
-7. **Test Case: Functionality - Clearing a Preferred Department**
-    * **Description**: `should call the update mutation with null when a preferred department is cleared`.
-    * **Steps**:
-        1. Render as an `admin`.
-        2. Mock `useClassrooms` to return a classroom that *already has* a `preferred_department_id`.
-        3. Mock `useDepartments` as before.
-        4. Mock the `updateClassroom` mutation function as a spy.
-        5. Simulate editing the classroom.
-        6. Simulate selecting the `"-- None --"` option from the dropdown.
-        7. Simulate clicking "Save Changes".
-        8. Assert that the mocked `updateClassroom` function was called with the correct `classroomId` and an object containing `preferred_department_id: null`.
+Create the necessary integration tests to ensure the Program Management feature is fully validated.
+Task 1: Create the Hook Integration Test
+Create a new test file at src/features/programs/hooks/tests/usePrograms.integration.test.tsx.
+Write tests to verify the hook's mutations:
+should allow creating a new program.
+should allow updating an existing program.
+should handle program deletion correctly.
+Use src/features/departments/hooks/tests/useDepartments.integration.test.tsx as a template for these tests.
+Task 2: Create the Page Integration Test
+Create a new test file at src/features/programs/pages/tests/ProgramManagementPage.integration.test.tsx.
+Write tests to verify the UI and user interactions:
+should deny access to non-admin users.
+should display a list of programs for admin users.
+should call the create mutation when the create form is submitted.
+should populate the form for editing and call the update mutation on save.
 
 **Sub-Workflow (for each file):**
 
