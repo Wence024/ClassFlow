@@ -44,13 +44,10 @@ const ClassroomManagement: React.FC = () => {
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
   
-  // Memoize department options with a "None" option at the top
+  // Memoize department options (no manual "None" - we use placeholder instead)
   const departmentOptions = useMemo(() => {
     const departments = departmentsQuery.data || [];
-    // Use a sentinel value instead of empty string (Radix UI doesn't allow empty strings)
-    const noneOption = { id: '__none__', name: '-- None --' };
-    const mappedDepartments = departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
-    return [noneOption, ...mappedDepartments];
+    return departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
   }, [departmentsQuery.data]);
   
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);

@@ -69,12 +69,12 @@ export const ClassroomFields: React.FC<{
       render={({ field }) => (
         <FormField
           {...field}
-          // Convert null to sentinel value for display, and vice versa
-          value={field.value ?? '__none__'}
-          onChange={(value) => field.onChange(value === '__none__' ? null : value)}
+          value={field.value ?? ''}
+          onChange={(value) => field.onChange(value === '' ? null : value)}
           id="preferred_department_id"
           label="Preferred Department (Optional)"
           type="select"
+          placeholder="-- Select None --"
           options={departmentOptions}
           error={errors.preferred_department_id?.message}
         />
