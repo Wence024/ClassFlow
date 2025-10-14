@@ -112,9 +112,11 @@ describe('ClassroomTab Integration Tests', () => {
     });
 
     it('should display classrooms with a matching preferred department first, followed by a separator', () => {
+      // The hook returns prioritized classrooms, so we need to provide them in the correct order
+      // CS Room should be first (matches user's dept), then Math and General
       mockedUseClassrooms.useClassrooms.mockReturnValue({
         ...mockedUseClassrooms.useClassrooms(),
-        classrooms: [mockClassrooms[1], mockClassrooms[0], mockClassrooms[2]], // Unsorted
+        classrooms: [mockClassrooms[0], mockClassrooms[1], mockClassrooms[2]], // CS Room, Math Room, General Room
       });
 
       render(<ClassroomTab />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
@@ -130,7 +132,7 @@ describe('ClassroomTab Integration Tests', () => {
       const parent = separator.parentElement!;
       const children = Array.from(parent.children);
       const csIndex = children.findIndex(el => el.textContent?.includes('CS Room'));
-      const separatorIndex = children.findIndex(el => el.textContent?.includes('Other Available Classrooms'));
+      const separatorIndex = children.findIndex(el => el.textContent?.includes('Other Classrooms'));
       const mathIndex = children.findIndex(el => el.textContent?.includes('Math Room'));
 
       expect(csIndex).toBeLessThan(separatorIndex);
@@ -182,6 +184,10 @@ describe('ClassroomTab Integration Tests', () => {
         expect(mockUpdateClassroom).toHaveBeenCalledWith(
           'room-none',
           expect.objectContaining({
+            name: 'General Room',
+            code: 'GEN101',
+            capacity: 60,
+            color: '#0000ff',
             preferred_department_id: 'dept-cs',
           })
         );
