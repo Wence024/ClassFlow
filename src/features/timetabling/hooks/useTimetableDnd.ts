@@ -24,7 +24,8 @@ export const useTimetableDnd = () => {
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
   const { classSessions } = useClassSessions();
   const { settings } = useScheduleConfig();
-  const { programs } = usePrograms();
+  const { listQuery } = usePrograms();
+  const programs = listQuery.data || [];
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);

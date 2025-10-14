@@ -33,7 +33,8 @@ export function useTimetable() {
   const queryClient = useQueryClient();
   const { settings } = useScheduleConfig();
   const { data: activeSemester } = useActiveSemester(); // 2. Get the active semester
-  const { programs } = usePrograms();
+  const { listQuery } = usePrograms();
+  const programs = listQuery.data || [];
 
   // The queryKey is now dependent on the semester, not the user
   const queryKey = useMemo(() => ['hydratedTimetable', activeSemester?.id], [activeSemester?.id]);
