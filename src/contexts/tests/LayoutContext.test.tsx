@@ -1,10 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
-import { LayoutProvider, useLayout } from '../LayoutContext';
+import { LayoutProvider } from '../LayoutContext';
+import { useLayout } from '../hooks/useLayout';
 
 /**
  * Test component to verify LayoutContext functionality.
+ *
+ * @returns A test component instance.
  */
 const TestComponent = () => {
   const { isSidebarCollapsed, toggleSidebar } = useLayout();
