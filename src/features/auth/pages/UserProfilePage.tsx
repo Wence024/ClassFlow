@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { usePrograms } from '../../programs/hooks/usePrograms';
+import { useDepartments } from '../../departments/hooks/useDepartments';
 import { Card } from '../../../components/ui/card';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Alert } from '../../../components/ui/alert';
+import LoadingSpinner from '../../../components/ui/custom/loading-spinner';
 import { toast } from 'sonner';
 
 /**
@@ -13,9 +16,21 @@ import { toast } from 'sonner';
  */
 export default function UserProfilePage() {
   const { user, updateMyProfile, loading, error } = useAuth();
+  const { listQuery: programsQuery } = usePrograms();
+  const { listQuery: departmentsQuery } = useDepartments();
   const [name, setName] = useState(user?.name || '');
 
   if (!user) return <Alert variant="destructive">You must be logged in to manage your profile.</Alert>;
+
+  if (programsQuery.isLoading || departmentsQuery.isLoading) {
+    return <LoadingSpinner text="Loading profile..." />;
+  }
+
+  const programs = programsQuery.data || [];
+  const departments = departmentsQuery.data || [];
+  
+  const assignedProgram = programs.find(p => p.id === user.program_id);
+  const assignedDepartment = departments.find(d => d.id === user.department_id);
 
   const onSave = async () => {
     try {
@@ -43,12 +58,16 @@ export default function UserProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <div className="text-sm text-gray-600">Role</div>
-            <div>{user.role}</div>
+            <div className="capitalize">{user.role}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-600">Department</div>
-            <div>{user.department_id || '—'}</div>
+            <div className="text-sm text-gray-600">Program</div>
+            <div>{assignedProgram ? `${assignedProgram.name} (${assignedProgram.short_code})` : '—'}</div>
           </div>
+        </div>
+        <div>
+          <div className="text-sm text-gray-600">Department</div>
+          <div>{assignedDepartment ? `${assignedDepartment.name} (${assignedDepartment.code})` : '—'}</div>
         </div>
         <div className="flex gap-2 pt-2">
           <Button onClick={onSave} disabled={loading}>Save</Button>

@@ -293,7 +293,6 @@ export type Database = {
           full_name: string | null
           id: string
           program_id: string | null
-          role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
           avatar_url?: string | null
@@ -301,7 +300,6 @@ export type Database = {
           full_name?: string | null
           id: string
           program_id?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
           avatar_url?: string | null
@@ -309,7 +307,6 @@ export type Database = {
           full_name?: string | null
           id?: string
           program_id?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: [
           {
@@ -331,23 +328,34 @@ export type Database = {
       programs: {
         Row: {
           created_at: string
+          department_id: string | null
           id: string
           name: string
           short_code: string
         }
         Insert: {
           created_at?: string
+          department_id?: string | null
           id?: string
           name: string
           short_code: string
         }
         Update: {
           created_at?: string
+          department_id?: string | null
           id?: string
           name?: string
           short_code?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "programs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       request_notifications: {
         Row: {
@@ -565,19 +573,65 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_user: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       admin_update_user_profile: {
         Args: {
+          new_department_id?: string
+          new_program_id?: string
+          new_role?: Database["public"]["Enums"]["user_role"]
           target_user_id: string
-          new_role?: string
-          new_program_id?: string | null
-          new_department_id?: string | null
         }
         Returns: undefined
+      }
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["user_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      update_schedule_configuration_safely: {
+        Args: {
+          config_id: string
+          new_class_days_per_week: number
+          new_period_duration_mins: number
+          new_periods_per_day: number
+          new_start_time: string
+        }
+        Returns: Json
       }
     }
     Enums: {

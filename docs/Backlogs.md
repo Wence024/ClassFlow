@@ -206,4 +206,7 @@ Ponderings:
 * A collapsible sidebar would be great.
 * A single-page UI for timetabling would be intuitive.
 * A folder restructure according to use case would be clarifying.
+* [ ] A "Not Assigned" for profiles is better than "-".
 
+* [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
+* [ ] Programs need to be related to only one department (perhaps unimplemented unless checked).

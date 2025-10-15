@@ -1,19 +1,45 @@
 import { supabase } from '../../../lib/supabase';
-import type { UserProfile, UserProfileUpdate } from '../types/user';
+import type { Role, UserProfile, UserProfileUpdate } from '../types/user';
 
 /**
- * Fetches all users with their profile information.
+ * Fetches all users with their profile information and roles.
  *
  * @returns A promise that resolves to an array of UserProfile objects.
  */
 export async function getUsers(): Promise<UserProfile[]> {
-  const { data, error } = await supabase
+  // Fetch profiles
+  const { data: profiles, error: profileError } = await supabase
     .from('profiles')
-    .select('id, full_name, role, program_id, department_id')
+    .select('id, full_name, program_id, department_id')
     .order('full_name');
-  
-  if (error) throw error;
-  return (data || []) as UserProfile[];
+
+  if (profileError) throw profileError;
+  if (!profiles) return [];
+
+  // Fetch all user roles
+  const rolePromises = profiles.map(async (profile) => {
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', profile.id)
+      .single();
+    // The role from the database is a string, so we cast it to Role.
+    // We provide a default value of 'program_head' if no role is found.
+    const role = (roleData?.role as Role) || 'program_head';
+    return { userId: profile.id, role };
+  });
+
+  const roles = await Promise.all(rolePromises);
+  const roleMap = new Map(roles.map((r) => [r.userId, r.role]));
+
+  // Combine profiles with roles
+  return profiles.map((profile) => ({
+    id: profile.id,
+    full_name: profile.full_name,
+    role: roleMap.get(profile.id) || 'program_head',
+    program_id: profile.program_id,
+    department_id: profile.department_id,
+  }));
 }
 
 /**
@@ -29,9 +55,9 @@ export async function updateUserProfile(userId: string, updates: UserProfileUpda
   const { error } = await supabase.rpc('admin_update_user_profile', {
     target_user_id: userId,
     new_role: updates.role,
-    new_program_id: updates.program_id,
-    new_department_id: updates.department_id,
+    new_program_id: updates.program_id === null ? undefined : updates.program_id,
+    new_department_id: updates.department_id === null ? undefined : updates.department_id,
   });
-  
+
   if (error) throw error;
 }

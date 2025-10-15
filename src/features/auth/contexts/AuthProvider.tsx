@@ -43,20 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        let storedUser = await authService.getStoredUser();
-        
-        // Apply dev override if in development mode
-        if (storedUser && import.meta.env.DEV) {
-          try {
-            const override = JSON.parse(localStorage.getItem('dev_override') || 'null');
-            if (override) {
-              console.warn('🔧 DEV OVERRIDE ACTIVE:', override);
-              storedUser = { ...storedUser, ...override };
-            }
-          } catch (e) {
-            console.error('Failed to parse dev override:', e);
-          }
-        }
+        const storedUser = await authService.getStoredUser();
         
         if (storedUser) {
           setUser(storedUser);
@@ -112,13 +99,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
     try {
       const { user, needsVerification } = await authService.register(name, email, password);
+      
       if (needsVerification) {
-        // If email verification is required, guide the user to the verification page.
+        // Store email for the verification page to use
+        localStorage.setItem('emailForVerification', email);
         setUser(null);
         navigate('/verify-email');
-      } else {
-        // Otherwise, log them in and redirect.
-        setUser(user);
+      } else if (user) {
+        // Rare case: no verification needed, fetch full profile and log in
+        const loggedInUser = await authService.getStoredUser();
+        setUser(loggedInUser);
         navigate('/scheduler');
       }
     } catch (err: unknown) {

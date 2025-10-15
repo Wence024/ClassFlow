@@ -5,6 +5,8 @@
  */
 import { supabase } from '../../../lib/supabase';
 import type { AuthResponse, User } from '../types/auth';
+import { User as SupabaseUser } from '@supabase/supabase-js';
+import { UserRole } from '../../users/types/user';
 
 /**
  * Logs in a user using their email and password.
@@ -36,23 +38,38 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed due to an unexpected issue. Please try again.');
   }
 
-  // Fetch role, program_id, department_id from profiles table
+  // Fetch program_id, department_id from profiles table
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id, department_id')
+    .select('program_id, department_id')
     .eq('id', data.user.id)
     .single();
 
   if (profileError || !profile) {
+    console.error('Profile fetch error:', profileError);
     throw new Error('Login failed: could not find user profile.');
   }
+
+  // Fetch role from user_roles table
+  const { data: roleDataArray, error: roleError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', data.user.id);
+
+  if (roleError) {
+    console.error('Role fetch error:', roleError);
+    throw new Error('Login failed: could not fetch user role.');
+  }
+
+  const roleData = roleDataArray && roleDataArray.length > 0 ? roleDataArray[0] : null;
+  const role = (roleData as UserRole)?.role || 'program_head';
 
   return {
     user: {
       id: data.user.id,
       name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
       email: data.user.email!,
-      role: profile.role,
+      role: role || 'program_head',
       program_id: profile.program_id,
       department_id: profile.department_id
     },
@@ -66,14 +83,14 @@ export async function login(email: string, password: string): Promise<AuthRespon
  * @param name - The user's full name.
  * @param email - The user's email address.
  * @param password - The desired password for the new account.
- * @returns A promise that resolves to an object containing the new user, a token (if available), and a flag indicating if email verification is needed.
+ * @returns A promise that resolves to an object containing the auth user and a flag indicating if email verification is needed.
  * @throws {Error} Throws an error if registration fails.
  */
 export async function register(
   name: string,
   email: string,
   password: string
-): Promise<{ user: User; token: string; needsVerification: boolean }> {
+): Promise<{ user: SupabaseUser; needsVerification: boolean }> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -92,30 +109,11 @@ export async function register(
     throw new Error('Registration failed due to an unexpected issue.');
   }
 
-  // Fetch role, program_id, department_id from profiles table
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('role, program_id, department_id')
-    .eq('id', data.user.id)
-    .single();
-
-  if (profileError || !profile) {
-    throw new Error('Login successful, but could not find user profile.');
-  }
-
   // If `data.session` is null, it means Supabase requires email verification.
   const needsVerification = !data.session;
 
   return {
-    user: {
-      id: data.user.id,
-      name: data.user.user_metadata?.name || name,
-      email: data.user.email!,
-      role: profile.role,
-      program_id: profile.program_id,
-      department_id: profile.department_id
-    },
-    token: data.session?.access_token || '',
+    user: data.user,
     needsVerification: needsVerification,
   };
 }
@@ -156,7 +154,7 @@ export async function getStoredUser(): Promise<User | null> {
   // Instead of relying on metadata, we query the definitive profiles table.
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('role, program_id, department_id')
+    .select('program_id, department_id')
     .eq('id', session.user.id)
     .single();
 
@@ -166,11 +164,25 @@ export async function getStoredUser(): Promise<User | null> {
     return null; // Or return a default user object
   }
 
+  // Fetch role from user_roles table
+  const { data: roleDataArray, error: roleError } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', session.user.id);
+
+  if (roleError) {
+    console.error('Could not fetch user role:', roleError);
+    return null;
+  }
+
+  const roleData = roleDataArray && roleDataArray.length > 0 ? roleDataArray[0] : null;
+  const role = (roleData as UserRole)?.role || 'program_head';
+
   return {
     id: session.user.id,
     name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
     email: session.user.email!,
-    role: profile.role,
+    role: role || 'program_head',
     program_id: profile.program_id,
     department_id: profile.department_id,
   };

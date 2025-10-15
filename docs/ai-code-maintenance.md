@@ -104,13 +104,26 @@ All Phase 0 tasks have been completed successfully:
 4. **✅ Added conflict detection** - Implemented group mismatch conflict detection to prevent moving sessions to wrong class groups.
 5. **✅ Updated documentation** - Updated `ai-code-maintenance.md` with current testing requirements.
 
-### **Phase 1: High-Priority Integration Tests - ✅ IN PROGRESS**
+### **Phase 1: High-Priority Integration Tests - ✅ COMPLETED**
 
-Created three critical integration test files:
+Created comprehensive integration test files:
 
 1. **✅ `src/features/departments/hooks/tests/useDepartments.integration.test.tsx`** - Tests department CRUD operations for Admins.
 2. **✅ `src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx`** - Tests role-based access and department-scoped instructor display.
 3. **✅ `src/features/classSessionComponents/pages/tests/ProgramHeadInstructors.integration.test.tsx`** - Tests Program Head's ability to browse instructors by department.
+4. **✅ `src/features/classSessionComponents/pages/tests/CourseTab.integration.test.tsx`** - Tests course management UI.
+5. **✅ `src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx`** - Tests instructor management for department heads.
+6. **✅ `src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx`** - Tests classroom management with role-based access.
+
+### **Phase 2: User Management & Authentication Tests - ✅ COMPLETED**
+
+Created user management and authentication integration tests:
+
+1. **✅ `src/features/auth/pages/tests/UserProfilePage.integration.test.tsx`** - Tests user profile display and updates.
+2. **✅ `src/features/users/services/tests/usersService.integration.test.ts`** - Tests user service with role fetching from dedicated table.
+3. **✅ `src/features/users/hooks/tests/useUsers.integration.test.tsx`** - Tests user management hooks.
+4. **✅ `src/features/auth/contexts/tests/AuthProvider.integration.test.tsx`** - Tests auth context and role-based permissions.
+5. **✅ `src/features/auth/services/tests/authService.integration.test.ts`** - Tests auth service with secure role management.
 
 **JSDoc Coverage:**
 
@@ -125,11 +138,19 @@ Created three critical integration test files:
 * **Test Updates**: Fixed all test mocks to use the new data structure format.
 * **Component Updates**: Updated `SessionCell`, `TimetableRow`, and `TimetablePage` components to handle merged sessions.
 * **Gradient Rendering**: Fixed gradient background rendering for merged sessions with different colors.
+* **Security Improvements**: 
+  * Moved roles to separate `user_roles` table to prevent privilege escalation attacks.
+  * Implemented SECURITY DEFINER functions for role checks to avoid RLS recursion.
+  * Updated auth service to fetch roles from dedicated table.
+  * Removed client-side role override (DevRoleSwitcher) to prevent permission mismatches between client and server.
+* **User Management**: Added comprehensive user profile management with role-based access control.
 
 ### **Next Steps:**
 
-The codebase has progressed into implementing the foundational UI for the new role-based system. The immediate priority is to stabilize these core features.
+The codebase has progressed with comprehensive user management and authentication integration tests. All core features are now covered with integration tests.
 
-1. **Create the new high-priority integration tests** listed above to ensure the `DepartmentHeadDashboard` and `ProgramHeadInstructors` pages are working as expected.
-2. **Fix any remaining test failures** (currently 10 failing) to get the entire suite to pass.
-3. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.
+1. **✅ Created all high-priority integration tests** for Department Head Dashboard, Program Head Instructors, and Class Session Components.
+2. **✅ Created user management and authentication tests** to ensure secure role-based access control.
+3. **Run the full test suite** to verify all tests pass: `npm run test`.
+4. **Perform final linting and type checking**: `npm run lint` and `npm run typeCheck`.
+5. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.

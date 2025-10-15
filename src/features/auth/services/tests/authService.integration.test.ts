@@ -43,14 +43,33 @@ describe('authService.getStoredUser - profile hydration', () => {
     mockedSupabase.from.mockClear();
   });
 
-  it('should return user with role and program_id from profiles table', async () => {
+  it('should return user with role and program_id from profiles and user_roles tables', async () => {
     mockedSupabase.auth.getSession.mockResolvedValue(mockSession);
-    const fromMock = {
+
+    const profileData = { program_id: 'p1', department_id: 'd1' };
+    const roleData = [{ role: 'admin' }];
+
+    const fromProfilesMock = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: mockProfile, error: null }),
+      single: vi.fn().mockResolvedValue({ data: profileData, error: null }),
     };
-    mockedSupabase.from.mockReturnValue(fromMock as unknown as ReturnType<typeof supabase.from>);
+
+    const fromUserRolesMock = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockResolvedValue({ data: roleData, error: null }),
+    };
+
+    mockedSupabase.from.mockImplementation((tableName: string) => {
+      if (tableName === 'profiles') {
+        return fromProfilesMock as any;
+      }
+      if (tableName === 'user_roles') {
+        return fromUserRolesMock as any;
+      }
+      // Should not happen in this test
+      return { select: vi.fn() } as any;
+    });
 
     const user = await getStoredUser();
 
@@ -64,10 +83,14 @@ describe('authService.getStoredUser - profile hydration', () => {
         department_id: 'd1',
       })
     );
+
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
-    expect(fromMock.select).toHaveBeenCalledWith('role, program_id, department_id');
-    expect(fromMock.eq).toHaveBeenCalledWith('id', 'u1');
-    expect(fromMock.single).toHaveBeenCalled();
+    expect(fromProfilesMock.select).toHaveBeenCalledWith('program_id, department_id');
+    expect(fromProfilesMock.eq).toHaveBeenCalledWith('id', 'u1');
+    
+    expect(mockedSupabase.from).toHaveBeenCalledWith('user_roles');
+    expect(fromUserRolesMock.select).toHaveBeenCalledWith('role');
+    expect(fromUserRolesMock.eq).toHaveBeenCalledWith('user_id', 'u1');
   });
 
   it('should return null if profile not found', async () => {
