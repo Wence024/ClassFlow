@@ -209,4 +209,5 @@ Ponderings:
 * [ ] A "Not Assigned" for profiles is better than "-".
 
 * [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
-* [ ] Programs need to be related to only one department (perhaps unimplemented unless checked).
+* [x] Programs need to be related to only one department (implemented with department_id foreign key and UI).
+* [ ] Check for data anomalies regarding program management.

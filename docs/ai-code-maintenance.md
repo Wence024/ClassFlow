@@ -31,21 +31,7 @@
 
 ## **Step 3: Iterative Testing Pass (RE-PRIORITIZED)**
 
-Create the necessary integration tests to ensure the Program Management feature is fully validated.
-Task 1: Create the Hook Integration Test
-Create a new test file at src/features/programs/hooks/tests/usePrograms.integration.test.tsx.
-Write tests to verify the hook's mutations:
-should allow creating a new program.
-should allow updating an existing program.
-should handle program deletion correctly.
-Use src/features/departments/hooks/tests/useDepartments.integration.test.tsx as a template for these tests.
-Task 2: Create the Page Integration Test
-Create a new test file at src/features/programs/pages/tests/ProgramManagementPage.integration.test.tsx.
-Write tests to verify the UI and user interactions:
-should deny access to non-admin users.
-should display a list of programs for admin users.
-should call the create mutation when the create form is submitted.
-should populate the form for editing and call the update mutation on save.
+Please check `git diff --name-only feat/program-department-relation` to check for files to test.
 
 **Sub-Workflow (for each file):**
 
@@ -138,7 +124,7 @@ Created user management and authentication integration tests:
 * **Test Updates**: Fixed all test mocks to use the new data structure format.
 * **Component Updates**: Updated `SessionCell`, `TimetableRow`, and `TimetablePage` components to handle merged sessions.
 * **Gradient Rendering**: Fixed gradient background rendering for merged sessions with different colors.
-* **Security Improvements**: 
+* **Security Improvements**
   * Moved roles to separate `user_roles` table to prevent privilege escalation attacks.
   * Implemented SECURITY DEFINER functions for role checks to avoid RLS recursion.
   * Updated auth service to fetch roles from dedicated table.
@@ -147,10 +133,19 @@ Created user management and authentication integration tests:
 
 ### **Next Steps:**
 
-The codebase has progressed with comprehensive user management and authentication integration tests. All core features are now covered with integration tests.
+The codebase has progressed with comprehensive user management and authentication integration tests. All core features are now covered with integration tests. The program-department relationship feature has been successfully implemented and tested.
 
 1. **✅ Created all high-priority integration tests** for Department Head Dashboard, Program Head Instructors, and Class Session Components.
 2. **✅ Created user management and authentication tests** to ensure secure role-based access control.
-3. **Run the full test suite** to verify all tests pass: `npm run test`.
-4. **Perform final linting and type checking**: `npm run lint` and `npm run typeCheck`.
-5. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.
+3. **✅ Updated program-department relationship tests** - Fixed test expectations to include required `department_id` field for all program operations.
+4. **✅ Run the full test suite** to verify all tests pass: `npm run test`.
+5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run typeCheck`.
+6. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.
+
+### **Phase 3: Final Testing and Verification - ✅ COMPLETED**
+
+All Phase 3 tasks have been completed successfully:
+
+1. **✅ Fixed all failing integration tests** for the `ProgramManagementPage`.
+2. **✅ Performed a full linting, type-checking, and testing pass** to ensure codebase stability.
+3. **✅ Updated documentation** - Updated `ai-code-maintenance.md` with current status.

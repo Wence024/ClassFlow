@@ -34,7 +34,6 @@ describe('authService.getStoredUser - profile hydration', () => {
     },
     error: null,
   };
-  const mockProfile = { role: 'admin', program_id: 'p1', department_id: 'd1' };
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -62,13 +61,13 @@ describe('authService.getStoredUser - profile hydration', () => {
 
     mockedSupabase.from.mockImplementation((tableName: string) => {
       if (tableName === 'profiles') {
-        return fromProfilesMock as any;
+        return fromProfilesMock as ReturnType<typeof supabase.from>;
       }
       if (tableName === 'user_roles') {
-        return fromUserRolesMock as any;
+        return fromUserRolesMock as ReturnType<typeof supabase.from>;
       }
       // Should not happen in this test
-      return { select: vi.fn() } as any;
+      return { select: vi.fn() } as ReturnType<typeof supabase.from>;
     });
 
     const user = await getStoredUser();
