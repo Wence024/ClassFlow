@@ -11,8 +11,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // This is now the single, correctly configured client for the entire application.
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Use localStorage to persist the user's session
-    storage: localStorage,
+    // Use localStorage to persist the user's session (only in browser environment)
+    storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
   },

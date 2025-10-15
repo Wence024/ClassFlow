@@ -1,9 +1,9 @@
 /// <reference types="@testing-library/jest-dom" />
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
-import ProgramManagementPage from '../ProgramManagementPage';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import * as programsHooks from '../../hooks/usePrograms';
 import * as departmentsHooks from '../../../departments/hooks/useDepartments';
@@ -13,6 +13,52 @@ import type { ReactNode } from 'react';
 // Mock the usePrograms hook
 vi.mock('../../hooks/usePrograms');
 vi.mock('../../../departments/hooks/useDepartments');
+// Mock UI barrel to avoid alias resolution in test environment
+vi.mock('@/components/ui', () => {
+  const Button = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />;
+  const Card = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  const ConfirmModal = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  const ErrorMessage = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  const LoadingSpinner = () => <div>Loading...</div>;
+  const Alert = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  return { Button, Card, ConfirmModal, ErrorMessage, LoadingSpinner, Alert };
+});
+// Mock UI subpath modules used by Program fields
+vi.mock('@/components/ui/form', () => {
+  const Form = ({ children, ...rest }: { children?: React.ReactNode }) => <form {...rest}>{children}</form>;
+  const FormItem = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  const FormLabel = ({ children, htmlFor }: { children?: React.ReactNode; htmlFor?: string }) => (
+    <label htmlFor={htmlFor}>{children}</label>
+  );
+  const FormControl = ({ children }: { children?: React.ReactNode }) => <>{children}</>;
+  const FormMessage = ({ children }: { children?: React.ReactNode }) => <p>{children}</p>;
+  const FormDescription = ({ children }: { children?: React.ReactNode }) => <p>{children}</p>;
+  // Minimal RHF field wrapper that just renders children
+  const FormField = ({
+    render,
+  }: {
+    render: (ctx: {
+      field: { onChange: () => void; value: string; name: string };
+    }) => React.ReactNode;
+  }) => <>{render({ field: { onChange: () => {}, value: '', name: '' } })}</>;
+  return { Form, FormItem, FormLabel, FormControl, FormMessage, FormDescription, FormField };
+});
+vi.mock('@/components/ui/input', () => {
+  const Input = (props: React.InputHTMLAttributes<HTMLInputElement>) => <input {...props} />;
+  return { Input };
+});
+vi.mock('@/components/ui/card', () => {
+  const Card = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  return { Card };
+});
+vi.mock('@/components/ui/button', () => {
+  const Button = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />;
+  return { Button };
+});
+vi.mock('@/components/ui/custom/form-field', () => {
+  const FormField = ({ children }: { children?: React.ReactNode }) => <div>{children}</div>;
+  return { default: FormField };
+});
 
 /**
  * Test suite for ProgramManagementPage integration tests.
@@ -66,7 +112,7 @@ describe('ProgramManagementPage Integration Tests', () => {
     });
   });
 
-  it('should deny access to non-admin users', () => {
+  it('should deny access to non-admin users', async () => {
     const nonAdminContext: Partial<AuthContextType> = {
       isAdmin: () => false,
     };
@@ -81,11 +127,12 @@ describe('ProgramManagementPage Integration Tests', () => {
       deleteMutation: { mutateAsync: mockDeleteMutation } as any,
     });
 
+    const { default: ProgramManagementPage } = await import('../ProgramManagementPage');
     render(<ProgramManagementPage />, { wrapper: createWrapper(nonAdminContext) });
     expect(screen.getByText(/you do not have access to this page/i)).toBeInTheDocument();
   });
 
-  it('should display a list of programs for admin users', () => {
+  it('should display a list of programs for admin users', async () => {
     const adminContext: Partial<AuthContextType> = {
       isAdmin: () => true,
     };
@@ -104,6 +151,7 @@ describe('ProgramManagementPage Integration Tests', () => {
       deleteMutation: { mutateAsync: mockDeleteMutation } as any,
     });
 
+    const { default: ProgramManagementPage } = await import('../ProgramManagementPage');
     render(<ProgramManagementPage />, { wrapper: createWrapper(adminContext) });
 
     expect(screen.getByText('Program A')).toBeInTheDocument();
@@ -125,10 +173,12 @@ describe('ProgramManagementPage Integration Tests', () => {
       deleteMutation: { mutateAsync: mockDeleteMutation, isPending: false } as any,
     });
 
+    const { default: ProgramManagementPage } = await import('../ProgramManagementPage');
     render(<ProgramManagementPage />, { wrapper: createWrapper(adminContext) });
 
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'New Program' } });
     fireEvent.change(screen.getByLabelText(/code/i), { target: { value: 'NP' } });
+    fireEvent.change(screen.getByLabelText(/department/i), { target: { value: 'd1' } });
     fireEvent.click(screen.getByRole('button', { name: /create/i }));
 
     await waitFor(() => {
@@ -154,6 +204,7 @@ describe('ProgramManagementPage Integration Tests', () => {
       deleteMutation: { mutateAsync: mockDeleteMutation, isPending: false } as any,
     });
 
+    const { default: ProgramManagementPage } = await import('../ProgramManagementPage');
     render(<ProgramManagementPage />, { wrapper: createWrapper(adminContext) });
 
     // Click edit button on the program card
@@ -165,6 +216,7 @@ describe('ProgramManagementPage Integration Tests', () => {
 
     // Change value and save
     fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Updated Program A' } });
+    fireEvent.change(screen.getByLabelText(/department/i), { target: { value: 'd1' } });
     fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
 
     await waitFor(() => {
@@ -191,6 +243,7 @@ describe('ProgramManagementPage Integration Tests', () => {
         deleteMutation: { mutateAsync: mockDeleteMutation, isPending: false } as any,
     });
 
+    const { default: ProgramManagementPage } = await import('../ProgramManagementPage');
     render(<ProgramManagementPage />, { wrapper: createWrapper(adminContext) });
 
     // Click delete button on the program card
