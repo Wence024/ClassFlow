@@ -65,12 +65,14 @@ const Sidebar = () => {
 
   return (
     <aside
+      role="complementary"
+      aria-label="Main navigation"
       className={cn(
         'bg-white border-r border-gray-200 h-screen sticky top-0 transition-all duration-300',
         isSidebarCollapsed ? 'w-20' : 'w-64'
       )}
     >
-      <nav className="p-4 space-y-1">
+      <nav className="p-4 space-y-1" aria-label="Primary navigation">
         <TooltipProvider delayDuration={0}>
           {navLinks.map((link) => (
             <Tooltip key={link.to}>

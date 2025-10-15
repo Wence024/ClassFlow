@@ -3,8 +3,15 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Sidebar from '../../Sidebar';
 import { AuthContext } from '../../../features/auth/contexts/AuthContext';
+import { LayoutProvider } from '../../../contexts/LayoutContext';
 import type { AuthContextType } from '../../../features/auth/types/auth';
 
+/**
+ * Renders the Sidebar component with required providers for testing.
+ *
+ * @param authContextValue - Partial auth context to merge with defaults.
+ * @returns The render result from React Testing Library.
+ */
 const renderSidebar = (authContextValue: Partial<AuthContextType>) => {
   const mockAuthContext: AuthContextType = {
     user: null,
@@ -32,7 +39,9 @@ const renderSidebar = (authContextValue: Partial<AuthContextType>) => {
   return render(
     <MemoryRouter>
       <AuthContext.Provider value={mockAuthContext}>
-        <Sidebar />
+        <LayoutProvider>
+          <Sidebar />
+        </LayoutProvider>
       </AuthContext.Provider>
     </MemoryRouter>
   );

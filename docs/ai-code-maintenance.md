@@ -111,6 +111,19 @@ Created user management and authentication integration tests:
 4. **✅ `src/features/auth/contexts/tests/AuthProvider.integration.test.tsx`** - Tests auth context and role-based permissions.
 5. **✅ `src/features/auth/services/tests/authService.integration.test.ts`** - Tests auth service with secure role management.
 
+### **Phase 3: Collapsible Sidebar (feat/collapsible-sidebar) - ✅ COMPLETED**
+
+Implemented a modern, docked sidebar with collapsible functionality:
+
+1. **✅ `src/contexts/LayoutContext.tsx`** - Created global layout context for sidebar state management.
+2. **✅ `src/components/Header.tsx`** - Added sidebar toggle button with collapse/expand icons.
+3. **✅ `src/components/Sidebar.tsx`** - Refactored to support collapsible behavior with icon-only mode and hover tooltips.
+4. **✅ `src/components/layout/AppLayout.tsx`** - Integrated LayoutProvider and smooth transitions.
+5. **✅ `src/contexts/tests/LayoutContext.test.tsx`** - Tests for layout context state management.
+6. **✅ `src/components/tests/Header.integration.test.tsx`** - Tests for header toggle button integration.
+7. **✅ `src/components/layout/tests/AppLayout.integration.test.tsx`** - Tests for sidebar collapse behavior and state persistence.
+8. **✅ `src/components/layout/tests/Sidebar.integration.test.tsx`** - Updated to include LayoutProvider in test setup.
+
 **JSDoc Coverage:**
 
 * Added comprehensive JSDoc comments to `useDepartments` hook
@@ -130,6 +143,7 @@ Created user management and authentication integration tests:
   * Updated auth service to fetch roles from dedicated table.
   * Removed client-side role override (DevRoleSwitcher) to prevent permission mismatches between client and server.
 * **User Management**: Added comprehensive user profile management with role-based access control.
+* **Collapsible Sidebar**: Implemented modern docked sidebar with toggle in header, icon-only collapsed mode with tooltips, and smooth transitions between states.
 
 ### **Next Steps:**
 

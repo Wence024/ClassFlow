@@ -22,6 +22,13 @@ Here is a rearranged, consolidated, and prioritized to-do list.
     * **Task:** `Timetabling: Fix tooltip truncating outside timetable area`
     * **Action:** Adjust the CSS for the tooltip in `Timetable.tsx`. This might involve ensuring the timetable's container doesn't have `overflow: hidden` or using a portal-based tooltip library that renders at the root of the document.
 
+5. [x] **[UI/UX] Implement Collapsible Sidebar**
+    * **Task:** `Add collapsible sidebar to maximize screen space for content-dense pages`
+    * **Branch:** `feat/collapsible-sidebar`
+    * **Status:** ✅ Completed
+    * **Action:** Created `LayoutContext` for global sidebar state management. Integrated toggle button in Header with collapse/expand icons. Refactored Sidebar to support icon-only collapsed mode with hover tooltips. Added smooth transitions and comprehensive test coverage.
+    * **Documentation:** See `docs/feature-plans/collapsible-sidebar.md` for full details.
+
 ## **Phase 2: Advanced Scheduling & Data Integrity (Current Sprint)**
 
 *With the UI polished, this phase focuses on implementing the next major piece of core functionality: resource-aware conflict detection.*
