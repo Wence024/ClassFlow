@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Wrench, X } from 'lucide-react';
 import { usePrograms } from '../../features/programs/hooks/usePrograms';
 import { useDepartments } from '../../features/departments/hooks/useDepartments';
 import {
@@ -15,6 +16,7 @@ function RoleSwitcher() {
   const { listQuery: programsQuery } = usePrograms();
   const { listQuery: departmentsQuery } = useDepartments();
   
+  const [isExpanded, setIsExpanded] = useState(false);
   const [role, setRole] = useState<string>('admin');
   const [programId, setProgramId] = useState<string>('none');
   const [departmentId, setDepartmentId] = useState<string>('none');
@@ -39,9 +41,34 @@ function RoleSwitcher() {
 
   const hasOverride = localStorage.getItem('dev_override');
 
+  // Collapsed state - just show icon
+  if (!isExpanded) {
+    return (
+      <Button
+        size="icon"
+        onClick={() => setIsExpanded(true)}
+        className="fixed bottom-4 right-4 shadow-lg z-50 bg-yellow-400 hover:bg-yellow-500 text-yellow-900"
+        title="Dev Role Switcher"
+      >
+        <Wrench className="h-5 w-5" />
+      </Button>
+    );
+  }
+
+  // Expanded state - show full form
   return (
     <Card className="fixed bottom-4 right-4 p-4 shadow-lg z-50 w-80 bg-yellow-50 border-2 border-yellow-400">
-      <div className="text-xs font-bold text-yellow-800 mb-2">🔧 DEV ROLE SWITCHER</div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-xs font-bold text-yellow-800">🔧 DEV ROLE SWITCHER</div>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => setIsExpanded(false)}
+          className="h-6 w-6 text-yellow-800 hover:bg-yellow-200"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
       
       {hasOverride && (
         <div className="text-xs text-yellow-700 mb-2 p-2 bg-yellow-100 rounded">
