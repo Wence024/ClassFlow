@@ -235,7 +235,7 @@ describe('UserProfilePage Integration Tests', () => {
 
     renderComponent({ authValue });
 
-    const dashElements = screen.getAllByText('—');
-    expect(dashElements).toHaveLength(2); // One for program, one for department
+    const notAssignedElements = screen.getAllByText('Not Assigned');
+    expect(notAssignedElements).toHaveLength(2); // One for program, one for department
   });
 });
