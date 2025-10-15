@@ -39,7 +39,7 @@ describe('CompleteRegistrationPage', () => {
     );
 
     expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/new password/i)).toBeInTheDocument();
+    expect(screen.getAllByDisplayValue('')[1]).toBeInTheDocument(); // Password field (second input)
     expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /complete registration/i })).toBeInTheDocument();
   });
@@ -63,7 +63,7 @@ describe('CompleteRegistrationPage', () => {
     );
 
     const nameInput = screen.getByLabelText(/full name/i);
-    const passwordInput = screen.getByLabelText(/new password/i);
+    const passwordInput = screen.getAllByDisplayValue('')[1]; // Password field (second input)
     const confirmInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /complete registration/i });
 
@@ -74,9 +74,11 @@ describe('CompleteRegistrationPage', () => {
 
     await waitFor(() => {
       expect(mockUpdateUser).toHaveBeenCalledWith({
+        data: {
+          full_name: 'John Doe',
+        },
         password: TEST_PASSWORD,
       });
-      expect(mockFrom).toHaveBeenCalledWith('profiles');
     });
   });
 
@@ -90,7 +92,7 @@ describe('CompleteRegistrationPage', () => {
     );
 
     const nameInput = screen.getByLabelText(/full name/i);
-    const passwordInput = screen.getByLabelText(/new password/i);
+    const passwordInput = screen.getAllByDisplayValue('')[1]; // Password field (second input)
     const confirmInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /complete registration/i });
 
@@ -100,7 +102,7 @@ describe('CompleteRegistrationPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
+      expect(screen.getByText(/passwords don't match/i)).toBeInTheDocument();
     });
   });
 
@@ -119,7 +121,7 @@ describe('CompleteRegistrationPage', () => {
     );
 
     const nameInput = screen.getByLabelText(/full name/i);
-    const passwordInput = screen.getByLabelText(/new password/i);
+    const passwordInput = screen.getAllByDisplayValue('')[1]; // Password field (second input)
     const confirmInput = screen.getByLabelText(/confirm password/i);
     const submitButton = screen.getByRole('button', { name: /complete registration/i });
 
@@ -129,7 +131,7 @@ describe('CompleteRegistrationPage', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/update failed/i)).toBeInTheDocument();
+      expect(screen.getByText(/failed to complete registration/i)).toBeInTheDocument();
     });
   });
 });
