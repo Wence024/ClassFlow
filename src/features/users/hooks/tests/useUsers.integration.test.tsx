@@ -31,7 +31,7 @@ describe('useUsers Integration Tests', () => {
       { id: 'u2', full_name: 'Bob', role: 'program_head', program_id: 'p1', department_id: null },
     ];
 
-    (usersService.getUsers as any).mockResolvedValue(mockUsers);
+    vi.mocked(usersService.getUsers).mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useUsers(), { wrapper: createWrapper });
 
@@ -45,8 +45,8 @@ describe('useUsers Integration Tests', () => {
   it('should handle update mutation and invalidate cache', async () => {
     const mockUsers = [{ id: 'u1', full_name: 'Alice', role: 'admin', program_id: null, department_id: null }];
 
-    (usersService.getUsers as any).mockResolvedValue(mockUsers);
-    (usersService.updateUserProfile as any).mockResolvedValue(undefined);
+    vi.mocked(usersService.getUsers).mockResolvedValue(mockUsers);
+    vi.mocked(usersService.updateUserProfile).mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useUsers(), { wrapper: createWrapper });
 

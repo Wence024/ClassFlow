@@ -1,5 +1,5 @@
 import { supabase } from '../../../lib/supabase';
-import type { UserProfile, UserProfileUpdate } from '../types/user';
+import type { UserProfile, UserProfileUpdate, UserRole } from '../types/user';
 
 /**
  * Fetches all users with their profile information and roles.
@@ -12,21 +12,25 @@ export async function getUsers(): Promise<UserProfile[]> {
     .from('profiles')
     .select('id, full_name, program_id, department_id')
     .order('full_name');
-  
+
   if (profileError) throw profileError;
   if (!profiles) return [];
 
   // Fetch all user roles
   const rolePromises = profiles.map(async (profile) => {
-    const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', profile.id).single();
-    return { userId: profile.id, role: (roleResult.data as any)?.role || 'program_head' };
+    const roleResult = await supabase
+      .from<UserRole>('user_roles')
+      .select('role')
+      .eq('user_id', profile.id)
+      .single();
+    return { userId: profile.id, role: roleResult.data?.role || 'program_head' };
   });
 
   const roles = await Promise.all(rolePromises);
-  const roleMap = new Map(roles.map(r => [r.userId, r.role]));
+  const roleMap = new Map(roles.map((r) => [r.userId, r.role]));
 
   // Combine profiles with roles
-  return profiles.map(profile => ({
+  return profiles.map((profile) => ({
     id: profile.id,
     full_name: profile.full_name,
     role: roleMap.get(profile.id) || 'program_head',

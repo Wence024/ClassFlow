@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as usersService from '../usersService';
 import { supabase } from '../../../../lib/supabase';
@@ -27,19 +28,18 @@ describe('usersService Integration Tests', () => {
         { data: { role: 'program_head' }, error: null },
       ];
 
-      // Mock profiles query
-      (supabase.from as any).mockReturnValue({
+      vi.mocked(supabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
           order: vi.fn().mockResolvedValue({
             data: mockProfiles,
             error: null,
           }),
         }),
-      });
+      } as any);
 
       // Mock role queries
       let callCount = 0;
-      (supabase.from as any).mockImplementation((table: string) => {
+      vi.mocked(supabase.from).mockImplementation((table: string) => {
         if (table === 'user_roles') {
           return {
             select: vi.fn().mockReturnValue({
@@ -47,7 +47,7 @@ describe('usersService Integration Tests', () => {
                 single: vi.fn().mockResolvedValue(mockRoleResponses[callCount++]),
               }),
             }),
-          };
+          } as any;
         }
         return {
           select: vi.fn().mockReturnValue({
@@ -56,7 +56,7 @@ describe('usersService Integration Tests', () => {
               error: null,
             }),
           }),
-        };
+        } as any;
       });
 
       const result = await usersService.getUsers();
@@ -81,16 +81,16 @@ describe('usersService Integration Tests', () => {
     it('should handle missing roles with default program_head', async () => {
       const mockProfiles = [{ id: 'u1', full_name: 'Charlie User', program_id: null, department_id: 'd1' }];
 
-      (supabase.from as any).mockReturnValue({
+      vi.mocked(supabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
           order: vi.fn().mockResolvedValue({
             data: mockProfiles,
             error: null,
           }),
         }),
-      });
+      } as any);
 
-      (supabase.from as any).mockImplementation((table: string) => {
+      vi.mocked(supabase.from).mockImplementation((table: string) => {
         if (table === 'user_roles') {
           return {
             select: vi.fn().mockReturnValue({
@@ -98,7 +98,7 @@ describe('usersService Integration Tests', () => {
                 single: vi.fn().mockResolvedValue({ data: null, error: null }),
               }),
             }),
-          };
+          } as any;
         }
         return {
           select: vi.fn().mockReturnValue({
@@ -107,7 +107,7 @@ describe('usersService Integration Tests', () => {
               error: null,
             }),
           }),
-        };
+        } as any;
       });
 
       const result = await usersService.getUsers();
@@ -117,14 +117,14 @@ describe('usersService Integration Tests', () => {
     });
 
     it('should throw an error if profile fetch fails', async () => {
-      (supabase.from as any).mockReturnValue({
+      vi.mocked(supabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
           order: vi.fn().mockResolvedValue({
             data: null,
             error: { message: 'Database error' },
           }),
         }),
-      });
+      } as any);
 
       await expect(usersService.getUsers()).rejects.toEqual({ message: 'Database error' });
     });
@@ -133,7 +133,7 @@ describe('usersService Integration Tests', () => {
   describe('updateUserProfile', () => {
     it('should call the admin RPC with correct parameters', async () => {
       const mockRpc = vi.fn().mockResolvedValue({ error: null });
-      (supabase.rpc as any) = mockRpc;
+      vi.mocked(supabase.rpc).mockImplementation(mockRpc as any);
 
       await usersService.updateUserProfile('u1', {
         role: 'department_head',
@@ -151,7 +151,7 @@ describe('usersService Integration Tests', () => {
 
     it('should throw an error if the RPC fails', async () => {
       const mockRpc = vi.fn().mockResolvedValue({ error: { message: 'Permission denied' } });
-      (supabase.rpc as any) = mockRpc;
+      vi.mocked(supabase.rpc).mockImplementation(mockRpc as any);
 
       await expect(
         usersService.updateUserProfile('u1', {

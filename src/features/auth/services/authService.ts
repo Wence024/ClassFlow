@@ -5,6 +5,8 @@
  */
 import { supabase } from '../../../lib/supabase';
 import type { AuthResponse, User } from '../types/auth';
+import { User as SupabaseUser } from '@supabase/supabase-js';
+import { UserRole } from '../../users/types/user';
 
 /**
  * Logs in a user using their email and password.
@@ -50,7 +52,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
 
   // Fetch role from user_roles table
   const { data: roleData, error: roleError } = await supabase
-    .from('user_roles' as any)
+    .from<UserRole>('user_roles')
     .select('role')
     .eq('user_id', data.user.id)
     .maybeSingle();
@@ -60,7 +62,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed: could not fetch user role.');
   }
 
-  const role = (roleData as any)?.role || 'program_head';
+  const role = roleData?.role || 'program_head';
 
   return {
     user: {
@@ -88,7 +90,7 @@ export async function register(
   name: string,
   email: string,
   password: string
-): Promise<{ user: any; needsVerification: boolean }> {
+): Promise<{ user: SupabaseUser; needsVerification: boolean }> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -164,7 +166,7 @@ export async function getStoredUser(): Promise<User | null> {
 
   // Fetch role from user_roles table
   const { data: roleData, error: roleError } = await supabase
-    .from('user_roles' as any)
+    .from<UserRole>('user_roles')
     .select('role')
     .eq('user_id', session.user.id)
     .maybeSingle();
@@ -174,7 +176,7 @@ export async function getStoredUser(): Promise<User | null> {
     return null;
   }
 
-  const role = (roleData as any)?.role || 'program_head';
+  const role = roleData?.role || 'program_head';
 
   return {
     id: session.user.id,

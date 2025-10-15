@@ -17,3 +17,8 @@ export type UserProfileUpdate = {
   program_id?: string | null;
   department_id?: string | null;
 };
+
+export type UserRole = {
+  user_id: string;
+  role: string;
+};

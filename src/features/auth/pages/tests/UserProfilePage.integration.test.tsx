@@ -1,35 +1,96 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryClientProvider,
+  UseMutationResult,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import UserProfilePage from '../UserProfilePage';
 import { AuthContext } from '../../contexts/AuthContext';
 import type { AuthContextType } from '../../types/auth';
 import * as programHooks from '../../../programs/hooks/usePrograms';
 import * as departmentHooks from '../../../departments/hooks/useDepartments';
+import { Program, ProgramInsert, ProgramUpdate } from '../../../programs/types/program';
+import {
+  Department,
+  DepartmentInsert,
+  DepartmentUpdate,
+} from '../../../departments/types/department';
 
-const mockPrograms = [
-  { id: 'p1', name: 'Computer Science', short_code: 'CS', department_id: 'd1', created_at: '' },
-  { id: 'p2', name: 'Mathematics', short_code: 'MATH', department_id: 'd2', created_at: '' },
+const mockPrograms: Program[] = [
+  {
+    id: 'p1',
+    name: 'Computer Science',
+    short_code: 'CS',
+    department_id: 'd1',
+    created_at: '',
+  },
+  {
+    id: 'p2',
+    name: 'Mathematics',
+    short_code: 'MATH',
+    department_id: 'd2',
+    created_at: '',
+  },
 ];
 
-const mockDepartments = [
+const mockDepartments: Department[] = [
   { id: 'd1', name: 'Engineering', code: 'ENG', created_at: '' },
   { id: 'd2', name: 'Sciences', code: 'SCI', created_at: '' },
 ];
 
 vi.spyOn(programHooks, 'usePrograms').mockReturnValue({
-  listQuery: { data: mockPrograms, isLoading: false, error: null } as any,
-  createMutation: { mutate: vi.fn() } as any,
-  updateMutation: { mutate: vi.fn() } as any,
-  deleteMutation: { mutate: vi.fn() } as any,
+  listQuery: {
+    data: mockPrograms,
+    isLoading: false,
+    error: null,
+  } as UseQueryResult<Program[], Error>,
+  createMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
+    void,
+    Error,
+    ProgramInsert,
+    unknown
+  >,
+  updateMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
+    void,
+    Error,
+    { id: string; update: ProgramUpdate },
+    unknown
+  >,
+  deleteMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
+    void,
+    Error,
+    string,
+    unknown
+  >,
 });
 
 vi.spyOn(departmentHooks, 'useDepartments').mockReturnValue({
-  listQuery: { data: mockDepartments, isLoading: false, error: null } as any,
-  createMutation: { mutate: vi.fn() } as any,
-  updateMutation: { mutate: vi.fn() } as any,
-  deleteMutation: { mutate: vi.fn() } as any,
+  listQuery: {
+    data: mockDepartments,
+    isLoading: false,
+    error: null,
+  } as UseQueryResult<Department[], Error>,
+  createMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
+    void,
+    Error,
+    DepartmentInsert,
+    unknown
+  >,
+  updateMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
+    void,
+    Error,
+    { id: string; update: DepartmentUpdate },
+    unknown
+  >,
+  deleteMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
+    void,
+    Error,
+    string,
+    unknown
+  >,
 });
 
 const queryClient = new QueryClient();

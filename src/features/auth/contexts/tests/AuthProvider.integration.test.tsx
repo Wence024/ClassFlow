@@ -1,8 +1,10 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../AuthProvider';
 import * as authService from '../../services/authService';
+import { useAuthContext } from '../AuthContext';
+import { AuthContextType } from '../../types/auth';
 
 // Mock the auth service
 vi.mock('../../services/authService', () => ({
@@ -21,8 +23,12 @@ vi.mock('../../services/authService', () => ({
  * @param tc.onRender - Callback when component renders with auth context.
  * @returns A test component.
  */
-const TestComponent = ({ onRender }: { onRender: (ctx: any) => void }) => {
-  const ctx = require('../AuthContext').useAuthContext();
+const TestComponent = ({
+  onRender,
+}: {
+  onRender: (ctx: AuthContextType) => void;
+}) => {
+  const ctx = useAuthContext();
   onRender(ctx);
   return <div>Test Component</div>;
 };
@@ -42,39 +48,43 @@ describe('AuthProvider Integration Tests', () => {
       department_id: null,
     };
 
-    (authService.getStoredUser as any).mockResolvedValue(mockUser);
+    vi.mocked(authService.getStoredUser).mockResolvedValue(mockUser);
 
-    let capturedContext: any = null;
+    let capturedContext: AuthContextType | null = null;
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          <TestComponent
+            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
+          />
         </AuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(capturedContext.user).toEqual(mockUser);
-      expect(capturedContext.loading).toBe(false);
-      expect(capturedContext.role).toBe('admin');
+      expect(capturedContext?.user).toEqual(mockUser);
+      expect(capturedContext?.loading).toBe(false);
+      expect(capturedContext?.role).toBe('admin');
     });
   });
 
   it('should set user to null if no stored session exists', async () => {
-    (authService.getStoredUser as any).mockResolvedValue(null);
+    vi.mocked(authService.getStoredUser).mockResolvedValue(null);
 
-    let capturedContext: any = null;
+    let capturedContext: AuthContextType | null = null;
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          <TestComponent
+            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
+          />
         </AuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(capturedContext.user).toBeNull();
-      expect(capturedContext.loading).toBe(false);
+      expect(capturedContext?.user).toBeNull();
+      expect(capturedContext?.loading).toBe(false);
     });
   });
 
@@ -88,43 +98,49 @@ describe('AuthProvider Integration Tests', () => {
       department_id: 'd1',
     };
 
-    (authService.getStoredUser as any).mockResolvedValue(mockDeptHead);
+    vi.mocked(authService.getStoredUser).mockResolvedValue(mockDeptHead);
 
-    let capturedContext: any = null;
+    let capturedContext: AuthContextType | null = null;
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          <TestComponent
+            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
+          />
         </AuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(capturedContext.isAdmin()).toBe(false);
-      expect(capturedContext.isDepartmentHead()).toBe(true);
-      expect(capturedContext.isProgramHead()).toBe(false);
-      expect(capturedContext.canManageInstructors()).toBe(true);
-      expect(capturedContext.canManageClassrooms()).toBe(false);
-      expect(capturedContext.canReviewRequestsForDepartment('d1')).toBe(true);
-      expect(capturedContext.canReviewRequestsForDepartment('d2')).toBe(false);
+      expect(capturedContext?.isAdmin()).toBe(false);
+      expect(capturedContext?.isDepartmentHead()).toBe(true);
+      expect(capturedContext?.isProgramHead()).toBe(false);
+      expect(capturedContext?.canManageInstructors()).toBe(true);
+      expect(capturedContext?.canManageClassrooms()).toBe(false);
+      expect(capturedContext?.canReviewRequestsForDepartment('d1')).toBe(true);
+      expect(capturedContext?.canReviewRequestsForDepartment('d2')).toBe(false);
     });
   });
 
   it('should handle auth initialization errors gracefully', async () => {
-    (authService.getStoredUser as any).mockRejectedValue(new Error('Network error'));
+    vi.mocked(authService.getStoredUser).mockRejectedValue(
+      new Error('Network error')
+    );
 
-    let capturedContext: any = null;
+    let capturedContext: AuthContextType | null = null;
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          <TestComponent
+            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
+          />
         </AuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(capturedContext.user).toBeNull();
-      expect(capturedContext.loading).toBe(false);
+      expect(capturedContext?.user).toBeNull();
+      expect(capturedContext?.loading).toBe(false);
     });
   });
 
@@ -140,27 +156,31 @@ describe('AuthProvider Integration Tests', () => {
 
     const updatedUser = { ...mockUser, name: 'John Updated' };
 
-    (authService.getStoredUser as any).mockResolvedValue(mockUser);
-    (authService.updateMyProfileRow as any).mockResolvedValue(undefined);
-    (authService.getStoredUser as any).mockResolvedValueOnce(mockUser).mockResolvedValueOnce(updatedUser);
+    vi.mocked(authService.getStoredUser).mockResolvedValue(mockUser);
+    vi.mocked(authService.updateMyProfileRow).mockResolvedValue(undefined);
+    vi.mocked(authService.getStoredUser)
+      .mockResolvedValueOnce(mockUser)
+      .mockResolvedValueOnce(updatedUser);
 
-    let capturedContext: any = null;
+    let capturedContext: AuthContextType | null = null;
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          <TestComponent
+            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
+          />
         </AuthProvider>
       </MemoryRouter>
     );
 
     await waitFor(() => {
-      expect(capturedContext.user?.name).toBe('John Doe');
+      expect(capturedContext?.user?.name).toBe('John Doe');
     });
 
-    await capturedContext.updateMyProfile({ name: 'John Updated' });
+    await capturedContext?.updateMyProfile({ name: 'John Updated' });
 
     await waitFor(() => {
-      expect(capturedContext.user?.name).toBe('John Updated');
+      expect(capturedContext?.user?.name).toBe('John Updated');
     });
   });
 });
