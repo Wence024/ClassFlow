@@ -5,7 +5,7 @@
 import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { useLayout } from '../contexts/LayoutContext';
+import { useLayout } from '../contexts/hooks/useLayout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '../lib/utils';
 

@@ -7,7 +7,7 @@ import { PanelLeftClose, Menu } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 import RequestNotifications from './RequestNotifications';
 import { Button } from './ui/button';
-import { useLayout } from '../contexts/LayoutContext';
+import { useLayout } from '../contexts/hooks/useLayout';
 
 /**
  * Renders the main application header.
