@@ -6,9 +6,9 @@ import { LayoutProvider } from '../../contexts/LayoutContext';
 /**
  * Renders the main visual shell for all authenticated pages in the application.
  *
- * This component provides the consistent layout structure, including the top `Header`,
- * the role-aware `Sidebar`, and the main content area where child routes are rendered
- * via React Router's `<Outlet />`.
+ * Provides a consistent layout with a fixed header, docked sidebar, and flexible
+ * main content area. The layout responds to sidebar state changes, adjusting the
+ * main content area's position smoothly via transitions.
  *
  * @returns The main application layout component.
  */
@@ -17,14 +17,14 @@ const AppLayout = () => {
     <LayoutProvider>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-          <div className="flex flex-col lg:flex-row gap-6 h-full transition-all duration-300">
-            <Sidebar />
-            <main className="flex-1 space-y-6 min-w-0 transition-all duration-300" role="main">
-              <h1 className="sr-only">Main Content</h1>
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 overflow-auto p-6" role="main">
+            <h1 className="sr-only">Main Content</h1>
+            <div className="container mx-auto space-y-6">
               <Outlet />
-            </main>
-          </div>
+            </div>
+          </main>
         </div>
       </div>
     </LayoutProvider>

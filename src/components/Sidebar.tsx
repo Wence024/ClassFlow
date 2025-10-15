@@ -1,12 +1,13 @@
 /**
- * @file A collapsible sidebar component for application navigation.
- * This component provides role-based navigation with collapse/expand functionality.
+ * @file A docked, collapsible sidebar component for application navigation.
+ * Provides role-based navigation with icon-only mode and hover tooltips when collapsed.
  */
-import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useLayout } from '../contexts/LayoutContext';
-import { Button } from './ui/button/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { cn } from '../lib/utils';
 
 /** An array defining the base navigation links for all users. */
 const baseNavLinks = [
@@ -33,18 +34,19 @@ const programHeadNavLinks = [
   { to: '/browse/instructors', icon: Search, label: 'Browse Instructors' },
   { to: '/requests/instructor', icon: Send, label: 'Request Instructor' },
 ];
+
 /**
- * Renders a role-aware collapsible sidebar for navigation.
+ * Renders a role-aware docked sidebar for navigation.
  *
- * This component displays navigation links based on user role and can be collapsed
- * to provide more horizontal space for content. The collapse state is managed via
- * the LayoutContext.
+ * Displays navigation links based on user role. When collapsed, shows only icons
+ * with tooltips on hover. The sidebar is permanently docked to the left side of
+ * the application and transitions smoothly between expanded and collapsed states.
  *
  * @returns The rendered sidebar component with navigation links tailored to the user's permissions.
  */
 const Sidebar = () => {
   const { isAdmin, isDepartmentHead, isProgramHead } = useAuth();
-  const { isSidebarCollapsed, toggleSidebar } = useLayout();
+  const { isSidebarCollapsed } = useLayout();
 
   // Build navigation links based on user role
   let navLinks = [...baseNavLinks];
@@ -62,46 +64,46 @@ const Sidebar = () => {
   }
 
   return (
-    <aside className={`flex-shrink-0 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sticky top-4">
-        <nav className="space-y-1">
+    <aside
+      className={cn(
+        'bg-white border-r border-gray-200 h-screen sticky top-0 transition-all duration-300',
+        isSidebarCollapsed ? 'w-20' : 'w-64'
+      )}
+    >
+      <nav className="p-4 space-y-1">
+        <TooltipProvider delayDuration={0}>
           {navLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                `w-full flex items-center gap-3 px-3 py-2 text-left text-sm font-medium rounded-md transition-colors ${
-                  isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
-                }`
-              }
-              title={isSidebarCollapsed ? link.label : undefined}
-            >
-              <link.icon className="w-4 h-4 flex-shrink-0" />
-              <span className={`transition-opacity duration-300 ${isSidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
-                {link.label}
-              </span>
-            </NavLink>
+            <Tooltip key={link.to}>
+              <TooltipTrigger asChild>
+                <NavLink
+                  to={link.to}
+                  className={({ isActive }) =>
+                    cn(
+                      'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors',
+                      isActive ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+                    )
+                  }
+                >
+                  <link.icon className="h-5 w-5 flex-shrink-0" />
+                  <span
+                    className={cn(
+                      'transition-all duration-300 whitespace-nowrap',
+                      isSidebarCollapsed ? 'w-0 opacity-0 overflow-hidden' : 'w-auto opacity-100'
+                    )}
+                  >
+                    {link.label}
+                  </span>
+                </NavLink>
+              </TooltipTrigger>
+              {isSidebarCollapsed && (
+                <TooltipContent side="right">
+                  <p>{link.label}</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
           ))}
-        </nav>
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleSidebar}
-            className="w-full flex items-center justify-center gap-2"
-            title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isSidebarCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4" />
-                <span>Collapse</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
+        </TooltipProvider>
+      </nav>
     </aside>
   );
 };
