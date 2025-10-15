@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { usePrograms } from '../hooks/usePrograms';
+import { useDepartments } from '../../departments/hooks/useDepartments';
 import { useAuth } from '../../auth/hooks/useAuth';
 import {
   Button,
@@ -25,20 +26,25 @@ import FormField from '@/components/ui/custom/form-field';
 export default function ProgramManagementPage() {
   const { isAdmin } = useAuth();
   const { listQuery, createMutation, updateMutation, deleteMutation } = usePrograms();
+  const { listQuery: departmentsQuery } = useDepartments();
   const [searchTerm, setSearchTerm] = useState('');
   const [editing, setEditing] = useState<Program | null>(null);
   const [toDelete, setToDelete] = useState<Program | null>(null);
 
   const formMethods = useForm<ProgramFormData>({
     resolver: zodResolver(programSchema),
-    defaultValues: { name: '', short_code: '' },
+    defaultValues: { name: '', short_code: '', department_id: '' },
   });
 
   useEffect(() => {
     if (editing) {
-      formMethods.reset({ name: editing.name, short_code: editing.short_code });
+      formMethods.reset({ 
+        name: editing.name, 
+        short_code: editing.short_code, 
+        department_id: editing.department_id || '' 
+      });
     } else {
-      formMethods.reset({ name: '', short_code: '' });
+      formMethods.reset({ name: '', short_code: '', department_id: '' });
     }
   }, [editing, formMethods]);
 
@@ -50,23 +56,45 @@ export default function ProgramManagementPage() {
   }, [listQuery.data, searchTerm]);
 
   const onCreate = async (data: ProgramFormData) => {
-    await createMutation.mutateAsync({ name: data.name, short_code: data.short_code });
+    await createMutation.mutateAsync({ 
+      name: data.name, 
+      short_code: data.short_code, 
+      department_id: data.department_id 
+    });
     formMethods.reset();
   };
 
   const onSaveEdit = async () => {
     if (!editing) return;
     const values = formMethods.getValues();
-    await updateMutation.mutateAsync({ id: editing.id, update: { name: values.name, short_code: values.short_code } });
+    await updateMutation.mutateAsync({ 
+      id: editing.id, 
+      update: { 
+        name: values.name, 
+        short_code: values.short_code, 
+        department_id: values.department_id 
+      } 
+    });
     setEditing(null);
   };
+
+  const departmentOptions = useMemo(() => {
+    return (departmentsQuery.data || []).map(d => ({ id: d.id, name: d.name }));
+  }, [departmentsQuery.data]);
+
+  const departmentsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    (departmentsQuery.data || []).forEach(d => map.set(d.id, d.name));
+    return map;
+  }, [departmentsQuery.data]);
 
   if (!isAdmin()) {
     return <Alert variant="destructive">You do not have access to this page.</Alert>;
   }
 
-  if (listQuery.isLoading) return <LoadingSpinner text="Loading programs..." />;
+  if (listQuery.isLoading || departmentsQuery.isLoading) return <LoadingSpinner text="Loading programs..." />;
   if (listQuery.error) return <ErrorMessage message="Failed to load programs." />;
+  if (departmentsQuery.error) return <ErrorMessage message="Failed to load departments." />;
 
   return (
     <>
@@ -77,7 +105,11 @@ export default function ProgramManagementPage() {
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editing ? onSaveEdit : onCreate)}>
                 <fieldset className="space-y-2">
-                  <ProgramFields control={formMethods.control} errors={formMethods.formState.errors} />
+                  <ProgramFields 
+                    control={formMethods.control} 
+                    errors={formMethods.formState.errors} 
+                    departmentOptions={departmentOptions}
+                  />
                   <div className="flex gap-2 pt-2">
                     <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
                       {editing ? 'Save Changes' : 'Create'}
@@ -114,7 +146,13 @@ export default function ProgramManagementPage() {
                 <div className="text-gray-500">No programs found.</div>
               ) : (
                 filtered.map((p) => (
-                  <ProgramCard key={p.id} program={p} onEdit={setEditing} onDelete={(id) => setToDelete(filtered.find((x) => x.id === id) || null)} />
+                  <ProgramCard 
+                    key={p.id} 
+                    program={p} 
+                    onEdit={setEditing} 
+                    onDelete={(id) => setToDelete(filtered.find((x) => x.id === id) || null)}
+                    departmentName={p.department_id ? departmentsMap.get(p.department_id) : undefined}
+                  />
                 ))
               )}
             </div>
