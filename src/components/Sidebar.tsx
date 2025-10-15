@@ -9,28 +9,28 @@ import { useLayout } from '../contexts/hooks/useLayout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '../lib/utils';
 
-/** An array defining the base navigation links for all users. */
-const baseNavLinks = [
+/** An array defining the navigation links for admin users - ordered by workflow. */
+const adminNavLinks = [
+  { to: '/user-management', icon: Users, label: 'User Management' },
+  { to: '/departments', icon: Building2, label: 'Departments' },
+  { to: '/programs', icon: Blocks, label: 'Programs' },
+  { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
+  { to: '/schedule-configuration', icon: Settings, label: 'Settings' },
+];
+
+/** An array defining the navigation links for department heads - ordered by workflow. */
+const departmentHeadNavLinks = [
+  { to: '/dept-head', icon: Users, label: 'Department Dashboard' },
   { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
   { to: '/class-sessions', icon: BookOpenCheck, label: 'Manage Classes' },
   { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
 ];
 
-/** An array defining the navigation links for admin users only. */
-const adminNavLinks = [
-  { to: '/departments', icon: Building2, label: 'Departments' },
-  { to: '/programs', icon: Blocks, label: 'Programs' },
-  { to: '/user-management', icon: Users, label: 'User Management' },
-  { to: '/schedule-configuration', icon: Settings, label: 'Settings' },
-];
-
-/** An array defining the navigation links for department heads. */
-const departmentHeadNavLinks = [
-  { to: '/dept-head', icon: Users, label: 'Department Dashboard' },
-];
-
-/** An array defining the navigation links for program heads. */
+/** An array defining the navigation links for program heads - ordered by workflow. */
 const programHeadNavLinks = [
+  { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
+  { to: '/class-sessions', icon: BookOpenCheck, label: 'Manage Classes' },
+  { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
   { to: '/browse/instructors', icon: Search, label: 'Browse Instructors' },
   { to: '/requests/instructor', icon: Send, label: 'Request Instructor' },
 ];
@@ -48,19 +48,15 @@ const Sidebar = () => {
   const { isAdmin, isDepartmentHead, isProgramHead } = useAuth();
   const { isSidebarCollapsed } = useLayout();
 
-  // Build navigation links based on user role
-  let navLinks = [...baseNavLinks];
+  // Build navigation links based on user role - each role has its own workflow
+  let navLinks: typeof adminNavLinks = [];
   
   if (isAdmin()) {
-    navLinks = [...navLinks, ...adminNavLinks];
-  }
-  
-  if (isDepartmentHead()) {
-    navLinks = [...navLinks, ...departmentHeadNavLinks];
-  }
-  
-  if (isProgramHead()) {
-    navLinks = [...navLinks, ...programHeadNavLinks];
+    navLinks = adminNavLinks;
+  } else if (isDepartmentHead()) {
+    navLinks = departmentHeadNavLinks;
+  } else if (isProgramHead()) {
+    navLinks = programHeadNavLinks;
   }
 
   return (
