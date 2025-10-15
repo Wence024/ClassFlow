@@ -124,6 +124,8 @@ Implemented a modern, docked sidebar with collapsible functionality:
 7. **✅ `src/components/layout/tests/AppLayout.integration.test.tsx`** - Tests for sidebar collapse behavior and state persistence.
 8. **✅ `src/components/layout/tests/Sidebar.integration.test.tsx`** - Updated to include LayoutProvider in test setup.
 
+6. **✅ `src/features/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx`** - Tests invite acceptance and user registration flow.
+
 **JSDoc Coverage:**
 
 * Added comprehensive JSDoc comments to `useDepartments` hook
@@ -142,6 +144,8 @@ Implemented a modern, docked sidebar with collapsible functionality:
   * Implemented SECURITY DEFINER functions for role checks to avoid RLS recursion.
   * Updated auth service to fetch roles from dedicated table.
   * Removed client-side role override (DevRoleSwitcher) to prevent permission mismatches between client and server.
+  * Removed public registration code paths and replaced with admin-only invite workflow.
+  * Fixed full_name population in CompleteRegistrationPage to update profiles table correctly.
 * **User Management**: Added comprehensive user profile management with role-based access control.
 * **Collapsible Sidebar**: Implemented modern docked sidebar with toggle in header, icon-only collapsed mode with tooltips, and smooth transitions between states.
 
@@ -160,6 +164,7 @@ All Phase 4 tasks have been completed successfully:
    - Linting: ✅ Passes with zero errors
    - Type checking: ✅ Passes with zero errors  
    - Full test suite: ✅ All 171 tests passing
+* **Test Maintenance**: Removed all references to deleted `register()` and `resendVerificationEmail()` functions from test mocks.
 
 ### **Next Steps:**
 

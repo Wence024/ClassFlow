@@ -30,9 +30,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
         role: 'program_head',
         loading: false,
         login: vi.fn(),
-        register: vi.fn(),
         logout: vi.fn(),
-        resendVerificationEmail: vi.fn(),
         error: null,
         clearError: vi.fn(),
       }}
