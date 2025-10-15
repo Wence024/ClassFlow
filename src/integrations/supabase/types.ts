@@ -599,6 +599,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_user: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       admin_update_user_profile: {
         Args: {
           new_department_id?: string
