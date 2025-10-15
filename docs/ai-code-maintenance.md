@@ -13,7 +13,7 @@
 
 ## **Step 1: Full Project Linting Pass**
 
-1. Execute the linting command: `npm run lint -- --fix`.
+1. Execute the linting command: `npm run lint:fix`.
 2. Analyze the output for any remaining errors that were not auto-fixed. Apply the necessary code changes to resolve **all** linting issues.
 3. Once the command `npm run lint` passes with zero errors, create a single Git commit for all the linting-related changes.
     * **Commit Example:** `style(lint): :art: resolve all ESLint errors and warnings`
@@ -111,6 +111,19 @@ Created user management and authentication integration tests:
 4. **✅ `src/features/auth/contexts/tests/AuthProvider.integration.test.tsx`** - Tests auth context and role-based permissions.
 5. **✅ `src/features/auth/services/tests/authService.integration.test.ts`** - Tests auth service with secure role management.
 
+### **Phase 3: Collapsible Sidebar (feat/collapsible-sidebar) - ✅ COMPLETED**
+
+Implemented a modern, docked sidebar with collapsible functionality:
+
+1. **✅ `src/contexts/LayoutContext.tsx`** - Created global layout context for sidebar state management.
+2. **✅ `src/components/Header.tsx`** - Added sidebar toggle button with collapse/expand icons.
+3. **✅ `src/components/Sidebar.tsx`** - Refactored to support collapsible behavior with icon-only mode and hover tooltips.
+4. **✅ `src/components/layout/AppLayout.tsx`** - Integrated LayoutProvider and smooth transitions.
+5. **✅ `src/contexts/tests/LayoutContext.test.tsx`** - Tests for layout context state management.
+6. **✅ `src/components/tests/Header.integration.test.tsx`** - Tests for header toggle button integration.
+7. **✅ `src/components/layout/tests/AppLayout.integration.test.tsx`** - Tests for sidebar collapse behavior and state persistence.
+8. **✅ `src/components/layout/tests/Sidebar.integration.test.tsx`** - Updated to include LayoutProvider in test setup.
+
 **JSDoc Coverage:**
 
 * Added comprehensive JSDoc comments to `useDepartments` hook
@@ -130,6 +143,23 @@ Created user management and authentication integration tests:
   * Updated auth service to fetch roles from dedicated table.
   * Removed client-side role override (DevRoleSwitcher) to prevent permission mismatches between client and server.
 * **User Management**: Added comprehensive user profile management with role-based access control.
+* **Collapsible Sidebar**: Implemented modern docked sidebar with toggle in header, icon-only collapsed mode with tooltips, and smooth transitions between states.
+
+### **Phase 4: Final Maintenance Pass - ✅ COMPLETED**
+
+All Phase 4 tasks have been completed successfully:
+
+1. **✅ Full Project Linting Pass** - All ESLint errors and warnings resolved with `npm run lint:fix`.
+2. **✅ Full Project Type Checking Pass** - All TypeScript errors resolved with `npm run type-check`.
+3. **✅ Iterative Testing Pass** - All test files processed and verified to pass:
+   - `src/contexts/tests/LayoutContext.test.tsx` - LayoutContext state management tests
+   - `src/components/tests/Header.integration.test.tsx` - Header sidebar toggle integration tests (fixed QueryClient provider)
+   - `src/components/layout/tests/AppLayout.integration.test.tsx` - AppLayout collapsible sidebar integration tests (fixed QueryClient provider)
+   - `src/components/layout/tests/Sidebar.integration.test.tsx` - Sidebar role-based navigation tests
+4. **✅ Final Verification Pass** - All checks completed successfully:
+   - Linting: ✅ Passes with zero errors
+   - Type checking: ✅ Passes with zero errors  
+   - Full test suite: ✅ All 171 tests passing
 
 ### **Next Steps:**
 
@@ -139,8 +169,10 @@ The codebase has progressed with comprehensive user management and authenticatio
 2. **✅ Created user management and authentication tests** to ensure secure role-based access control.
 3. **✅ Updated program-department relationship tests** - Fixed test expectations to include required `department_id` field for all program operations.
 4. **✅ Run the full test suite** to verify all tests pass: `npm run test`.
-5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run typeCheck`.
+5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`.
 6. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.
+
+**🎉 MAINTENANCE COMPLETE** - The `feat/collapsible-sidebar` branch is now ready for final review and merge to main branch.
 
 ### **Phase 3: Final Testing and Verification - ✅ COMPLETED**
 

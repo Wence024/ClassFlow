@@ -22,6 +22,13 @@ Here is a rearranged, consolidated, and prioritized to-do list.
     * **Task:** `Timetabling: Fix tooltip truncating outside timetable area`
     * **Action:** Adjust the CSS for the tooltip in `Timetable.tsx`. This might involve ensuring the timetable's container doesn't have `overflow: hidden` or using a portal-based tooltip library that renders at the root of the document.
 
+5. [x] **[UI/UX] Implement Collapsible Sidebar**
+    * **Task:** `Add collapsible sidebar to maximize screen space for content-dense pages`
+    * **Branch:** `feat/collapsible-sidebar`
+    * **Status:** ✅ Completed
+    * **Action:** Created `LayoutContext` for global sidebar state management. Integrated toggle button in Header with collapse/expand icons. Refactored Sidebar to support icon-only collapsed mode with hover tooltips. Added smooth transitions and comprehensive test coverage.
+    * **Documentation:** See `docs/feature-plans/collapsible-sidebar.md` for full details.
+
 ## **Phase 2: Advanced Scheduling & Data Integrity (Current Sprint)**
 
 *With the UI polished, this phase focuses on implementing the next major piece of core functionality: resource-aware conflict detection.*
@@ -206,8 +213,218 @@ Ponderings:
 * A collapsible sidebar would be great.
 * A single-page UI for timetabling would be intuitive.
 * A folder restructure according to use case would be clarifying.
-* [ ] A "Not Assigned" for profiles is better than "-".
+* An optional name for `invite user` field in user management would be nice?
+* Resolving the security concerns by lovable would be nice.
+* Resolving the supabase warnings for performance query would be nice.
+* [x] A "Not Assigned" for profiles is better than "-".
+* Choosing between program head role / program selection and department head role / department selection is more intuitive.
 
 * [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
 * [x] Programs need to be related to only one department (implemented with department_id foreign key and UI).
 * [ ] Check for data anomalies regarding program management.
+
+Big backlog: security concerns by lovable:
+
+```
+Backlogs: A new Lovable ai project where I injected my codebase through github gave this response:
+
+I'll scan the codebase to understand the current state of this college scheduling system and analyze the security implications of the recent authentication changes.
+
+Now let me check the database schema and RLS policies more thoroughly:
+
+Let me check if there are any remaining public registration pages:
+
+Now let me check the database trigger more thoroughly and look at the security scan results:
+
+Perfect! Now let me check if the register function is still being used anywhere in the UI and verify the complete state of authentication:
+
+Excellent! Now let me create a comprehensive security analysis and implementation plan:
+
+## 🔒 **Security Audit Report: College Scheduling System**
+
+Based on my comprehensive scan of the codebase, I've identified both **strengths** and **critical areas** that need attention. Here's what I found:
+
+---
+
+### ✅ **Security Strengths - Well Implemented**
+
+1. **✅ Roles in Separate Table (CRITICAL)**
+   - **Excellent work!** Roles are correctly stored in the `user_roles` table (not in `profiles`)
+   - This prevents privilege escalation attacks where users could modify their own role
+   - Security definer functions (`has_role()`, `get_user_role()`) properly bypass RLS without exposing data
+
+2. **✅ Admin-Only Invite System**
+   - Public registration has been successfully removed
+   - The `invite-user` edge function properly validates admin status before sending invitations
+   - Role and department/program assignments are set at invitation time
+
+3. **✅ Comprehensive RLS Policies**
+   - Row-level security is enabled on critical tables
+   - Policies correctly use the `has_role()` function to avoid recursive RLS issues
+   - Department and program scoping is properly enforced
+
+4. **✅ Proper Authentication Flow**
+   - Session management follows Supabase best practices
+   - Roles are fetched from `user_roles` table during login
+   - Auth context properly separates concerns
+
+---
+
+### ⚠️ **Security Issues & Recommendations**
+
+#### **1. CRITICAL: Unused Registration Function Still Exists**
+
+**Issue:** The `register()` function in `AuthProvider` and `authService` is still present and functional, even though public registration has been removed from the UI.
+
+**Risk:** If an attacker discovers the API endpoint or calls the function directly, they could bypass the admin-only invite system.
+
+**Current State:**
+- `src/features/auth/services/authService.ts` - `register()` function exists
+- `src/features/auth/contexts/AuthProvider.tsx` - `register()` method exposed in context
+- No UI currently calls this function
+
+**Recommendation:**
+```typescript
+// Option 1: Remove the function entirely (recommended)
+// Delete the register() function from authService.ts and AuthProvider.tsx
+
+// Option 2: Disable at database level (defense in depth)
+// In Supabase Auth settings, disable public signups entirely
+```
+
+**Action Plan:**
+
+**Step 1: Remove Client-Side Registration Code**
+- Delete `register()` function from `src/features/auth/services/authService.ts`
+- Remove `register` from `AuthProvider` context value
+- Remove `register` from `AuthContextType` interface
+- Update all test mocks to remove register references
+
+**Step 2: Disable Public Signups in Supabase**
+- Navigate to Supabase Dashboard → Authentication → Settings
+- Disable "Enable email signups" option
+- This adds a second layer of defense even if code is somehow compromised
+
+**Step 3: Clean Up Related Code**
+- Remove `resendVerificationEmail()` function (only used with public registration)
+- Delete `VerifyEmailPage.tsx` (no longer needed)
+- Remove `/verify-email` route from `AuthRoutes.tsx`
+- Update any documentation referencing public registration
+
+---
+
+#### **2. MEDIUM: Function Security Warnings**
+
+**Issue:** The Supabase linter reports 3 functions without explicit `search_path` settings.
+
+**Risk:** Without explicit search paths, functions could be vulnerable to search path injection attacks.
+
+**Functions Affected:**
+- `update_user_role()`
+- `get_my_role()`
+- `create_user()`
+
+**Recommendation:**
+All functions should include `SET search_path = public` or specific schemas:
+```sql
+CREATE OR REPLACE FUNCTION public.get_my_role()
+RETURNS text
+LANGUAGE plpgsql
+STABLE SECURITY DEFINER
+SET search_path = public  -- ✅ Add this
+AS $$
+BEGIN
+  RETURN (
+    SELECT role::text
+    FROM public.user_roles
+    WHERE user_id = auth.uid()
+  );
+END;
+$$;
+```
+
+---
+
+#### **3. LOW: Auth Configuration Hardening**
+
+**Issues from Linter:**
+- OTP expiry exceeds recommended threshold
+- Leaked password protection is disabled
+- Postgres version has security patches available
+
+**Recommendations:**
+- Reduce OTP expiry to 24 hours or less
+- Enable leaked password protection (checks against haveibeenpwned)
+- Schedule a Postgres upgrade to apply security patches
+
+---
+
+#### **4. MEDIUM: Incomplete Error Handling in Edge Function**
+
+**Issue:** The `invite-user` edge function catches errors but doesn't validate all inputs thoroughly.
+
+**Current Code:**
+```typescript
+const { email, role, program_id, department_id } = await req.json();
+
+if (!email || !role) {
+  throw new Error('Email and role are required');
+}
+```
+
+**Risk:** Missing validation for:
+- Email format validity
+- Role is one of the allowed values
+- Program/department IDs exist in database
+
+**Recommendation:**
+```typescript
+// Add validation library
+import { z } from 'zod';
+
+const inviteSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  role: z.enum(['admin', 'department_head', 'program_head']),
+  program_id: z.string().uuid().nullable(),
+  department_id: z.string().uuid().nullable(),
+});
+
+// In the function
+const body = await req.json();
+const validatedData = inviteSchema.parse(body);
+```
+
+---
+
+### 📊 **Overall Security Score: B+ (Good, with room for improvement)**
+
+**Breakdown:**
+- ✅ Critical foundations: **A** (roles table, RLS, admin invites)
+- ⚠️ Code cleanup: **C** (unused registration code)
+- ⚠️ Configuration: **B** (some hardening needed)
+- ⚠️ Input validation: **B-** (edge function needs improvement)
+
+---
+
+### 🎯 **Prioritized Action Items**
+
+**Priority 1 (This Week):**
+1. Remove unused `register()` functions from codebase
+2. Disable public signups in Supabase Auth settings
+3. Add `SET search_path = public` to all security definer functions
+
+**Priority 2 (Next Sprint):**
+4. Add comprehensive input validation to `invite-user` edge function
+5. Enable leaked password protection
+6. Reduce OTP expiry time
+
+**Priority 3 (Maintenance):**
+7. Schedule Postgres upgrade
+8. Review and test all RLS policies with different user roles
+9. Add security testing to CI/CD pipeline
+
+---
+
+Would you like me to implement any of these recommendations? I can start with Priority 1 items to eliminate the critical security gap with the unused registration code.
+
+```

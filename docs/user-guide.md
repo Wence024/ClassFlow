@@ -11,14 +11,28 @@ ClassFlow has two primary user roles with different capabilities:
 
 ## Core Concepts
 
-- **Departments**: Organizational units that contain multiple programs (e.g., "Computer Science Department").
-- **Programs**: Academic programs within a department (e.g., "Bachelor of Science in Computer Science").
+### Navigation
+
+ClassFlow features a collapsible sidebar for efficient navigation:
+
+- **Expanded Sidebar (Default)**: Shows navigation icons with text labels for easy identification
+- **Collapsed Sidebar**: Click the toggle button (☰) in the header to collapse the sidebar to icon-only mode, maximizing screen space for content-dense pages
+- **Tooltips**: When collapsed, hover over any navigation icon to see its full label
+- **State Persistence**: Your sidebar preference persists as you navigate between pages
+
+To toggle the sidebar, click the collapse/expand button at the top-left of the header, next to the "ClassFlow" title.
+
+### Data Components
+
 - **Components**: These are the building blocks of your schedule.
   - **Courses**: The subjects being taught (e.g., "CS101").
   - **Class Groups**: The group of students taking the class (e.g., "Section A").
   - **Instructors & Classrooms**: Shared, school-wide resources managed by an Admin.
 - **Class Sessions**: A specific combination of a Course, Group, Instructor, and Classroom for a set duration. These are the items you place on the timetable.
 - **Timetable**: The main grid where you can visually schedule your Class Sessions.
+
+- **Departments**: Organizational units that contain multiple programs (e.g., "Computer Science Department").
+- **Programs**: Academic programs within a department (e.g., "Bachelor of Science in Computer Science").
 
 ## How to Build Your Schedule: A Step-by-Step Guide
 

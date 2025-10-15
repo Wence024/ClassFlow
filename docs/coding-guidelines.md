@@ -1,6 +1,6 @@
 # Coding Guidelines & Development Phases
 
-This document outlines the phased approach to development for UniScheduleWeave, ensuring a balance between rapid delivery and long-term maintainability. It serves as the official standard for structuring features and prioritizing work.
+This document outlines the phased approach to development for ClassFlow, ensuring a balance between rapid delivery and long-term maintainability. It serves as the official standard for structuring features and prioritizing work.
 
 ---
 
@@ -20,7 +20,7 @@ The focus of the MVP phase is to deliver a functional, stable, and secure applic
 - **Type Safety**: The entire codebase is strictly typed with TypeScript. Avoid `any` and non-null assertions (`!`).
 - **Documentation**: All exported hooks, services, and components must have JSDoc comments, which are enforced by ESLint.
 - **Folder Structure**: Adhere to the established feature-sliced architecture.
-- **Styling**: Use Tailwind CSS utility classes for all styling to maintain consistency.
+- **Styling**: Use Tailwind CSS utility classes and shadcn/ui components for all styling to maintain consistency.
 
 ### **User Experience**
 
@@ -87,3 +87,38 @@ For long-term growth, the focus is on advanced features, enterprise-grade reliab
 
 - Maintain detailed architecture diagrams using tools like Mermaid.js.
 - Create comprehensive deployment and CI/CD documentation.
+
+---
+
+## Development Standards
+
+### **Component Development**
+
+In every code creation, remember:
+
+- **Loading/Error States**: Make sure to include loading states and error-handling states for all components.
+- **Shadcn/ui Usage**: In every rendered component, make sure to use shadcn/ui components as much as possible.
+- **JSDoc Documentation**: All exported functions and classes must have proper JSDoc comments.
+
+### **JSDoc and Readability Rules**
+
+- 🔕 **Disable conflicting unused-var rules**
+  - `sonarjs/no-unused-vars`: off
+  - `@typescript-eslint/no-unused-vars`: off
+
+- 🧠 **Enforce cognitive complexity ≤ 10**
+  - `sonarjs/cognitive-complexity`: error
+
+- 📖 **Require JSDoc for exported functions/classes**
+  - Applies to: function declarations, methods, classes, arrow functions, expressions
+  - `jsdoc/require-jsdoc`: warn (public only)
+
+- 🚫 **No type annotations in JSDoc** (`jsdoc/no-types`: error)
+
+- ✍️ **JSDoc formatting standards**
+  - Tag lines: always 1 line before, none after
+  - Multiline blocks: warn
+  - Require descriptions for functions, params, returns
+  - No multiple asterisks
+  - Descriptions must be full sentences
+  - "root0" as in the linter's destructured object suggestion should be replaced instead by the capital letters of the component (e.g., "rl." for RootLayout, "sc." for SessionCell)
