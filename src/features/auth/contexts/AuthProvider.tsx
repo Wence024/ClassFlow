@@ -112,13 +112,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
     try {
       const { user, needsVerification } = await authService.register(name, email, password);
+      
       if (needsVerification) {
-        // If email verification is required, guide the user to the verification page.
+        // Store email for the verification page to use
+        localStorage.setItem('emailForVerification', email);
         setUser(null);
         navigate('/verify-email');
-      } else {
-        // Otherwise, log them in and redirect.
-        setUser(user);
+      } else if (user) {
+        // Rare case: no verification needed, fetch full profile and log in
+        const loggedInUser = await authService.getStoredUser();
+        setUser(loggedInUser);
         navigate('/scheduler');
       }
     } catch (err: unknown) {

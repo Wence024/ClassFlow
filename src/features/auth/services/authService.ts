@@ -81,14 +81,14 @@ export async function login(email: string, password: string): Promise<AuthRespon
  * @param name - The user's full name.
  * @param email - The user's email address.
  * @param password - The desired password for the new account.
- * @returns A promise that resolves to an object containing the new user, a token (if available), and a flag indicating if email verification is needed.
+ * @returns A promise that resolves to an object containing the auth user and a flag indicating if email verification is needed.
  * @throws {Error} Throws an error if registration fails.
  */
 export async function register(
   name: string,
   email: string,
   password: string
-): Promise<{ user: User; token: string; needsVerification: boolean }> {
+): Promise<{ user: any; needsVerification: boolean }> {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -107,45 +107,11 @@ export async function register(
     throw new Error('Registration failed due to an unexpected issue.');
   }
 
-  // Fetch program_id, department_id from profiles table
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('program_id, department_id')
-    .eq('id', data.user.id)
-    .single();
-
-  if (profileError || !profile) {
-    console.error('Profile fetch error during registration:', profileError);
-    throw new Error('Registration successful, but could not find user profile.');
-  }
-
-  // Fetch role from user_roles table
-  const { data: roleData, error: roleError } = await supabase
-    .from('user_roles' as any)
-    .select('role')
-    .eq('user_id', data.user.id)
-    .maybeSingle();
-
-  if (roleError) {
-    console.error('Role fetch error during registration:', roleError);
-    throw new Error('Registration successful, but could not fetch user role.');
-  }
-
-  const role = (roleData as any)?.role || 'program_head';
-
   // If `data.session` is null, it means Supabase requires email verification.
   const needsVerification = !data.session;
 
   return {
-    user: {
-      id: data.user.id,
-      name: data.user.user_metadata?.name || name,
-      email: data.user.email!,
-      role: role || 'program_head',
-      program_id: profile.program_id,
-      department_id: profile.department_id
-    },
-    token: data.session?.access_token || '',
+    user: data.user,
     needsVerification: needsVerification,
   };
 }
