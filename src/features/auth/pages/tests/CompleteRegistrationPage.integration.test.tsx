@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-hardcoded-passwords */
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
@@ -24,6 +25,8 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('CompleteRegistrationPage', () => {
+  const TEST_PASSWORD = 'TestPassword123';
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -65,13 +68,13 @@ describe('CompleteRegistrationPage', () => {
     const submitButton = screen.getByRole('button', { name: /complete registration/i });
 
     await user.type(nameInput, 'John Doe');
-    await user.type(passwordInput, 'SecurePass123!');
-    await user.type(confirmInput, 'SecurePass123!');
+    await user.type(passwordInput, TEST_PASSWORD);
+    await user.type(confirmInput, TEST_PASSWORD);
     await user.click(submitButton);
 
     await waitFor(() => {
       expect(mockUpdateUser).toHaveBeenCalledWith({
-        password: 'SecurePass123!',
+        password: TEST_PASSWORD,
       });
       expect(mockFrom).toHaveBeenCalledWith('profiles');
     });
@@ -92,7 +95,7 @@ describe('CompleteRegistrationPage', () => {
     const submitButton = screen.getByRole('button', { name: /complete registration/i });
 
     await user.type(nameInput, 'John Doe');
-    await user.type(passwordInput, 'SecurePass123!');
+    await user.type(passwordInput, TEST_PASSWORD);
     await user.type(confirmInput, 'DifferentPass123!');
     await user.click(submitButton);
 
@@ -121,8 +124,8 @@ describe('CompleteRegistrationPage', () => {
     const submitButton = screen.getByRole('button', { name: /complete registration/i });
 
     await user.type(nameInput, 'John Doe');
-    await user.type(passwordInput, 'SecurePass123!');
-    await user.type(confirmInput, 'SecurePass123!');
+    await user.type(passwordInput, TEST_PASSWORD);
+    await user.type(confirmInput, TEST_PASSWORD);
     await user.click(submitButton);
 
     await waitFor(() => {
