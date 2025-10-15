@@ -65,13 +65,23 @@ export default function CompleteRegistrationPage() {
 
     setLoading(true);
     try {
-      // Update user with new password and full name
-      const { error: updateError } = await supabase.auth.updateUser({
+      // Update user with new password and full name in auth metadata
+      const { data: userData, error: updateError } = await supabase.auth.updateUser({
         password: formData.password,
         data: { full_name: formData.fullName },
       });
 
       if (updateError) throw updateError;
+
+      // Update the profiles table with the full name
+      if (userData.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ full_name: formData.fullName })
+          .eq('id', userData.user.id);
+
+        if (profileError) throw profileError;
+      }
 
       toast.success('Registration completed! Please log in.');
       navigate('/login');
