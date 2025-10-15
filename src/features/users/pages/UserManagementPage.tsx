@@ -13,9 +13,18 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui';
 import FormField from '@/components/ui/custom/form-field';
-import type { UserProfile } from '../types/user';
+import type { UserProfile, Role } from '../types/user';
+import { inviteUser } from '../services/usersService';
+import { toast } from 'sonner';
+import { UserPlus } from 'lucide-react';
 
 /**
  * A page for administrators to manage user roles, programs, and departments.
@@ -28,6 +37,14 @@ export default function UserManagementPage() {
   const { listQuery: programsQuery } = usePrograms();
   const { listQuery: departmentsQuery } = useDepartments();
   const [searchTerm, setSearchTerm] = useState('');
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteForm, setInviteForm] = useState({
+    email: '',
+    role: 'program_head' as Role,
+    program_id: null as string | null,
+    department_id: null as string | null,
+  });
 
   const filtered = useMemo(() => {
     const list = usersQuery.data || [];
@@ -41,6 +58,31 @@ export default function UserManagementPage() {
       userId,
       updates: { [field]: value || null },
     });
+  };
+
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inviteForm.email || !inviteForm.role) {
+      toast.error('Email and role are required');
+      return;
+    }
+
+    setInviteLoading(true);
+    try {
+      await inviteUser(inviteForm);
+      toast.success(`Invitation sent to ${inviteForm.email}`);
+      setInviteDialogOpen(false);
+      setInviteForm({
+        email: '',
+        role: 'program_head',
+        program_id: null,
+        department_id: null,
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to send invitation');
+    } finally {
+      setInviteLoading(false);
+    }
   };
 
   if (!isAdmin()) {
@@ -60,7 +102,94 @@ export default function UserManagementPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">User Management</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">User Management</h1>
+        
+        <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <UserPlus className="mr-2 h-4 w-4" />
+              Invite User
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Invite New User</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleInviteSubmit} className="space-y-4">
+              <FormField
+                id="invite-email"
+                label="Email"
+                type="email"
+                value={inviteForm.email}
+                onChange={(val) => setInviteForm({ ...inviteForm, email: val })}
+                required
+              />
+              
+              <div>
+                <label className="text-sm font-medium mb-2 block">Role</label>
+                <Select
+                  value={inviteForm.role}
+                  onValueChange={(value) => setInviteForm({ ...inviteForm, role: value as Role })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="department_head">Department Head</SelectItem>
+                    <SelectItem value="program_head">Program Head</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Program</label>
+                <Select
+                  value={inviteForm.program_id || 'none'}
+                  onValueChange={(value) => setInviteForm({ ...inviteForm, program_id: value === 'none' ? null : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select program" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {programs.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.short_code} - {p.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Department</label>
+                <Select
+                  value={inviteForm.department_id || 'none'}
+                  onValueChange={(value) => setInviteForm({ ...inviteForm, department_id: value === 'none' ? null : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {departments.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>
+                        {d.code} - {d.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button type="submit" loading={inviteLoading} className="w-full">
+                Send Invitation
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
       
       <div className="mb-4">
         <FormField

@@ -105,10 +105,7 @@ const LoginPage: React.FC = () => {
         </fieldset>
         {apiError && <ErrorMessage message={apiError} onDismiss={clearError} className="mt-4" />}
       </form>
-      <div className="mt-6 text-center space-y-2">
-        <Link to="/register" className="text-blue-600 hover:underline block">
-          Don't have an account? Register
-        </Link>
+      <div className="mt-6 text-center">
         {(() => {
           const emailQuery = formData.email ? `?email=${encodeURIComponent(formData.email)}` : '';
           return (

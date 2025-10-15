@@ -61,3 +61,39 @@ export async function updateUserProfile(userId: string, updates: UserProfileUpda
 
   if (error) throw error;
 }
+
+/**
+ * Invites a new user by email with a specific role and assignments (admin only).
+ * This function calls a secure edge function to send an invitation link.
+ *
+ * @param invite - The invitation details.
+ * @param invite.email - The email of the user to invite.
+ * @param invite.role - The role to assign to the user.
+ * @param invite.program_id - The optional program to assign.
+ * @param invite.department_id - The optional department to assign.
+ * @returns A promise that resolves when the invitation is sent.
+ */
+export async function inviteUser(invite: {
+  email: string;
+  role: Role;
+  program_id?: string | null;
+  department_id?: string | null;
+}): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('invite-user', {
+    body: {
+      email: invite.email,
+      role: invite.role,
+      program_id: invite.program_id || null,
+      department_id: invite.department_id || null,
+    },
+  });
+
+  if (error) {
+    console.error('Error inviting user:', error);
+    throw new Error(`Failed to send invitation: ${error.message}`);
+  }
+
+  if (!data.success) {
+    throw new Error(data.error || 'Failed to send invitation');
+  }
+}
