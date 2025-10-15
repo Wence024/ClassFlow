@@ -13,7 +13,7 @@
 
 ## **Step 1: Full Project Linting Pass**
 
-1. Execute the linting command: `npm run lint -- --fix`.
+1. Execute the linting command: `npm run lint:fix`.
 2. Analyze the output for any remaining errors that were not auto-fixed. Apply the necessary code changes to resolve **all** linting issues.
 3. Once the command `npm run lint` passes with zero errors, create a single Git commit for all the linting-related changes.
     * **Commit Example:** `style(lint): :art: resolve all ESLint errors and warnings`
