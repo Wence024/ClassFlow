@@ -10,6 +10,7 @@ This document provides a deep dive into the system architecture of ClassFlow. It
   - **State Management (`hooks`)**: Custom hooks encapsulate all logic for fetching, caching, and mutating data.
   - **Data Access (`services`)**: The service layer is the only part of the application that communicates directly with the backend (Supabase).
 - **Server State Authority**: We use **TanStack Query (React Query)** as the authority for server state. This eliminates the need for complex client-side state management for data that lives in the database.
+- **Global State Management**: React Context is used for global UI state like sidebar collapse state, while TanStack Query handles server state.
 - **Type Safety**: TypeScript is used throughout the project. Types for the Supabase schema are auto-generated to ensure end-to-end type safety.
 
 ## Technology Stack
@@ -30,20 +31,30 @@ The `src` directory is organized using a feature-based approach:
 src/
 ├── components/         # 1. Global UI Components
 │   ├── layout/         # -- App Shell / Layout (AppLayout, tests)
-│   ├── ui/             # -- Reusable UI Primitives (ActionButton, FormField)
-│   ├── Header.tsx      # -- Moved from features
-│   └── Sidebar.tsx     # -- Moved from features
-├── features/           # 2. Application Features
-│   ├── auth/           # -- Authentication Feature
-│   └── timetabling/    # -- Timetabling Feature
-├── lib/                # 3. Core Libraries & Singletons
-└── routes/             # 4. Route Configuration
+│   ├── ui/             # -- Reusable UI Primitives (Button, Card, FormField, etc.)
+│   ├── Header.tsx      # -- Main header with sidebar toggle
+│   ├── Sidebar.tsx     # -- Collapsible navigation sidebar
+│   └── tests/          # -- Global component tests
+├── contexts/           # 2. React Context Providers
+│   ├── hooks/          # -- Custom hooks for context usage
+│   ├── types/          # -- Context type definitions
+│   └── tests/          # -- Context tests
+├── features/           # 3. Application Features
+│   ├── auth/           # -- Authentication & authorization
+│   ├── classSessions/  # -- Class session management
+│   ├── timetabling/    # -- Drag-and-drop timetable
+│   ├── departments/    # -- Department management
+│   ├── programs/       # -- Program management
+│   └── users/          # -- User management
+├── lib/                # 4. Core Libraries & Singletons
+└── routes/             # 5. Route Configuration
 ```
 
-1. **`/components`**: Contains global, reusable components. `layout/` holds the main application shell, while `ui/` holds primitive components.
-2. **`/features/*`**: The heart of the application. Each folder is a feature domain.
-3. **`/lib`**: Holds setup code for external libraries and core application services.
-4. **`/routes`**: Defines the application's URL structure and routing logic.
+1. **`/components`**: Contains global, reusable components. `layout/` holds the main application shell, while `ui/` holds primitive components. Includes collapsible sidebar and header with toggle functionality.
+2. **`/contexts`**: React Context providers for global state management, including LayoutContext for sidebar state.
+3. **`/features/*`**: The heart of the application. Each folder is a feature domain with its own components, hooks, services, and tests.
+4. **`/lib`**: Holds setup code for external libraries and core application services.
+5. **`/routes`**: Defines the application's URL structure and routing logic.
 
 ## Multi-User Data Model & Security
 
