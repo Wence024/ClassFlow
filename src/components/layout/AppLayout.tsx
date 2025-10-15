@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Header from '../Header';
-import DevRoleSwitcher from './DevRoleSwitcher';
 
 /**
  * Renders the main visual shell for all authenticated pages in the application.
@@ -25,7 +24,6 @@ const AppLayout = () => {
           </main>
         </div>
       </div>
-      <DevRoleSwitcher />
     </div>
   );
 };

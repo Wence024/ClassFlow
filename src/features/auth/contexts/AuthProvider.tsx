@@ -43,20 +43,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        let storedUser = await authService.getStoredUser();
-        
-        // Apply dev override if in development mode
-        if (storedUser && import.meta.env.DEV) {
-          try {
-            const override = JSON.parse(localStorage.getItem('dev_override') || 'null');
-            if (override) {
-              console.warn('🔧 DEV OVERRIDE ACTIVE:', override);
-              storedUser = { ...storedUser, ...override };
-            }
-          } catch (e) {
-            console.error('Failed to parse dev override:', e);
-          }
-        }
+        const storedUser = await authService.getStoredUser();
         
         if (storedUser) {
           setUser(storedUser);
