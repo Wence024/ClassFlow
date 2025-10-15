@@ -210,3 +210,4 @@ Ponderings:
 
 * [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
 * [x] Programs need to be related to only one department (implemented with department_id foreign key and UI).
+* [ ] Check for data anomalies regarding program management.
