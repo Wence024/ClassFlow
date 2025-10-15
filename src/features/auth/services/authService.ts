@@ -44,12 +44,23 @@ export async function login(email: string, password: string): Promise<AuthRespon
     .single();
 
   if (profileError || !profile) {
+    console.error('Profile fetch error:', profileError);
     throw new Error('Login failed: could not find user profile.');
   }
 
   // Fetch role from user_roles table
-  const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', data.user.id).single();
-  const role = (roleResult.data as any)?.role;
+  const { data: roleData, error: roleError } = await supabase
+    .from('user_roles' as any)
+    .select('role')
+    .eq('user_id', data.user.id)
+    .maybeSingle();
+
+  if (roleError) {
+    console.error('Role fetch error:', roleError);
+    throw new Error('Login failed: could not fetch user role.');
+  }
+
+  const role = (roleData as any)?.role || 'program_head';
 
   return {
     user: {
@@ -104,12 +115,23 @@ export async function register(
     .single();
 
   if (profileError || !profile) {
-    throw new Error('Login successful, but could not find user profile.');
+    console.error('Profile fetch error during registration:', profileError);
+    throw new Error('Registration successful, but could not find user profile.');
   }
 
   // Fetch role from user_roles table
-  const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', data.user.id).single();
-  const role = (roleResult.data as any)?.role;
+  const { data: roleData, error: roleError } = await supabase
+    .from('user_roles' as any)
+    .select('role')
+    .eq('user_id', data.user.id)
+    .maybeSingle();
+
+  if (roleError) {
+    console.error('Role fetch error during registration:', roleError);
+    throw new Error('Registration successful, but could not fetch user role.');
+  }
+
+  const role = (roleData as any)?.role || 'program_head';
 
   // If `data.session` is null, it means Supabase requires email verification.
   const needsVerification = !data.session;
@@ -175,8 +197,18 @@ export async function getStoredUser(): Promise<User | null> {
   }
 
   // Fetch role from user_roles table
-  const roleResult = await supabase.from('user_roles' as any).select('role').eq('user_id', session.user.id).single();
-  const role = (roleResult.data as any)?.role;
+  const { data: roleData, error: roleError } = await supabase
+    .from('user_roles' as any)
+    .select('role')
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  if (roleError) {
+    console.error('Could not fetch user role:', roleError);
+    return null;
+  }
+
+  const role = (roleData as any)?.role || 'program_head';
 
   return {
     id: session.user.id,
