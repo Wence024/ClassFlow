@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from '../AuthProvider';
 import * as authService from '../../services/authService';
-import { useAuthContext } from '../AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 import { AuthContextType } from '../../types/auth';
 
 // Mock the auth service
@@ -28,7 +28,7 @@ const TestComponent = ({
 }: {
   onRender: (ctx: AuthContextType) => void;
 }) => {
-  const ctx = useAuthContext();
+  const ctx = useAuth();
   onRender(ctx);
   return <div>Test Component</div>;
 };
