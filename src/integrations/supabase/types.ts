@@ -612,6 +612,21 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_test_user: {
+        Args: {
+          department_id?: string
+          email: string
+          full_name: string
+          password: string
+          program_id?: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: string
+      }
+      delete_test_user: {
+        Args: { email: string }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
