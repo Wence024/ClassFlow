@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar';
 import Header from '../Header';
+import { LayoutProvider } from '../../contexts/LayoutContext';
 
 /**
  * Renders the main visual shell for all authenticated pages in the application.
@@ -13,18 +14,20 @@ import Header from '../Header';
  */
 const AppLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
-      <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        <div className="flex flex-col lg:flex-row gap-6 h-full">
-          <Sidebar />
-          <main className="flex-1 space-y-6 min-w-0" role="main">
-            <h1 className="sr-only">Main Content</h1>
-            <Outlet />
-          </main>
+    <LayoutProvider>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <div className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+          <div className="flex flex-col lg:flex-row gap-6 h-full transition-all duration-300">
+            <Sidebar />
+            <main className="flex-1 space-y-6 min-w-0 transition-all duration-300" role="main">
+              <h1 className="sr-only">Main Content</h1>
+              <Outlet />
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </LayoutProvider>
   );
 };
 
