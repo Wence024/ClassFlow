@@ -6,11 +6,13 @@ import { BrowserRouter } from 'react-router-dom';
 import ProgramManagementPage from '../ProgramManagementPage';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import * as programsHooks from '../../hooks/usePrograms';
+import * as departmentsHooks from '../../../departments/hooks/useDepartments';
 import type { AuthContextType } from '../../../auth/types/auth';
 import type { ReactNode } from 'react';
 
 // Mock the usePrograms hook
 vi.mock('../../hooks/usePrograms');
+vi.mock('../../../departments/hooks/useDepartments');
 
 /**
  * Test suite for ProgramManagementPage integration tests.
@@ -44,6 +46,24 @@ describe('ProgramManagementPage Integration Tests', () => {
     mockCreateMutation.mockReset();
     mockUpdateMutation.mockReset();
     mockDeleteMutation.mockReset();
+
+    // Mock departments hook
+    vi.mocked(departmentsHooks.useDepartments).mockReturnValue({
+      listQuery: {
+        data: [
+          { id: 'd1', name: 'Computer Science', code: 'CS', created_at: '' },
+          { id: 'd2', name: 'Engineering', code: 'ENG', created_at: '' },
+        ],
+        isLoading: false,
+        error: null,
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      createMutation: {} as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updateMutation: {} as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      deleteMutation: {} as any,
+    });
   });
 
   it('should deny access to non-admin users', () => {
@@ -112,7 +132,9 @@ describe('ProgramManagementPage Integration Tests', () => {
     fireEvent.click(screen.getByRole('button', { name: /create/i }));
 
     await waitFor(() => {
-      expect(mockCreateMutation).toHaveBeenCalledWith({ name: 'New Program', short_code: 'NP' });
+      expect(mockCreateMutation).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'New Program', short_code: 'NP', department_id: expect.any(String) })
+      );
     });
   });
 
@@ -146,7 +168,10 @@ describe('ProgramManagementPage Integration Tests', () => {
     fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
 
     await waitFor(() => {
-      expect(mockUpdateMutation).toHaveBeenCalledWith({ id: 'p1', update: { name: 'Updated Program A', short_code: 'PA' } });
+      expect(mockUpdateMutation).toHaveBeenCalledWith({
+        id: 'p1',
+        update: expect.objectContaining({ name: 'Updated Program A', short_code: 'PA', department_id: 'd1' }),
+      });
     });
   });
 

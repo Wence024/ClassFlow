@@ -57,7 +57,7 @@ describe('usePrograms Integration Tests', () => {
   });
 
   it('should allow creating a new program', async () => {
-    const newProgram = { name: 'Bachelor of Arts in Multimedia Arts', department_id: 'd2' };
+    const newProgram = { name: 'Bachelor of Arts in Multimedia Arts', short_code: 'BAMMA', department_id: 'd2' };
     const createdProgram = { id: 'p3', ...newProgram, created_at: '2024-01-03' };
 
     vi.mocked(programsService.listPrograms).mockResolvedValue([]);

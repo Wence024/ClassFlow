@@ -6,11 +6,13 @@ Welcome to ClassFlow! This guide will help you get started with creating and org
 
 ClassFlow has two primary user roles with different capabilities:
 
-- **Admin**: Can configure system-wide settings, such as the academic schedule, and manages the master list of shared resources like instructors and classrooms.
-- **Program Head**: Manages the components, class sessions, and timetable for their specific academic program.
+- **Admin**: Can configure system-wide settings, such as the academic schedule, and manages the master list of shared resources like instructors and classrooms. Admins can also manage departments and programs.
+- **Program Head**: Manages the components, class sessions, and timetable for their specific academic program. Each program is associated with a department.
 
 ## Core Concepts
 
+- **Departments**: Organizational units that contain multiple programs (e.g., "Computer Science Department").
+- **Programs**: Academic programs within a department (e.g., "Bachelor of Science in Computer Science").
 - **Components**: These are the building blocks of your schedule.
   - **Courses**: The subjects being taught (e.g., "CS101").
   - **Class Groups**: The group of students taking the class (e.g., "Section A").
@@ -19,6 +21,13 @@ ClassFlow has two primary user roles with different capabilities:
 - **Timetable**: The main grid where you can visually schedule your Class Sessions.
 
 ## How to Build Your Schedule: A Step-by-Step Guide
+
+### Step 0: Configure Departments and Programs (Admin Only)
+
+1. Navigate to the **Manage Departments** page.
+2. Create departments that organize your institution (e.g., "Computer Science", "Engineering").
+3. Navigate to the **Manage Programs** page.
+4. Create programs and assign each to a department (e.g., "BS Computer Science" → "Computer Science Department").
 
 ### Step 1: Manage Your Components
 
