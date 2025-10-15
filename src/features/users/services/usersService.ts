@@ -1,5 +1,5 @@
 import { supabase } from '../../../lib/supabase';
-import type { UserProfile, UserProfileUpdate, UserRole } from '../types/user';
+import type { Role, UserProfile, UserProfileUpdate } from '../types/user';
 
 /**
  * Fetches all users with their profile information and roles.
@@ -18,12 +18,15 @@ export async function getUsers(): Promise<UserProfile[]> {
 
   // Fetch all user roles
   const rolePromises = profiles.map(async (profile) => {
-    const roleResult = await supabase
+    const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', profile.id)
       .single();
-    return { userId: profile.id, role: (roleResult.data as UserRole)?.role || 'program_head' };
+    // The role from the database is a string, so we cast it to Role.
+    // We provide a default value of 'program_head' if no role is found.
+    const role = (roleData?.role as Role) || 'program_head';
+    return { userId: profile.id, role };
   });
 
   const roles = await Promise.all(rolePromises);
@@ -52,9 +55,9 @@ export async function updateUserProfile(userId: string, updates: UserProfileUpda
   const { error } = await supabase.rpc('admin_update_user_profile', {
     target_user_id: userId,
     new_role: updates.role,
-    new_program_id: updates.program_id,
-    new_department_id: updates.department_id,
+    new_program_id: updates.program_id === null ? undefined : updates.program_id,
+    new_department_id: updates.department_id === null ? undefined : updates.department_id,
   });
-  
+
   if (error) throw error;
 }
