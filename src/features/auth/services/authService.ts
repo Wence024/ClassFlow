@@ -52,7 +52,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
 
   // Fetch role from user_roles table
   const { data: roleData, error: roleError } = await supabase
-    .from<UserRole>('user_roles')
+    .from('user_roles')
     .select('role')
     .eq('user_id', data.user.id)
     .maybeSingle();
@@ -62,7 +62,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     throw new Error('Login failed: could not fetch user role.');
   }
 
-  const role = roleData?.role || 'program_head';
+  const role = (roleData as UserRole)?.role || 'program_head';
 
   return {
     user: {
@@ -166,7 +166,7 @@ export async function getStoredUser(): Promise<User | null> {
 
   // Fetch role from user_roles table
   const { data: roleData, error: roleError } = await supabase
-    .from<UserRole>('user_roles')
+    .from('user_roles')
     .select('role')
     .eq('user_id', session.user.id)
     .maybeSingle();
@@ -176,7 +176,7 @@ export async function getStoredUser(): Promise<User | null> {
     return null;
   }
 
-  const role = roleData?.role || 'program_head';
+  const role = (roleData as UserRole)?.role || 'program_head';
 
   return {
     id: session.user.id,

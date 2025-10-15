@@ -19,11 +19,11 @@ export async function getUsers(): Promise<UserProfile[]> {
   // Fetch all user roles
   const rolePromises = profiles.map(async (profile) => {
     const roleResult = await supabase
-      .from<UserRole>('user_roles')
+      .from('user_roles')
       .select('role')
       .eq('user_id', profile.id)
       .single();
-    return { userId: profile.id, role: roleResult.data?.role || 'program_head' };
+    return { userId: profile.id, role: (roleResult.data as UserRole)?.role || 'program_head' };
   });
 
   const roles = await Promise.all(rolePromises);
