@@ -62,12 +62,12 @@ export default function UserProfilePage() {
           </div>
           <div>
             <div className="text-sm text-gray-600">Program</div>
-            <div>{assignedProgram ? `${assignedProgram.short_code} - ${assignedProgram.name}` : '—'}</div>
+            <div>{assignedProgram ? `${assignedProgram.name} (${assignedProgram.short_code})` : '—'}</div>
           </div>
         </div>
         <div>
           <div className="text-sm text-gray-600">Department</div>
-          <div>{assignedDepartment ? `${assignedDepartment.code} - ${assignedDepartment.name}` : '—'}</div>
+          <div>{assignedDepartment ? `${assignedDepartment.name} (${assignedDepartment.code})` : '—'}</div>
         </div>
         <div className="flex gap-2 pt-2">
           <Button onClick={onSave} disabled={loading}>Save</Button>
