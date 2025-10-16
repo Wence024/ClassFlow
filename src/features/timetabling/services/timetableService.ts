@@ -75,18 +75,21 @@ export async function assignClassSessionToTimetable(
  * @param user_id The user's unique ID.
  * @param class_group_id The class group ID.
  * @param period_index The period index.
+ * @param semester_id The semester ID to ensure we only delete from the current semester.
  */
 export async function removeClassSessionFromTimetable(
   user_id: string,
   class_group_id: string,
-  period_index: number
+  period_index: number,
+  semester_id: string
 ): Promise<void> {
   const { error } = await supabase
     .from('timetable_assignments')
     .delete()
     .eq('user_id', user_id)
     .eq('class_group_id', class_group_id)
-    .eq('period_index', period_index);
+    .eq('period_index', period_index)
+    .eq('semester_id', semester_id);
   if (error) throw error;
 }
 
@@ -110,7 +113,7 @@ export async function moveClassSessionInTimetable(
   _to: { class_group_id: string; period_index: number },
   assignment: TimetableAssignmentInsert // This is the payload for the new location
 ): Promise<TimetableAssignment> {
-  await removeClassSessionFromTimetable(user_id, from.class_group_id, from.period_index);
+  await removeClassSessionFromTimetable(user_id, from.class_group_id, from.period_index, assignment.semester_id);
   // The assign function will handle the rest correctly.
   return assignClassSessionToTimetable(assignment);
 }
