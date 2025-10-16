@@ -38,7 +38,7 @@ const CourseManagement: React.FC = () => {
     isSubmitting,
     isRemoving,
     error,
-  } = useCourses();
+  } = useCourses(true); // Filter by user's program for program heads
   const { classSessions } = useClassSessions();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [courseToDelete, setCourseToDelete] = useState<Course | null>(null);

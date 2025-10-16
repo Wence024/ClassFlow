@@ -9,12 +9,16 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
  * This hook abstracts the logic for fetching, adding, updating, and removing courses
  * for the currently authenticated user. It uses React Query for server state management.
  *
+ * @param filterByUserProgram - If true, filters courses by the user's program_id (for program heads).
  * @returns An object containing the courses data, granular loading and error states, and mutation functions.
  */
-export function useCourses() {
-  const { user } = useAuth();
+export function useCourses(filterByUserProgram = false) {
+  const { user, isProgramHead } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = ['courses', user?.id];
+  
+  // Determine if we should filter by program
+  const programIdFilter = filterByUserProgram && isProgramHead() ? user?.program_id : undefined;
+  const queryKey = ['courses', user?.id, programIdFilter];
 
   const {
     data: courses = [],
@@ -23,7 +27,7 @@ export function useCourses() {
     error,
   } = useQuery<Course[]>({
     queryKey,
-    queryFn: () => (user ? coursesService.getCourses() : Promise.resolve([])),
+    queryFn: () => (user ? coursesService.getCourses(programIdFilter) : Promise.resolve([])),
     enabled: !!user,
   });
 

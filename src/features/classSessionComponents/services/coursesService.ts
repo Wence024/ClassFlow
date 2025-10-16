@@ -11,11 +11,18 @@ const TABLE = 'courses';
 /**
  * Fetches all courses from the database.
  *
+ * @param programId - Optional program ID to filter courses by.
  * @returns A promise that resolves to an array of Course objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getCourses(): Promise<Course[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('name');
+export async function getCourses(programId?: string | null): Promise<Course[]> {
+  let query = supabase.from(TABLE).select('*');
+  
+  if (programId) {
+    query = query.eq('program_id', programId);
+  }
+  
+  const { data, error } = await query.order('name');
   if (error) throw error;
   return data || [];
 }
