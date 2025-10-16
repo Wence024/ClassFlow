@@ -7,6 +7,7 @@ import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
+import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import { useAuth } from '../../auth/hooks/useAuth';
 
 const DRAG_DATA_KEY = 'application/json';
@@ -66,7 +67,16 @@ export const useTimetableDnd = () => {
 
   const isSlotAvailable = useCallback(
     (groupId: string, periodIndex: number): boolean => {
-      if (!activeDraggedSession || !settings) return false;
+      if (!activeDraggedSession || !settings) {
+        console.warn('[TimetableDnd] isSlotAvailable: abort', {
+          reason: !settings ? 'no-settings' : 'no-activeDraggedSession',
+          groupId,
+          periodIndex,
+          activeDragSource,
+          userProgramId: user?.program_id,
+        });
+        return false;
+      }
 
       // This prevents the slot from even appearing available (green) if the user is not the owner.
       if (
@@ -102,6 +112,12 @@ export const useTimetableDnd = () => {
       const session = classSessions.find((cs) => cs.id === source.class_session_id) || null;
       e.dataTransfer.setData(DRAG_DATA_KEY, JSON.stringify(source));
       e.dataTransfer.effectAllowed = 'move';
+
+      console.debug('[TimetableDnd] dragStart', {
+        source,
+        foundSession: !!session,
+        classSessionsCount: classSessions.length,
+      });
 
       setActiveDragSource(source);
       setActiveDraggedSession(session);
@@ -150,6 +166,12 @@ export const useTimetableDnd = () => {
       const classSessionToDrop = classSessions.find((cs) => cs.id === source.class_session_id);
 
       if (!classSessionToDrop) {
+        console.error('[TimetableDnd] dropToGrid: class session not found', {
+          source,
+          userId: user?.id,
+          userProgramId: user?.program_id,
+          classSessionsCount: classSessions.length,
+        });
         // Show notification if the class session could not be found
         toast('Error', { description: 'Could not find the class session to drop.' });
         cleanupDragState();
@@ -187,6 +209,12 @@ export const useTimetableDnd = () => {
       }
 
       if (error) {
+        console.error('[TimetableDnd] dropToGrid: mutation error', {
+          error,
+          source,
+          targetClassGroupId,
+          targetPeriodIndex,
+        });
         // Show notification if there was an error
         toast('Error', { description: error });
       }
@@ -201,6 +229,8 @@ export const useTimetableDnd = () => {
     async (e: React.DragEvent) => {
       e.preventDefault();
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
+
+      console.debug('[TimetableDnd] dropToDrawer', { source });
 
       if (source.from === 'timetable') {
         await removeClassSession(source.class_group_id, source.period_index);
