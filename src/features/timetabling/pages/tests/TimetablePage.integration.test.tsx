@@ -272,15 +272,25 @@ describe('TimetablePage Integration Tests', () => {
     // Simulate the drop action on the empty cell
     // In a real user interaction, this would be triggered by react-dnd.
     // Here, we call the handler directly to test the logic.
-    const targetCell = { groupId: 'g1', dayIndex: 1, periodIndex: 0 };
-    dndHookValues.handleDropToGrid(targetCell.groupId, targetCell.dayIndex, targetCell.periodIndex);
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      dataTransfer: {
+        getData: vi.fn().mockReturnValue(
+          JSON.stringify({
+            from: 'timetable',
+            class_session_id: 's1',
+            class_group_id: 'g1',
+            period_index: 0,
+          })
+        ),
+      },
+    } as unknown as React.DragEvent;
+    
+    await dndHookValues.handleDropToGrid(mockEvent, 'g1', 1);
 
     // The main assertion is that no error was thrown during the drop.
     // We also check that our mock drop handler was called as expected.
-    expect(handleDropToGrid).toHaveBeenCalledWith(
-      targetCell.groupId,
-      targetCell.dayIndex,
-      targetCell.periodIndex
-    );
+    expect(handleDropToGrid).toHaveBeenCalledWith(mockEvent, 'g1', 1);
   });
 });

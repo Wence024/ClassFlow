@@ -166,18 +166,43 @@ All Phase 4 tasks have been completed successfully:
    - Full test suite: ✅ All 171 tests passing
 * **Test Maintenance**: Removed all references to deleted `register()` and `resendVerificationEmail()` functions from test mocks.
 
+### **Phase 5: Timetabling RLS & Bug Fixes - ✅ COMPLETED**
+
+**Date Completed:** October 16, 2025  
+**Branch:** `lovable` (merged from various fixes)  
+**Total Changes:** 9 files modified
+
+All Phase 5 tasks have been completed successfully:
+
+1. **✅ Fixed RLS Policies** - Resolved timetable RLS policies to allow program heads to edit their timetables
+2. **✅ Fixed Service Layer** - Removed `user_id` dependency from `removeClassSessionFromTimetable`
+3. **✅ Fixed Drag & Drop** - Corrected permission checks and conflict detection for merged sessions
+4. **✅ Test Updates** - Fixed test expectations to match actual service signatures
+5. **✅ Created Missing Tests** - Added comprehensive integration tests for `useTimetableDnd` hook
+
+**Key Issues Resolved:**
+- Fixed program head inability to edit timetables due to incorrect RLS policies
+- Fixed merged class session duplication bug in drag-and-drop operations
+- Fixed permission checks to prevent moving sessions from other programs
+- Fixed test mocks to match actual service function signatures
+
+**Test Coverage:**
+- ✅ `src/features/timetabling/services/timetableService.test.ts` - Service layer unit tests
+- ✅ `src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx` - Hook integration tests (fixed)
+- ✅ `src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx` - DnD hook tests (created)
+- ✅ `src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx` - Page integration tests (fixed)
+
 ### **Next Steps:**
 
-The codebase has progressed with comprehensive user management and authentication integration tests. All core features are now covered with integration tests. The program-department relationship feature has been successfully implemented and tested.
+The codebase has progressed with timetabling RLS fixes and comprehensive test coverage. All core features are now covered with integration tests.
 
-1. **✅ Created all high-priority integration tests** for Department Head Dashboard, Program Head Instructors, and Class Session Components.
-2. **✅ Created user management and authentication tests** to ensure secure role-based access control.
-3. **✅ Updated program-department relationship tests** - Fixed test expectations to include required `department_id` field for all program operations.
-4. **✅ Run the full test suite** to verify all tests pass: `npm run test`.
-5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`.
-6. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.
+1. **✅ Fixed timetabling RLS policies** for program head access control
+2. **✅ Fixed service layer bugs** in timetable operations
+3. **✅ Updated and created test files** to match actual implementation
+4. **✅ Run the full test suite** to verify all tests pass: `npm run test`
+5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`
 
-**🎉 MAINTENANCE COMPLETE** - The `feat/admin-user-invites` branch is now ready for final review and merge to main branch.
+**🎉 MAINTENANCE COMPLETE** - The timetabling feature is now stable with proper RLS, bug fixes, and comprehensive test coverage.
 
 ### **Phase 4: AI Code Maintenance Session - ✅ COMPLETED**
 

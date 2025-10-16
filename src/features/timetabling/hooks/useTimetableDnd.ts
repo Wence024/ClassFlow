@@ -63,6 +63,18 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
 
   // --- Visual Feedback Logic ---
 
+  /**
+   * Checks if a specific timetable slot is available for dropping a class session.
+   * 
+   * Performs validation including:
+   * - User ownership check when dragging from timetable
+   * - Group mismatch prevention when moving within grid
+   * - Conflict detection based on timetable rules
+   * 
+   * @param groupId - The ID of the target class group.
+   * @param periodIndex - The index of the target period.
+   * @returns True if the slot is available for the current drag operation, false otherwise.
+   */
   const isSlotAvailable = useCallback(
     (groupId: string, periodIndex: number): boolean => {
       if (!activeDraggedSession || !settings) {
@@ -105,6 +117,14 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
 
   // --- Event Handlers ---
 
+  /**
+   * Initiates a drag operation for a class session.
+   * 
+   * Sets up the drag state and attaches the drag source data to the event.
+   * 
+   * @param e - The drag event object.
+   * @param source - The drag source containing session and location information.
+   */
   const handleDragStart = useCallback(
     (e: React.DragEvent, source: DragSource) => {
       const session = allClassSessions.find((cs) => cs.id === source.class_session_id) || null;
@@ -123,11 +143,23 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
     [allClassSessions]
   );
 
+  /**
+   * Handles the drag over event to enable drop zones.
+   * 
+   * @param e - The drag event object.
+   */
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   }, []);
 
+  /**
+   * Handles the drag enter event to update visual feedback.
+   * 
+   * @param e - The drag event object.
+   * @param groupId - The ID of the entered class group.
+   * @param periodIndex - The index of the entered period.
+   */
   const handleDragEnter = useCallback(
     (e: React.DragEvent, groupId: string, periodIndex: number) => {
       e.stopPropagation();
@@ -136,6 +168,11 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
     []
   );
 
+  /**
+   * Handles the drag leave event to clear visual feedback.
+   * 
+   * @param e - The drag event object.
+   */
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     const currentTarget = e.currentTarget as HTMLElement;
     const related = e.relatedTarget as Node | null;
@@ -223,6 +260,14 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
     [allClassSessions, assignClassSession, moveClassSession, cleanupDragState, user]
   );
 
+  /**
+   * Handles dropping a class session back to the drawer (unassign).
+   * 
+   * Removes the session from the timetable if it was dragged from the grid.
+   * 
+   * @param e - The drag event object.
+   * @returns {Promise<void>}
+   */
   const handleDropToDrawer = useCallback(
     async (e: React.DragEvent) => {
       e.preventDefault();
