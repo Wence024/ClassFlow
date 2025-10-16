@@ -70,8 +70,9 @@ The architecture is built on a multi-user model centered around **Programs** and
 
 Permissions are enforced at the database level using Supabase RLS policies.
 
-- **Admin-Only Writes**: Only users with the `admin` role can modify system-wide settings like `schedule_configuration`. All other users have read-only access.
-- **Program-Scoped Writes**: Program Heads can only create, update, or delete `timetable_assignments` for class sessions that belong to their own `program_id`. All users have read access to see the complete, school-wide schedule.
+- **Admin-Only Invites**: Authentication is now managed by secure, admin-only invites. Public registration is disabled for security best practices.
+- **Departments and Programs**: Multi-user management is organized by department and program; permissions flow from new database schema and RLS policies.
+- **UI/UX Improvements**: Features a collapsible sidebar and stateful navigation for dense content pages.
 
 ## Data Flow Example: Assigning a Session
 

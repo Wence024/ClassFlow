@@ -18,7 +18,7 @@ Built with a focus on maintainability and developer experience, the project uses
 - 🎛️ **Collapsible Sidebar**: Modern navigation with toggle functionality and tooltips
 - ⚡ **Real-time Collaboration**: Live updates across all connected clients via Supabase subscriptions
 - 🛡️ **Type-Safe & Scalable**: Built with TypeScript and modular feature architecture
-- 🧪 **Comprehensive Testing**: 171 passing tests covering unit, integration, and component testing
+- 🧪 **Comprehensive Testing**: 175 passing tests covering unit, integration, and component testing
 
 ---
 
@@ -57,24 +57,29 @@ For a complete guide on setting up the development environment, configuring Supa
 
 This project includes comprehensive documentation to help developers understand its architecture, conventions, and future plans.
 
-- **[Getting Started](./docs/getting-started.md)**: The primary guide for new developers.
-- **[Architecture Overview](./docs/architecture.md)**: A deep dive into the system design, data flow, and folder structure.
-- **[Coding Guidelines](./docs/coding-guidelines.md)**: The project's development roadmap and coding standards.
-- **[Testing Strategy](./docs/testing.md)**: An overview of the testing approach and future plans.
+For the full breakdown of testing, coding standards, system architecture, and plans, see the `/docs` directory. Core docs:
+- [Getting Started](./docs/getting-started.md)
+- [Architecture](./docs/architecture.md)
+- [Coding Guidelines](./docs/coding-guidelines.md)
+- [Testing](./docs/testing.md)
+
+Key authentication is now managed via secure, admin-only invitation; public registration has been removed for security best practices. Department, program, and role management now align with the latest database and policy improvements.
 
 ---
 
 ## Available Scripts
 
-- `npm run dev`: Starts the Vite development server
-- `npm run build`: Bundles the application for production
-- `npm run lint`: Lints the codebase using ESLint
-- `npm run lint:fix`: Automatically fixes ESLint errors
-- `npm run type-check`: Runs TypeScript type checking
-- `npm run test`: Runs the complete test suite (171 tests)
-- `npm run test:unit`: Runs unit tests only
-- `npm run test:integration`: Runs integration tests only
-- `npm run premerge`: Runs all quality checks (lint, type-check, test, format)
+### Updated Scripts
+
+- `npm run dev` — Start the Vite dev server
+- `npm run build` — Production build
+- `npm run lint:fix` — ESLint (fix)
+- `npm run lint` — ESLint (check only)
+- `npm run type-check` — TypeScript type checking
+- `npm run test` — All tests (175 tested)
+- `npm run test:unit` — Unit tests
+- `npm run test:integration` — Integration tests
+- `npm run premerge` — Lint, type-check, test, format (for pull requests)
 
 ---
 
