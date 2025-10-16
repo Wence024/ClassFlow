@@ -7,7 +7,6 @@ import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
-import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import { useAuth } from '../../auth/hooks/useAuth';
 
 const DRAG_DATA_KEY = 'application/json';
