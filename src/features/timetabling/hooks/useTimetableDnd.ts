@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTimetable } from './useTimetable';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import { toast } from 'sonner';
 import checkTimetableConflicts from '../utils/checkConflicts';
@@ -16,13 +15,13 @@ const DRAG_DATA_KEY = 'application/json';
  * operations for the timetable. It handles UI state, visual feedback,
  * event handling, and data mutations.
  *
+ * @param allClassSessions - All class sessions visible to the user (not just their own).
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
-export const useTimetableDnd = () => {
+export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
   // --- Core Hooks ---
   const { user } = useAuth();
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
-  const { classSessions } = useClassSessions();
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
   const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
@@ -108,20 +107,20 @@ export const useTimetableDnd = () => {
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, source: DragSource) => {
-      const session = classSessions.find((cs) => cs.id === source.class_session_id) || null;
+      const session = allClassSessions.find((cs) => cs.id === source.class_session_id) || null;
       e.dataTransfer.setData(DRAG_DATA_KEY, JSON.stringify(source));
       e.dataTransfer.effectAllowed = 'move';
 
       console.debug('[TimetableDnd] dragStart', {
         source,
         foundSession: !!session,
-        classSessionsCount: classSessions.length,
+        classSessionsCount: allClassSessions.length,
       });
 
       setActiveDragSource(source);
       setActiveDraggedSession(session);
     },
-    [classSessions]
+    [allClassSessions]
   );
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -162,14 +161,14 @@ export const useTimetableDnd = () => {
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
       // Find the class session to drop
-      const classSessionToDrop = classSessions.find((cs) => cs.id === source.class_session_id);
+      const classSessionToDrop = allClassSessions.find((cs) => cs.id === source.class_session_id);
 
       if (!classSessionToDrop) {
         console.error('[TimetableDnd] dropToGrid: class session not found', {
           source,
           userId: user?.id,
           userProgramId: user?.program_id,
-          classSessionsCount: classSessions.length,
+          classSessionsCount: allClassSessions.length,
         });
         // Show notification if the class session could not be found
         toast('Error', { description: 'Could not find the class session to drop.' });
@@ -221,7 +220,7 @@ export const useTimetableDnd = () => {
       // Clean up the drag state
       cleanupDragState();
     },
-    [classSessions, assignClassSession, moveClassSession, cleanupDragState, user]
+    [allClassSessions, assignClassSession, moveClassSession, cleanupDragState, user]
   );
 
   const handleDropToDrawer = useCallback(
