@@ -11,11 +11,11 @@ import { cn } from '../lib/utils';
 
 /** An array defining the navigation links for admin users - ordered by workflow. */
 const adminNavLinks = [
-  { to: '/user-management', icon: Users, label: 'User Management' },
   { to: '/departments', icon: Building2, label: 'Departments' },
   { to: '/programs', icon: Blocks, label: 'Programs' },
-  { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
+  { to: '/user-management', icon: Users, label: 'User Management' },
   { to: '/schedule-configuration', icon: Settings, label: 'Settings' },
+  { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
 ];
 
 /** An array defining the navigation links for department heads - ordered by workflow. */
