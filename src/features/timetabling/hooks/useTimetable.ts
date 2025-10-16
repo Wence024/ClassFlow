@@ -75,7 +75,7 @@ export function useTimetable() {
 
   // --- REAL-TIME SUBSCRIPTION ---
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeSemester) return;
 
     const channel = supabase
       .channel(`timetable-realtime-${channelId}`)
@@ -85,7 +85,7 @@ export function useTimetable() {
           event: '*', // Listen for INSERT, UPDATE, DELETE
           schema: 'public',
           table: 'timetable_assignments',
-          filter: `user_id=eq.${user.id}`, // Only listen for changes owned by the current user.
+          filter: `semester_id=eq.${activeSemester.id}`, // Listen for all changes in the active semester
         },
         () => {
           // When a change is detected, invalidate the query to trigger a refetch.
@@ -98,7 +98,7 @@ export function useTimetable() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, queryKey, channelId]);
+  }, [user, activeSemester, queryClient, queryKey, channelId]);
 
   // --- MUTATIONS ---
 
@@ -131,7 +131,6 @@ export function useTimetable() {
       if (!user) throw new Error('User not authenticated');
       if (!activeSemester) throw new Error('Active semester not loaded');
       return timetableService.removeClassSessionFromTimetable(
-        user.id,
         variables.class_group_id,
         variables.period_index,
         activeSemester.id
@@ -147,8 +146,7 @@ export function useTimetable() {
               (a) =>
                 !(
                   a.class_group_id === removedItem.class_group_id &&
-                  a.period_index === removedItem.period_index &&
-                  a.user_id === user?.id
+                  a.period_index === removedItem.period_index
                 )
             )
           : []
@@ -175,7 +173,7 @@ export function useTimetable() {
       if (!user) throw new Error('User not authenticated');
       if (!activeSemester) throw new Error('Active semester not loaded'); // Safety check
 
-      return timetableService.moveClassSessionInTimetable(user.id, variables.from, variables.to, {
+      return timetableService.moveClassSessionInTimetable(variables.from, variables.to, {
         user_id: user.id,
         class_group_id: variables.to.class_group_id,
         period_index: variables.to.period_index,
