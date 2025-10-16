@@ -69,7 +69,7 @@ export const AdminInstructorFields: React.FC<{
   return (
     <div className="space-y-4">
       {/* Department Selection for Admins */}
-      {isAdmin() && isEditing && (
+      {isAdmin() && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
           <Controller
             name="department_id"
@@ -89,7 +89,7 @@ export const AdminInstructorFields: React.FC<{
             )}
           />
           <p className="text-xs text-blue-600 mt-1">
-            Admins can reassign instructors to different departments
+            {isEditing ? 'Admins can reassign instructors to different departments' : 'Select the department this instructor belongs to'}
           </p>
         </div>
       )}

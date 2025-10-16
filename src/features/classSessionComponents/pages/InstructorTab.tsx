@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { InstructorFields, InstructorCard } from './components/instructor';
+import { AdminInstructorFields, InstructorCard } from './components/instructor';
 import {
   Button,
   ConfirmModal,
@@ -57,6 +57,8 @@ const InstructorManagement: React.FC = () => {
       contract_type: '',
       email: '',
       phone: '',
+      // For department heads, pre-fill their department_id
+      department_id: user?.role === 'department_head' ? (user as any).department_id : '',
     },
   });
 
@@ -65,6 +67,7 @@ const InstructorManagement: React.FC = () => {
       formMethods.reset({
         ...editingInstructor,
         last_name: editingInstructor.last_name ?? '', // Ensure last_name is not null for the form
+        department_id: editingInstructor.department_id ?? '', // Ensure department_id is not null for the form
       });
     } else {
       formMethods.reset();
@@ -84,12 +87,18 @@ const InstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    await addInstructor({
+    
+    // For department heads, automatically set their department_id
+    const instructorData: InstructorInsert = {
       ...data,
-      // department and audit fields now set server-side by RLS/trigger; include if API supports
-      // department_id: (user as any).department_id,
-      // created_by: user.id,
-    } as InstructorInsert);
+      // Department heads: auto-set to their own department
+      // Admins: use the department_id from the form
+      department_id: user.role === 'department_head' 
+        ? (user as any).department_id 
+        : data.department_id || null,
+    };
+    
+    await addInstructor(instructorData);
     formMethods.reset();
     toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());
@@ -141,10 +150,12 @@ const InstructorManagement: React.FC = () => {
             </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
-                                <fieldset disabled={isSubmitting || !canManageInstructors()} className="space-y-1">
-                  <InstructorFields
+                <fieldset disabled={isSubmitting || !canManageInstructors()} className="space-y-1">
+                  <AdminInstructorFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
+                    isEditing={!!editingInstructor}
+                    currentDepartmentId={editingInstructor?.department_id ?? undefined}
                   />
                   <div className="flex gap-2 pt-4">
                     <Button type="submit" loading={isSubmitting} className="flex-1">

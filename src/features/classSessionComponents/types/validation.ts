@@ -47,6 +47,7 @@ export const instructorSchema = z.object({
   email: z.string().email('Invalid email address').or(z.literal('')).nullable().optional(),
   phone: z.string().nullable().optional(),
   color: hexColorSchema,
+  department_id: z.string().uuid('Department is required'),
 });
 
 export const componentSchemas = {
