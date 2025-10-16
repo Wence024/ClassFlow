@@ -2,7 +2,7 @@
 
 Here is a rearranged, consolidated, and prioritized to-do list.
 
-## **Phase 1: Polish the Core Experience (Immediate Sprint)**
+## 🟠 Active and Critical (Open) Tasks
 
 *This phase focuses on high-impact, quick wins that significantly improve the user experience and address direct panel feedback.*
 
@@ -183,8 +183,8 @@ Refactor backlogs:
 
 Maam Z's Feedback:
 
-* [ ] Class merging
-  * [ ] Requires management of shared classrooms (admin) and instructors (department heads) instead of solely program heads
+* [x] Class merging
+  * [x] Requires management of shared classrooms (admin) and instructors (department heads) instead of solely program heads
 
 Sir B's Feedback:
 

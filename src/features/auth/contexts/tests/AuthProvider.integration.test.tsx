@@ -10,9 +10,7 @@ import { AuthContextType } from '../../types/auth';
 vi.mock('../../services/authService', () => ({
   getStoredUser: vi.fn(),
   login: vi.fn(),
-  register: vi.fn(),
   logout: vi.fn(),
-  resendVerificationEmail: vi.fn(),
   updateMyProfileRow: vi.fn(),
 }));
 

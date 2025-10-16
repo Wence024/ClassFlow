@@ -20,9 +20,7 @@ const renderPage = (user: {
     loading: false,
     role: user.role,
     login: vi.fn(),
-    register: vi.fn(),
     logout: vi.fn(),
-    resendVerificationEmail: vi.fn(),
     error: null,
     clearError: vi.fn(),
   };

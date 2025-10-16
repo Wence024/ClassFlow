@@ -19,9 +19,7 @@ export type AuthContextType = {
   /** Convenience accessor for the current user's department id. */
   departmentId: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
-  resendVerificationEmail: (email: string) => Promise<void>;
   loading: boolean;
   error: string | null;
   clearError: () => void;

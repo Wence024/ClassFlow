@@ -1,13 +1,12 @@
 # Maintenance & Refactoring Strategy
 
-This document outlines the strategy and principles for maintaining the long-term health and quality of the UniScheduleWeave codebase. It is a strategic guide, while the specific, actionable tasks are tracked in the [**TODO.md**](./TODO.MD) file.
+This document outlines strategy and principles for long-term health of the ClassFlow codebase (formerly UniScheduleWeave). See README and coding-guidelines.md for definitive standards. For specific maintenance backlogs, see Backlogs.md.
 
-## Guiding Principles
-
-1. **Prioritize User Experience**: Refactoring efforts should be prioritized based on their impact on performance, stability, and usability for the end-user.
-2. **Follow the Roadmap**: All maintenance tasks should align with the development phases outlined in the [**Coding Guidelines**](./coding-guidelines.md).
-3. **Data Integrity is Paramount**: Changes to services or hooks must not compromise the consistency and security of user data. All data mutations should be handled carefully, leveraging transactions for complex operations where necessary.
-4. **Leave it Better Than You Found It**: When working on a feature, take the time to address any small code smells, add missing documentation, or improve type safety in the files you touch.
+## Guiding Principles (Condensed)
+- Prioritize improvements with greatest user and maintainability impact
+- Align maintenance with coding-guidelines.md phases & standards
+- Safeguard data integrity during all refactors
+- "Leave it better than you found it"
 
 ## Code Health Monitoring
 

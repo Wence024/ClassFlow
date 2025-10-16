@@ -77,48 +77,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
       setUser(null);
-      // If login fails due to unverified email, navigate to the verification page.
-      if (errorMessage.includes('verify your email')) {
-        navigate('/verify-email');
-      }
     } finally {
       setLoading(false);
     }
   };
 
-  /**
-   * Handles new user registration.
-   *
-   * @param name - The user's name.
-   * @param email - The user's email address.
-   * @param password - The user's password.
-   * @returns A Promise that resolves on successful registration or rejects on failure.
-   */
-  const register = async (name: string, email: string, password: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const { user, needsVerification } = await authService.register(name, email, password);
-      
-      if (needsVerification) {
-        // Store email for the verification page to use
-        localStorage.setItem('emailForVerification', email);
-        setUser(null);
-        navigate('/verify-email');
-      } else if (user) {
-        // Rare case: no verification needed, fetch full profile and log in
-        const loggedInUser = await authService.getStoredUser();
-        setUser(loggedInUser);
-        navigate('/scheduler');
-      }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
-      setError(errorMessage);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /** Handles user logout. */
   const logout = async () => {
@@ -161,26 +124,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  /**
-   * Triggers the resending of a verification email.
-   *
-   * @param email - The user's email address.
-   * @returns A Promise that resolves on successful resend or rejects on failure.
-   */
-  const resendVerificationEmail = async (email: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await authService.resendVerificationEmail(email);
-    } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to resend verification email';
-      setError(errorMessage);
-      throw err; // Re-throw so the UI component can handle it (e.g., show a notification).
-    } finally {
-      setLoading(false);
-    }
-  };
 
   /** Clears any existing authentication error message. */
   const clearError = () => {
@@ -192,9 +135,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     role: user?.role || null, // Derives the role from the user object
     departmentId: user?.department_id || null,
     login,
-    register,
     logout,
-    resendVerificationEmail,
     updateMyProfile,
     loading,
     error,

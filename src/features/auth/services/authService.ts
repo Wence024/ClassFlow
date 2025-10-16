@@ -5,7 +5,6 @@
  */
 import { supabase } from '../../../lib/supabase';
 import type { AuthResponse, User } from '../types/auth';
-import { User as SupabaseUser } from '@supabase/supabase-js';
 import { UserRole } from '../../users/types/user';
 
 /**
@@ -77,60 +76,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
   };
 }
 
-/**
- * Registers a new user with their name, email, and password.
- *
- * @param name - The user's full name.
- * @param email - The user's email address.
- * @param password - The desired password for the new account.
- * @returns A promise that resolves to an object containing the auth user and a flag indicating if email verification is needed.
- * @throws {Error} Throws an error if registration fails.
- */
-export async function register(
-  name: string,
-  email: string,
-  password: string
-): Promise<{ user: SupabaseUser; needsVerification: boolean }> {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name: name,
-      },
-    },
-  });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  if (!data.user) {
-    throw new Error('Registration failed due to an unexpected issue.');
-  }
-
-  // If `data.session` is null, it means Supabase requires email verification.
-  const needsVerification = !data.session;
-
-  return {
-    user: data.user,
-    needsVerification: needsVerification,
-  };
-}
-
-/**
- * Resends the verification email to the specified email address.
- *
- * @param email - The email address to which the verification link should be sent.
- * @returns A promise that resolves when the email has been sent.
- * @throws {Error} Throws an error if the request fails.
- */
-export async function resendVerificationEmail(email: string): Promise<void> {
-  const { error } = await supabase.auth.resend({ type: 'signup', email });
-  if (error) {
-    throw new Error(error.message);
-  }
-}
 
 /**
  * Retrieves the currently authenticated user's session and enriches it with data from the `profiles` table.

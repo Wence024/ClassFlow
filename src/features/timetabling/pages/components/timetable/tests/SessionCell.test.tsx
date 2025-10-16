@@ -59,9 +59,7 @@ const renderWithContext = (
     loading: false,
     role: 'program_head',
     login: vi.fn(),
-    register: vi.fn(),
     logout: vi.fn(),
-    resendVerificationEmail: vi.fn(),
     error: null,
     clearError: vi.fn(),
   };
