@@ -32,7 +32,7 @@ export function useCourses(filterByUserProgram = false) {
   });
 
   const addMutation = useMutation({
-    mutationFn: (data: CourseInsert) => coursesService.addCourse(data),
+    mutationFn: (data: CourseInsert) => coursesService.addCourse({ ...data, program_id: user?.program_id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
