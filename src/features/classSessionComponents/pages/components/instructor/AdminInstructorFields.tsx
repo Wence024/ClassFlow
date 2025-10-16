@@ -61,7 +61,8 @@ export const AdminInstructorFields: React.FC<{
 
   // Set default department when editing
   useEffect(() => {
-    if (isEditing && currentDepartmentId && !watch('department_id')) {
+    const currentDeptIdValue = watch('department_id');
+    if (isEditing && currentDepartmentId && !currentDeptIdValue) {
       setValue('department_id', currentDepartmentId);
     }
   }, [isEditing, currentDepartmentId, setValue, watch]);

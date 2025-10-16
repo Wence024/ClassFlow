@@ -25,6 +25,7 @@ const queryClient = new QueryClient({
 // Mock Data
 const department1Instructors: Instructor[] = [
   { id: 'inst1', first_name: 'John', last_name: 'Doe', department_id: 'dept1', created_at: '', color: '#ffffff', code: 'JD', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
+  { id: 'inst3', first_name: 'Alice', last_name: 'Johnson', department_id: 'dept1', created_at: '', color: '#ffffff', code: 'AJ', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
 ];
 const allInstructors: Instructor[] = [
   ...department1Instructors,
@@ -146,6 +147,57 @@ describe('InstructorTab Integration Tests (Department Head)', () => {
 
         await waitFor(() => {
             expect(mockedInstructorsService.removeInstructor).toHaveBeenCalledWith('inst1', deptHeadUser.id);
+        });
+    });
+
+    it('should filter instructors based on search term', async () => {
+        const user = userEvent.setup();
+        mockedInstructorsService.getInstructors.mockResolvedValue(department1Instructors);
+
+        render(<InstructorTab />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+
+        // Wait for initial data to load
+        await waitFor(() => {
+            expect(screen.getByText('John Doe')).toBeInTheDocument();
+            expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+        });
+
+        // Search for "Alice"
+        const searchInput = screen.getByPlaceholderText(/Search by name or code.../i);
+        await user.type(searchInput, 'Alice');
+
+        // Only Alice should be visible
+        await waitFor(() => {
+            expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+            expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
+        });
+
+        // Clear search
+        await user.clear(searchInput);
+        
+        // Both should be visible again
+        await waitFor(() => {
+            expect(screen.getByText('John Doe')).toBeInTheDocument();
+            expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+        });
+    });
+
+    it('should filter instructors by code', async () => {
+        const user = userEvent.setup();
+        mockedInstructorsService.getInstructors.mockResolvedValue(department1Instructors);
+
+        render(<InstructorTab />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+
+        await waitFor(() => expect(screen.getByText('John Doe')).toBeInTheDocument());
+
+        // Search by code "AJ"
+        const searchInput = screen.getByPlaceholderText(/Search by name or code.../i);
+        await user.type(searchInput, 'AJ');
+
+        // Only Alice Johnson (code: AJ) should be visible
+        await waitFor(() => {
+            expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+            expect(screen.queryByText('John Doe')).not.toBeInTheDocument();
         });
     });
 });
