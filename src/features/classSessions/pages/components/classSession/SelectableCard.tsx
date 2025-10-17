@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Star } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface SelectableCardProps {
   title: string;
@@ -30,7 +30,6 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
   details,
   color = '#6B7280',
   isSelected,
-  isPriority,
   onClick,
 }) => {
   return (
@@ -39,9 +38,7 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
       className={`relative p-4 rounded-lg border-2 transition-all ${
         isSelected
           ? 'border-blue-500 bg-blue-50'
-          : isPriority
-            ? 'border-yellow-300 bg-yellow-50 hover:border-yellow-400'
-            : 'border-gray-200 hover:border-gray-300 bg-white'
+          : 'border-gray-200 hover:border-gray-300 bg-white'
       }`}
     >
       <div className="flex items-start justify-between">
@@ -52,9 +49,6 @@ export const SelectableCard: React.FC<SelectableCardProps> = ({
               style={{ backgroundColor: color }}
             />
             <h3 className="font-semibold text-gray-900">{title}</h3>
-            {isPriority && (
-              <Star className="h-4 w-4 text-yellow-600 fill-yellow-600" aria-label="Priority" />
-            )}
           </div>
           {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
           {details && details.length > 0 && (

@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { Dialog } from '../../../../../components/ui/dialog';
 import { FormField, Button } from '../../../../../components/ui';
 import { X } from 'lucide-react';
 
@@ -50,7 +49,7 @@ export function SelectorModal<T extends SelectorItem>({
 }: SelectorModalProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredAndSortedItems = useMemo(() => {
+  const { priorityItems, otherItems } = useMemo(() => {
     let filtered = items;
 
     if (searchTerm) {
@@ -62,16 +61,12 @@ export function SelectorModal<T extends SelectorItem>({
     }
 
     if (getPriorityStatus) {
-      return filtered.sort((a, b) => {
-        const aPriority = getPriorityStatus(a);
-        const bPriority = getPriorityStatus(b);
-        if (aPriority && !bPriority) return -1;
-        if (!aPriority && bPriority) return 1;
-        return 0;
-      });
+      const priority = filtered.filter(getPriorityStatus);
+      const other = filtered.filter((item) => !getPriorityStatus(item));
+      return { priorityItems: priority, otherItems: other };
     }
 
-    return filtered;
+    return { priorityItems: filtered, otherItems: [] };
   }, [items, searchTerm, getPriorityStatus]);
 
   const handleSelect = (item: T) => {
@@ -80,58 +75,77 @@ export function SelectorModal<T extends SelectorItem>({
     setSearchTerm('');
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-          <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-xl font-bold">{title}</h2>
-            <button
-              onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
-              aria-label="Close"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-xl font-bold">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-700"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
 
-          <div className="p-4 border-b">
-            <FormField
-              id="selector-search"
-              label=""
-              placeholder={searchPlaceholder}
-              value={searchTerm}
-              onChange={setSearchTerm}
-            />
-          </div>
+        <div className="p-4 border-b">
+          <FormField
+            id="selector-search"
+            label=""
+            placeholder={searchPlaceholder}
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+        </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {filteredAndSortedItems.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">No items found</div>
-            ) : (
-              filteredAndSortedItems.map((item) => (
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {priorityItems.length === 0 && otherItems.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No items found</div>
+          ) : (
+            <>
+              {priorityItems.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => handleSelect(item)}
                   className="cursor-pointer"
                 >
-                  {renderCard(
-                    item,
-                    item.id === selectedId,
-                    getPriorityStatus ? getPriorityStatus(item) : undefined
-                  )}
+                  {renderCard(item, item.id === selectedId, true)}
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+              
+              {otherItems.length > 0 && priorityItems.length > 0 && (
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-white px-4 text-sm text-gray-500">Other Available Resources</span>
+                  </div>
+                </div>
+              )}
+              
+              {otherItems.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => handleSelect(item)}
+                  className="cursor-pointer"
+                >
+                  {renderCard(item, item.id === selectedId, false)}
+                </div>
+              ))}
+            </>
+          )}
+        </div>
 
-          <div className="p-4 border-t flex justify-end">
-            <Button variant="secondary" onClick={onClose}>
-              Cancel
-            </Button>
-          </div>
+        <div className="p-4 border-t flex justify-end">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
         </div>
       </div>
-    </Dialog>
+    </div>
   );
 }
