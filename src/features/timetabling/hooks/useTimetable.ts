@@ -75,7 +75,7 @@ export function useTimetable() {
 
   // --- REAL-TIME SUBSCRIPTION ---
   useEffect(() => {
-    if (!user) return;
+    if (!user || !activeSemester) return;
 
     const channel = supabase
       .channel(`timetable-realtime-${channelId}`)
@@ -85,7 +85,7 @@ export function useTimetable() {
           event: '*', // Listen for INSERT, UPDATE, DELETE
           schema: 'public',
           table: 'timetable_assignments',
-          filter: `user_id=eq.${user.id}`, // Only listen for changes owned by the current user.
+          filter: `semester_id=eq.${activeSemester.id}`, // Listen for all changes in the active semester
         },
         () => {
           // When a change is detected, invalidate the query to trigger a refetch.
@@ -98,7 +98,7 @@ export function useTimetable() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, queryKey, channelId]);
+  }, [user, activeSemester, queryClient, queryKey, channelId]);
 
   // --- MUTATIONS ---
 
@@ -129,10 +129,11 @@ export function useTimetable() {
   const removeClassSessionMutation = useMutation({
     mutationFn: (variables: { class_group_id: string; period_index: number }) => {
       if (!user) throw new Error('User not authenticated');
+      if (!activeSemester) throw new Error('Active semester not loaded');
       return timetableService.removeClassSessionFromTimetable(
-        user.id,
         variables.class_group_id,
-        variables.period_index
+        variables.period_index,
+        activeSemester.id
       );
     },
     // Optimistic update: remove the item from the cache immediately.
@@ -172,7 +173,7 @@ export function useTimetable() {
       if (!user) throw new Error('User not authenticated');
       if (!activeSemester) throw new Error('Active semester not loaded'); // Safety check
 
-      return timetableService.moveClassSessionInTimetable(user.id, variables.from, variables.to, {
+      return timetableService.moveClassSessionInTimetable(variables.from, variables.to, {
         user_id: user.id,
         class_group_id: variables.to.class_group_id,
         period_index: variables.to.period_index,
@@ -186,23 +187,34 @@ export function useTimetable() {
       const previousAssignments = queryClient.getQueryData<HydratedTimetableAssignment[]>(queryKey);
       queryClient.setQueryData<HydratedTimetableAssignment[]>(queryKey, (old) => {
         if (!old) return [];
+        // Find the specific assignment to move by matching BOTH position AND class_session.id
+        // This is critical for merged sessions to avoid moving the wrong assignment
         const assignmentToMove = old.find(
           (a) =>
             a.class_group_id === movedItem.from.class_group_id &&
-            a.period_index === movedItem.from.period_index
+            a.period_index === movedItem.from.period_index &&
+            a.class_session?.id === movedItem.classSession.id
         );
-        if (!assignmentToMove) return old;
+        if (!assignmentToMove) {
+          console.warn('[useTimetable] Assignment to move not found in cache', {
+            from: movedItem.from,
+            classSessionId: movedItem.classSession.id,
+          });
+          return old;
+        }
         const newAssignment = {
           ...assignmentToMove,
           class_group_id: movedItem.to.class_group_id,
           period_index: movedItem.to.period_index,
         };
+        // Filter out the old assignment using all three criteria to ensure precision
         return [
           ...old.filter(
             (a) =>
               !(
                 a.class_group_id === movedItem.from.class_group_id &&
-                a.period_index === movedItem.from.period_index
+                a.period_index === movedItem.from.period_index &&
+                a.class_session?.id === movedItem.classSession.id
               )
           ),
           newAssignment,

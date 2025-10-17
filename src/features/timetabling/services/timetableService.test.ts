@@ -147,16 +147,16 @@ describe('TimetableService', () => {
     test('should delete without error', async () => {
       mockSupabaseQueryBuilder.delete.mockReturnThis();
 
-      // First two eq calls return the builder
+      // Two eq calls return the builder (class_group_id, period_index)
       mockSupabaseQueryBuilder.eq
         .mockReturnValueOnce(mockSupabaseQueryBuilder)
         .mockReturnValueOnce(mockSupabaseQueryBuilder);
 
-      // Final eq call returns the result of the delete operation
+      // Final eq call (semester_id) returns the result of the delete operation
       mockSupabaseQueryBuilder.eq.mockResolvedValueOnce({ error: null });
 
       await expect(
-        removeClassSessionFromTimetable('user-id', 'group-id', 1)
+        removeClassSessionFromTimetable('group-id', 1, 'sem1')
       ).resolves.toBeUndefined();
     });
 
@@ -167,7 +167,7 @@ describe('TimetableService', () => {
         .mockImplementationOnce(() => mockSupabaseQueryBuilder)
         .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
 
-      await expect(removeClassSessionFromTimetable('user-id', 'group-id', 1)).rejects.toThrow(
+      await expect(removeClassSessionFromTimetable('group-id', 1, 'sem1')).rejects.toThrow(
         'fail'
       );
     });
@@ -177,7 +177,7 @@ describe('TimetableService', () => {
     test('should remove then assign new session with version', async () => {
       mockSupabaseQueryBuilder.delete.mockReturnThis();
 
-      // Three eqs for the remove
+      // Three eqs for the remove (class_group_id, period_index, semester_id)
       mockSupabaseQueryBuilder.eq
         .mockReturnValueOnce(mockSupabaseQueryBuilder)
         .mockReturnValueOnce(mockSupabaseQueryBuilder)
@@ -190,7 +190,6 @@ describe('TimetableService', () => {
       });
 
       const result = await moveClassSessionInTimetable(
-        'user-id',
         { class_group_id: 'A', period_index: 1 },
         { class_group_id: 'B', period_index: 2 },
         mockAssignmentInput
@@ -212,7 +211,6 @@ describe('TimetableService', () => {
 
       await expect(
         moveClassSessionInTimetable(
-          'user-id',
           { class_group_id: 'A', period_index: 1 },
           { class_group_id: 'B', period_index: 2 },
           mockAssignmentInput

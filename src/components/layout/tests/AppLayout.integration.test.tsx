@@ -23,7 +23,7 @@ const renderAppLayout = (authContextValue: Partial<AuthContextType> = {}) => {
   });
 
   const mockAuthContext: AuthContextType = {
-    user: { id: 'u1', role: 'admin', program_id: 'p1', name: 'Admin', email: 'admin@test.com' },
+    user: { id: 'u1', role: 'program_head', program_id: 'p1', name: 'Program Head', email: 'ph@test.com' },
     role: 'admin',
     departmentId: null,
     login: vi.fn(),
@@ -33,9 +33,9 @@ const renderAppLayout = (authContextValue: Partial<AuthContextType> = {}) => {
     loading: false,
     error: null,
     clearError: vi.fn(),
-    isAdmin: () => true,
+    isAdmin: () => false,
     isDepartmentHead: () => false,
-    isProgramHead: () => false,
+    isProgramHead: () => true,
     canManageInstructors: () => false,
     canManageClassrooms: () => false,
     canReviewRequestsForDepartment: () => false,
@@ -98,7 +98,7 @@ describe('AppLayout - Collapsible Sidebar Integration', () => {
     await user.click(toggleButton);
     expect(sidebar).toHaveClass('w-20');
 
-    const timetableLink = screen.getByRole('link', { name: /timetable/i });
+    const timetableLink = screen.getByRole('link', { name: /Timetable/i });
     await user.click(timetableLink);
 
     expect(sidebar).toHaveClass('w-20');

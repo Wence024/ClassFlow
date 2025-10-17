@@ -231,11 +231,10 @@ describe('useTimetable - semester scope', () => {
       mockSession
     );
 
-    // The `move` service function takes the new assignment object as its last parameter
+    // The `move` service function takes from, to, and assignment as parameters
     expect(moveSpy).toHaveBeenCalledWith(
-      expect.any(String), // user.id
-      expect.any(Object), // from
-      expect.any(Object), // to
+      { class_group_id: 'g1', period_index: 0 }, // from
+      { class_group_id: 'g1', period_index: 1 }, // to
       expect.objectContaining({
         // new assignment payload
         semester_id: mockSemesterId,

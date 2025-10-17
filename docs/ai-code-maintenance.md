@@ -166,18 +166,59 @@ All Phase 4 tasks have been completed successfully:
    - Full test suite: ✅ All 171 tests passing
 * **Test Maintenance**: Removed all references to deleted `register()` and `resendVerificationEmail()` functions from test mocks.
 
+### **Phase 5: Timetabling RLS & Bug Fixes - ✅ COMPLETED**
+
+**Date Completed:** October 16, 2025  
+**Branch:** `lovable` (merged from various fixes)  
+**Total Changes:** 9 files modified
+
+All Phase 5 tasks have been completed successfully:
+
+1. **✅ Fixed RLS Policies** - Resolved timetable RLS policies to allow program heads to edit their timetables
+2. **✅ Fixed Service Layer** - Removed `user_id` dependency from `removeClassSessionFromTimetable`
+3. **✅ Fixed Drag & Drop** - Corrected permission checks and conflict detection for merged sessions
+4. **✅ Test Updates** - Fixed test expectations to match actual service signatures
+5. **✅ Created Missing Tests** - Added comprehensive integration tests for `useTimetableDnd` hook
+
+**Key Issues Resolved:**
+- Fixed program head inability to edit timetables due to incorrect RLS policies
+- Fixed merged class session duplication bug in drag-and-drop operations
+- Fixed permission checks to prevent moving sessions from other programs
+- Fixed test mocks to match actual service function signatures
+
+**Test Coverage:**
+- ✅ `src/features/timetabling/services/timetableService.test.ts` - Service layer unit tests
+- ✅ `src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx` - Hook integration tests (fixed)
+- ✅ `src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx` - DnD hook tests (created)
+- ✅ `src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx` - Page integration tests (fixed)
+
+### **Phase 6: Instructor Search & Timetabling Fixes - ✅ COMPLETED**
+
+**Date Completed:** October 17, 2025
+**Branch:** `fix/prog-heads-rls-problem`
+**Total Changes:** 3 files modified
+
+All Phase 6 tasks have been completed successfully:
+
+1.  **✅ Fixed Timetabling DnD Tests** - Resolved failures in `useTimetableDnd.integration.test.tsx` by wrapping state updates in `act()`.
+2.  **✅ Fixed Instructor Tab Tests** - Resolved multiple failures in `InstructorTab.integration.test.tsx` by:
+    *   Providing a complete mock for the `AuthContext`.
+    *   Using valid UUIDs in mock data to prevent validation errors.
+    *   Scoping button queries to specific item cards to resolve ambiguity.
+    *   Correcting the assertion for the `removeInstructor` mock call.
+3.  **✅ All Tests Passing** - All tests related to the changed files are now passing.
+
+**Key Issues Resolved:**
+- Fixed race conditions in `useTimetableDnd` hook tests.
+- Fixed multiple issues in `InstructorTab` integration tests related to mocking, validation, and element selection.
+
 ### **Next Steps:**
 
-The codebase has progressed with comprehensive user management and authentication integration tests. All core features are now covered with integration tests. The program-department relationship feature has been successfully implemented and tested.
+The codebase has been updated with fixes for the instructor search and timetabling features. All tests for the modified files are passing.
 
-1. **✅ Created all high-priority integration tests** for Department Head Dashboard, Program Head Instructors, and Class Session Components.
-2. **✅ Created user management and authentication tests** to ensure secure role-based access control.
-3. **✅ Updated program-department relationship tests** - Fixed test expectations to include required `department_id` field for all program operations.
-4. **✅ Run the full test suite** to verify all tests pass: `npm run test`.
-5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`.
-6. **Pause all development** on the `resourceRequests` feature and its related tests, pending stakeholder feedback as outlined in the updated planning document.
-
-**🎉 MAINTENANCE COMPLETE** - The `feat/admin-user-invites` branch is now ready for final review and merge to main branch.
+1.  **✅ Run the full test suite** to verify all tests pass: `npm run test`
+2.  **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`
+3.  **Merge the branch** into `master`.
 
 ### **Phase 4: AI Code Maintenance Session - ✅ COMPLETED**
 

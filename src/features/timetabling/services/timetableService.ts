@@ -71,30 +71,31 @@ export async function assignClassSessionToTimetable(
 
 /**
  * Remove a class session from a group/period in Supabase.
+ * Authorization is handled by RLS policies based on program/department ownership.
  *
- * @param user_id The user's unique ID.
  * @param class_group_id The class group ID.
  * @param period_index The period index.
+ * @param semester_id The semester ID to ensure we only delete from the current semester.
  */
 export async function removeClassSessionFromTimetable(
-  user_id: string,
   class_group_id: string,
-  period_index: number
+  period_index: number,
+  semester_id: string
 ): Promise<void> {
   const { error } = await supabase
     .from('timetable_assignments')
     .delete()
-    .eq('user_id', user_id)
     .eq('class_group_id', class_group_id)
-    .eq('period_index', period_index);
+    .eq('period_index', period_index)
+    .eq('semester_id', semester_id);
   if (error) throw error;
 }
 
 /**
  * Move a class session from one cell to another (delete old, upsert new) in Supabase.
  * The new assignment object MUST include the semester_id.
+ * Authorization is handled by RLS policies based on program/department ownership.
  *
- * @param user_id The user's unique ID.
  * @param from The source cell.
  * @param from.class_group_id The class group ID of the source cell.
  * @param from.period_index The period index of the source cell.
@@ -105,12 +106,11 @@ export async function removeClassSessionFromTimetable(
  * @returns The upserted timetable assignment object for the new cell.
  */
 export async function moveClassSessionInTimetable(
-  user_id: string,
   from: { class_group_id: string; period_index: number },
   _to: { class_group_id: string; period_index: number },
   assignment: TimetableAssignmentInsert // This is the payload for the new location
 ): Promise<TimetableAssignment> {
-  await removeClassSessionFromTimetable(user_id, from.class_group_id, from.period_index);
+  await removeClassSessionFromTimetable(from.class_group_id, from.period_index, assignment.semester_id);
   // The assign function will handle the rest correctly.
   return assignClassSessionToTimetable(assignment);
 }
