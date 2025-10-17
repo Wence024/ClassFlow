@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTimetableDnd } from '../useTimetableDnd';
@@ -172,7 +172,9 @@ describe('useTimetableDnd', () => {
       },
     } as unknown as React.DragEvent;
 
-    result.current.handleDragStart(mockEvent, dragSource);
+    act(() => {
+      result.current.handleDragStart(mockEvent, dragSource);
+    });
 
     expect(result.current.activeDraggedSession).toEqual(mockOwnedSession);
   });
@@ -194,7 +196,9 @@ describe('useTimetableDnd', () => {
       },
     } as unknown as React.DragEvent;
 
-    result.current.handleDragStart(mockEvent, dragSource);
+    act(() => {
+      result.current.handleDragStart(mockEvent, dragSource);
+    });
 
     // Should not allow moving other program's sessions
     const isAvailable = result.current.isSlotAvailable('g1', 2);
@@ -216,7 +220,9 @@ describe('useTimetableDnd', () => {
       },
     } as unknown as React.DragEvent;
 
-    result.current.handleDragStart(mockEvent, dragSource);
+    act(() => {
+      result.current.handleDragStart(mockEvent, dragSource);
+    });
 
     // Should allow dragging from drawer to any empty slot
     const isAvailable = result.current.isSlotAvailable('g1', 2);
@@ -240,7 +246,9 @@ describe('useTimetableDnd', () => {
       },
     } as unknown as React.DragEvent;
 
-    result.current.handleDragStart(mockEvent, dragSource);
+    act(() => {
+      result.current.handleDragStart(mockEvent, dragSource);
+    });
 
     // Should not allow moving to a different group
     const isAvailable = result.current.isSlotAvailable('g2', 0);
