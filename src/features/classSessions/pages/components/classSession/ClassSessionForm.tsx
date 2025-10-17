@@ -302,6 +302,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       title="Select Instructor"
       searchPlaceholder="Search instructors..."
       getPriorityStatus={(instructor) => (instructor as typeof instructors[0]).department_id === userDepartmentId}
+      separatorLabel="Other Available Instructors"
       renderCard={(instructor, isSelected, isPriority) => {
         const inst = instructor as typeof instructors[0];
         return (
@@ -353,6 +354,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       title="Select Classroom"
       searchPlaceholder="Search classrooms..."
       getPriorityStatus={(classroom) => (classroom as typeof classrooms[0]).preferred_department_id === userDepartmentId}
+      separatorLabel="Other Available Classrooms"
       renderCard={(classroom, isSelected, isPriority) => {
         const room = classroom as typeof classrooms[0];
         return (

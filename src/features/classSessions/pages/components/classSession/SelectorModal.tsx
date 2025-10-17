@@ -19,6 +19,7 @@ interface SelectorModalProps<T extends SelectorItem> {
   searchPlaceholder?: string;
   renderCard: (item: T, isSelected: boolean, isPriority?: boolean) => React.ReactNode;
   getPriorityStatus?: (item: T) => boolean;
+  separatorLabel?: string;
 }
 
 /**
@@ -34,6 +35,7 @@ interface SelectorModalProps<T extends SelectorItem> {
  * @param [sm.searchPlaceholder] Placeholder text for the search input.
  * @param sm.renderCard Function to render each item as a card.
  * @param [sm.getPriorityStatus] Optional function to determine if an item should be prioritized.
+ * @param [sm.separatorLabel] Label for the separator between priority and other items.
  * @returns The rendered selector modal.
  */
 export function SelectorModal<T extends SelectorItem>({
@@ -46,6 +48,7 @@ export function SelectorModal<T extends SelectorItem>({
   searchPlaceholder = 'Search...',
   renderCard,
   getPriorityStatus,
+  separatorLabel = 'Other Available Resources',
 }: SelectorModalProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -122,7 +125,7 @@ export function SelectorModal<T extends SelectorItem>({
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-4 text-sm text-gray-500">Other Available Resources</span>
+                    <span className="bg-white px-4 text-sm text-gray-500">{separatorLabel}</span>
                   </div>
                 </div>
               )}
