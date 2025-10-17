@@ -49,7 +49,7 @@ const ClassSessionsPage: React.FC = () => {
     error,
   } = useClassSessions();
 
-  const { courses, isLoading: coursesLoading } = useCourses();
+  const { courses, isLoading: coursesLoading } = useCourses(true);
   const { classGroups, isLoading: groupsLoading } = useClassGroups();
   const { classrooms, isLoading: classroomsLoading } = useClassrooms();
   const { instructors, isLoading: instructorsLoading } = useInstructors();

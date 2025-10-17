@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'; // Import useMemo
+import React, { useMemo, useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { Button, FormField } from '../../../../../components/ui';
@@ -11,6 +11,9 @@ import type {
 } from '../../../../classSessionComponents/types';
 import { AlertTriangle } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
+import { SelectorModal } from './SelectorModal';
+import { SelectableCard } from './SelectableCard';
+import { useAuth } from '../../../../auth/hooks/useAuth';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
@@ -54,12 +57,27 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   loading,
   isEditing,
 }) => {
+  const { user } = useAuth();
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isDirty },
   } = formMethods;
+
+  const [modalState, setModalState] = useState<{
+    type: 'course' | 'instructor' | 'group' | 'classroom' | null;
+    isOpen: boolean;
+  }>({ type: null, isOpen: false });
+
+  const openModal = (type: 'course' | 'instructor' | 'group' | 'classroom') => {
+    setModalState({ type, isOpen: true });
+  };
+
+  const closeModal = () => {
+    setModalState({ type: null, isOpen: false });
+  };
 
   // Watch all values that could affect soft conflicts
   const watchedValues = watch([
@@ -103,76 +121,110 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
     return [];
   }, [watchedValues, classGroups, classrooms, courses, instructors]);
 
+  const userDepartmentId = user?.department_id;
+
+  const getSelectedName = (items: { id: string; name: string; code?: string | null }[], id?: string) => {
+    if (!id) return 'Select...';
+    const item = items.find((i) => i.id === id);
+    if (!item) return 'Select...';
+    return item.code ? `${item.name} (${item.code})` : item.name;
+  };
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <h3 className="text-lg font-bold mb-4 text-center">
-        {isEditing ? 'Edit Class Session' : 'Create New Class Session'}
-      </h3>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <fieldset disabled={loading}>
-          <Controller
-            name="course_id"
-            control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="course_id"
-                label="Course"
-                type="select"
-                error={errors.course_id?.message}
-                options={courses.map((c) => ({ id: c.id, name: `${c.name} (${c.code})` }))}
-                required
-              />
-            )}
-          />
-          <Controller
-            name="instructor_id"
-            control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="instructor_id"
-                label="Instructor"
-                type="select"
-                error={errors.instructor_id?.message}
-                options={instructors.map((i) => ({
-                  id: i.id,
-                  name: `${i.first_name} ${i.last_name}`,
-                }))}
-                required
-              />
-            )}
-          />
-          <Controller
-            name="class_group_id"
-            control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="class_group_id"
-                label="Class Group"
-                type="select"
-                error={errors.class_group_id?.message}
-                options={classGroups}
-                required
-              />
-            )}
-          />
-          <Controller
-            name="classroom_id"
-            control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="classroom_id"
-                label="Classroom"
-                type="select"
-                error={errors.classroom_id?.message}
-                options={classrooms}
-                required
-              />
-            )}
-          />
+    <>
+      <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+        <h3 className="text-lg font-bold mb-4 text-center">
+          {isEditing ? 'Edit Class Session' : 'Create New Class Session'}
+        </h3>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <fieldset disabled={loading}>
+            <Controller
+              name="course_id"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Course <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => openModal('course')}
+                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {getSelectedName(courses, field.value)}
+                  </button>
+                  {errors.course_id?.message && (
+                    <p className="text-sm text-red-600">{errors.course_id.message}</p>
+                  )}
+                </div>
+              )}
+            />
+            <Controller
+              name="instructor_id"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Instructor <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => openModal('instructor')}
+                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {getSelectedName(
+                      instructors.map((i) => ({ id: i.id, name: `${i.first_name} ${i.last_name}`, code: i.code })),
+                      field.value
+                    )}
+                  </button>
+                  {errors.instructor_id?.message && (
+                    <p className="text-sm text-red-600">{errors.instructor_id.message}</p>
+                  )}
+                </div>
+              )}
+            />
+            <Controller
+              name="class_group_id"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Class Group <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => openModal('group')}
+                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {getSelectedName(classGroups, field.value)}
+                  </button>
+                  {errors.class_group_id?.message && (
+                    <p className="text-sm text-red-600">{errors.class_group_id.message}</p>
+                  )}
+                </div>
+              )}
+            />
+            <Controller
+              name="classroom_id"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Classroom <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => openModal('classroom')}
+                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {getSelectedName(classrooms, field.value)}
+                  </button>
+                  {errors.classroom_id?.message && (
+                    <p className="text-sm text-red-600">{errors.classroom_id.message}</p>
+                  )}
+                </div>
+              )}
+            />
           {conflictWarnings.length > 0 && (
             <div className="flex items-start gap-3 p-3 my-2 text-sm text-yellow-900 bg-yellow-50 border border-yellow-200 rounded-md">
               <div className="flex-shrink-0">
@@ -218,6 +270,108 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
         </fieldset>
       </form>
     </div>
+
+    <SelectorModal
+      isOpen={modalState.type === 'course' && modalState.isOpen}
+      onClose={closeModal}
+      onSelect={(course) => setValue('course_id', course.id, { shouldDirty: true })}
+      items={courses}
+      selectedId={watch('course_id')}
+      title="Select Course"
+      searchPlaceholder="Search courses..."
+      renderCard={(course, isSelected) => (
+        <SelectableCard
+          title={course.name}
+          subtitle={course.code ?? undefined}
+          color={course.color ?? '#6B7280'}
+          isSelected={isSelected}
+          onClick={() => {}}
+        />
+      )}
+    />
+
+    <SelectorModal
+      isOpen={modalState.type === 'instructor' && modalState.isOpen}
+      onClose={closeModal}
+      onSelect={(instructor) => setValue('instructor_id', instructor.id, { shouldDirty: true })}
+      items={instructors.map(i => ({
+        ...i,
+        name: `${i.first_name} ${i.last_name}`,
+      }))}
+      selectedId={watch('instructor_id')}
+      title="Select Instructor"
+      searchPlaceholder="Search instructors..."
+      getPriorityStatus={(instructor) => (instructor as typeof instructors[0]).department_id === userDepartmentId}
+      renderCard={(instructor, isSelected, isPriority) => {
+        const inst = instructor as typeof instructors[0];
+        return (
+          <SelectableCard
+            title={`${inst.first_name} ${inst.last_name}`}
+            subtitle={inst.code ?? undefined}
+            details={[
+              inst.email ?? '',
+              inst.contract_type ?? '',
+            ].filter(Boolean) as string[]}
+            color={inst.color ?? '#6B7280'}
+            isSelected={isSelected}
+            isPriority={isPriority}
+            onClick={() => {}}
+          />
+        );
+      }}
+    />
+
+    <SelectorModal
+      isOpen={modalState.type === 'group' && modalState.isOpen}
+      onClose={closeModal}
+      onSelect={(group) => setValue('class_group_id', group.id, { shouldDirty: true })}
+      items={classGroups}
+      selectedId={watch('class_group_id')}
+      title="Select Class Group"
+      searchPlaceholder="Search class groups..."
+      renderCard={(group, isSelected) => {
+        const grp = group as typeof classGroups[0];
+        return (
+          <SelectableCard
+            title={grp.name}
+            subtitle={grp.code ?? undefined}
+            details={[`${grp.student_count ?? 0} students`]}
+            color={grp.color ?? '#6B7280'}
+            isSelected={isSelected}
+            onClick={() => {}}
+          />
+        );
+      }}
+    />
+
+    <SelectorModal
+      isOpen={modalState.type === 'classroom' && modalState.isOpen}
+      onClose={closeModal}
+      onSelect={(classroom) => setValue('classroom_id', classroom.id, { shouldDirty: true })}
+      items={classrooms}
+      selectedId={watch('classroom_id')}
+      title="Select Classroom"
+      searchPlaceholder="Search classrooms..."
+      getPriorityStatus={(classroom) => (classroom as typeof classrooms[0]).preferred_department_id === userDepartmentId}
+      renderCard={(classroom, isSelected, isPriority) => {
+        const room = classroom as typeof classrooms[0];
+        return (
+          <SelectableCard
+            title={room.name}
+            subtitle={room.code ?? undefined}
+            details={[
+              room.location ? `Location: ${room.location}` : '',
+              `Capacity: ${room.capacity ?? 0}`,
+            ].filter(Boolean) as string[]}
+            color={room.color ?? '#6B7280'}
+            isSelected={isSelected}
+            isPriority={isPriority}
+            onClick={() => {}}
+          />
+        );
+      }}
+    />
+  </>
   );
 };
 
