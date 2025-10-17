@@ -155,7 +155,6 @@ Refactor backlogs:
 * [ ] **[Refactor]** Simplify the `buildTimetableGrid` utility to reduce its cognitive complexity, likely by extracting parts of its logic into smaller helper functions.
 * [ ] **[Bug]** The `ColorPicker` popover closes immediately when the custom color input is clicked, preventing users from selecting a custom color.
 
-
 * [x] TODO: Break down the forms and viewing into individual components (CourseTab, ClassroomTab, ClassGroupsTab, InstructorsTab)
 * [ ] TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
 
@@ -218,6 +217,8 @@ Ponderings:
 * Resolving the supabase warnings for performance query would be nice.
 * [x] A "Not Assigned" for profiles is better than "-".
 * Choosing between program head role / program selection and department head role / department selection is more intuitive.
+* Removing colors in components other than instructor would seem cleaner.
+* Being able to edit user names would be nice.
 
 * [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
 * [x] Programs need to be related to only one department (implemented with department_id foreign key and UI).
@@ -295,21 +296,21 @@ Based on my comprehensive scan of the codebase, I've identified both **strengths
 **Action Plan:**
 
 **Step 1: Remove Client-Side Registration Code**
-- Delete `register()` function from `src/features/auth/services/authService.ts`
-- Remove `register` from `AuthProvider` context value
-- Remove `register` from `AuthContextType` interface
-- Update all test mocks to remove register references
+* Delete `register()` function from `src/features/auth/services/authService.ts`
+* Remove `register` from `AuthProvider` context value
+* Remove `register` from `AuthContextType` interface
+* Update all test mocks to remove register references
 
 **Step 2: Disable Public Signups in Supabase**
-- Navigate to Supabase Dashboard → Authentication → Settings
-- Disable "Enable email signups" option
-- This adds a second layer of defense even if code is somehow compromised
+* Navigate to Supabase Dashboard → Authentication → Settings
+* Disable "Enable email signups" option
+* This adds a second layer of defense even if code is somehow compromised
 
 **Step 3: Clean Up Related Code**
-- Remove `resendVerificationEmail()` function (only used with public registration)
-- Delete `VerifyEmailPage.tsx` (no longer needed)
-- Remove `/verify-email` route from `AuthRoutes.tsx`
-- Update any documentation referencing public registration
+* Remove `resendVerificationEmail()` function (only used with public registration)
+* Delete `VerifyEmailPage.tsx` (no longer needed)
+* Remove `/verify-email` route from `AuthRoutes.tsx`
+* Update any documentation referencing public registration
 
 ---
 
@@ -320,12 +321,13 @@ Based on my comprehensive scan of the codebase, I've identified both **strengths
 **Risk:** Without explicit search paths, functions could be vulnerable to search path injection attacks.
 
 **Functions Affected:**
-- `update_user_role()`
-- `get_my_role()`
-- `create_user()`
+* `update_user_role()`
+* `get_my_role()`
+* `create_user()`
 
 **Recommendation:**
 All functions should include `SET search_path = public` or specific schemas:
+
 ```sql
 CREATE OR REPLACE FUNCTION public.get_my_role()
 RETURNS text
@@ -348,14 +350,14 @@ $$;
 #### **3. LOW: Auth Configuration Hardening**
 
 **Issues from Linter:**
-- OTP expiry exceeds recommended threshold
-- Leaked password protection is disabled
-- Postgres version has security patches available
+* OTP expiry exceeds recommended threshold
+* Leaked password protection is disabled
+* Postgres version has security patches available
 
 **Recommendations:**
-- Reduce OTP expiry to 24 hours or less
-- Enable leaked password protection (checks against haveibeenpwned)
-- Schedule a Postgres upgrade to apply security patches
+* Reduce OTP expiry to 24 hours or less
+* Enable leaked password protection (checks against haveibeenpwned)
+* Schedule a Postgres upgrade to apply security patches
 
 ---
 
@@ -364,6 +366,7 @@ $$;
 **Issue:** The `invite-user` edge function catches errors but doesn't validate all inputs thoroughly.
 
 **Current Code:**
+
 ```typescript
 const { email, role, program_id, department_id } = await req.json();
 
@@ -373,11 +376,12 @@ if (!email || !role) {
 ```
 
 **Risk:** Missing validation for:
-- Email format validity
-- Role is one of the allowed values
-- Program/department IDs exist in database
+* Email format validity
+* Role is one of the allowed values
+* Program/department IDs exist in database
 
 **Recommendation:**
+
 ```typescript
 // Add validation library
 import { z } from 'zod';
@@ -399,16 +403,17 @@ const validatedData = inviteSchema.parse(body);
 ### 📊 **Overall Security Score: B+ (Good, with room for improvement)**
 
 **Breakdown:**
-- ✅ Critical foundations: **A** (roles table, RLS, admin invites)
-- ⚠️ Code cleanup: **C** (unused registration code)
-- ⚠️ Configuration: **B** (some hardening needed)
-- ⚠️ Input validation: **B-** (edge function needs improvement)
+* ✅ Critical foundations: **A** (roles table, RLS, admin invites)
+* ⚠️ Code cleanup: **C** (unused registration code)
+* ⚠️ Configuration: **B** (some hardening needed)
+* ⚠️ Input validation: **B-** (edge function needs improvement)
 
 ---
 
 ### 🎯 **Prioritized Action Items**
 
 **Priority 1 (This Week):**
+
 1. Remove unused `register()` functions from codebase
 2. Disable public signups in Supabase Auth settings
 3. Add `SET search_path = public` to all security definer functions

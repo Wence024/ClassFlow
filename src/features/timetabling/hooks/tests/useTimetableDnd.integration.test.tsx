@@ -23,7 +23,7 @@ const queryClient = new QueryClient();
  * - Drag state management
  * - Visual feedback for available slots
  * - Permission checks for moving sessions
- * - Drop handling for grid and drawer
+ * - Drop handling for grid and drawer.
  */
 describe('useTimetableDnd', () => {
   const mockUser: User = {

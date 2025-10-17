@@ -65,14 +65,9 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
 
   /**
    * Checks if a specific timetable slot is available for dropping a class session.
-   * 
-   * Performs validation including:
-   * - User ownership check when dragging from timetable
-   * - Group mismatch prevention when moving within grid
-   * - Conflict detection based on timetable rules
-   * 
-   * @param groupId - The ID of the target class group.
-   * @param periodIndex - The index of the target period.
+   *
+   * @param groupId The ID of the target class group.
+   * @param periodIndex The index of the target period.
    * @returns True if the slot is available for the current drag operation, false otherwise.
    */
   const isSlotAvailable = useCallback(

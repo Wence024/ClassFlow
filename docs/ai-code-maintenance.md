@@ -192,17 +192,33 @@ All Phase 5 tasks have been completed successfully:
 - ✅ `src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx` - DnD hook tests (created)
 - ✅ `src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx` - Page integration tests (fixed)
 
+### **Phase 6: Instructor Search & Timetabling Fixes - ✅ COMPLETED**
+
+**Date Completed:** October 17, 2025
+**Branch:** `fix/prog-heads-rls-problem`
+**Total Changes:** 3 files modified
+
+All Phase 6 tasks have been completed successfully:
+
+1.  **✅ Fixed Timetabling DnD Tests** - Resolved failures in `useTimetableDnd.integration.test.tsx` by wrapping state updates in `act()`.
+2.  **✅ Fixed Instructor Tab Tests** - Resolved multiple failures in `InstructorTab.integration.test.tsx` by:
+    *   Providing a complete mock for the `AuthContext`.
+    *   Using valid UUIDs in mock data to prevent validation errors.
+    *   Scoping button queries to specific item cards to resolve ambiguity.
+    *   Correcting the assertion for the `removeInstructor` mock call.
+3.  **✅ All Tests Passing** - All tests related to the changed files are now passing.
+
+**Key Issues Resolved:**
+- Fixed race conditions in `useTimetableDnd` hook tests.
+- Fixed multiple issues in `InstructorTab` integration tests related to mocking, validation, and element selection.
+
 ### **Next Steps:**
 
-The codebase has progressed with timetabling RLS fixes and comprehensive test coverage. All core features are now covered with integration tests.
+The codebase has been updated with fixes for the instructor search and timetabling features. All tests for the modified files are passing.
 
-1. **✅ Fixed timetabling RLS policies** for program head access control
-2. **✅ Fixed service layer bugs** in timetable operations
-3. **✅ Updated and created test files** to match actual implementation
-4. **✅ Run the full test suite** to verify all tests pass: `npm run test`
-5. **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`
-
-**🎉 MAINTENANCE COMPLETE** - The timetabling feature is now stable with proper RLS, bug fixes, and comprehensive test coverage.
+1.  **✅ Run the full test suite** to verify all tests pass: `npm run test`
+2.  **✅ Perform final linting and type checking**: `npm run lint` and `npm run type-check`
+3.  **Merge the branch** into `master`.
 
 ### **Phase 4: AI Code Maintenance Session - ✅ COMPLETED**
 

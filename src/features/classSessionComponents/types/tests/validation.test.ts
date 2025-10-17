@@ -46,7 +46,7 @@ describe('componentSchemas', () => {
     });
 
     it('should pass with valid required data', () => {
-      const result = instructorSchema.safeParse({ first_name: 'John', last_name: 'Smith' });
+      const result = instructorSchema.safeParse({ first_name: 'John', last_name: 'Smith', department_id: 'd15a5238-6b91-4f4b-8a88-ea36930335b5' });
       expect(result.success).toBe(true);
     });
   });
