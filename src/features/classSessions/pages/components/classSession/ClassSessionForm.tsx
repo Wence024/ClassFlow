@@ -14,6 +14,7 @@ import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts
 import { SelectorModal } from './SelectorModal';
 import { SelectableCard } from './SelectableCard';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { usePrograms } from '../../../../programs/hooks/usePrograms';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
@@ -58,6 +59,9 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   isEditing,
 }) => {
   const { user } = useAuth();
+  const { data: programs } = usePrograms();
+  const userProgram = programs?.find(p => p.id === user?.program_id);
+  const userDepartmentId = user?.department_id || userProgram?.department_id;
   const {
     control,
     handleSubmit,
@@ -121,7 +125,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
     return [];
   }, [watchedValues, classGroups, classrooms, courses, instructors]);
 
-  const userDepartmentId = user?.department_id;
+
 
   const getSelectedName = (items: { id: string; name: string; code?: string | null }[], id?: string) => {
     if (!id) return 'Select...';
