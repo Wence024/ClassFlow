@@ -1,5 +1,5 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
@@ -23,13 +23,14 @@ const queryClient = new QueryClient({
 });
 
 // Mock Data
+const department_uuid = 'd15a5238-6b91-4f4b-8a88-ea36930335b5';
 const department1Instructors: Instructor[] = [
-  { id: 'inst1', first_name: 'John', last_name: 'Doe', department_id: 'dept1', created_at: '', color: '#ffffff', code: 'JD', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
-  { id: 'inst3', first_name: 'Alice', last_name: 'Johnson', department_id: 'dept1', created_at: '', color: '#ffffff', code: 'AJ', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
+  { id: 'inst1', first_name: 'John', last_name: 'Doe', department_id: department_uuid, created_at: '', color: '#ffffff', code: 'JD', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
+  { id: 'inst3', first_name: 'Alice', last_name: 'Johnson', department_id: department_uuid, created_at: '', color: '#ffffff', code: 'AJ', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
 ];
 const allInstructors: Instructor[] = [
   ...department1Instructors,
-  { id: 'inst2', first_name: 'Jane', last_name: 'Smith', department_id: 'dept2', created_at: '', color: '#ffffff', code: 'JS', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
+  { id: 'inst2', first_name: 'Jane', last_name: 'Smith', department_id: 'd15a5238-6b91-4f4b-8a88-ea36930335b6', created_at: '', color: '#ffffff', code: 'JS', contract_type: null, created_by: null, email: null, phone: null, prefix: null, suffix: null },
 ];
 
 const deptHeadUser = {
@@ -37,13 +38,36 @@ const deptHeadUser = {
   name: 'Dept Head',
   email: 'dh@test.com',
   role: 'department_head',
-  department_id: 'dept1',
+  department_id: department_uuid,
   program_id: null,
 };
 
+const mockAuthContextValue = (user: AuthContextType['user']): AuthContextType => ({
+  user,
+  role: user?.role || null,
+  departmentId: user?.department_id || null,
+  login: vi.fn(),
+  logout: vi.fn(),
+  updateMyProfile: vi.fn(),
+  loading: false,
+  error: null,
+  clearError: vi.fn(),
+  isAdmin: () => user?.role === 'admin',
+  isDepartmentHead: () => user?.role === 'department_head',
+  isProgramHead: () => user?.role === 'program_head',
+  canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
+  canManageClassrooms: () => user?.role === 'admin',
+  canReviewRequestsForDepartment: (departmentId: string) =>
+    (user?.role === 'admin') || (user?.role === 'department_head' && user?.department_id === departmentId),
+  canManageInstructorRow: (instructorDepartmentId: string) =>
+    (user?.role === 'admin') || (user?.role === 'department_head' && user?.department_id === instructorDepartmentId),
+  canManageAssignmentsForProgram: (programId: string) =>
+    (user?.role === 'admin') || (user?.role === 'program_head' && user?.program_id === programId),
+});
+
 const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContextType['user'] }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ user, canManageInstructors: () => user?.role === 'department_head' || user?.role === 'admin' } as AuthContextType}>
+    <AuthContext.Provider value={mockAuthContextValue(user)}>
       {children}
     </AuthContext.Provider>
   </QueryClientProvider>
@@ -74,7 +98,7 @@ describe('InstructorTab Integration Tests (Department Head)', () => {
     // Verify the service was called with the correct parameters for scoping
     expect(mockedInstructorsService.getInstructors).toHaveBeenCalledWith({
       role: 'department_head',
-      department_id: 'dept1',
+      department_id: department_uuid,
     });
   });
 
@@ -98,6 +122,7 @@ describe('InstructorTab Integration Tests (Department Head)', () => {
         expect.objectContaining({
           first_name: 'New',
           last_name: 'Professor',
+          department_id: department_uuid,
         })
       );
     });
@@ -112,7 +137,10 @@ describe('InstructorTab Integration Tests (Department Head)', () => {
 
         await waitFor(() => expect(screen.getByText('John Doe')).toBeInTheDocument());
         
-        await user.click(screen.getByRole('button', { name: /Edit/i }));
+        const instructorCard = screen.getByText(/John Doe/i).closest('[data-testid="item-card"]');
+        if (!instructorCard) throw new Error("Instructor card not found");
+
+        await user.click(within(instructorCard).getByRole('button', { name: /Edit/i }));
 
         // Ensure the form is in edit mode and has no validation errors
         await waitFor(() => {
@@ -139,7 +167,10 @@ describe('InstructorTab Integration Tests (Department Head)', () => {
 
         await waitFor(() => expect(screen.getByText('John Doe')).toBeInTheDocument());
 
-        await user.click(screen.getByRole('button', { name: /Delete/i }));
+        const instructorCard = screen.getByText(/John Doe/i).closest('[data-testid="item-card"]');
+        if (!instructorCard) throw new Error("Instructor card not found");
+
+        await user.click(within(instructorCard).getByRole('button', { name: /Delete/i }));
 
         // Confirm in modal
         await waitFor(() => expect(screen.getByText(/Confirm Deletion/i)).toBeInTheDocument());
