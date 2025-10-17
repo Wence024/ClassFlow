@@ -160,30 +160,6 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               )}
             />
             <Controller
-              name="instructor_id"
-              control={control}
-              render={({ field }) => (
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Instructor <span className="text-red-500">*</span>
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => openModal('instructor')}
-                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {getSelectedName(
-                      instructors.map((i) => ({ id: i.id, name: `${i.first_name} ${i.last_name}`, code: i.code })),
-                      field.value
-                    )}
-                  </button>
-                  {errors.instructor_id?.message && (
-                    <p className="text-sm text-red-600">{errors.instructor_id.message}</p>
-                  )}
-                </div>
-              )}
-            />
-            <Controller
               name="class_group_id"
               control={control}
               render={({ field }) => (
@@ -221,6 +197,30 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                   </button>
                   {errors.classroom_id?.message && (
                     <p className="text-sm text-red-600">{errors.classroom_id.message}</p>
+                  )}
+                </div>
+              )}
+            />
+            <Controller
+              name="instructor_id"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Instructor <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => openModal('instructor')}
+                    className="w-full px-4 py-2 text-left border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {getSelectedName(
+                      instructors.map((i) => ({ id: i.id, name: `${i.first_name} ${i.last_name}`, code: i.code })),
+                      field.value
+                    )}
+                  </button>
+                  {errors.instructor_id?.message && (
+                    <p className="text-sm text-red-600">{errors.instructor_id.message}</p>
                   )}
                 </div>
               )}
@@ -293,33 +293,40 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
     <SelectorModal
       isOpen={modalState.type === 'instructor' && modalState.isOpen}
       onClose={closeModal}
-      onSelect={(instructor) => setValue('instructor_id', instructor.id, { shouldDirty: true })}
+      onSelect={(instructor) => {
+        const inst = instructors.find(i => i.id === instructor.id);
+        if (inst) setValue('instructor_id', inst.id, { shouldDirty: true });
+      }}
       items={instructors.map(i => ({
-        ...i,
+        id: i.id,
         name: `${i.first_name} ${i.last_name}`,
+        code: i.code,
+        department_id: i.department_id,
+        email: i.email,
+        contract_type: i.contract_type,
+        color: i.color,
+        first_name: i.first_name,
+        last_name: i.last_name,
       }))}
       selectedId={watch('instructor_id')}
       title="Select Instructor"
       searchPlaceholder="Search instructors..."
-      getPriorityStatus={(instructor) => (instructor as typeof instructors[0]).department_id === userDepartmentId}
+      getPriorityStatus={(instructor) => instructor.department_id === userDepartmentId}
       separatorLabel="Other Available Instructors"
-      renderCard={(instructor, isSelected, isPriority) => {
-        const inst = instructor as typeof instructors[0];
-        return (
-          <SelectableCard
-            title={`${inst.first_name} ${inst.last_name}`}
-            subtitle={inst.code ?? undefined}
-            details={[
-              inst.email ?? '',
-              inst.contract_type ?? '',
-            ].filter(Boolean) as string[]}
-            color={inst.color ?? '#6B7280'}
-            isSelected={isSelected}
-            isPriority={isPriority}
-            onClick={() => {}}
-          />
-        );
-      }}
+      renderCard={(instructor, isSelected, isPriority) => (
+        <SelectableCard
+          title={`${instructor.first_name} ${instructor.last_name}`}
+          subtitle={instructor.code ?? undefined}
+          details={[
+            instructor.email ?? '',
+            instructor.contract_type ?? '',
+          ].filter(Boolean) as string[]}
+          color={instructor.color ?? '#6B7280'}
+          isSelected={isSelected}
+          isPriority={isPriority}
+          onClick={() => {}}
+        />
+      )}
     />
 
     <SelectorModal
