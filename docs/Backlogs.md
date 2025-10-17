@@ -197,6 +197,21 @@ Sir B's Feedback:
 * [ ] Adjust type alias for import paths to be cleaner.
 * [ ] Realign the stylings of all pages.
 
+Maam D's Feedback
+
+* [ ] Title in login page para mas formal (as a substitute sa landing page)
+* [ ] Direct "CECE Head" Name for user accounts for testing
+* [ ] Let admin edit user names
+* [ ] Classroom instructor prioritized assignment
+* [ ] Instructors can't be edited as program heads
+* [ ] Make drawer stick in the bottom viewport (timetable)
+* [ ] red/green for failure/success notifications
+* [ ] Allow users to change their full name in profiles page
+* [ ] Allow users to change password in profiles page (less prio)
+* [ ] fix sticking of navigation and form and tabs on component management
+* [ ] hover on sidebar
+* [ ] captcha for login
+
 Sir D's Feedback (School IT/Networking Head)
 
 * [ ] (Haven't consulted yet)
@@ -431,5 +446,3 @@ const validatedData = inviteSchema.parse(body);
 ---
 
 Would you like me to implement any of these recommendations? I can start with Priority 1 items to eliminate the critical security gap with the unused registration code.
-
-```
