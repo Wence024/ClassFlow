@@ -125,7 +125,7 @@ export function SelectorModal<T extends SelectorItem>({
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-white px-4 text-sm text-gray-500">{separatorLabel}</span>
+                    <span className="bg-white px-4 text-sm text-gray-500">{separatorLabel || 'Other Available Resources'}</span>
                   </div>
                 </div>
               )}
