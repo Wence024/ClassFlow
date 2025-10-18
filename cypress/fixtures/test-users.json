@@ -1,0 +1,21 @@
+{
+  "csHead": {
+    "email": "cs.head@test.local",
+    "password": "password123",
+    "fullName": "CS Program Head",
+    "program": "BSCS",
+    "department": "CS"
+  },
+  "busHead": {
+    "email": "bus.head@test.local",
+    "password": "password123",
+    "fullName": "Business Program Head",
+    "program": "BSBA",
+    "department": "BUS"
+  },
+  "admin": {
+    "email": "admin@test.local",
+    "password": "admin123",
+    "fullName": "System Administrator"
+  }
+}

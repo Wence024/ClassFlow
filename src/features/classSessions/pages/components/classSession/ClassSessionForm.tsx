@@ -59,8 +59,9 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   isEditing,
 }) => {
   const { user } = useAuth();
-  const { data: programs } = usePrograms();
-  const userProgram = programs?.find(p => p.id === user?.program_id);
+  const { listQuery } = usePrograms();
+  const programs = listQuery.data;
+  const userProgram = programs?.find((p) => p.id === user?.program_id);
   const userDepartmentId = user?.department_id || userProgram?.department_id;
   const {
     control,
