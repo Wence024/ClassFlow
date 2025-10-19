@@ -49,18 +49,20 @@ const markPeriodsAsRendered = (renderedPeriods: Set<number>, periodIndex: number
  * Renders a session cell for the given parameters.
  *
  * @param sessionsInCell - The sessions in this cell.
- * @param group - The class group.
+ * @param resource - The resource (group, classroom, or instructor).
  * @param periodIndex - The index of the period.
  * @param periodsPerDay - The number of periods per day.
  * @param totalPeriods - The total number of periods.
+ * @param viewMode - The current view mode.
  * @returns The JSX element for the session cell.
  */
 const renderSessionCell = (
   sessionsInCell: ClassSession[],
-  group: ClassGroup,
+  resource: TimetableRowResource,
   periodIndex: number,
   periodsPerDay: number,
-  totalPeriods: number
+  totalPeriods: number,
+  viewMode: TimetableViewMode
 ): React.ReactElement => {
   const primarySession = sessionsInCell[0];
   const numberOfPeriods = primarySession.period_count || 1;
@@ -69,12 +71,13 @@ const renderSessionCell = (
 
   return (
     <SessionCell
-      key={`${group.id}-${periodIndex}`}
+      key={`${resource.id}-${periodIndex}`}
       sessions={sessionsInCell}
-      groupId={group.id}
+      groupId={resource.id}
       periodIndex={periodIndex}
       isLastInDay={isLastInDay}
       isNotLastInTable={isNotLastInTable}
+      viewMode={viewMode}
     />
   );
 };
@@ -192,10 +195,11 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
       cells.push(
         renderSessionCell(
           sessionsInCell,
-          resource as ClassGroup,
+          resource,
           periodIndex,
           periodsPerDay,
-          totalPeriods
+          totalPeriods,
+          viewMode
         )
       );
     } else {

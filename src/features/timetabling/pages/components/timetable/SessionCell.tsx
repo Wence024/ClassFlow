@@ -20,6 +20,7 @@ interface SessionCellProps {
   periodIndex: number;
   isLastInDay: boolean;
   isNotLastInTable: boolean;
+  viewMode: 'class-group' | 'classroom' | 'instructor';
 }
 
 interface DropZoneProps {
@@ -43,13 +44,62 @@ interface VisibleBlockProps {
 // --- HELPER FUNCTIONS & COMPONENTS ---
 
 /**
- * Builds the JSX content for a class session tooltip, adapting for merged sessions.
+ * Builds the JSX content for a class session tooltip, adapting for merged sessions and view mode.
  *
  * @param sessions - An array of class sessions in this cell.
+ * @param viewMode - The current view mode.
  * @returns The JSX element to be rendered inside the tooltip.
  */
-const buildTooltipContent = (sessions: ClassSession[]): React.ReactElement => {
+const buildTooltipContent = (sessions: ClassSession[], viewMode: 'class-group' | 'classroom' | 'instructor'): React.ReactElement => {
   const primary = sessions[0];
+  
+  if (viewMode === 'classroom') {
+    return (
+      <>
+        <p className="font-bold text-sm">{primary.classroom.name}</p>
+        <p className="text-gray-300">Capacity: {primary.classroom.capacity}</p>
+        <p className="mt-1">Course: {primary.course.name} ({primary.course.code})</p>
+        <p>
+          Instructor: {primary.instructor.first_name} {primary.instructor.last_name}
+        </p>
+        {sessions.length > 1 && (
+          <>
+            <hr className="my-1 border-gray-400" />
+            <p className="font-semibold">Merged Groups:</p>
+            <ul className="list-disc list-inside">
+              {sessions.map((s) => (
+                <li key={s.id}>{s.group.name}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </>
+    );
+  } else if (viewMode === 'instructor') {
+    return (
+      <>
+        <p className="font-bold text-sm">
+          {primary.instructor.first_name} {primary.instructor.last_name}
+        </p>
+        <p className="text-gray-300">{primary.instructor.contract_type}</p>
+        <p className="mt-1">Course: {primary.course.name} ({primary.course.code})</p>
+        <p>Classroom: {primary.classroom.name}</p>
+        {sessions.length > 1 && (
+          <>
+            <hr className="my-1 border-gray-400" />
+            <p className="font-semibold">Merged Groups:</p>
+            <ul className="list-disc list-inside">
+              {sessions.map((s) => (
+                <li key={s.id}>{s.group.name}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </>
+    );
+  }
+  
+  // Default: class-group view
   return (
     <>
       <p className="font-bold text-sm">{primary.course.name}</p>
@@ -296,6 +346,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
   periodIndex,
   isLastInDay,
   isNotLastInTable,
+  viewMode,
 }) => {
   const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip } =
     useTimetableContext();
@@ -306,7 +357,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
 
   // Create a wrapper function for the VisibleSessionBlock
   const handleShowTooltip = (e: React.MouseEvent<HTMLElement>) => {
-    contextOnShowTooltip(buildTooltipContent(sessions), e.currentTarget as HTMLElement);
+    contextOnShowTooltip(buildTooltipContent(sessions, viewMode), e.currentTarget as HTMLElement);
   };
 
   if (!sessions || sessions.length === 0) {
