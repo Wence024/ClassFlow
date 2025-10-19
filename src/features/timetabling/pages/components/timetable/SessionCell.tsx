@@ -56,9 +56,9 @@ const buildTooltipContent = (sessions: ClassSession[], viewMode: 'class-group' |
   if (viewMode === 'classroom') {
     return (
       <>
-        <p className="font-bold text-sm">{primary.classroom.name}</p>
-        <p className="text-gray-300">Capacity: {primary.classroom.capacity}</p>
-        <p className="mt-1">Course: {primary.course.name} ({primary.course.code})</p>
+        <p className="font-bold text-sm">{primary.course.name}</p>
+        <p className="text-gray-300">{primary.course.code}</p>
+        <p className="mt-1">Class Group: {primary.group.name}</p>
         <p>
           Instructor: {primary.instructor.first_name} {primary.instructor.last_name}
         </p>
@@ -78,11 +78,10 @@ const buildTooltipContent = (sessions: ClassSession[], viewMode: 'class-group' |
   } else if (viewMode === 'instructor') {
     return (
       <>
-        <p className="font-bold text-sm">
-          {primary.instructor.first_name} {primary.instructor.last_name}
-        </p>
+        <p className="font-bold text-sm">{primary.course.name}</p>
+        <p className="text-gray-300">{primary.course.code}</p>
+        <p className="mt-1">Class Group: {primary.group.name}</p>
         <p className="text-gray-300">{primary.instructor.contract_type}</p>
-        <p className="mt-1">Course: {primary.course.name} ({primary.course.code})</p>
         <p>Classroom: {primary.classroom.name}</p>
         {sessions.length > 1 && (
           <>

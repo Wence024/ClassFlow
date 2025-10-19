@@ -238,10 +238,11 @@ Ponderings:
 * [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
 * [x] Programs need to be related to only one department (implemented with department_id foreign key and UI).
 * [ ] Check for data anomalies regarding program management.
+* [ ] Limit group mismatch to the class group view. Also, edit the supabase class sessions to make classroom and instructor optional instead of required. Please continue doing @multi-view-timetable-system.md
 
 Big backlog: security concerns by lovable:
 
-```
+```txt
 Backlogs: A new Lovable ai project where I injected my codebase through github gave this response:
 
 I'll scan the codebase to understand the current state of this college scheduling system and analyze the security implications of the recent authentication changes.
