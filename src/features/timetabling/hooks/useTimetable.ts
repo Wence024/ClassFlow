@@ -283,7 +283,8 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         settings,
         class_group_id,
         period_index,
-        programs
+        programs,
+        viewMode
       );
       if (conflict) return conflict;
       await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
@@ -331,7 +332,8 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         settings,
         to.class_group_id,
         to.period_index,
-        programs
+        programs,
+        viewMode
       );
       if (conflict) return conflict;
       await moveClassSessionMutation.mutateAsync({ from, to, classSession });

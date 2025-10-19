@@ -7,6 +7,7 @@ import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useAuth } from '../../auth/hooks/useAuth';
+import type { TimetableViewMode } from '../types/timetable';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -16,9 +17,10 @@ const DRAG_DATA_KEY = 'application/json';
  * event handling, and data mutations.
  *
  * @param allClassSessions - All class sessions visible to the user (not just their own).
+ * @param viewMode - The current timetable view mode for view-specific validation.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
-export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
+export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: TimetableViewMode = 'class-group') => {
   // --- Core Hooks ---
   const { user } = useAuth();
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
@@ -91,9 +93,13 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
         return false;
       }
 
-      // Disallow moving a session to a different group row when dragging from the grid
-      if (activeDragSource?.from === 'timetable' && activeDragSource.class_group_id !== groupId) {
-        return false;
+      // In class-group view, disallow moving a session to a different group row
+      // In other views (classroom/instructor), allow moving to different rows as long as
+      // the resource (classroom/instructor) matches
+      if (viewMode === 'class-group') {
+        if (activeDragSource?.from === 'timetable' && activeDragSource.class_group_id !== groupId) {
+          return false;
+        }
       }
 
       const conflictMessage = checkTimetableConflicts(
@@ -102,12 +108,13 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
         settings,
         groupId,
         periodIndex,
-        programs
+        programs,
+        viewMode
       );
 
       return conflictMessage === '';
     },
-    [activeDraggedSession, settings, timetable, activeDragSource, user, programs]
+    [activeDraggedSession, settings, timetable, activeDragSource, user, programs, viewMode]
   );
 
   // --- Event Handlers ---

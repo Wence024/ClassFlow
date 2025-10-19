@@ -2,6 +2,7 @@ import type { ClassGroup, Classroom } from '../../classSessionComponents/types';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { Program } from '../../programs/types/program';
 import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
+import type { TimetableViewMode } from '../types/timetable';
 
 /**
  * Type definition for a timetable grid, where each group has an array of class sessions.
@@ -171,6 +172,41 @@ function checkGroupMismatch(sessionToCheck: ClassSession, targetGroupId: string)
     return `Group mismatch: Cannot move session for class group '${sessionToCheck.group.name}' to row for class group '${targetGroupId}'. Sessions can only be moved within their own class group row.`;
   }
   return null;
+}
+
+/**
+ * Checks if a session matches the target resource in view-specific contexts.
+ * 
+ * @param sessionToCheck - The session being validated.
+ * @param targetResourceId - The ID of the target row resource (group, classroom, or instructor).
+ * @param viewMode - The current view mode determining which resource to validate.
+ * @returns A string error message if there's a resource mismatch, or null if valid.
+ */
+function checkViewSpecificResourceMismatch(
+  sessionToCheck: ClassSession,
+  targetResourceId: string,
+  viewMode: TimetableViewMode
+): string | null {
+  switch (viewMode) {
+    case 'class-group':
+      return checkGroupMismatch(sessionToCheck, targetResourceId);
+    
+    case 'classroom':
+      if (sessionToCheck.classroom.id !== targetResourceId) {
+        return `Classroom mismatch: Cannot move session using classroom '${sessionToCheck.classroom.name}' to a row for classroom '${targetResourceId}'. Sessions can only be moved within their own classroom row.`;
+      }
+      return null;
+    
+    case 'instructor':
+      if (sessionToCheck.instructor.id !== targetResourceId) {
+        const instructorName = `${sessionToCheck.instructor.first_name} ${sessionToCheck.instructor.last_name}`;
+        return `Instructor mismatch: Cannot move session taught by '${instructorName}' to a row for instructor '${targetResourceId}'. Sessions can only be moved within their own instructor row.`;
+      }
+      return null;
+    
+    default:
+      return null;
+  }
 }
 
 /**
@@ -432,6 +468,7 @@ function checkResourceConflicts(
  * @param targetGroupId - The unique identifier of the group for which the session is being scheduled.
  * @param targetPeriodIndex - The starting period index in the timetable where the session should be placed.
  * @param programs - An array of all programs, used for resolving program names in conflict messages.
+ * @param viewMode - Optional view mode for view-specific validation (defaults to 'class-group').
  * @returns A string message describing the first detected conflict (boundary, group, or resource), or an empty string if the placement is valid.
  */
 export default function checkTimetableConflicts(
@@ -440,16 +477,21 @@ export default function checkTimetableConflicts(
   settings: ScheduleConfig,
   targetGroupId: string,
   targetPeriodIndex: number,
-  programs: Program[]
+  programs: Program[],
+  viewMode: TimetableViewMode = 'class-group'
 ): string {
   const period_count = classSessionToCheck.period_count || 1;
 
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);
   if (boundaryError) return boundaryError;
 
-  // Check if the session belongs to the target group
-  const groupMismatchError = checkGroupMismatch(classSessionToCheck, targetGroupId);
-  if (groupMismatchError) return groupMismatchError;
+  // Check view-specific resource mismatch
+  const resourceMismatchError = checkViewSpecificResourceMismatch(
+    classSessionToCheck,
+    targetGroupId,
+    viewMode
+  );
+  if (resourceMismatchError) return resourceMismatchError;
 
   const groupError = checkGroupConflicts(
     timetable,

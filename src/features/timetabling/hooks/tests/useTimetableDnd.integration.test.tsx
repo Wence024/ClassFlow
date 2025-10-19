@@ -151,14 +151,14 @@ describe('useTimetableDnd', () => {
   });
 
   it('should initialize with null drag state', () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     expect(result.current.activeDraggedSession).toBeNull();
     expect(result.current.dragOverCell).toBeNull();
   });
 
   it('should update drag state on drag start', () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'drawer',
@@ -180,7 +180,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should return false for slot availability when dragging other program session from timetable', () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOtherProgramSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOtherProgramSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'timetable',
@@ -206,7 +206,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should allow slot availability when dragging from drawer', () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'drawer',
@@ -230,7 +230,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should prevent moving session to different group row when dragging from timetable', () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'timetable',
@@ -256,7 +256,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should call assignClassSession when dropping from drawer', async () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'drawer',
@@ -283,7 +283,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should call moveClassSession when dropping from timetable to different cell', async () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'timetable',
@@ -312,7 +312,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should not call moveClassSession when dropping on same cell', async () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'timetable',
@@ -336,7 +336,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should call removeClassSession when dropping on drawer', async () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'timetable',
@@ -360,7 +360,7 @@ describe('useTimetableDnd', () => {
   });
 
   it('should prevent moving other program session from timetable', async () => {
-    const { result } = renderHook(() => useTimetableDnd([mockOtherProgramSession]), { wrapper });
+    const { result } = renderHook(() => useTimetableDnd([mockOtherProgramSession], 'class-group'), { wrapper });
 
     const dragSource: DragSource = {
       from: 'timetable',
@@ -381,5 +381,59 @@ describe('useTimetableDnd', () => {
 
     // Should not call moveClassSession due to permission check
     expect(mockTimetableOperations.moveClassSession).not.toHaveBeenCalled();
+  });
+
+  it('should allow moving sessions to different rows in classroom view when classroom matches', () => {
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'classroom'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'timetable',
+      class_session_id: 's1',
+      class_group_id: 'g1',
+      period_index: 1,
+    };
+
+    const mockEvent = {
+      dataTransfer: {
+        setData: vi.fn(),
+        effectAllowed: '',
+      },
+    } as unknown as React.DragEvent;
+
+    act(() => {
+      result.current.handleDragStart(mockEvent, dragSource);
+    });
+
+    // In classroom view, should allow moving to different group rows
+    // as long as the classroom resource matches
+    const isAvailable = result.current.isSlotAvailable('r1', 0);
+    expect(isAvailable).toBe(true);
+  });
+
+  it('should allow moving sessions to different rows in instructor view when instructor matches', () => {
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'instructor'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'timetable',
+      class_session_id: 's1',
+      class_group_id: 'g1',
+      period_index: 1,
+    };
+
+    const mockEvent = {
+      dataTransfer: {
+        setData: vi.fn(),
+        effectAllowed: '',
+      },
+    } as unknown as React.DragEvent;
+
+    act(() => {
+      result.current.handleDragStart(mockEvent, dragSource);
+    });
+
+    // In instructor view, should allow moving to different group rows
+    // as long as the instructor resource matches
+    const isAvailable = result.current.isSlotAvailable('i1', 0);
+    expect(isAvailable).toBe(true);
   });
 });

@@ -40,7 +40,7 @@ const TimetablePage: React.FC = () => {
   });
 
   const { timetable, groups, resources, loading: loadingTimetable } = useTimetable(viewMode);
-  const dnd = useTimetableDnd(allClassSessions);
+  const dnd = useTimetableDnd(allClassSessions, viewMode);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const handleShowTooltip = (content: React.ReactNode, target: HTMLElement) => {
