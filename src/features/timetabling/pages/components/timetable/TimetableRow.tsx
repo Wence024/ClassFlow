@@ -1,6 +1,8 @@
 import React from 'react';
-import type { ClassGroup } from '../../../../classSessionComponents/types';
+import type { ClassGroup, Classroom, Instructor } from '../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
+import type { TimetableViewMode } from '../../../types/timetable';
+import type { TimetableRowResource } from '../../../utils/timetableLogic';
 import EmptyCell from './EmptyCell';
 import SessionCell from './SessionCell';
 
@@ -110,31 +112,60 @@ const renderEmptyCell = (
  * Props for the TimetableRow component.
  */
 interface TimetableRowProps {
-  group: ClassGroup;
+  viewMode: TimetableViewMode;
+  resource: TimetableRowResource;
   timetable: Map<string, (ClassSession[] | null)[]>;
   periodsPerDay: number;
   totalPeriods: number;
 }
 
 /**
- * Renders a single row in the timetable, corresponding to a class group.
- * It iterates through the periods of the week and renders either a SessionCell or an EmptyCell.
+ * Generates a display label for a resource based on the view mode.
+ *
+ * @param viewMode - The current view mode.
+ * @param resource - The resource to generate a label for.
+ * @returns A formatted string label for the resource.
+ */
+function getResourceLabel(viewMode: TimetableViewMode, resource: TimetableRowResource): string {
+  switch (viewMode) {
+    case 'classroom': {
+      const classroom = resource as Classroom;
+      return `${classroom.name}${classroom.capacity ? ` (${classroom.capacity})` : ''}`;
+    }
+    case 'instructor': {
+      const instructor = resource as Instructor;
+      const fullName = `${instructor.prefix || ''} ${instructor.first_name} ${instructor.last_name} ${instructor.suffix || ''}`.trim();
+      return instructor.contract_type ? `${fullName} (${instructor.contract_type})` : fullName;
+    }
+    case 'class-group':
+    default: {
+      const group = resource as ClassGroup;
+      return group.name;
+    }
+  }
+}
+
+/**
+ * Renders a single row in the timetable, corresponding to a resource (group, classroom, or instructor).
+ * Adapts its rendering based on the current view mode.
  *
  * @param tr The props for the component.
- * @param tr.group The class group for this row.
+ * @param tr.viewMode The current view mode (class-group, classroom, or instructor).
+ * @param tr.resource The resource (class group, classroom, or instructor) for this row.
  * @param tr.timetable A map representing the timetable data.
  * @param tr.periodsPerDay The number of periods in a single day.
  * @param tr.totalPeriods The total number of periods in the entire timetable.
  * @returns The rendered timetable row component.
  */
 const TimetableRow: React.FC<TimetableRowProps> = ({
-  group,
+  viewMode,
+  resource,
   timetable,
   periodsPerDay,
   totalPeriods,
 }) => {
   const cells = [];
-  const rowData = timetable.get(group.id) || [];
+  const rowData = timetable.get(resource.id) || [];
   const renderedPeriods = new Set<number>();
 
   for (let periodIndex = 0; periodIndex < totalPeriods; periodIndex++) {
@@ -148,22 +179,38 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
       const primarySession = sessionsInCell[0];
       const numberOfPeriods = primarySession.period_count || 1;
 
-      if (primarySession.group.id !== group.id) {
-        markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
-        continue;
+      // In class-group view, skip sessions not belonging to this group
+      if (viewMode === 'class-group') {
+        const group = resource as ClassGroup;
+        if (primarySession.group.id !== group.id) {
+          markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
+          continue;
+        }
       }
 
       markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
-      cells.push(renderSessionCell(sessionsInCell, group, periodIndex, periodsPerDay, totalPeriods));
+      cells.push(
+        renderSessionCell(
+          sessionsInCell,
+          resource as ClassGroup,
+          periodIndex,
+          periodsPerDay,
+          totalPeriods
+        )
+      );
     } else {
-      cells.push(renderEmptyCell(group, periodIndex, periodsPerDay, totalPeriods));
+      cells.push(
+        renderEmptyCell(resource as ClassGroup, periodIndex, periodsPerDay, totalPeriods)
+      );
     }
   }
+
+  const resourceLabel = getResourceLabel(viewMode, resource);
 
   return (
     <tr className="border-b border-gray-200">
       <td className="p-2 text-sm font-medium text-gray-800 border-r border-gray-200 sticky left-0 bg-white z-10 min-w-[120px]">
-        {group.name}
+        {resourceLabel}
       </td>
       {cells}
     </tr>

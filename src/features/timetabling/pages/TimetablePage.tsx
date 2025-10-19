@@ -39,7 +39,7 @@ const TimetablePage: React.FC = () => {
     queryFn: classSessionsService.getAllClassSessions,
   });
 
-  const { timetable, groups, loading: loadingTimetable } = useTimetable();
+  const { timetable, groups, resources, loading: loadingTimetable } = useTimetable(viewMode);
   const dnd = useTimetableDnd(allClassSessions);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -105,7 +105,13 @@ const TimetablePage: React.FC = () => {
           </div>
         ) : (
           <TimetableContext.Provider value={contextValue}>
-            <Timetable groups={groups} timetable={timetable} isLoading={loadingTimetable} />
+        <Timetable 
+          viewMode={viewMode}
+          groups={groups} 
+          resources={resources}
+          timetable={timetable} 
+          isLoading={isInitialLoading} 
+        />
             <Drawer
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}

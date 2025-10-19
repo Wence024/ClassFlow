@@ -3,32 +3,35 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as timetableService from '../services/timetableService';
 import checkTimetableConflicts from '../utils/checkConflicts';
-import { buildTimetableGrid, type TimetableGrid } from '../utils/timetableLogic';
+import { buildTimetableGrid, type TimetableGrid, type TimetableRowResource } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import type { ClassSession } from '../../classSessions/types/classSession';
-import type { HydratedTimetableAssignment } from '../types/timetable';
+import type { HydratedTimetableAssignment, TimetableViewMode } from '../types/timetable';
 import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
 import * as classGroupsService from '../../classSessionComponents/services/classGroupsService';
-import type { ClassGroup } from '../../classSessionComponents/types';
+import * as classroomsService from '../../classSessionComponents/services/classroomsService';
+import * as instructorsService from '../../classSessionComponents/services/instructorsService';
+import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
  *
  * This hook is the central point for the timetabling feature. It is responsible for:
- * - Fetching the user's schedule configuration and class groups.
+ * - Fetching the user's schedule configuration and resources (class groups, classrooms, instructors).
  * - Fetching all timetable assignments from the server.
- * - Transforming the flat assignment data into a UI-friendly grid structure.
+ * - Transforming the flat assignment data into a UI-friendly grid structure based on view mode.
  * - Setting up a real-time subscription via Supabase to listen for database changes.
  * - Providing mutation functions (`assign`, `remove`, `move`) that perform conflict checks
  *   before interacting with the server.
  * - Handling optimistic updates for a smooth UI experience during mutations.
  *
- * @returns An object containing the timetable grid, class groups, loading/error states,
+ * @param viewMode - The current timetable view mode (class-group, classroom, or instructor).
+ * @returns An object containing the timetable grid, resources, loading/error states,
  *          and functions to manipulate the timetable.
  */
-export function useTimetable() {
+export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { settings } = useScheduleConfig();
@@ -53,6 +56,18 @@ export function useTimetable() {
     enabled: !!user,
   });
 
+  const { data: allClassrooms = [] } = useQuery<Classroom[]>({
+    queryKey: ['allClassrooms'],
+    queryFn: classroomsService.getAllClassrooms,
+    enabled: !!user && viewMode === 'classroom',
+  });
+
+  const { data: allInstructors = [] } = useQuery<Instructor[]>({
+    queryKey: ['allInstructors'],
+    queryFn: () => instructorsService.getInstructors({ role: user?.role }),
+    enabled: !!user && viewMode === 'instructor',
+  });
+
   const {
     data: assignments = [],
     isFetching,
@@ -67,10 +82,23 @@ export function useTimetable() {
     enabled: !!user && allClassGroups.length > 0 && !!settings && !!activeSemester,
   });
 
+  // Determine which resources to use based on view mode
+  const resources: TimetableRowResource[] = useMemo(() => {
+    switch (viewMode) {
+      case 'classroom':
+        return allClassrooms;
+      case 'instructor':
+        return allInstructors;
+      case 'class-group':
+      default:
+        return allClassGroups;
+    }
+  }, [viewMode, allClassGroups, allClassrooms, allInstructors]);
+
   // Memoize the timetable grid so it's only rebuilt when its source data changes.
   const timetable: TimetableGrid = useMemo(
-    () => buildTimetableGrid(assignments, 'class-group', allClassGroups, totalPeriods),
-    [assignments, allClassGroups, totalPeriods]
+    () => buildTimetableGrid(assignments, viewMode, resources, totalPeriods),
+    [assignments, viewMode, resources, totalPeriods]
   );
 
   // --- REAL-TIME SUBSCRIPTION ---
@@ -317,6 +345,7 @@ export function useTimetable() {
 
   return {
     groups: allClassGroups,
+    resources, // Export current resources for multi-view support
     timetable,
     assignClassSession,
     removeClassSession,

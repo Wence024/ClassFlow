@@ -1,37 +1,44 @@
 import { Clock, RefreshCw } from 'lucide-react';
 import React, { useMemo, type JSX } from 'react';
 import { LoadingSpinner } from '../../../../../components/ui';
-import type { ClassGroup } from '../../../../classSessionComponents/types';
+import type { ClassGroup, Classroom, Instructor } from '../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import type { TimetableViewMode } from '../../../types/timetable';
+import type { TimetableRowResource } from '../../../utils/timetableLogic';
 import TimetableHeader from './TimetableHeader';
 import TimetableRow from './TimetableRow';
 import { useTimetableContext } from './useTimetableContext';
 
 interface TimetableProps {
+  viewMode: TimetableViewMode;
   groups: ClassGroup[];
+  resources: TimetableRowResource[];
   timetable: Map<string, (ClassSession[] | null)[]>;
   isLoading: boolean;
 }
 
 /**
- * Renders an interactive, multi-program timetable grid.
+ * Renders an interactive, multi-view timetable grid.
  *
- * This component is a pure view component that consumes its interaction logic
- * (like drag-and-drop handlers) from the `TimetableContext`, which is provided
- * by a parent component (`TimetablePage`). It is responsible for structuring the
- * table and mapping over groups to render `TimetableRow` components.
+ * This component adapts its display based on the selected view mode (class-group, classroom, or instructor).
+ * It consumes interaction logic from the `TimetableContext` and structures the table
+ * to map over the appropriate resources for the current view.
  *
  * @param t - The props for the component.
- * @param t.groups - An array of all class groups to display as rows in the timetable.
- * @param t.timetable - A Map where keys are group IDs and values are arrays of sessions or nulls, representing the schedule.
+ * @param t.viewMode - The current view mode (class-group, classroom, or instructor).
+ * @param t.groups - An array of all class groups (used for class-group view).
+ * @param t.resources - An array of resources for the current view (groups, classrooms, or instructors).
+ * @param t.timetable - A Map where keys are resource IDs and values are arrays of sessions or nulls.
  * @param t.isLoading - A boolean indicating if the timetable data is currently being synced or re-fetched.
  * @returns The rendered timetable grid component.
  */
 const Timetable: React.FC<TimetableProps> = ({
+  viewMode,
   groups,
+  resources,
   timetable,
   isLoading,
 }: TimetableProps): JSX.Element => {
@@ -39,15 +46,45 @@ const Timetable: React.FC<TimetableProps> = ({
   const { settings, isLoading: isLoadingConfig } = useScheduleConfig();
   const { handleDragLeave, handleDragOver } = useTimetableContext();
 
-  const myGroups = useMemo(
-    () => groups.filter((group) => group.program_id === user?.program_id),
-    [groups, user]
-  );
-
-  const otherGroups = useMemo(
-    () => groups.filter((group) => group.program_id !== user?.program_id),
-    [groups, user]
-  );
+  // Separate resources by ownership based on view mode
+  const { myResources, otherResources, separatorLabel } = useMemo(() => {
+    if (viewMode === 'classroom') {
+      const classrooms = resources as Classroom[];
+      const myDeptClassrooms = classrooms.filter(
+        (c) => c.preferred_department_id === user?.department_id
+      );
+      const otherDeptClassrooms = classrooms.filter(
+        (c) => c.preferred_department_id !== user?.department_id
+      );
+      return {
+        myResources: myDeptClassrooms,
+        otherResources: otherDeptClassrooms,
+        separatorLabel: 'Classrooms from Other Departments',
+      };
+    } else if (viewMode === 'instructor') {
+      const instructors = resources as Instructor[];
+      const myDeptInstructors = instructors.filter(
+        (i) => i.department_id === user?.department_id
+      );
+      const otherDeptInstructors = instructors.filter(
+        (i) => i.department_id !== user?.department_id
+      );
+      return {
+        myResources: myDeptInstructors,
+        otherResources: otherDeptInstructors,
+        separatorLabel: 'Instructors from Other Departments',
+      };
+    } else {
+      // class-group view
+      const myGroups = groups.filter((g) => g.program_id === user?.program_id);
+      const otherGroups = groups.filter((g) => g.program_id !== user?.program_id);
+      return {
+        myResources: myGroups,
+        otherResources: otherGroups,
+        separatorLabel: 'Schedules from Other Programs',
+      };
+    }
+  }, [viewMode, resources, groups, user]);
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
@@ -92,34 +129,36 @@ const Timetable: React.FC<TimetableProps> = ({
             periodsPerDay={periodsPerDay}
           />
           <tbody>
-            {/* Render the user's own groups first */}
-            {myGroups.map((group) => (
+            {/* Render the user's own resources first */}
+            {myResources.map((resource) => (
               <TimetableRow
-                key={group.id}
-                group={group}
+                key={resource.id}
+                viewMode={viewMode}
+                resource={resource}
                 timetable={timetable}
                 periodsPerDay={periodsPerDay}
                 totalPeriods={totalPeriods}
               />
             ))}
 
-            {/* If there are other groups, render a visual separator and then the other groups */}
-            {otherGroups.length > 0 && (
+            {/* If there are other resources, render a visual separator */}
+            {otherResources.length > 0 && (
               <tr>
                 <td
                   colSpan={totalPeriods + 1}
                   className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
                 >
-                  Schedules from Other Programs
+                  {separatorLabel}
                 </td>
               </tr>
             )}
 
-            {/* Render the groups from other programs */}
-            {otherGroups.map((group) => (
+            {/* Render the resources from other programs/departments */}
+            {otherResources.map((resource) => (
               <TimetableRow
-                key={group.id}
-                group={group}
+                key={resource.id}
+                viewMode={viewMode}
+                resource={resource}
                 timetable={timetable}
                 periodsPerDay={periodsPerDay}
                 totalPeriods={totalPeriods}
