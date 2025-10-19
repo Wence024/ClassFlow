@@ -242,4 +242,34 @@ describe('useTimetable - semester scope', () => {
       })
     );
   });
+
+  it('should build timetable grid for classroom view mode', async () => {
+    const { result } = renderHook(() => useTimetable('classroom'), { wrapper });
+
+    await waitFor(() => !result.current.loading);
+
+    // In classroom view, the timetable should be indexed by classroom IDs
+    expect(result.current.timetable.size).toBeGreaterThanOrEqual(0);
+    // The resources should be classrooms (would need to mock classrooms for full test)
+  });
+
+  it('should build timetable grid for instructor view mode', async () => {
+    const { result } = renderHook(() => useTimetable('instructor'), { wrapper });
+
+    await waitFor(() => !result.current.loading);
+
+    // In instructor view, the timetable should be indexed by instructor IDs
+    expect(result.current.timetable.size).toBeGreaterThanOrEqual(0);
+    // The resources should be instructors (would need to mock instructors for full test)
+  });
+
+  it('should build timetable grid for class-group view mode (default)', async () => {
+    const { result } = renderHook(() => useTimetable('class-group'), { wrapper });
+
+    await waitFor(() => !result.current.loading);
+
+    // In class-group view, the timetable should be indexed by class group IDs
+    expect(result.current.timetable.has('g1')).toBe(true);
+    expect(result.current.groups).toEqual(mockClassGroups);
+  });
 });

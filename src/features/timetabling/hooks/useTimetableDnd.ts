@@ -93,14 +93,29 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         return false;
       }
 
-      // In class-group view, disallow moving a session to a different group row
-      // In other views (classroom/instructor), allow moving to different rows as long as
-      // the resource (classroom/instructor) matches
-      if (viewMode === 'class-group') {
-        if (activeDragSource?.from === 'timetable' && activeDragSource.class_group_id !== groupId) {
+  // View-specific validation for moving sessions:
+  // - Class-group view: Only allow moving within the same group row
+  // - Classroom view: Only allow moving within the same classroom row
+  // - Instructor view: Only allow moving within the same instructor row
+  if (activeDragSource?.from === 'timetable') {
+    switch (viewMode) {
+      case 'class-group':
+        if (activeDragSource.class_group_id !== groupId) {
           return false;
         }
-      }
+        break;
+      case 'classroom':
+        if (activeDraggedSession.classroom.id !== groupId) {
+          return false;
+        }
+        break;
+      case 'instructor':
+        if (activeDraggedSession.instructor.id !== groupId) {
+          return false;
+        }
+        break;
+    }
+  }
 
       const conflictMessage = checkTimetableConflicts(
         timetable,
