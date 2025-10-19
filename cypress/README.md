@@ -98,7 +98,7 @@ You can set up test data manually through the admin interface, or use the Supaba
 -- Create test users (as admin)
 SELECT create_test_user(
   'cs.head@test.local',
-  'password123',
+  '12345678',
   'CS Program Head',
   'program_head',
   (SELECT id FROM programs WHERE short_code = 'BSCS'),

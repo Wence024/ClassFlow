@@ -1,7 +1,7 @@
 {
   "csHead": {
     "email": "cs.head@test.local",
-    "password": "password123",
+    "password": "12345678",
     "fullName": "CS Program Head",
     "program": "BSCS",
     "department": "CS"
