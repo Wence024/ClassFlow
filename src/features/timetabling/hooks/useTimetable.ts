@@ -69,7 +69,7 @@ export function useTimetable() {
 
   // Memoize the timetable grid so it's only rebuilt when its source data changes.
   const timetable: TimetableGrid = useMemo(
-    () => buildTimetableGrid(assignments, allClassGroups, totalPeriods),
+    () => buildTimetableGrid(assignments, 'class-group', allClassGroups, totalPeriods),
     [assignments, allClassGroups, totalPeriods]
   );
 
