@@ -193,10 +193,6 @@ Sir B's Feedback:
 * [ ] Classroom/instructor View
 * [ ] Reports per instructor and class group.
 
-* [ ] Remove null usage of department_head except for admin roles.
-* [ ] Adjust type alias for import paths to be cleaner.
-* [ ] Realign the stylings of all pages.
-
 Maam D's Feedback
 
 * [ ] Title in login page para mas formal (as a substitute sa landing page)
@@ -238,6 +234,10 @@ Ponderings:
 * [ ] Program head users need to be assigned to programs (nullable for department heads and admins).
 * [x] Programs need to be related to only one department (implemented with department_id foreign key and UI).
 * [ ] Check for data anomalies regarding program management.
+* [ ] Remove null usage of department_head except for admin roles.
+* [ ] Adjust type alias for import paths to be cleaner.
+* [ ] Realign the stylings of all pages.
+
 
 Big backlog: security concerns by lovable:
 
