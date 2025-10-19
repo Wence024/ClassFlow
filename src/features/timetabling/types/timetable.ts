@@ -20,3 +20,18 @@ export type TimetableAssignmentUpdate =
 export type HydratedTimetableAssignment = Omit<TimetableAssignment, 'class_session_id'> & {
   class_session: ClassSession;
 };
+
+// --- View Mode System ---
+/**
+ * Defines the available view modes for the timetable display.
+ */
+export type TimetableViewMode = 'class-group' | 'classroom' | 'instructor';
+
+/**
+ * Configuration for a timetable view mode.
+ */
+export interface TimetableViewConfig {
+  mode: TimetableViewMode;
+  label: string;
+  description: string;
+}

@@ -7,6 +7,8 @@ import { LoadingSpinner, CustomTooltip } from '../../../components/ui';
 import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import TimetableContext from './components/timetable/TimetableContext';
+import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
+import { ViewSelector } from '../components/ViewSelector';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -29,6 +31,8 @@ interface TooltipState {
  * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
+  const { viewMode, setViewMode } = useTimetableViewMode();
+  
   // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
     queryKey: ['allClassSessions'],
@@ -93,6 +97,8 @@ const TimetablePage: React.FC = () => {
     <div>
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
       <main className="flex-1 space-y-6 min-w-0">
+        <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
+        
         {isInitialLoading ? (
           <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
             <LoadingSpinner size={'lg'} text="Loading Timetable..." />
