@@ -119,7 +119,7 @@ SELECT create_test_user(
 
 ### Environment Variables
 
-Create a `cypress.env.json` file (ignored by git) for sensitive data:
+Create a `cypress.env.json` file in the root directory (it is ignored by git) for sensitive data:
 
 ```json
 {

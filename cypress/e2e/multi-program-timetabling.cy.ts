@@ -15,14 +15,14 @@
 describe('Multi-Program Timetabling E2E Tests', () => {
   const csHead = {
     email: 'cs.head@test.local',
-    password: 'password123',
+    password: '12345678',
     program: 'BSCS',
     department: 'CS',
   };
 
   const busHead = {
     email: 'bus.head@test.local',
-    password: 'password123',
+    password: '12345678',
     program: 'BSBA',
     department: 'BUS',
   };
@@ -130,9 +130,12 @@ describe('Multi-Program Timetabling E2E Tests', () => {
       cy.get('[data-testid="timetable-cell-0-0"]').within(() => {
         cy.findByText('Intro to Algorithms').should('be.visible');
         // Check for read-only styling
-        cy.get('[data-testid="session-cell"]')
-          .should('have.css', 'cursor', 'not-allowed')
-          .or('have.class', 'opacity-50');
+        cy.get('[data-testid="session-cell"]').should($cell => {
+          const style = window.getComputedStyle($cell[0]);
+          const hasNotAllowedCursor = style.cursor === 'not-allowed';
+          const hasOpacity50 = $cell.hasClass('opacity-50');
+          expect(hasNotAllowedCursor || hasOpacity50).to.be.true;
+        });
       });
 
       // Attempt to drag the CS session (should not be draggable)
@@ -204,9 +207,11 @@ describe('Multi-Program Timetabling E2E Tests', () => {
       );
 
       // Verify conflict indication
-      cy.get('[data-testid="timetable-cell-0-0"]')
-        .should('have.class', 'bg-red-100')
-        .or('have.css', 'background-color', 'rgb(254, 226, 226)');
+      cy.get('[data-testid="timetable-cell-0-0"]').should($cell => {
+        const hasRedBgClass = $cell.hasClass('bg-red-100');
+        const hasRedBgColor = $cell.css('background-color') === 'rgb(254, 226, 226)';
+        expect(hasRedBgClass || hasRedBgColor).to.be.true;
+      });
 
       // Verify conflict tooltip appears
       cy.get('[role="tooltip"]').should('contain.text', 'Instructor conflict');

@@ -46,9 +46,10 @@ declare global {
  */
 Cypress.Commands.add('login', (email: string, password: string) => {
   cy.visit('/login');
-  cy.findByLabelText(/email/i).type(email);
+  cy.waitForPageLoad(); // Wait for any initial loading to complete
+  cy.findByLabelText(/email/i).should('be.enabled').type(email);
   cy.findByLabelText(/password/i).type(password);
-  cy.findByRole('button', { name: /sign in/i }).click();
+  cy.findByRole('button', { name: /login/i }).click();
   cy.waitForPageLoad();
 });
 
