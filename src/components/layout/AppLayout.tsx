@@ -15,13 +15,13 @@ import { LayoutProvider } from '../../contexts/LayoutContext';
 const AppLayout = () => {
   return (
     <LayoutProvider>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
         <Header />
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 min-h-0">
           <Sidebar />
           <main className="flex-1 overflow-auto p-6" role="main">
             <h1 className="sr-only">Main Content</h1>
-            <div className="container mx-auto space-y-6">
+            <div className="container mx-auto space-y-6 h-full">
               <Outlet />
             </div>
           </main>
