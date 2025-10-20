@@ -244,6 +244,10 @@ Group mismatch conflict not applicable in classroom and instructor views
 * [ ] long-term solution: make class groups assignment optional in the database and be managed directly in the timetable instead
 * [ ] broader long-term solution: make classrooms and instructors assignment optional and be done in the timetable instead
 
+* [ ] Long-Term Architectural Refactor (V2 Plan)
+  * Redesign the database schema to align with the multi-view feature, thereby simplifying front-end logic, removing technical debt, and improving the overall architecture.
+  * Reason: Database is outdated for multi-view (relying primarily on class-groups in timetable assignments)
+
 Big backlog: security concerns by lovable:
 
 ```txt
