@@ -96,7 +96,7 @@ const TimetablePage: React.FC = () => {
   return (
     <div>
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
-      <main className="flex-1 space-y-6 min-w-0">
+      <main className="flex-1 space-y-6 min-w-0 pb-72">
         <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
         
         {isInitialLoading ? (
