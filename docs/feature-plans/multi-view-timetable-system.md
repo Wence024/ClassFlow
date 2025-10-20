@@ -94,8 +94,8 @@ Currently, `buildTimetableGrid` in `src/features/timetabling/utils/timetableLogi
 
 - Accept `viewMode` as a prop
 - Adjust tooltip content to highlight the "primary" information based on view:
-  - **Classroom View**: Show classroom prominently, then course/instructor/groups
-  - **Instructor View**: Show instructor prominently, then course/classroom/groups
+  - **Classroom View**: Show course priminently, then groups/instructor
+  - **Instructor View**: Show course prominently, then groups/classroom
   - **Class Group View**: Keep current behavior (course prominently)
 - Update the "ownership" logic for drag-and-drop:
   - In Classroom/Instructor views, users can only drag sessions if they belong to their program (same as current logic, but validated differently)
