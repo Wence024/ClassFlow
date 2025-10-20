@@ -23,7 +23,7 @@ const DRAG_DATA_KEY = 'application/json';
 export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: TimetableViewMode = 'class-group') => {
   // --- Core Hooks ---
   const { user } = useAuth();
-  const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
+  const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable(viewMode);
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
   const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
