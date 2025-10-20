@@ -62,7 +62,7 @@ const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDro
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg transition-transform duration-300 z-40"
+      className="sticky bottom-0 bg-background border-t shadow-lg transition-transform duration-300 z-40"
       style={{ transform: isCollapsed ? 'translateY(calc(100% - 3rem))' : 'translateY(0)' }}
     >
       {/* Collapse/Expand Button */}

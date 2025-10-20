@@ -94,9 +94,9 @@ const TimetablePage: React.FC = () => {
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
   return (
-    <div>
+    <div className="relative flex flex-col h-full">
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
-      <main className="flex-1 space-y-6 min-w-0 pb-72">
+      <div className="flex-1 space-y-6 min-w-0 overflow-auto">
         <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
         
         {isInitialLoading ? (
@@ -119,7 +119,7 @@ const TimetablePage: React.FC = () => {
             />
           </TimetableContext.Provider>
         )}
-      </main>
+      </div>
     </div>
   );
 };
