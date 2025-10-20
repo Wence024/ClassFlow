@@ -39,7 +39,7 @@ const TimetablePage: React.FC = () => {
     queryFn: classSessionsService.getAllClassSessions,
   });
 
-  const { timetable, groups, resources, loading: loadingTimetable } = useTimetable(viewMode);
+  const { timetable, groups, resources, assignments, loading: loadingTimetable } = useTimetable(viewMode);
   const dnd = useTimetableDnd(allClassSessions, viewMode);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -50,15 +50,14 @@ const TimetablePage: React.FC = () => {
   const handleHideTooltip = () => setTooltip(null);
 
   // Memoized calculation for the sessions to show in the drawer.
+  // Use DB assignments (source of truth) instead of view-dependent grid.
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
-    for (const sessionsInGroup of timetable.values()) {
-      for (const sessionsInCell of sessionsInGroup) {
-        if (sessionsInCell) {
-          for (const session of sessionsInCell) {
-            assignedIds.add(session.id);
-          }
-        }
+    
+    // Extract assigned session IDs from DB assignments (not view grid)
+    for (const assignment of assignments) {
+      if (assignment.class_session?.id) {
+        assignedIds.add(assignment.class_session.id);
       }
     }
 
@@ -77,7 +76,7 @@ const TimetablePage: React.FC = () => {
     });
 
     return validUnassigned;
-  }, [timetable, allClassSessions]);
+  }, [assignments, allClassSessions]);
 
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
