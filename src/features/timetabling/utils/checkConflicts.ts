@@ -491,7 +491,15 @@ export default function checkTimetableConflicts(
     targetGroupId,
     viewMode
   );
-  if (resourceMismatchError) return resourceMismatchError;
+  if (resourceMismatchError) {
+    console.error('[checkConflicts] resource mismatch', {
+      viewMode,
+      error: resourceMismatchError,
+      targetId: targetGroupId,
+      sessionId: classSessionToCheck.id,
+    });
+    return resourceMismatchError;
+  }
 
   // Only check group conflicts in class-group view
   // In other views (classroom, instructor), the row represents a different resource
@@ -502,7 +510,16 @@ export default function checkTimetableConflicts(
       targetGroupId,
       targetPeriodIndex
     );
-    if (groupError) return groupError;
+    if (groupError) {
+      console.error('[checkConflicts] group conflict', {
+        viewMode,
+        error: groupError,
+        targetId: targetGroupId,
+        targetPeriodIndex,
+        sessionId: classSessionToCheck.id,
+      });
+      return groupError;
+    }
   }
 
   // --- Standard Resource Conflict Check ---

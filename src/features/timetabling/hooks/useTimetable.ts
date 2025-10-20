@@ -277,6 +277,12 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       classSession: ClassSession
     ): Promise<string> => {
       if (!settings) return 'Schedule settings are not loaded yet.';
+      console.debug('[useTimetable] assignClassSession check', {
+        viewMode,
+        targetId: class_group_id,
+        periodIndex: period_index,
+        sessionId: classSession.id,
+      });
       const conflict = checkTimetableConflicts(
         timetable,
         classSession,
@@ -286,11 +292,20 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         programs,
         viewMode
       );
-      if (conflict) return conflict;
+      if (conflict) {
+        console.error('[useTimetable] assignClassSession conflict', {
+          conflict,
+          viewMode,
+          targetId: class_group_id,
+          periodIndex: period_index,
+          sessionId: classSession.id,
+        });
+        return conflict;
+      }
       await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
       return '';
     },
-    [settings, timetable, programs, assignClassSessionMutation]
+    [settings, timetable, programs, assignClassSessionMutation, viewMode]
   );
 
   /**
@@ -326,6 +341,12 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       classSession: ClassSession
     ): Promise<string> => {
       if (!settings) return 'Schedule settings are not loaded yet.';
+      console.debug('[useTimetable] moveClassSession check', {
+        viewMode,
+        from,
+        to,
+        sessionId: classSession.id,
+      });
       const conflict = checkTimetableConflicts(
         timetable,
         classSession,
@@ -335,11 +356,20 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         programs,
         viewMode
       );
-      if (conflict) return conflict;
+      if (conflict) {
+        console.error('[useTimetable] moveClassSession conflict', {
+          conflict,
+          viewMode,
+          from,
+          to,
+          sessionId: classSession.id,
+        });
+        return conflict;
+      }
       await moveClassSessionMutation.mutateAsync({ from, to, classSession });
       return '';
     },
-    [settings, timetable, programs, moveClassSessionMutation]
+    [settings, timetable, programs, moveClassSessionMutation, viewMode]
   );
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */

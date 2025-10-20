@@ -266,6 +266,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
           source,
           targetClassGroupId,
           targetPeriodIndex,
+          viewMode,
         });
         // Show notification if there was an error
         toast('Error', { description: error });
