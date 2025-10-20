@@ -265,7 +265,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
   /**
    * Assigns a class session after performing a conflict check. Returns an error message string on failure.
    *
-   * @param class_group_id - The ID of the class group.
+   * @param class_group_id - The ID of the class group (DB column value).
    * @param period_index - The index of the period.
    * @param classSession - The class session to be assigned.
    * @returns - An error message string on failure.
@@ -302,8 +302,21 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         });
         return conflict;
       }
-      await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
-      return '';
+      
+      try {
+        await assignClassSessionMutation.mutateAsync({ class_group_id, period_index, classSession });
+        return '';
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        console.error('[useTimetable] assignClassSession mutation error', {
+          error: errorMsg,
+          viewMode,
+          class_group_id,
+          period_index,
+          sessionId: classSession.id,
+        });
+        return errorMsg;
+      }
     },
     [settings, timetable, programs, assignClassSessionMutation, viewMode]
   );
@@ -329,7 +342,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
    * @param from.class_group_id - The ID of the class group in the source location.
    * @param from.period_index - The index of the period in the source location.
    * @param to - The destination location of the class session.
-   * @param to.class_group_id - The ID of the class group in the destination location.
+   * @param to.class_group_id - The ID of the class group in the destination location (DB value).
    * @param to.period_index - The index of the period in the destination location.
    * @param classSession - The class session to be moved.
    * @returns - An error message string on failure.
@@ -341,17 +354,34 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       classSession: ClassSession
     ): Promise<string> => {
       if (!settings) return 'Schedule settings are not loaded yet.';
+      
+      // In non-class-group views, we need to use the appropriate resource ID for conflict checking
+      const targetRowIdForCheck = (() => {
+        switch (viewMode) {
+          case 'classroom':
+            return classSession.classroom.id;
+          case 'instructor':
+            return classSession.instructor.id;
+          case 'class-group':
+          default:
+            return to.class_group_id;
+        }
+      })();
+      
       console.debug('[useTimetable] moveClassSession check', {
         viewMode,
         from,
         to,
+        targetRowIdForCheck,
+        dbTargetGroupId: to.class_group_id,
         sessionId: classSession.id,
       });
+      
       const conflict = checkTimetableConflicts(
         timetable,
         classSession,
         settings,
-        to.class_group_id,
+        targetRowIdForCheck,
         to.period_index,
         programs,
         viewMode
@@ -362,12 +392,26 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
           viewMode,
           from,
           to,
+          targetRowIdForCheck,
           sessionId: classSession.id,
         });
         return conflict;
       }
-      await moveClassSessionMutation.mutateAsync({ from, to, classSession });
-      return '';
+      
+      try {
+        await moveClassSessionMutation.mutateAsync({ from, to, classSession });
+        return '';
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        console.error('[useTimetable] moveClassSession mutation error', {
+          error: errorMsg,
+          viewMode,
+          from,
+          to,
+          sessionId: classSession.id,
+        });
+        return errorMsg;
+      }
     },
     [settings, timetable, programs, moveClassSessionMutation, viewMode]
   );

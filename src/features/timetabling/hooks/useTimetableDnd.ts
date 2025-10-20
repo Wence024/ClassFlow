@@ -202,7 +202,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
    * Handles the drop event from the drag and drop functionality.
    *
    * @param e - The drag event object.
-   * @param targetClassGroupId - The ID of the target class group.
+   * @param targetClassGroupId - The ID of the target row (group/classroom/instructor depending on view).
    * @param targetPeriodIndex - The index of the target period.
    * @returns {void}
    */
@@ -239,43 +239,71 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         return;
       }
 
-      let error = '';
-      if (source.from === 'drawer') {
-        // Assign the class session to the target location
-        error = await assignClassSession(targetClassGroupId, targetPeriodIndex, classSessionToDrop);
-      } else if (source.from === 'timetable') {
-        // Move the class session to the target location
-        const isSameCell =
-          source.class_group_id === targetClassGroupId && source.period_index === targetPeriodIndex;
+      // In non-class-group views, the targetClassGroupId is the UI row ID (classroom/instructor),
+      // but the DB needs the actual class_group_id from the session
+      const dbTargetGroupId = viewMode === 'class-group' 
+        ? targetClassGroupId 
+        : classSessionToDrop.group.id;
 
-        // Abort silently if the source and target are the same
-        if (isSameCell) {
-          cleanupDragState();
-          return; // Abort silently
+      console.debug('[TimetableDnd] dropToGrid', {
+        viewMode,
+        uiTargetRowId: targetClassGroupId,
+        dbTargetGroupId,
+        targetPeriodIndex,
+        source,
+        sessionId: classSessionToDrop.id,
+      });
+
+      try {
+        let error = '';
+        if (source.from === 'drawer') {
+          // Assign the class session to the target location
+          error = await assignClassSession(dbTargetGroupId, targetPeriodIndex, classSessionToDrop);
+        } else if (source.from === 'timetable') {
+          // For non-class-group views, only compare period since we're within the same row
+          const isSameCell = viewMode === 'class-group'
+            ? (source.class_group_id === targetClassGroupId && source.period_index === targetPeriodIndex)
+            : (source.period_index === targetPeriodIndex);
+
+          // Abort silently if the source and target are the same
+          if (isSameCell) {
+            cleanupDragState();
+            return;
+          }
+          
+          error = await moveClassSession(
+            { class_group_id: source.class_group_id, period_index: source.period_index },
+            { class_group_id: dbTargetGroupId, period_index: targetPeriodIndex },
+            classSessionToDrop
+          );
         }
-        error = await moveClassSession(
-          { class_group_id: source.class_group_id, period_index: source.period_index },
-          { class_group_id: targetClassGroupId, period_index: targetPeriodIndex },
-          classSessionToDrop
-        );
-      }
 
-      if (error) {
-        console.error('[TimetableDnd] dropToGrid: mutation error', {
-          error,
+        if (error) {
+          console.error('[TimetableDnd] dropToGrid: mutation error', {
+            error,
+            source,
+            targetClassGroupId,
+            targetPeriodIndex,
+            viewMode,
+          });
+          toast('Error', { description: error });
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        console.error('[TimetableDnd] dropToGrid: uncaught error', {
+          error: errorMsg,
           source,
           targetClassGroupId,
           targetPeriodIndex,
           viewMode,
         });
-        // Show notification if there was an error
-        toast('Error', { description: error });
+        toast('Error', { description: errorMsg });
+      } finally {
+        // Always clean up the drag state
+        cleanupDragState();
       }
-
-      // Clean up the drag state
-      cleanupDragState();
     },
-    [allClassSessions, assignClassSession, moveClassSession, cleanupDragState, user]
+    [allClassSessions, assignClassSession, moveClassSession, cleanupDragState, user, viewMode]
   );
 
   /**
