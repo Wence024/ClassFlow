@@ -493,13 +493,17 @@ export default function checkTimetableConflicts(
   );
   if (resourceMismatchError) return resourceMismatchError;
 
-  const groupError = checkGroupConflicts(
-    timetable,
-    classSessionToCheck,
-    targetGroupId,
-    targetPeriodIndex
-  );
-  if (groupError) return groupError;
+  // Only check group conflicts in class-group view
+  // In other views (classroom, instructor), the row represents a different resource
+  if (viewMode === 'class-group') {
+    const groupError = checkGroupConflicts(
+      timetable,
+      classSessionToCheck,
+      targetGroupId,
+      targetPeriodIndex
+    );
+    if (groupError) return groupError;
+  }
 
   // --- Standard Resource Conflict Check ---
   return checkResourceConflicts(
