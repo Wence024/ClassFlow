@@ -423,6 +423,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     groups: allClassGroups,
     resources, // Export current resources for multi-view support
     timetable,
+    assignments, // Expose raw assignments for drawer logic
     assignClassSession,
     removeClassSession,
     moveClassSession,
