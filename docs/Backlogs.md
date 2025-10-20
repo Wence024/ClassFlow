@@ -238,7 +238,11 @@ Ponderings:
 * [ ] Adjust type alias for import paths to be cleaner.
 * [ ] Realign the stylings of all pages.
 
-* [ ] Limit group mismatch to the class group view. Also, edit the supabase class sessions to make classroom and instructor optional instead of required. Please continue doing @multi-view-timetable-system.md
+Group mismatch conflict not applicable in classroom and instructor views
+
+* [ ] short-term solution: limit group mismatch conflict only to class group view
+* [ ] long-term solution: make class groups assignment optional in the database and be managed directly in the timetable instead
+* [ ] broader long-term solution: make classrooms and instructors assignment optional and be done in the timetable instead
 
 Big backlog: security concerns by lovable:
 
