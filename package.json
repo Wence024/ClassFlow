@@ -4,6 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "backup": "npm run backup:data && npm run backup:schema",
+    "backup:data": "npx supabase db dump --db-url \"postgresql://postgres.rjdznnrzeiqajuaqathd:8Hrsofsleepsleep!@aws-0-us-east-2.pooler.supabase.com:6543/postgres\" -f supabase/migrations/data_backups/data.sql --data-only",
+    "backup:schema": "npx supabase db dump --db-url \"postgresql://postgres.rjdznnrzeiqajuaqathd:8Hrsofsleepsleep!@aws-0-us-east-2.pooler.supabase.com:6543/postgres\" -f supabase/migrations/data_backups/schema.sql",
+
     "build": "tsc -b && vite build",
     "build:dev": "vite build --mode development",
     "check": "npm run lint && npm run format:check",
