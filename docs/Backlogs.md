@@ -191,9 +191,10 @@ Sir B's Feedback:
 
 * Approval/Notify feature to Program Head When other program heads assign class sessions from instructors under him?
 * [ ] CSV Import
-* [ ] Classroom/instructor View
 
 Sir M's Feedback:
+
+* [ ] Classroom/instructor View
 * [ ] Reports per instructor and class group.
 
 Maam D's Feedback
@@ -454,7 +455,3 @@ const validatedData = inviteSchema.parse(body);
 7. Schedule Postgres upgrade
 8. Review and test all RLS policies with different user roles
 9. Add security testing to CI/CD pipeline
-
----
-
-Would you like me to implement any of these recommendations? I can start with Priority 1 items to eliminate the critical security gap with the unused registration code.

@@ -516,7 +516,7 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 
 ---
 
-### Test Case 3.5: Group Double-Booking Prevention (All Views)
+### ✅ Test Case 3.5: Group Double-Booking Prevention (All Views)
 
 **Prerequisites:**
 
