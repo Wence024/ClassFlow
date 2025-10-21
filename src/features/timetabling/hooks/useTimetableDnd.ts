@@ -259,6 +259,40 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         return;
       }
 
+      // TODO: TEMPORARY VALIDATION - Remove when implementing direct resource reassignment via timetable
+      // Future enhancement: Allow users to change classroom/instructor assignments by dragging to different rows
+      // For now, enforce that moves can only happen within the same resource row
+      if (source.from === 'timetable') {
+        let resourceMismatchError = '';
+        
+        switch (viewMode) {
+          case 'classroom':
+            if (classSessionToDrop.classroom.id !== targetClassGroupId) {
+              resourceMismatchError = `Cannot move this session to a different classroom. This session is assigned to "${classSessionToDrop.classroom.name}". To reassign the classroom, please edit the session details.`;
+            }
+            break;
+          case 'instructor':
+            if (classSessionToDrop.instructor.id !== targetClassGroupId) {
+              const instructorName = `${classSessionToDrop.instructor.first_name} ${classSessionToDrop.instructor.last_name}`;
+              resourceMismatchError = `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please edit the session details.`;
+            }
+            break;
+          case 'class-group':
+            if (source.class_group_id !== targetClassGroupId) {
+              resourceMismatchError = `Cannot move this session to a different class group. This session belongs to "${classSessionToDrop.group.name}".`;
+            }
+            break;
+        }
+        
+        if (resourceMismatchError) {
+          toast('Move Restricted', { 
+            description: resourceMismatchError
+          });
+          cleanupDragState();
+          return;
+        }
+      }
+
       // In non-class-group views, the targetClassGroupId is the UI row ID (classroom/instructor),
       // but the DB needs the actual class_group_id from the session
       const dbTargetGroupId = viewMode === 'class-group' 
