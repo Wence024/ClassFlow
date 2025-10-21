@@ -92,9 +92,17 @@ export async function removeClassSessionFromTimetable(
 }
 
 /**
- * Move a class session from one cell to another (delete old, upsert new) in Supabase.
+ * Move a class session from one cell to another (upsert new first, then delete old) in Supabase.
  * The new assignment object MUST include the semester_id.
  * Authorization is handled by RLS policies based on program/department ownership.
+ * 
+ * This approach (upsert first, delete second) is safer than delete-first because:
+ * - If the upsert fails, the original assignment remains intact
+ * - If the delete fails, we have a duplicate but the data is preserved
+ * - The client can handle duplicate cleanup through refetch/invalidation.
+ * 
+ * NOTE: This is not fully atomic. A future improvement would be to wrap this in a
+ * Postgres function that performs both operations within a single transaction.
  *
  * @param from The source cell.
  * @param from.class_group_id The class group ID of the source cell.
@@ -110,7 +118,11 @@ export async function moveClassSessionInTimetable(
   _to: { class_group_id: string; period_index: number },
   assignment: TimetableAssignmentInsert // This is the payload for the new location
 ): Promise<TimetableAssignment> {
+  // Step 1: Create the new assignment first (safer order)
+  const newAssignment = await assignClassSessionToTimetable(assignment);
+  
+  // Step 2: Remove the old assignment only after the new one is successfully created
   await removeClassSessionFromTimetable(from.class_group_id, from.period_index, assignment.semester_id);
-  // The assign function will handle the rest correctly.
-  return assignClassSessionToTimetable(assignment);
+  
+  return newAssignment;
 }

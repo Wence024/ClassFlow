@@ -1,36 +1,42 @@
 /**
  * @file This module contains the core logic for transforming timetable data into a UI-friendly structure.
+ * Supports multiple view modes: class-group, classroom, and instructor.
  */
 
-import type { ClassGroup } from '../../classSessionComponents/types';
+import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
 import type { ClassSession } from '../../classSessions/types/classSession';
-import type { HydratedTimetableAssignment } from '../types/timetable';
+import type { HydratedTimetableAssignment, TimetableViewMode } from '../types/timetable';
 
 /**
  * A type representing the timetable's data structure.
- * It's a Map where keys are class group IDs and values are arrays representing periods.
+ * It's a Map where keys are resource IDs (class group, classroom, or instructor) and values are arrays representing periods.
  * Each cell can contain an array of sessions (for merged classes) or null.
  */
 export type TimetableGrid = Map<string, (ClassSession[] | null)[]>;
 
 /**
- * Initializes the timetable grid with empty rows for each class group.
+ * Union type for all possible row resources in different view modes.
+ */
+export type TimetableRowResource = ClassGroup | Classroom | Instructor;
+
+/**
+ * Initializes the timetable grid with empty rows for each resource.
  *
  * @param grid - The timetable grid Map to populate with empty rows.
- * @param classGroups - The array of class groups that will form the rows of the timetable.
+ * @param resources - The array of resources (class groups, classrooms, or instructors) that will form the rows of the timetable.
  * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
  */
 function initializeGridRows(
   grid: TimetableGrid,
-  classGroups: ClassGroup[],
+  resources: TimetableRowResource[],
   totalPeriods: number
 ): void {
-  if (classGroups.length === 0) {
+  if (resources.length === 0) {
     return;
   }
 
-  for (const group of classGroups) {
-    grid.set(group.id, Array(totalPeriods).fill(null));
+  for (const resource of resources) {
+    grid.set(resource.id, Array(totalPeriods).fill(null));
   }
 }
 
@@ -155,21 +161,14 @@ function placeMergeGroupOnGrid(
 }
 
 /**
- * Transforms a flat array of timetable assignments into a grid structure that supports merged sessions.
- *
- * This function processes assignments by:
- * 1. Grouping all assignments by their period index for efficient lookup.
- * 2. Iterating through each assignment and identifying "mergeable" sessions (same course, instructor, classroom at the same time).
- * 3. Creating a single array instance for each merged block (or a single-session array for non-merged ones).
- * 4. Placing the exact same array instance into the grid cells for all participating groups and across all spanned periods.
- * This ensures that a merged session is treated as a single, cohesive block in the UI.
+ * Transforms a flat array of timetable assignments into a grid structure for Class Group view.
  *
  * @param assignments - The flat array of assignment data from the server.
  * @param classGroups - The list of all class groups, used to initialize the grid rows.
  * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
  * @returns A Map representing the populated timetable grid with merged sessions.
  */
-export function buildTimetableGrid(
+export function buildTimetableGridForClassGroups(
   assignments: HydratedTimetableAssignment[],
   classGroups: ClassGroup[],
   totalPeriods: number
@@ -195,4 +194,192 @@ export function buildTimetableGrid(
   }
 
   return grid;
+}
+
+/**
+ * Groups assignments in a period by a resource-specific merge key.
+ *
+ * @param assignmentsInPeriod - The assignments in the current period.
+ * @param grid - The timetable grid being built.
+ * @param periodIndex - The index of the current period.
+ * @param getResourceId - A function to extract the resource ID for the current view.
+ * @returns A map of merge keys to assignments.
+ */
+function groupResourceAssignments(
+  assignmentsInPeriod: HydratedTimetableAssignment[],
+  grid: TimetableGrid,
+  periodIndex: number,
+  getResourceId: (session: ClassSession) => string | undefined
+): Map<string, HydratedTimetableAssignment[]> {
+  const resourceMergeGroups = new Map<string, HydratedTimetableAssignment[]>();
+
+  for (const assignment of assignmentsInPeriod) {
+    const session = assignment.class_session;
+    if (!session?.course || !session.instructor || !session.classroom) continue;
+
+    const resourceId = getResourceId(session);
+    if (!resourceId) continue;
+
+    const resourceRow = grid.get(resourceId);
+    if (!resourceRow || resourceRow[periodIndex] !== null) continue;
+
+    const mergeKey = `${resourceId}-${session.course.code}-${session.instructor.id}`;
+    if (!resourceMergeGroups.has(mergeKey)) {
+      resourceMergeGroups.set(mergeKey, []);
+    }
+    resourceMergeGroups.get(mergeKey)!.push(assignment);
+  }
+
+  return resourceMergeGroups;
+}
+
+/**
+ * Fills the periods for a merged session in a given row.
+ *
+ * @param row - The timetable row to update.
+ * @param sessions - The merged sessions to place.
+ * @param periodIndex - The starting period index.
+ * @param periodCount - The number of periods the session spans.
+ * @param totalPeriods - The total number of periods in the schedule.
+ */
+function fillPeriodsForMergedSession(
+  row: (ClassSession[] | null)[],
+  sessions: ClassSession[],
+  periodIndex: number,
+  periodCount: number,
+  totalPeriods: number
+) {
+  for (let i = 0; i < periodCount; i++) {
+    if (periodIndex + i < totalPeriods) {
+      row[periodIndex + i] = sessions;
+    }
+  }
+}
+
+/**
+ * Places merged assignments onto the grid for a specific resource type.
+ *
+ * @param resourceMergeGroups - A map of merge keys to assignments.
+ * @param grid - The timetable grid being built.
+ * @param periodIndex - The index of the current period.
+ * @param totalPeriods - The total number of periods.
+ * @param getResourceId - A function to extract the resource ID for the current view.
+ */
+function placeResourceAssignments(
+  resourceMergeGroups: Map<string, HydratedTimetableAssignment[]>,
+  grid: TimetableGrid,
+  periodIndex: number,
+  totalPeriods: number,
+  getResourceId: (session: ClassSession) => string | undefined
+): void {
+  for (const [, mergeableAssignments] of resourceMergeGroups.entries()) {
+    if (mergeableAssignments.length === 0) continue;
+
+    const allMergedSessions = mergeableAssignments.map((a) => a.class_session!);
+    const period_count = allMergedSessions[0]?.period_count || 1;
+    const resourceId = getResourceId(allMergedSessions[0]);
+
+    if (resourceId) {
+      const resourceRow = grid.get(resourceId);
+      if (resourceRow) {
+        fillPeriodsForMergedSession(resourceRow, allMergedSessions, periodIndex, period_count, totalPeriods);
+      }
+    }
+  }
+}
+
+/**
+ * Transforms a flat array of timetable assignments into a grid structure for a specific resource (Classroom or Instructor).
+ * This generic function is used by the view-specific builder functions.
+ *
+ * @param assignments - The flat array of assignment data from the server.
+ * @param resources - The list of all resources (classrooms or instructors) for the rows.
+ * @param totalPeriods - The total number of periods in the schedule.
+ * @param getResourceId - A function that extracts the relevant resource ID from a class session.
+ * @returns A Map representing the populated timetable grid organized by the specified resource.
+ */
+function buildTimetableGridForResource(
+  assignments: HydratedTimetableAssignment[],
+  resources: TimetableRowResource[],
+  totalPeriods: number,
+  getResourceId: (session: ClassSession) => string | undefined
+): TimetableGrid {
+  const grid: TimetableGrid = new Map();
+  initializeGridRows(grid, resources, totalPeriods);
+
+  if (!assignments || assignments.length === 0) {
+    return grid;
+  }
+
+  const assignmentsByPeriod = groupAssignmentsByPeriod(assignments);
+
+  for (let periodIndex = 0; periodIndex < totalPeriods; periodIndex++) {
+    const assignmentsInPeriod = assignmentsByPeriod.get(periodIndex) || [];
+    if (assignmentsInPeriod.length === 0) continue;
+
+    const resourceMergeGroups = groupResourceAssignments(assignmentsInPeriod, grid, periodIndex, getResourceId);
+    placeResourceAssignments(resourceMergeGroups, grid, periodIndex, totalPeriods, getResourceId);
+  }
+
+  return grid;
+}
+
+/**
+ * Transforms a flat array of timetable assignments into a grid structure for Classroom view.
+ * Rows represent classrooms instead of class groups.
+ *
+ * @param assignments - The flat array of assignment data from the server.
+ * @param classrooms - The list of all classrooms, used to initialize the grid rows.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
+ * @returns A Map representing the populated timetable grid organized by classroom.
+ */
+export function buildTimetableGridForClassrooms(
+  assignments: HydratedTimetableAssignment[],
+  classrooms: Classroom[],
+  totalPeriods: number
+): TimetableGrid {
+  return buildTimetableGridForResource(assignments, classrooms, totalPeriods, (session) => session.classroom?.id);
+}
+
+/**
+ * Transforms a flat array of timetable assignments into a grid structure for Instructor view.
+ * Rows represent instructors instead of class groups.
+ *
+ * @param assignments - The flat array of assignment data from the server.
+ * @param instructors - The list of all instructors, used to initialize the grid rows.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
+ * @returns A Map representing the populated timetable grid organized by instructor.
+ */
+export function buildTimetableGridForInstructors(
+  assignments: HydratedTimetableAssignment[],
+  instructors: Instructor[],
+  totalPeriods: number
+): TimetableGrid {
+  return buildTimetableGridForResource(assignments, instructors, totalPeriods, (session) => session.instructor?.id);
+}
+
+/**
+ * Factory function that builds the appropriate timetable grid based on view mode.
+ *
+ * @param assignments - The flat array of assignment data from the server.
+ * @param viewMode - The current view mode (class-group, classroom, or instructor).
+ * @param resources - The list of resources (class groups, classrooms, or instructors) for the current view.
+ * @param totalPeriods - The total number of periods in the schedule (days * periods_per_day).
+ * @returns A Map representing the populated timetable grid for the specified view mode.
+ */
+export function buildTimetableGrid(
+  assignments: HydratedTimetableAssignment[],
+  viewMode: TimetableViewMode,
+  resources: TimetableRowResource[],
+  totalPeriods: number
+): TimetableGrid {
+  switch (viewMode) {
+    case 'classroom':
+      return buildTimetableGridForClassrooms(assignments, resources as Classroom[], totalPeriods);
+    case 'instructor':
+      return buildTimetableGridForInstructors(assignments, resources as Instructor[], totalPeriods);
+    case 'class-group':
+    default:
+      return buildTimetableGridForClassGroups(assignments, resources as ClassGroup[], totalPeriods);
+  }
 }

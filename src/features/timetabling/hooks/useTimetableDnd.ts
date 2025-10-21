@@ -7,6 +7,7 @@ import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useAuth } from '../../auth/hooks/useAuth';
+import type { TimetableViewMode } from '../types/timetable';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -16,12 +17,13 @@ const DRAG_DATA_KEY = 'application/json';
  * event handling, and data mutations.
  *
  * @param allClassSessions - All class sessions visible to the user (not just their own).
+ * @param viewMode - The current timetable view mode for view-specific validation.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
-export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
+export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: TimetableViewMode = 'class-group') => {
   // --- Core Hooks ---
   const { user } = useAuth();
-  const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable();
+  const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable(viewMode);
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
   const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
@@ -64,6 +66,43 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
   // --- Visual Feedback Logic ---
 
   /**
+   * Validates if a drag-and-drop action is compliant with the current view mode rules.
+   *
+   * @param viewMode - The current timetable view mode.
+   * @param source - The drag source.
+   * @param draggedSession - The session being dragged.
+   * @param targetGroupId - The ID of the target row.
+   * @returns `true` if the move is allowed, `false` otherwise.
+   */
+  const isViewModeCompliant = (
+    viewMode: TimetableViewMode,
+    source: DragSource,
+    draggedSession: ClassSession,
+    targetGroupId: string
+  ): boolean => {
+    if (source.from === 'timetable') {
+      switch (viewMode) {
+        case 'class-group':
+          return source.class_group_id === targetGroupId;
+        case 'classroom':
+          return draggedSession.classroom.id === targetGroupId;
+        case 'instructor':
+          return draggedSession.instructor.id === targetGroupId;
+      }
+    } else if (source.from === 'drawer') {
+      switch (viewMode) {
+        case 'class-group':
+          return draggedSession.group.id === targetGroupId;
+        case 'classroom':
+          return draggedSession.classroom.id === targetGroupId;
+        case 'instructor':
+          return draggedSession.instructor.id === targetGroupId;
+      }
+    }
+    return false; // Should not be reached
+  };
+
+  /**
    * Checks if a specific timetable slot is available for dropping a class session.
    *
    * @param groupId The ID of the target class group.
@@ -72,45 +111,93 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
    */
   const isSlotAvailable = useCallback(
     (groupId: string, periodIndex: number): boolean => {
-      if (!activeDraggedSession || !settings) {
-        console.warn('[TimetableDnd] isSlotAvailable: abort', {
-          reason: !settings ? 'no-settings' : 'no-activeDraggedSession',
-          groupId,
-          periodIndex,
-          activeDragSource,
-          userProgramId: user?.program_id,
-        });
+      if (!activeDraggedSession || !settings || !activeDragSource) {
         return false;
       }
 
       // This prevents the slot from even appearing available (green) if the user is not the owner.
       if (
-        activeDragSource?.from === 'timetable' &&
+        activeDragSource.from === 'timetable' &&
         activeDraggedSession.program_id !== user?.program_id
       ) {
         return false;
       }
 
-      // Disallow moving a session to a different group row when dragging from the grid
-      if (activeDragSource?.from === 'timetable' && activeDragSource.class_group_id !== groupId) {
+      if (!isViewModeCompliant(viewMode, activeDragSource, activeDraggedSession, groupId)) {
         return false;
       }
 
+      const isMovingSession = activeDragSource.from === 'timetable';
       const conflictMessage = checkTimetableConflicts(
         timetable,
         activeDraggedSession,
         settings,
         groupId,
         periodIndex,
-        programs
+        programs,
+        viewMode,
+        isMovingSession
       );
 
       return conflictMessage === '';
     },
-    [activeDraggedSession, settings, timetable, activeDragSource, user, programs]
+    [activeDraggedSession, settings, timetable, activeDragSource, user, programs, viewMode]
   );
 
   // --- Event Handlers ---
+
+  const getResourceMismatchError = (
+    viewMode: TimetableViewMode,
+    session: ClassSession,
+    source: DragSource,
+    targetId: string
+  ): string => {
+    if (source.from !== 'timetable') return '';
+
+    switch (viewMode) {
+      case 'classroom':
+        if (session.classroom.id !== targetId) {
+          return `Cannot move this session to a different classroom. This session is assigned to "${session.classroom.name}". To reassign the classroom, please go to Manage Classes page.`;
+        }
+        break;
+      case 'instructor':
+        if (session.instructor.id !== targetId) {
+          const instructorName = `${session.instructor.first_name} ${session.instructor.last_name}`;
+          return `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please go to Manage Classes page.`;
+        }
+        break;
+      case 'class-group':
+        if (source.class_group_id !== targetId) {
+          return `Cannot move this session to a different class group. This session belongs to "${session.group.name}".`;
+        }
+        break;
+    }
+    return '';
+  };
+
+  const executeDropMutation = useCallback(async (
+    source: DragSource,
+    session: ClassSession,
+    dbTargetGroupId: string,
+    targetPeriodIndex: number
+  ) => {
+    if (source.from === 'drawer') {
+      return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
+    } else if (source.from === 'timetable') {
+      const isSameCell = viewMode === 'class-group'
+        ? (source.class_group_id === dbTargetGroupId && source.period_index === targetPeriodIndex)
+        : (source.period_index === targetPeriodIndex);
+
+      if (isSameCell) return ''; // Abort silently
+
+      return moveClassSession(
+        { class_group_id: source.class_group_id, period_index: source.period_index },
+        { class_group_id: dbTargetGroupId, period_index: targetPeriodIndex },
+        session
+      );
+    }
+    return 'Invalid drag source';
+  }, [assignClassSession, moveClassSession, viewMode]);
 
   /**
    * Initiates a drag operation for a class session.
@@ -180,7 +267,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
    * Handles the drop event from the drag and drop functionality.
    *
    * @param e - The drag event object.
-   * @param targetClassGroupId - The ID of the target class group.
+   * @param targetClassGroupId - The ID of the target row (group/classroom/instructor depending on view).
    * @param targetPeriodIndex - The index of the target period.
    * @returns {void}
    */
@@ -189,70 +276,43 @@ export const useTimetableDnd = (allClassSessions: ClassSession[]) => {
       e.preventDefault();
       e.stopPropagation();
 
-      // Parse the source data from the data transfer
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
-
-      // Find the class session to drop
       const classSessionToDrop = allClassSessions.find((cs) => cs.id === source.class_session_id);
 
       if (!classSessionToDrop) {
-        console.error('[TimetableDnd] dropToGrid: class session not found', {
-          source,
-          userId: user?.id,
-          userProgramId: user?.program_id,
-          classSessionsCount: allClassSessions.length,
-        });
-        // Show notification if the class session could not be found
         toast('Error', { description: 'Could not find the class session to drop.' });
         cleanupDragState();
         return;
       }
 
-      // Add final client-side safeguard before mutation
       if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
-        toast('Error', {
-          description: 'You can only move sessions that belong to your own program.',
-        });
+        toast('Error', { description: 'You can only move sessions that belong to your own program.' });
         cleanupDragState();
         return;
       }
 
-      let error = '';
-      if (source.from === 'drawer') {
-        // Assign the class session to the target location
-        error = await assignClassSession(targetClassGroupId, targetPeriodIndex, classSessionToDrop);
-      } else if (source.from === 'timetable') {
-        // Move the class session to the target location
-        const isSameCell =
-          source.class_group_id === targetClassGroupId && source.period_index === targetPeriodIndex;
+      const resourceMismatchError = getResourceMismatchError(viewMode, classSessionToDrop, source, targetClassGroupId);
+      if (resourceMismatchError) {
+        toast('Move Restricted', { description: resourceMismatchError });
+        cleanupDragState();
+        return;
+      }
 
-        // Abort silently if the source and target are the same
-        if (isSameCell) {
-          cleanupDragState();
-          return; // Abort silently
+      const dbTargetGroupId = viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
+
+      try {
+        const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
+        if (error) {
+          toast('Error', { description: error });
         }
-        error = await moveClassSession(
-          { class_group_id: source.class_group_id, period_index: source.period_index },
-          { class_group_id: targetClassGroupId, period_index: targetPeriodIndex },
-          classSessionToDrop
-        );
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        toast('Error', { description: errorMsg });
+      } finally {
+        cleanupDragState();
       }
-
-      if (error) {
-        console.error('[TimetableDnd] dropToGrid: mutation error', {
-          error,
-          source,
-          targetClassGroupId,
-          targetPeriodIndex,
-        });
-        // Show notification if there was an error
-        toast('Error', { description: error });
-      }
-
-      // Clean up the drag state
-      cleanupDragState();
     },
-    [allClassSessions, assignClassSession, moveClassSession, cleanupDragState, user]
+    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation]
   );
 
   /**

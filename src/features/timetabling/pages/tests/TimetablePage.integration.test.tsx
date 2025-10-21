@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TimetablePage from '../TimetablePage';
@@ -158,6 +158,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: allGroups,
       timetable,
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -198,6 +199,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup],
       timetable: timetableWithInvalidData,
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -222,6 +224,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup, mockOtherGroup],
       timetable: new Map([['g1', [[mockOwnedSession]]]]),
+      assignments: [{ class_session: mockOwnedSession }], // Mock assignment for assigned session
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -258,6 +261,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup],
       timetable,
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -292,5 +296,72 @@ describe('TimetablePage Integration Tests', () => {
     // The main assertion is that no error was thrown during the drop.
     // We also check that our mock drop handler was called as expected.
     expect(handleDropToGrid).toHaveBeenCalledWith(mockEvent, 'g1', 1);
+  });
+
+  it('should render view selector with all three view modes', async () => {
+    useTimetableSpy.mockReturnValue({
+      groups: [mockMyGroup],
+      resources: [mockMyGroup],
+      timetable: new Map(),
+      assignments: [], // Add missing assignments property
+      loading: false,
+      error: null,
+    } as ReturnType<typeof useTimetableHook.useTimetable>);
+
+    render(<TimetablePage />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText('Class Groups')).toBeInTheDocument();
+      expect(screen.getByText('Classrooms')).toBeInTheDocument();
+      expect(screen.getByText('Instructors')).toBeInTheDocument();
+    });
+  });
+
+  it('should update view mode when clicking view selector buttons', async () => {
+    // Mock localStorage BEFORE rendering the component
+    const localStorageMock = {
+      getItem: vi.fn().mockReturnValue('class-group'), // Start with class-group view
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+    });
+
+    useTimetableSpy.mockReturnValue({
+      groups: [mockMyGroup],
+      resources: [mockMyGroup],
+      timetable: new Map(),
+      assignments: [], // Add missing assignments property
+      loading: false,
+      error: null,
+    } as ReturnType<typeof useTimetableHook.useTimetable>);
+
+    const { rerender } = render(<TimetablePage />, { wrapper });
+
+    await waitFor(() => {
+      expect(screen.getByText('Class Groups')).toBeInTheDocument();
+    });
+
+    // Click on Classrooms view
+    const classroomButton = screen.getByLabelText('Switch to Classrooms view');
+    
+    // Use act() to ensure state updates are processed
+    await act(async () => {
+      classroomButton.click();
+    });
+
+    // Wait for the useEffect to trigger and localStorage to be called
+    await waitFor(() => {
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('timetable_view_mode', 'classroom');
+    });
+
+    // Re-render to simulate the state update
+    rerender(<TimetablePage />);
+
+    // The useTimetable hook should be called with the new view mode
+    // (This would be better tested with actual state changes, but we're testing the integration)
+    expect(useTimetableSpy).toHaveBeenCalled();
   });
 });

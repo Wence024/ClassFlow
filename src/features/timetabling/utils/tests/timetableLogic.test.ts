@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { buildTimetableGrid } from '../timetableLogic';
+import { 
+  buildTimetableGridForClassGroups,
+} from '../timetableLogic';
 
 // --- Mock Data Setup ---
 
@@ -147,16 +149,16 @@ const mockMultiPeriodAssignment: HydratedTimetableAssignment = {
   semester_id: 'sem1',
 };
 
-describe('buildTimetableGrid', () => {
+describe('buildTimetableGridForClassGroups', () => {
   const totalPeriods = 16;
   it('should create an empty grid if no groups are provided', () => {
-    const grid = buildTimetableGrid([], [], totalPeriods);
+    const grid = buildTimetableGridForClassGroups([], [], totalPeriods);
     expect(grid.size).toBe(0);
   });
 
   it('should create a grid with empty rows for all class groups when there are no assignments', () => {
     const groups = [mockGroup1, mockGroup2];
-    const grid = buildTimetableGrid([], groups, totalPeriods);
+    const grid = buildTimetableGridForClassGroups([], groups, totalPeriods);
 
     expect(grid.size).toBe(2);
     expect(grid.has('group1')).toBe(true);
@@ -168,7 +170,7 @@ describe('buildTimetableGrid', () => {
   it('should correctly place single-session assignments into the grid', () => {
     const groups = [mockGroup1, mockGroup2];
     const assignments = [mockAssignment1, mockAssignment2];
-    const grid = buildTimetableGrid(assignments, groups, totalPeriods);
+    const grid = buildTimetableGridForClassGroups(assignments, groups, totalPeriods);
 
     // Expect cell to contain an array with the single session
     expect(grid.get('group1')?.[0]).toEqual([mockClassSession1]);
@@ -181,7 +183,7 @@ describe('buildTimetableGrid', () => {
   it('should handle assignments for groups that might not be in the group list (graceful handling)', () => {
     const groups = [mockGroup1]; // mockGroup2 is not in this list
     const assignments = [mockAssignment1, mockAssignment2];
-    const grid = buildTimetableGrid(assignments, groups, totalPeriods);
+    const grid = buildTimetableGridForClassGroups(assignments, groups, totalPeriods);
 
     expect(grid.size).toBe(1);
     expect(grid.has('group1')).toBe(true);
@@ -193,7 +195,7 @@ describe('buildTimetableGrid', () => {
     const groups = [mockGroup1];
     const assignments = [mockMultiPeriodAssignment];
     const totalPeriods = 10;
-    const grid = buildTimetableGrid(assignments, groups, totalPeriods);
+    const grid = buildTimetableGridForClassGroups(assignments, groups, totalPeriods);
     const group1Row = grid.get('group1');
 
     const expectedCellContent = [mockMultiPeriodSession];
@@ -255,7 +257,7 @@ describe('buildTimetableGrid', () => {
       const groups = [mockGroup1, mockGroup2];
 
       // ACT
-      const grid = buildTimetableGrid(assignments, groups, totalPeriods);
+      const grid = buildTimetableGridForClassGroups(assignments, groups, totalPeriods);
 
       // ASSERT
       const group1Row = grid.get(mockGroup1.id);
@@ -328,7 +330,7 @@ describe('buildTimetableGrid', () => {
       };
 
       // ACT
-      const grid = buildTimetableGrid([assignment1, assignment2], [mockGroup1, mockGroup2], totalPeriods);
+      const grid = buildTimetableGridForClassGroups([assignment1, assignment2], [mockGroup1, mockGroup2], totalPeriods);
 
       // ASSERT
       const group1Cell = grid.get('group1')?.[0];

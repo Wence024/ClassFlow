@@ -177,6 +177,7 @@ Refactor backlogs:
 * [ ] Refactor ClassSessions/Courses - assess if course entity shall be merged with class session entity.
 * [ ] TimetablePage - Replace program.id feedback with program.name/code
 * [ ] [Data Integrity] Harden the database schema by adding ON DELETE RESTRICT constraints to all foreign keys in the class_sessions table + Smart Checks in the App
+* Performance backlog: The conflict checker runs everytime a drag operation starts. Optimization would be nice.
 
 * [ ] Use React Query for usePrograms.ts
 
@@ -184,12 +185,15 @@ Maam Z's Feedback:
 
 * [x] Class merging
   * [x] Requires management of shared classrooms (admin) and instructors (department heads) instead of solely program heads
+  * [ ] Need revision when managers of instructors are department heads: notify them/admin instead?
 
 Sir B's Feedback:
 
 * Approval/Notify feature to Program Head When other program heads assign class sessions from instructors under him?
-  * [ ] Need revision when managers of instructors are department heads: notify them/admin instead?
 * [ ] CSV Import
+
+Sir M's Feedback:
+
 * [ ] Classroom/instructor View
 * [ ] Reports per instructor and class group.
 
@@ -238,10 +242,24 @@ Ponderings:
 * [ ] Adjust type alias for import paths to be cleaner.
 * [ ] Realign the stylings of all pages.
 
+Group mismatch conflict not applicable in classroom and instructor views
+
+* [ ] short-term solution: limit group mismatch conflict only to class group view
+* [ ] long-term solution: make class groups assignment optional in the database and be managed directly in the timetable instead
+* [ ] broader long-term solution: make classrooms and instructors assignment optional and be done in the timetable instead
+
+* [ ] Long-Term Architectural Refactor (V2 Plan)
+  * Redesign the database schema to align with the multi-view feature, thereby simplifying front-end logic, removing technical debt, and improving the overall architecture.
+  * Reason: Database is outdated for multi-view (relying primarily on class-groups in timetable assignments)
+
+* [ ] Remove null usage of department_head except for admin roles.
+* [ ] Adjust type alias for import paths to be cleaner.
+* [ ] Realign the stylings of all pages.
+
 
 Big backlog: security concerns by lovable:
 
-```
+```txt
 Backlogs: A new Lovable ai project where I injected my codebase through github gave this response:
 
 I'll scan the codebase to understand the current state of this college scheduling system and analyze the security implications of the recent authentication changes.
@@ -442,7 +460,3 @@ const validatedData = inviteSchema.parse(body);
 7. Schedule Postgres upgrade
 8. Review and test all RLS policies with different user roles
 9. Add security testing to CI/CD pipeline
-
----
-
-Would you like me to implement any of these recommendations? I can start with Priority 1 items to eliminate the critical security gap with the unused registration code.

@@ -7,6 +7,8 @@ import { LoadingSpinner, CustomTooltip } from '../../../components/ui';
 import * as classSessionsService from '../../classSessions/services/classSessionsService';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import TimetableContext from './components/timetable/TimetableContext';
+import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
+import { ViewSelector } from '../components/ViewSelector';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -29,14 +31,16 @@ interface TooltipState {
  * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
+  const { viewMode, setViewMode } = useTimetableViewMode();
+  
   // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
     queryKey: ['allClassSessions'],
     queryFn: classSessionsService.getAllClassSessions,
   });
 
-  const { timetable, groups, loading: loadingTimetable } = useTimetable();
-  const dnd = useTimetableDnd(allClassSessions);
+  const { timetable, groups, resources, assignments, loading: loadingTimetable } = useTimetable(viewMode);
+  const dnd = useTimetableDnd(allClassSessions, viewMode);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const handleShowTooltip = (content: React.ReactNode, target: HTMLElement) => {
@@ -46,15 +50,14 @@ const TimetablePage: React.FC = () => {
   const handleHideTooltip = () => setTooltip(null);
 
   // Memoized calculation for the sessions to show in the drawer.
+  // Use DB assignments (source of truth) instead of view-dependent grid.
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
-    for (const sessionsInGroup of timetable.values()) {
-      for (const sessionsInCell of sessionsInGroup) {
-        if (sessionsInCell) {
-          for (const session of sessionsInCell) {
-            assignedIds.add(session.id);
-          }
-        }
+    
+    // Extract assigned session IDs from DB assignments (not view grid)
+    for (const assignment of assignments) {
+      if (assignment.class_session?.id) {
+        assignedIds.add(assignment.class_session.id);
       }
     }
 
@@ -73,7 +76,7 @@ const TimetablePage: React.FC = () => {
     });
 
     return validUnassigned;
-  }, [timetable, allClassSessions]);
+  }, [assignments, allClassSessions]);
 
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
@@ -90,16 +93,24 @@ const TimetablePage: React.FC = () => {
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
   return (
-    <div>
+    <div className="relative flex flex-col h-full">
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
-      <main className="flex-1 space-y-6 min-w-0">
+      <div className="flex-1 space-y-6 min-w-0 overflow-auto">
+        <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
+        
         {isInitialLoading ? (
           <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
             <LoadingSpinner size={'lg'} text="Loading Timetable..." />
           </div>
         ) : (
           <TimetableContext.Provider value={contextValue}>
-            <Timetable groups={groups} timetable={timetable} isLoading={loadingTimetable} />
+        <Timetable 
+          viewMode={viewMode}
+          groups={groups} 
+          resources={resources}
+          timetable={timetable} 
+          isLoading={isInitialLoading} 
+        />
             <Drawer
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
@@ -107,7 +118,7 @@ const TimetablePage: React.FC = () => {
             />
           </TimetableContext.Provider>
         )}
-      </main>
+      </div>
     </div>
   );
 };

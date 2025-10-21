@@ -467,8 +467,14 @@ describe('checkConflicts', () => {
   it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
     // ARRANGE: Set up a specific, tricky timetable layout.
     // Session A is at [1, 2], Session B is at [3, 4].
+    // Make sessionB have a different course to prevent merging
     const sessionA = { ...classSession1, id: 'sessionA', program_id: 'mockProgram' };
-    const sessionB = { ...classSession1, id: 'sessionB', program_id: 'mockProgram' };
+    const sessionB = { 
+      ...classSession1, 
+      id: 'sessionB', 
+      program_id: 'mockProgram',
+      course: mockCourse2 // Different course to prevent merging
+    };
 
     const groupSessions = timetable.get(mockGroup1.id)!;
     groupSessions[1] = [sessionA];
@@ -487,7 +493,9 @@ describe('checkConflicts', () => {
       mockSettings,
       mockGroup1.id,
       targetPeriodIndex,
-      [mockProgramCS, mockProgramBus]
+      [mockProgramCS, mockProgramBus],
+      'class-group',
+      true // isMovingSession = true
     );
 
     // ASSERT: The function must detect the conflict and not return an empty string.
@@ -745,7 +753,9 @@ describe('checkConflicts', () => {
         mockSettings,
         mockGroup2.id, // Target group is different from session's group
         5,
-        [mockProgramCS]
+        [mockProgramCS],
+        'class-group',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -779,12 +789,241 @@ describe('checkConflicts', () => {
         mockSettings,
         mockGroup1.id, // Target group is the same as session's group
         5,
-        [mockProgramCS]
+        [mockProgramCS],
+        'class-group',
+        true // This is a move operation
       );
 
       // ASSERT
       // Should not contain group mismatch error (may contain other conflicts, but not group mismatch)
       expect(result).not.toContain('Group mismatch');
+    });
+  });
+
+  describe('View-Specific Resource Mismatch Detection', () => {
+    it('should return classroom mismatch error in classroom view when moving to different classroom row', () => {
+      // ARRANGE
+      const sessionWithClassroom1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockClassroom1.id, new Array(40).fill(null));
+      timetable.set(mockClassroom2.id, new Array(40).fill(null));
+
+      // ACT
+      // Try to move a session from Classroom 1's row to Classroom 2's row in classroom view
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionWithClassroom1,
+        mockSettings,
+        mockClassroom2.id, // Target is different classroom
+        5,
+        [mockProgramCS],
+        'classroom',
+        true // This is a move operation
+      );
+
+      // ASSERT
+      expect(result).toContain('Classroom mismatch');
+      expect(result).toContain('Cannot move session using classroom');
+      expect(result).toContain(mockClassroom1.name);
+    });
+
+    it('should return instructor mismatch error in instructor view when moving to different instructor row', () => {
+      // ARRANGE
+      const sessionWithInstructor1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockInstructor1.id, new Array(40).fill(null));
+      timetable.set(mockInstructor2.id, new Array(40).fill(null));
+
+      // ACT
+      // Try to move a session from Instructor 1's row to Instructor 2's row in instructor view
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionWithInstructor1,
+        mockSettings,
+        mockInstructor2.id, // Target is different instructor
+        5,
+        [mockProgramCS],
+        'instructor',
+        true // This is a move operation
+      );
+
+      // ASSERT
+      expect(result).toContain('Instructor mismatch');
+      expect(result).toContain('Cannot move session taught by');
+      expect(result).toContain(mockInstructor1.first_name);
+      expect(result).toContain(mockInstructor1.last_name);
+    });
+
+    it('should allow moving within same classroom row in classroom view', () => {
+      // ARRANGE
+      const sessionWithClassroom1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockClassroom1.id, new Array(40).fill(null));
+
+      // ACT
+      // Move within the same classroom row
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionWithClassroom1,
+        mockSettings,
+        mockClassroom1.id, // Same classroom
+        5,
+        [mockProgramCS],
+        'classroom',
+        true // This is a move operation
+      );
+
+      // ASSERT
+      expect(result).not.toContain('Classroom mismatch');
+    });
+
+    it('should allow moving within same instructor row in instructor view', () => {
+      // ARRANGE
+      const sessionWithInstructor1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockInstructor1.id, new Array(40).fill(null));
+
+      // ACT
+      // Move within the same instructor row
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionWithInstructor1,
+        mockSettings,
+        mockInstructor1.id, // Same instructor
+        5,
+        [mockProgramCS],
+        'instructor',
+        true // This is a move operation
+      );
+
+      // ASSERT
+      expect(result).not.toContain('Instructor mismatch');
+    });
+
+    it('should use class-group validation as default when viewMode is not specified', () => {
+      // ARRANGE
+      const sessionForGroup1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockGroup1.id, new Array(40).fill(null));
+      timetable.set(mockGroup2.id, new Array(40).fill(null));
+
+      // ACT
+      // Call without viewMode (should default to 'class-group')
+      const result = checkTimetableConflicts(
+        timetable,
+        sessionForGroup1,
+        mockSettings,
+        mockGroup2.id,
+        5,
+        [mockProgramCS],
+        undefined, // No viewMode parameter
+        true // This is a move operation
+      );
+
+      // ASSERT
+      expect(result).toContain('Group mismatch');
+    });
+
+    it('should allow assigning sessions from drawer to any row in classroom/instructor views', () => {
+      // ARRANGE
+      // Session has classroom1, but we're assigning (not moving) to classroom2's row
+      const sessionWithClassroom1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockClassroom1.id, new Array(40).fill(null));
+      timetable.set(mockClassroom2.id, new Array(40).fill(null));
+
+      // ACT - Drawer assignment (isMovingSession = false) to different classroom row
+      const resultClassroom = checkTimetableConflicts(
+        timetable,
+        sessionWithClassroom1,
+        mockSettings,
+        mockClassroom2.id, // Different classroom than session's classroom
+        5,
+        [mockProgramCS],
+        'classroom',
+        false // This is an assignment from drawer, not a move
+      );
+
+      // Test instructor view as well
+      const timetableInstructor = new Map();
+      timetableInstructor.set(mockInstructor1.id, new Array(40).fill(null));
+      timetableInstructor.set(mockInstructor2.id, new Array(40).fill(null));
+
+      const resultInstructor = checkTimetableConflicts(
+        timetableInstructor,
+        sessionWithClassroom1,
+        mockSettings,
+        mockInstructor2.id, // Different instructor than session's instructor
+        5,
+        [mockProgramCS],
+        'instructor',
+        false // This is an assignment from drawer, not a move
+      );
+
+      // ASSERT
+      // When assigning from drawer, resource mismatch checks should NOT apply
+      expect(resultClassroom).not.toContain('Classroom mismatch');
+      expect(resultInstructor).not.toContain('Instructor mismatch');
     });
   });
 

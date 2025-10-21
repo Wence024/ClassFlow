@@ -174,20 +174,19 @@ describe('TimetableService', () => {
   });
 
   describe('moveSessionInTimetable', () => {
-    test('should remove then assign new session with version', async () => {
-      mockSupabaseQueryBuilder.delete.mockReturnThis();
-
-      // Three eqs for the remove (class_group_id, period_index, semester_id)
-      mockSupabaseQueryBuilder.eq
-        .mockReturnValueOnce(mockSupabaseQueryBuilder)
-        .mockReturnValueOnce(mockSupabaseQueryBuilder)
-        .mockResolvedValueOnce({ error: null }); // final .eq() resolves the delete
-
-      // Mock for the assign operation
+    test('should upsert new assignment first, then remove old one (safer order)', async () => {
+      // Mock for the upsert operation (happens first)
       mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
         data: mockAssignmentWithId,
         error: null,
       });
+
+      // Mock for the delete operation (happens second)
+      mockSupabaseQueryBuilder.delete.mockReturnThis();
+      mockSupabaseQueryBuilder.eq
+        .mockReturnValueOnce(mockSupabaseQueryBuilder)
+        .mockReturnValueOnce(mockSupabaseQueryBuilder)
+        .mockResolvedValueOnce({ error: null }); // final .eq() resolves the delete
 
       const result = await moveClassSessionInTimetable(
         { class_group_id: 'A', period_index: 1 },
@@ -195,19 +194,23 @@ describe('TimetableService', () => {
         mockAssignmentInput
       );
 
-      // Check that the assign function was called correctly
+      // Check that upsert was called first
       expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
         onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
+      
+      // Check that delete was called with the 'from' location
+      expect(mockSupabaseQueryBuilder.delete).toHaveBeenCalled();
+      
       expect(result).toEqual(mockAssignmentWithId);
     });
 
-    test('should throw if delete fails', async () => {
-      mockSupabaseQueryBuilder.delete.mockReturnThis();
-      mockSupabaseQueryBuilder.eq
-        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
-        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
-        .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
+    test('should throw if upsert fails (before delete is attempted)', async () => {
+      // Mock for the upsert operation to fail
+      mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
+        data: null,
+        error: { message: 'upsert failed' },
+      });
 
       await expect(
         moveClassSessionInTimetable(
@@ -215,7 +218,33 @@ describe('TimetableService', () => {
           { class_group_id: 'B', period_index: 2 },
           mockAssignmentInput
         )
-      ).rejects.toThrow('fail');
+      ).rejects.toThrow('upsert failed');
+      
+      // Delete should not have been called since upsert failed
+      expect(mockSupabaseQueryBuilder.delete).not.toHaveBeenCalled();
+    });
+
+    test('should throw if delete fails after successful upsert', async () => {
+      // Mock successful upsert
+      mockSupabaseQueryBuilder.single.mockResolvedValueOnce({
+        data: mockAssignmentWithId,
+        error: null,
+      });
+
+      // Mock failed delete
+      mockSupabaseQueryBuilder.delete.mockReturnThis();
+      mockSupabaseQueryBuilder.eq
+        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
+        .mockImplementationOnce(() => mockSupabaseQueryBuilder)
+        .mockImplementationOnce(() => Promise.resolve({ error: { message: 'delete failed' } }));
+
+      await expect(
+        moveClassSessionInTimetable(
+          { class_group_id: 'A', period_index: 1 },
+          { class_group_id: 'B', period_index: 2 },
+          mockAssignmentInput
+        )
+      ).rejects.toThrow('delete failed');
     });
   });
 });
