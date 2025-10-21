@@ -222,7 +222,7 @@ function checkRowConflicts(
       if (sessionInSlot.id !== sessionToCheck.id) {
         // Allow merging: sessions with same course, instructor, and classroom can coexist
         const isMergeable = 
-          sessionInSlot.course.id === sessionToCheck.course.id &&
+          sessionInSlot.course.code === sessionToCheck.course.code &&
           sessionInSlot.instructor.id === sessionToCheck.instructor.id &&
           sessionInSlot.classroom.id === sessionToCheck.classroom.id;
         
