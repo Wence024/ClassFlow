@@ -133,7 +133,8 @@ function getResourceLabel(viewMode: TimetableViewMode, resource: TimetableRowRes
   switch (viewMode) {
     case 'classroom': {
       const classroom = resource as Classroom;
-      return `${classroom.name}${classroom.capacity ? ` (${classroom.capacity})` : ''}`;
+      const capacityInfo = classroom.capacity ? ` (${classroom.capacity})` : '';
+      return `${classroom.name}${capacityInfo}`;
     }
     case 'instructor': {
       const instructor = resource as Instructor;
@@ -170,13 +171,12 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
   periodsPerDay,
   totalPeriods,
 }) => {
-  const cells = [];
   const rowData = timetable.get(resource.id) || [];
   const renderedPeriods = new Set<number>();
 
-  for (let periodIndex = 0; periodIndex < totalPeriods; periodIndex++) {
+  const renderCellForPeriod = (periodIndex: number) => {
     if (renderedPeriods.has(periodIndex)) {
-      continue;
+      return null;
     }
 
     const sessionsInCell = rowData[periodIndex];
@@ -185,33 +185,29 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
       const primarySession = sessionsInCell[0];
       const numberOfPeriods = primarySession.period_count || 1;
 
-      // In class-group view, skip sessions not belonging to this group
       if (viewMode === 'class-group') {
         const group = resource as ClassGroup;
         if (primarySession.group.id !== group.id) {
           markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
-          continue;
+          return null; // Skip rendering
         }
       }
 
       markPeriodsAsRendered(renderedPeriods, periodIndex, numberOfPeriods);
-      cells.push(
-        renderSessionCell(
-          sessionsInCell,
-          resource,
-          periodIndex,
-          periodsPerDay,
-          totalPeriods,
-          viewMode
-        )
+      return renderSessionCell(
+        sessionsInCell,
+        resource,
+        periodIndex,
+        periodsPerDay,
+        totalPeriods,
+        viewMode
       );
     } else {
-      cells.push(
-        renderEmptyCell(resource as ClassGroup, periodIndex, periodsPerDay, totalPeriods)
-      );
+      return renderEmptyCell(resource as ClassGroup, periodIndex, periodsPerDay, totalPeriods);
     }
-  }
+  };
 
+  const cells = Array.from({ length: totalPeriods }, (_, i) => renderCellForPeriod(i));
   const resourceLabel = getResourceLabel(viewMode, resource);
 
   return (
