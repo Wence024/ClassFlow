@@ -379,9 +379,9 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isDragging = activeDraggedSession !== null;
   const numberOfPeriods = primarySession.period_count || 1;
 
-  // The first session in the array is always the one belonging to this row's group
-  const ownSession = sessions[0];
-  const isOwnSession = !!user?.program_id && ownSession.program_id === user.program_id;
+  // In merged sessions, find the session belonging to the current user's program
+  const ownSession = sessions.find((s) => s.program_id === user?.program_id);
+  const isOwnSession = !!ownSession;
 
   const cellStyle = isOwnSession
     ? createCellBackground(sessions, isDraggedSession)
@@ -405,7 +405,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
           className="relative w-full h-full"
           draggable={isOwnSession}
           onDragStart={(e) => {
-            if (isOwnSession) {
+            if (isOwnSession && ownSession) {
               handleDragStart(e, {
                 from: 'timetable',
                 class_session_id: ownSession.id,
