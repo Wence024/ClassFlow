@@ -25,6 +25,7 @@ import {
   useClassrooms,
   useInstructors,
 } from '../../classSessionComponents/hooks';
+import { usePrograms } from '../../programs/hooks/usePrograms';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
@@ -53,6 +54,7 @@ const ClassSessionsPage: React.FC = () => {
   const { classGroups, isLoading: groupsLoading } = useClassGroups();
   const { classrooms, isLoading: classroomsLoading } = useClassrooms();
   const { instructors, isLoading: instructorsLoading } = useInstructors();
+  const { listQuery: programsQuery } = usePrograms();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<ClassSession | null>(null);
@@ -67,6 +69,7 @@ const ClassSessionsPage: React.FC = () => {
       classroom_id: '',
       instructor_id: '',
       period_count: 1,
+      program_id: '',
     },
   });
 
@@ -77,8 +80,8 @@ const ClassSessionsPage: React.FC = () => {
         instructor_id: editingSession.instructor.id,
         class_group_id: editingSession.group.id,
         classroom_id: editingSession.classroom.id,
-        // FIXED: Corrected property name from periodCount to period_count
         period_count: editingSession.period_count ?? 1,
+        program_id: editingSession.program_id || '',
       });
     } else {
       // Reset to default values when not editing
@@ -88,9 +91,10 @@ const ClassSessionsPage: React.FC = () => {
         class_group_id: '',
         classroom_id: '',
         period_count: 1,
+        program_id: user?.program_id || '',
       });
     }
-  }, [editingSession, formMethods]);
+  }, [editingSession, formMethods, user]);
 
   // NEW: Memoize the filtered list to avoid re-calculating on every render
   const filteredClassSessions = useMemo(() => {
@@ -106,7 +110,9 @@ const ClassSessionsPage: React.FC = () => {
 
   const handleAdd = async (data: ClassSessionFormData) => {
     if (!user) return;
-    await addClassSession({ ...data, user_id: user.id });
+    // Use program_id from form if provided (admin), otherwise use user's program_id
+    const program_id = data.program_id || user.program_id || null;
+    await addClassSession({ ...data, user_id: user.id, program_id });
     formMethods.reset();
     toast('Success', { description: 'Class session created successfully!' });
   };
@@ -138,7 +144,8 @@ const ClassSessionsPage: React.FC = () => {
     coursesLoading ||
     groupsLoading ||
     classroomsLoading ||
-    instructorsLoading;
+    instructorsLoading ||
+    programsQuery.isLoading;
 
   return (
     <>
@@ -155,6 +162,7 @@ const ClassSessionsPage: React.FC = () => {
               classGroups={classGroups}
               instructors={instructors}
               classrooms={classrooms}
+              programs={programsQuery.data || []}
               isEditing={!!editingSession}
             />
           </FormProvider>

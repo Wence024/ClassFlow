@@ -11,4 +11,5 @@ export const classSessionSchema = z.object({
     })
     .int()
     .min(1, 'Duration must be at least 1 period'),
+  program_id: z.string().optional(),
 });
