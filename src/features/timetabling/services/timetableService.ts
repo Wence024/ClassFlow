@@ -99,7 +99,7 @@ export async function removeClassSessionFromTimetable(
  * This approach (upsert first, delete second) is safer than delete-first because:
  * - If the upsert fails, the original assignment remains intact
  * - If the delete fails, we have a duplicate but the data is preserved
- * - The client can handle duplicate cleanup through refetch/invalidation
+ * - The client can handle duplicate cleanup through refetch/invalidation.
  * 
  * NOTE: This is not fully atomic. A future improvement would be to wrap this in a
  * Postgres function that performs both operations within a single transaction.

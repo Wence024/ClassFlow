@@ -2,16 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import ClassSessionsPage from '../ClassSessionsPage';
 import { AuthProvider } from '../../../auth/contexts/AuthProvider';
 import type { User } from '../../../auth/types/auth';
 
-// Mock the hooks
+
+// --- Mocks ---
 vi.mock('../../../auth/hooks/useAuth');
 vi.mock('../../hooks/useClassSessions');
 vi.mock('../../../classSessionComponents/hooks');
 vi.mock('../../../programs/hooks/usePrograms');
+vi.mock('../../../auth/services/authService');
 
+// --- Mock Data ---
 const mockUser: User = {
   id: 'user1',
   email: 'test@example.com',
@@ -24,71 +28,57 @@ const mockUser: User = {
 
 const mockClassSession = {
   id: 'session1',
-  course: {
-    id: 'course1',
-    name: 'Mathematics 101',
-    code: 'MATH101',
-    created_at: new Date().toISOString(),
-    color: '#db2777',
-    program_id: 'p1',
-    created_by: 'user1',
-  },
-  group: {
-    id: 'group1',
-    name: 'CS-1A',
-    code: 'CS1A',
-    user_id: 'user1',
-    created_at: new Date().toISOString(),
-    color: '#4f46e5',
-    student_count: 25,
-    program_id: 'p1',
-  },
-  instructor: {
-    id: 'instructor1',
-    first_name: 'John',
-    last_name: 'Doe',
-    email: 'john@example.com',
-    created_at: new Date().toISOString(),
-    code: 'JD',
-    color: '#ca8a04',
-    prefix: 'Dr.',
-    suffix: null,
-    phone: null,
-    contract_type: 'Full-time',
-    created_by: 'user1',
-    department_id: 'd1',
-  },
-  classroom: {
-    id: 'classroom1',
-    name: 'Room 101',
-    location: 'Building A',
-    capacity: 30,
-    created_at: new Date().toISOString(),
-    code: 'R101',
-    color: '#65a30d',
-    created_by: 'user1',
-    preferred_department_id: null,
-  },
+  course: { id: 'course1', name: 'Mathematics 101', code: 'MATH101' },
+  group: { id: 'group1', name: 'CS-1A', code: 'CS1A' },
+  instructor: { id: 'instructor1', first_name: 'John', last_name: 'Doe' },
+  classroom: { id: 'classroom1', name: 'Room 101' },
   period_count: 1,
   program_id: 'p1',
 };
 
+// --- Test Setup ---
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: false, staleTime: Infinity },
+  },
+});
+
 /**
  * Sets up the component with necessary providers and mocked data.
+ *
+ * @param classSessions - The class sessions to be returned by useClassSessions mock.
+ * @param isLoading - The loading state to be returned by useClassSessions mock.
+ * @param error - The error message to be returned by useClassSessions mock.
+ * @returns The rendered component.
  */
-const setupComponent = (
+const setupComponent = async (
   classSessions = [mockClassSession],
   isLoading = false,
   error: string | null = null
 ) => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-    },
-  });
+  const mockAuthService = await import('../../../auth/services/authService');
+  (mockAuthService.getStoredUser as vi.Mock).mockResolvedValue(mockUser);
 
   const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
-  mockUseAuth.mockReturnValue({ user: mockUser, loading: false });
+  mockUseAuth.mockReturnValue({
+    user: mockUser,
+    loading: false,
+    isAdmin: () => false,
+    isDepartmentHead: () => false,
+    isProgramHead: () => true, // The mock user is a program head
+    canManageInstructors: () => false,
+    canManageClassrooms: () => false,
+    canReviewRequestsForDepartment: () => false,
+    canManageInstructorRow: () => false,
+    canManageAssignmentsForProgram: () => true, // program head can manage assignments
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn(),
+    updateMyProfile: vi.fn(),
+    role: 'program_head',
+    departmentId: 'd1',
+    error: null,
+  });
 
   const mockUseClassSessions = vi.mocked(await import('../../hooks/useClassSessions')).useClassSessions;
   mockUseClassSessions.mockReturnValue({
@@ -174,9 +164,11 @@ const setupComponent = (
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ClassSessionsPage />
-      </AuthProvider>
+      <MemoryRouter>
+        <AuthProvider>
+          <ClassSessionsPage />
+        </AuthProvider>
+      </MemoryRouter>
     </QueryClientProvider>
   );
 };
@@ -187,24 +179,22 @@ describe('ClassSessionsPage Integration', () => {
   });
 
   it('should render the page title', async () => {
-    setupComponent();
-    
-    await waitFor(() => {
-      expect(screen.getByText('Classes')).toBeInTheDocument();
-    });
+    await setupComponent();
+    const title = await screen.findByText('Classes');
+    expect(title).toBeInTheDocument();
   });
 
   it('should display loading spinner when data is loading', async () => {
-    setupComponent([], true);
+    await setupComponent([], true);
 
     await waitFor(() => {
       expect(screen.getByText(/loading classes/i)).toBeInTheDocument();
     });
   });
 
-  it('should display error message when there is an error', async () => {
+  it('should display error message when fetching fails', async () => {
     const errorMessage = 'Failed to load class sessions';
-    setupComponent([], false, errorMessage);
+    await setupComponent([], false, errorMessage);
 
     await waitFor(() => {
       expect(screen.getByText(errorMessage)).toBeInTheDocument();
@@ -212,7 +202,7 @@ describe('ClassSessionsPage Integration', () => {
   });
 
   it('should display "No classes created yet" message when no sessions exist', async () => {
-    setupComponent([]);
+    await setupComponent([]);
 
     await waitFor(() => {
       expect(screen.getByText('No classes created yet.')).toBeInTheDocument();
@@ -220,19 +210,19 @@ describe('ClassSessionsPage Integration', () => {
   });
 
   it('should display class session cards when sessions exist', async () => {
-    setupComponent();
+    await setupComponent();
 
-    await waitFor(() => {
-      expect(screen.getByText('MATH101')).toBeInTheDocument();
-      expect(screen.getByText('Mathematics 101')).toBeInTheDocument();
-    });
+    await waitFor(async () => {
+      expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
+      expect(await screen.findByText(/Mathematics 101 - CS-1A/i)).toBeInTheDocument();
+    }, { timeout: 5000 });
   });
 
   it('should render the class session form', async () => {
-    setupComponent();
+    await setupComponent();
 
     await waitFor(() => {
-      expect(screen.getByText(/course/i)).toBeInTheDocument();
+      expect(screen.getByText(/course/i, { selector: 'label' })).toBeInTheDocument();
     });
   });
 
@@ -252,19 +242,19 @@ describe('ClassSessionsPage Integration', () => {
       },
     ];
 
-    setupComponent(sessions);
+    await setupComponent(sessions);
 
-    await waitFor(() => {
-      expect(screen.getByText('MATH101')).toBeInTheDocument();
-      expect(screen.getByText('PHYS101')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
+      expect(await screen.findByText(/PHYS101/i, { selector: 'p' })).toBeInTheDocument();
     });
 
     const searchInput = screen.getByPlaceholderText(/search by course or class group/i);
     await user.type(searchInput, 'Math');
 
-    await waitFor(() => {
-      expect(screen.getByText('MATH101')).toBeInTheDocument();
-      expect(screen.queryByText('PHYS101')).not.toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
+      expect(screen.queryByText(/PHYS101/i, { selector: 'p' })).not.toBeInTheDocument();
     });
   });
 
@@ -284,29 +274,29 @@ describe('ClassSessionsPage Integration', () => {
       },
     ];
 
-    setupComponent(sessions);
+    await setupComponent(sessions);
 
     const searchInput = screen.getByPlaceholderText(/search by course or class group/i);
     await user.type(searchInput, 'Math');
 
     await waitFor(() => {
-      expect(screen.queryByText('PHYS101')).not.toBeInTheDocument();
+      expect(screen.queryByText(/PHYS101/i, { selector: 'p' })).not.toBeInTheDocument();
     });
 
     await user.clear(searchInput);
 
-    await waitFor(() => {
-      expect(screen.getByText('MATH101')).toBeInTheDocument();
-      expect(screen.getByText('PHYS101')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
+      expect(await screen.findByText(/PHYS101/i, { selector: 'p' })).toBeInTheDocument();
     });
   });
 
   it('should handle edit button click', async () => {
     const user = userEvent.setup();
-    setupComponent();
+    await setupComponent();
 
-    await waitFor(() => {
-      expect(screen.getByText('MATH101')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
     });
 
     const editButtons = screen.getAllByRole('button', { name: /edit/i });

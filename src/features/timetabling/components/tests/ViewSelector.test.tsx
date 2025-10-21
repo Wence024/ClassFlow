@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { ViewSelector } from '../ViewSelector';
-import type { TimetableViewMode } from '../../types/timetable';
+
 
 describe('ViewSelector', () => {
   it('should render all three view options', () => {

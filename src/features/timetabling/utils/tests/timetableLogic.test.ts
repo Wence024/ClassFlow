@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { 
-  buildTimetableGrid, 
   buildTimetableGridForClassGroups,
-  buildTimetableGridForClassrooms,
-  buildTimetableGridForInstructors
 } from '../timetableLogic';
 
 // --- Mock Data Setup ---

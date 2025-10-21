@@ -337,6 +337,7 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
  * @param sc.periodIndex - The index of the period.
  * @param sc.isLastInDay - Whether this is the last period in the day.
  * @param sc.isNotLastInTable - Whether this is not the last period in the table.
+ * @param sc.viewMode - The current timetable view mode.
  * @returns The JSX element for the session cell.
  */
 const SessionCell: React.FC<SessionCellProps> = ({

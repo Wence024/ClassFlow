@@ -265,7 +265,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         return;
       }
 
-      // TODO: TEMPORARY VALIDATION - Remove when implementing direct resource reassignment via timetable
+      // TEMPORARY VALIDATION - Remove when implementing direct resource reassignment via timetable
       // Future enhancement: Allow users to change classroom/instructor assignments by dragging to different rows
       // For now, enforce that moves can only happen within the same resource row
       if (source.from === 'timetable') {

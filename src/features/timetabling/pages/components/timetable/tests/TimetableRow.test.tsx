@@ -1,7 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import TimetableRow from '../TimetableRow';
-import { TimetableContext } from '../TimetableContext';
+import TimetableContext from '../TimetableContext';
+import { AuthProvider } from '../../../../../auth/contexts/AuthProvider';
 import type { ClassGroup, Classroom, Instructor } from '../../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../../classSessions/types/classSession';
 import type { Course } from '../../../../../classSessionComponents/types/course';
@@ -71,6 +74,13 @@ const mockSession: ClassSession = {
 
 /**
  * Renders TimetableRow with TimetableContext provider.
+ *
+ * @param viewMode - The current view mode.
+ * @param resource - The resource (group, classroom, or instructor).
+ * @param timetable - The timetable data.
+ * @param periodsPerDay - The number of periods per day.
+ * @param totalPeriods - The total number of periods.
+ * @returns The rendered component.
  */
 const renderWithContext = (
   viewMode: TimetableViewMode,
@@ -79,20 +89,45 @@ const renderWithContext = (
   periodsPerDay = 4,
   totalPeriods = 16
 ) => {
+  const mockContextValue = {
+    dragOverCell: null,
+    activeDraggedSession: null,
+    isSlotAvailable: vi.fn(() => true),
+    handleDragStart: vi.fn(),
+    handleDropToGrid: vi.fn(),
+    handleDragEnter: vi.fn(),
+    handleDragLeave: vi.fn(),
+    handleDragOver: vi.fn(),
+    onShowTooltip: vi.fn(),
+    onHideTooltip: vi.fn(),
+  };
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, staleTime: Infinity },
+    },
+  });
+
   return render(
-    <TimetableContext.Provider value={{ periodsPerDay }}>
-      <table>
-        <tbody>
-          <TimetableRow
-            viewMode={viewMode}
-            resource={resource}
-            timetable={timetable}
-            periodsPerDay={periodsPerDay}
-            totalPeriods={totalPeriods}
-          />
-        </tbody>
-      </table>
-    </TimetableContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <AuthProvider>
+          <TimetableContext.Provider value={mockContextValue}>
+            <table>
+              <tbody>
+                <TimetableRow
+                  viewMode={viewMode}
+                  resource={resource}
+                  timetable={timetable}
+                  periodsPerDay={periodsPerDay}
+                  totalPeriods={totalPeriods}
+                />
+              </tbody>
+            </table>
+          </TimetableContext.Provider>
+        </AuthProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 };
 

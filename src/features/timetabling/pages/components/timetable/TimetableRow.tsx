@@ -138,7 +138,10 @@ function getResourceLabel(viewMode: TimetableViewMode, resource: TimetableRowRes
     case 'instructor': {
       const instructor = resource as Instructor;
       const fullName = `${instructor.prefix || ''} ${instructor.first_name} ${instructor.last_name} ${instructor.suffix || ''}`.trim();
-      return instructor.contract_type ? `${fullName} (${instructor.contract_type})` : fullName;
+      if (instructor.contract_type) {
+        return `${fullName} (${instructor.contract_type})`;
+      }
+      return fullName;
     }
     case 'class-group':
     default: {
