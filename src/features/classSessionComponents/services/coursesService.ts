@@ -9,12 +9,29 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
 const TABLE = 'courses';
 
 /**
- * Fetches all courses from the database.
+ * Fetches all courses for a specific program from the database.
  *
+ * @param program_id - The ID of the program whose courses to retrieve.
  * @returns A promise that resolves to an array of Course objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getCourses(): Promise<Course[]> {
+export async function getCoursesByProgram(program_id: string): Promise<Course[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('program_id', program_id)
+    .order('name');
+  if (error) throw error;
+  return data || [];
+}
+
+/**
+ * Fetches ALL courses from the database, regardless of program.
+ * This is used for the shared timetable view.
+ *
+ * @returns A promise that resolves to an array of all Course objects.
+ */
+export async function getAllCourses(): Promise<Course[]> {
   const { data, error } = await supabase.from(TABLE).select('*').order('name');
   if (error) throw error;
   return data || [];
