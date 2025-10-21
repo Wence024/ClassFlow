@@ -220,7 +220,15 @@ function checkRowConflicts(
     // Check if there's a different session already in this period
     for (const sessionInSlot of sessionsInSlot) {
       if (sessionInSlot.id !== sessionToCheck.id) {
-        return `${resourceType} conflict: Period ${periodIndex + 1} is already occupied by class '${sessionInSlot.course.code}' for group '${sessionInSlot.group.name}'.`;
+        // Allow merging: sessions with same course, instructor, and classroom can coexist
+        const isMergeable = 
+          sessionInSlot.course.id === sessionToCheck.course.id &&
+          sessionInSlot.instructor.id === sessionToCheck.instructor.id &&
+          sessionInSlot.classroom.id === sessionToCheck.classroom.id;
+        
+        if (!isMergeable) {
+          return `${resourceType} conflict: Period ${periodIndex + 1} is already occupied by class '${sessionInSlot.course.code}' for group '${sessionInSlot.group.name}'.`;
+        }
       }
     }
   }
