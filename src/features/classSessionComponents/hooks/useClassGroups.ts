@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as classGroupsService from '../services/classGroupsService';
 import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/classGroup';
@@ -65,6 +66,17 @@ export function useClassGroups() {
   const removeMutation = useMutation({
     mutationFn: (id: string) => classGroupsService.removeClassGroup(id, user!.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onError: (error: Error) => {
+      if (error.message.includes('foreign key') || error.message.includes('violates')) {
+        toast.error('Cannot delete class group', {
+          description: 'This class group is being used in class sessions or timetable assignments and cannot be deleted.',
+        });
+      } else {
+        toast.error('Failed to delete class group', {
+          description: error.message,
+        });
+      }
+    },
   });
 
   return {

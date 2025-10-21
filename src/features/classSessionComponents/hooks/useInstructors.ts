@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as instructorsService from '../services/instructorsService';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
@@ -45,6 +46,17 @@ export function useInstructors() {
   const removeMutation = useMutation({
     mutationFn: (id: string) => instructorsService.removeInstructor(id, user!.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onError: (error: Error) => {
+      if (error.message.includes('foreign key') || error.message.includes('violates')) {
+        toast.error('Cannot delete instructor', {
+          description: 'This instructor is assigned to class sessions and cannot be deleted.',
+        });
+      } else {
+        toast.error('Failed to delete instructor', {
+          description: error.message,
+        });
+      }
+    },
   });
 
   return {

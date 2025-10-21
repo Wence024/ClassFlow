@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
+import { toast } from 'sonner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as classroomsService from '../services/classroomsService';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
@@ -56,6 +57,17 @@ export function useClassrooms() {
   const removeMutation = useMutation({
     mutationFn: (id: string) => classroomsService.removeClassroom(id, user!.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onError: (error: Error) => {
+      if (error.message.includes('foreign key') || error.message.includes('violates')) {
+        toast.error('Cannot delete classroom', {
+          description: 'This classroom is being used in class sessions and cannot be deleted.',
+        });
+      } else {
+        toast.error('Failed to delete classroom', {
+          description: error.message,
+        });
+      }
+    },
   });
 
   return {
