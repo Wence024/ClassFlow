@@ -501,25 +501,23 @@ export default function checkTimetableConflicts(
     return resourceMismatchError;
   }
 
-  // Only check group conflicts in class-group view
-  // In other views (classroom, instructor), the row represents a different resource
-  if (viewMode === 'class-group') {
-    const groupError = checkGroupConflicts(
-      timetable,
-      classSessionToCheck,
-      targetGroupId,
-      targetPeriodIndex
-    );
-    if (groupError) {
-      console.error('[checkConflicts] group conflict', {
-        viewMode,
-        error: groupError,
-        targetId: targetGroupId,
-        targetPeriodIndex,
-        sessionId: classSessionToCheck.id,
-      });
-      return groupError;
-    }
+  // Always check group conflicts (double-booking within the same class group)
+  // Use the session's actual group ID, not the targetResourceId which varies by view
+  const groupError = checkGroupConflicts(
+    timetable,
+    classSessionToCheck,
+    classSessionToCheck.group.id,
+    targetPeriodIndex
+  );
+  if (groupError) {
+    console.error('[checkConflicts] group conflict', {
+      viewMode,
+      error: groupError,
+      groupId: classSessionToCheck.group.id,
+      targetPeriodIndex,
+      sessionId: classSessionToCheck.id,
+    });
+    return groupError;
   }
 
   // --- Standard Resource Conflict Check ---
