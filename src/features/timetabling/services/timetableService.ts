@@ -56,13 +56,13 @@ export async function getTimetableAssignments(
  * @returns The upserted timetable assignment object.
  */
 export async function assignClassSessionToTimetable(
-  assignment: TimetableAssignmentInsert // This type already allows semester_id
+  assignment: TimetableAssignmentInsert,
+  status: 'pending' | 'confirmed' = 'confirmed'
 ): Promise<TimetableAssignment> {
-  // The logic here doesn't need to change, as long as the incoming
-  // 'assignment' object contains the semester_id.
+  const assignmentWithStatus = { ...assignment, status };
   const { data, error } = await supabase
     .from('timetable_assignments')
-    .upsert([assignment], { onConflict: 'user_id,class_group_id,period_index,semester_id' }) // IMPORTANT: Add semester_id to the conflict check
+    .upsert([assignmentWithStatus], { onConflict: 'user_id,class_group_id,period_index,semester_id' })
     .select('*')
     .single();
   if (error) throw error;

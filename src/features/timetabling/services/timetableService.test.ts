@@ -78,8 +78,8 @@ describe('TimetableService', () => {
 
       const result = await assignClassSessionToTimetable(mockAssignmentInput);
 
-      // Test that the raw input is passed directly to upsert
-      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
+      // Test that the raw input is passed directly to upsert with status field
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([{ ...mockAssignmentInput, status: 'confirmed' }], {
         onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
       expect(result).toEqual(mockAssignmentWithId);
@@ -102,7 +102,7 @@ describe('TimetableService', () => {
 
       await assignClassSessionToTimetable(mockAssignmentInput);
 
-      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([{ ...mockAssignmentInput, status: 'confirmed' }], {
         onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
     });
@@ -195,7 +195,7 @@ describe('TimetableService', () => {
       );
 
       // Check that upsert was called first
-      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([mockAssignmentInput], {
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([{ ...mockAssignmentInput, status: 'confirmed' }], {
         onConflict: 'user_id,class_group_id,period_index,semester_id',
       });
       

@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 // Import hooks for fetching data
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useClassSessions } from '../hooks/useClassSessions';
+import { useClassSessions, checkCrossDepartmentResources } from '../hooks/useClassSessions';
 
 // FIXED: Corrected import paths for the refactored components
 import { ClassSessionForm } from './components/classSession';
@@ -26,6 +26,10 @@ import {
   useAllInstructors,
 } from '../../classSessionComponents/hooks';
 import { usePrograms } from '../../programs/hooks/usePrograms';
+import { useDepartments } from '../../departments/hooks/useDepartments';
+import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
+import * as timetableService from '../../timetabling/services/timetableService';
+import * as resourceRequestService from '../../resourceRequests/services/resourceRequestService';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
@@ -59,6 +63,17 @@ const ClassSessionsPage: React.FC = () => {
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
   const [sessionToDelete, setSessionToDelete] = useState<ClassSession | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
+  const [crossDeptInfo, setCrossDeptInfo] = useState<{
+    resourceType: 'instructor' | 'classroom' | null;
+    resourceId: string | null;
+    departmentId: string | null;
+    resourceName: string;
+  } | null>(null);
+  const [pendingFormData, setPendingFormData] = useState<ClassSessionFormData | null>(null);
+
+  const { listQuery: deptQuery } = useDepartments();
+  const departments = useMemo(() => deptQuery.data || [], [deptQuery.data]);
+  const { data: activeSemester } = useActiveSemester();
 
   // Form management is now handled here, at the page level
   const formMethods = useForm<ClassSessionFormData>({
@@ -109,12 +124,78 @@ const ClassSessionsPage: React.FC = () => {
   }, [classSessions, searchTerm]);
 
   const handleAdd = async (data: ClassSessionFormData) => {
-    if (!user) return;
+    if (!user || !user.program_id) return;
+
+    // Check for cross-department resources
+    const crossDeptCheck = await checkCrossDepartmentResources(data, user.program_id);
+
+    if (crossDeptCheck.isCrossDept) {
+      // Fetch resource name
+      let resourceName = 'Unknown';
+      if (crossDeptCheck.resourceType === 'instructor') {
+        const instructor = instructors.find((i) => i.id === crossDeptCheck.resourceId);
+        if (instructor) resourceName = `${instructor.first_name} ${instructor.last_name}`;
+      } else if (crossDeptCheck.resourceType === 'classroom') {
+        const classroom = classrooms.find((c) => c.id === crossDeptCheck.resourceId);
+        if (classroom) resourceName = classroom.name;
+      }
+
+      // Show confirmation modal
+      setCrossDeptInfo({
+        resourceType: crossDeptCheck.resourceType,
+        resourceId: crossDeptCheck.resourceId,
+        departmentId: crossDeptCheck.departmentId,
+        resourceName,
+      });
+      setPendingFormData(data);
+      return;
+    }
+
+    // Same-department: create normally
     // Use program_id from form if provided (admin), otherwise use user's program_id
     const program_id = data.program_id || user.program_id || null;
     await addClassSession({ ...data, user_id: user.id, program_id });
     formMethods.reset();
-    toast('Success', { description: 'Class session created successfully!' });
+    toast.success('Class session created successfully!');
+  };
+
+  const handleConfirmCrossDept = async () => {
+    if (!pendingFormData || !user || !crossDeptInfo || !activeSemester) return;
+
+    try {
+      // 1. Create class session
+      const newSession = await addClassSession({ ...pendingFormData, user_id: user.id });
+
+      // 2. Assign to timetable with 'pending' status (we'll use period 0 as placeholder)
+      await timetableService.assignClassSessionToTimetable(
+        {
+          user_id: user.id,
+          class_session_id: newSession.id,
+          class_group_id: pendingFormData.class_group_id,
+          period_index: 0, // Placeholder period
+          semester_id: activeSemester.id,
+        },
+        'pending'
+      );
+
+      // 3. Create resource request
+      await resourceRequestService.createRequest({
+        requester_id: user.id,
+        requesting_program_id: user.program_id!,
+        resource_type: crossDeptInfo.resourceType!,
+        resource_id: newSession.id, // Store class_session_id here
+        target_department_id: crossDeptInfo.departmentId!,
+        status: 'pending',
+      });
+
+      toast.success('Cross-department request submitted successfully!');
+      formMethods.reset();
+      setCrossDeptInfo(null);
+      setPendingFormData(null);
+    } catch (error) {
+      console.error('Error creating cross-department request:', error);
+      toast.error('Failed to submit request');
+    }
   };
 
   const handleSave = async (data: ClassSessionFormData) => {
@@ -216,6 +297,35 @@ const ClassSessionsPage: React.FC = () => {
       >
         Are you sure you want to delete the class session for "{sessionToDelete?.course?.name} -{' '}
         {sessionToDelete?.group.name}"?
+      </ConfirmModal>
+
+      <ConfirmModal
+        isOpen={!!crossDeptInfo}
+        title="Cross-Department Request Required"
+        onClose={() => {
+          setCrossDeptInfo(null);
+          setPendingFormData(null);
+        }}
+        onConfirm={handleConfirmCrossDept}
+        isLoading={isSubmitting}
+        confirmText="Submit Request"
+      >
+        <div className="space-y-2">
+          <p>
+            The selected {crossDeptInfo?.resourceType} (<strong>{crossDeptInfo?.resourceName}</strong>) belongs to a
+            different department.
+          </p>
+          <p className="text-sm text-gray-600">
+            Submit a request to the{' '}
+            <strong>
+              {departments.find((d) => d.id === crossDeptInfo?.departmentId)?.name || 'department'}
+            </strong>{' '}
+            head for approval?
+          </p>
+          <p className="text-xs text-gray-500">
+            The session will be marked as pending until approved.
+          </p>
+        </div>
       </ConfirmModal>
     </>
   );

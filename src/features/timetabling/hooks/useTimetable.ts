@@ -419,6 +419,17 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */
   const loading = isFetching || !settings;
 
+  /** Set of class session IDs that have pending timetable assignments. */
+  const pendingSessionIds = useMemo(() => {
+    const pending = new Set<string>();
+    assignments.forEach((assignment) => {
+      if ((assignment as any).status === 'pending') {
+        pending.add(assignment.class_session.id);
+      }
+    });
+    return pending;
+  }, [assignments]);
+
   return {
     groups: allClassGroups,
     resources, // Export current resources for multi-view support
@@ -429,5 +440,6 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     moveClassSession,
     loading,
     error: errorAssignments,
+    pendingSessionIds,
   };
 }

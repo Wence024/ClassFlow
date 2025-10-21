@@ -117,3 +117,75 @@ export async function removeClassSession(id: string, user_id: string): Promise<v
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }
+
+/**
+ * Checks if an instructor belongs to a different department than the program.
+ *
+ * @param programId - The ID of the program.
+ * @param instructorId - The ID of the instructor.
+ * @returns A promise resolving to true if cross-department, false otherwise.
+ */
+export async function isCrossDepartmentInstructor(
+  programId: string,
+  instructorId: string
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('is_cross_department_resource' as any, {
+    _program_id: programId,
+    _instructor_id: instructorId,
+    _classroom_id: null,
+  });
+  if (error) throw error;
+  return data as boolean;
+}
+
+/**
+ * Checks if a classroom belongs to a different department than the program.
+ *
+ * @param programId - The ID of the program.
+ * @param classroomId - The ID of the classroom.
+ * @returns A promise resolving to true if cross-department, false otherwise.
+ */
+export async function isCrossDepartmentClassroom(
+  programId: string,
+  classroomId: string
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('is_cross_department_resource' as any, {
+    _program_id: programId,
+    _instructor_id: null,
+    _classroom_id: classroomId,
+  });
+  if (error) throw error;
+  return data as boolean;
+}
+
+/**
+ * Gets the department ID for an instructor or classroom.
+ *
+ * @param instructorId - Optional instructor ID.
+ * @param classroomId - Optional classroom ID.
+ * @returns The department ID or null.
+ */
+export async function getResourceDepartmentId(
+  instructorId?: string,
+  classroomId?: string
+): Promise<string | null> {
+  if (instructorId) {
+    const { data, error } = await supabase
+      .from('instructors')
+      .select('department_id')
+      .eq('id', instructorId)
+      .single();
+    if (error) throw error;
+    return data?.department_id || null;
+  }
+  if (classroomId) {
+    const { data, error } = await supabase
+      .from('classrooms')
+      .select('preferred_department_id')
+      .eq('id', classroomId)
+      .single();
+    if (error) throw error;
+    return data?.preferred_department_id || null;
+  }
+  return null;
+}

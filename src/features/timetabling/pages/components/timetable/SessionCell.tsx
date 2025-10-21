@@ -8,7 +8,7 @@ import {
   getSessionCellTextColor,
 } from '../../../../../lib/colorUtils';
 import { useAuth } from '../../../../auth/hooks/useAuth';
-import { AlertTriangle, Users } from 'lucide-react';
+import { AlertTriangle, Users, Clock } from 'lucide-react';
 import { useMemo } from 'react';
 import { checkCellSoftConflicts } from '../../../utils/checkConflicts';
 
@@ -348,7 +348,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
   isNotLastInTable,
   viewMode,
 }) => {
-  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip } =
+  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip, pendingSessionIds } =
     useTimetableContext();
   const { user } = useAuth();
 
@@ -383,9 +383,12 @@ const SessionCell: React.FC<SessionCellProps> = ({
   // In merged sessions, find the session belonging to the current user's program
   const ownSession = sessions.find((s) => s.program_id === user?.program_id);
   const isOwnSession = !!ownSession;
+  const isPending = pendingSessionIds?.has(primarySession.id) || false;
 
   const cellStyle = isOwnSession
-    ? createCellBackground(sessions, isDraggedSession)
+    ? isPending
+      ? { ...createCellBackground(sessions, isDraggedSession), border: '2px dashed #F59E0B', opacity: 0.7 }
+      : createCellBackground(sessions, isDraggedSession)
     : { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
 
   const textStyle: React.CSSProperties = isOwnSession
@@ -404,9 +407,9 @@ const SessionCell: React.FC<SessionCellProps> = ({
       <div className="h-20">
         <div
           className="relative w-full h-full"
-          draggable={isOwnSession}
+          draggable={isOwnSession && !isPending}
           onDragStart={(e) => {
-            if (isOwnSession && ownSession) {
+            if (isOwnSession && ownSession && !isPending) {
               handleDragStart(e, {
                 from: 'timetable',
                 class_session_id: ownSession.id,
@@ -416,6 +419,11 @@ const SessionCell: React.FC<SessionCellProps> = ({
             }
           }}
         >
+          {isPending && (
+            <div className="absolute top-1 right-1 bg-amber-400 rounded-full p-0.5 z-30">
+              <Clock className="w-3 h-3 text-black" />
+            </div>
+          )}
           <VisibleSessionBlock
             sessions={sessions}
             isOwner={isOwnSession}

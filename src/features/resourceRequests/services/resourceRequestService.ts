@@ -87,3 +87,45 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
   if (error) throw error;
   return data as ResourceRequest;
 }
+
+/**
+ * Fetches a resource request with enriched details (instructor or classroom names).
+ *
+ * @param requestId - The ID of the resource request.
+ * @returns A promise resolving to the enriched resource request.
+ */
+export async function getRequestWithDetails(requestId: string): Promise<ResourceRequest & { resource_name?: string }> {
+  const { data: request, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('id', requestId)
+    .single();
+  
+  if (error) throw error;
+  
+  let resourceName = 'Unknown Resource';
+  
+  if (request.resource_type === 'instructor') {
+    const { data: instructor } = await supabase
+      .from('instructors')
+      .select('first_name, last_name')
+      .eq('id', request.resource_id)
+      .single();
+    
+    if (instructor) {
+      resourceName = `${instructor.first_name} ${instructor.last_name}`;
+    }
+  } else if (request.resource_type === 'classroom') {
+    const { data: classroom } = await supabase
+      .from('classrooms')
+      .select('name')
+      .eq('id', request.resource_id)
+      .single();
+    
+    if (classroom) {
+      resourceName = classroom.name;
+    }
+  }
+  
+  return { ...request, resource_name: resourceName } as ResourceRequest & { resource_name: string };
+}

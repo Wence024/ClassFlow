@@ -39,7 +39,7 @@ const TimetablePage: React.FC = () => {
     queryFn: classSessionsService.getAllClassSessions,
   });
 
-  const { timetable, groups, resources, assignments, loading: loadingTimetable } = useTimetable(viewMode);
+  const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
   const dnd = useTimetableDnd(allClassSessions, viewMode);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -88,6 +88,7 @@ const TimetablePage: React.FC = () => {
     ...dnd,
     onShowTooltip: handleShowTooltip,
     onHideTooltip: handleHideTooltip,
+    pendingSessionIds,
   };
 
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
