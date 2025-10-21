@@ -15,7 +15,7 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
 export function useCourses() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = ['courses', user?.id];
+  const queryKey = ['courses', user?.program_id];
 
   const {
     data: courses = [],
@@ -24,11 +24,8 @@ export function useCourses() {
     error,
   } = useQuery<Course[]>({
     queryKey,
-    queryFn: () =>
-      user
-        ? coursesService.getCourses({ program_id: user.program_id, role: user.role })
-        : Promise.resolve([]),
-    enabled: !!user,
+    queryFn: () => (user?.program_id ? coursesService.getCoursesByProgram(user.program_id) : Promise.resolve([])),
+    enabled: !!user?.program_id,
   });
 
   const addMutation = useMutation({

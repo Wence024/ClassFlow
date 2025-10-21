@@ -33,8 +33,8 @@ export function useClassGroups() {
   const queryClient = useQueryClient();
 
   // The query key is an array that uniquely identifies this query.
-  // It includes the user's ID to ensure data is fetched on a per-user basis.
-  const queryKey = ['classGroups', user?.id];
+  // It includes the program ID to ensure data is fetched on a per-program basis.
+  const queryKey = ['classGroups', user?.program_id];
 
   const {
     data: classGroups = [],
@@ -43,8 +43,8 @@ export function useClassGroups() {
     error,
   } = useQuery<ClassGroup[]>({
     queryKey,
-    queryFn: () => (user ? classGroupsService.getClassGroups(user.id) : Promise.resolve([])),
-    enabled: !!user, // The query will not run until the user object is available.
+    queryFn: () => (user?.program_id ? classGroupsService.getClassGroupsByProgram(user.program_id) : Promise.resolve([])),
+    enabled: !!user?.program_id, // The query will not run until the program_id is available.
   });
 
   // Mutation for adding a new class group.
