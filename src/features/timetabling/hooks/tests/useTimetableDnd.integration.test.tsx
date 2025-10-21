@@ -436,4 +436,143 @@ describe('useTimetableDnd', () => {
     const isAvailable = result.current.isSlotAvailable('i1', 0);
     expect(isAvailable).toBe(true);
   });
+
+  it('should pass correct class_group_id when dropping from drawer in classroom view', async () => {
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'classroom'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'drawer',
+      class_session_id: 's1',
+    };
+
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      dataTransfer: {
+        getData: vi.fn().mockReturnValue(JSON.stringify(dragSource)),
+      },
+    } as unknown as React.DragEvent;
+
+    // Drop onto classroom row 'r1' (UI row ID)
+    await result.current.handleDropToGrid(mockEvent, 'r1', 0);
+
+    await waitFor(() => {
+      // Should call assignClassSession with the session's actual class_group_id, not 'r1'
+      expect(mockTimetableOperations.assignClassSession).toHaveBeenCalledWith(
+        'g1', // session.group.id, not 'r1'
+        0,
+        mockOwnedSession
+      );
+    });
+  });
+
+  it('should pass correct class_group_id when moving within instructor view', async () => {
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'instructor'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'timetable',
+      class_session_id: 's1',
+      class_group_id: 'g1',
+      period_index: 1,
+    };
+
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      dataTransfer: {
+        getData: vi.fn().mockReturnValue(JSON.stringify(dragSource)),
+      },
+    } as unknown as React.DragEvent;
+
+    // Move to different period in instructor row 'i1' (UI row ID)
+    await result.current.handleDropToGrid(mockEvent, 'i1', 3);
+
+    await waitFor(() => {
+      // Should call moveClassSession with the session's actual class_group_id, not 'i1'
+      expect(mockTimetableOperations.moveClassSession).toHaveBeenCalledWith(
+        { class_group_id: 'g1', period_index: 1 },
+        { class_group_id: 'g1', period_index: 3 }, // session.group.id, not 'i1'
+        mockOwnedSession
+      );
+    });
+  });
+
+  it('should handle mutation errors without throwing uncaught promises', async () => {
+    const errorMessage = 'Foreign key constraint violation';
+    mockTimetableOperations.assignClassSession.mockResolvedValue(errorMessage);
+
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'classroom'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'drawer',
+      class_session_id: 's1',
+    };
+
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      dataTransfer: {
+        getData: vi.fn().mockReturnValue(JSON.stringify(dragSource)),
+      },
+    } as unknown as React.DragEvent;
+
+    // This should not throw an uncaught error
+    await expect(async () => {
+      await result.current.handleDropToGrid(mockEvent, 'r1', 0);
+    }).not.toThrow();
+
+    await waitFor(() => {
+      expect(mockTimetableOperations.assignClassSession).toHaveBeenCalled();
+    });
+  });
+
+  it('should detect same cell correctly in classroom view (period-only comparison)', async () => {
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'classroom'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'timetable',
+      class_session_id: 's1',
+      class_group_id: 'g1',
+      period_index: 1,
+    };
+
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      dataTransfer: {
+        getData: vi.fn().mockReturnValue(JSON.stringify(dragSource)),
+      },
+    } as unknown as React.DragEvent;
+
+    // Drop on same period within classroom view (same period = same cell)
+    await result.current.handleDropToGrid(mockEvent, 'r1', 1);
+
+    // Should NOT call moveClassSession (silent abort)
+    expect(mockTimetableOperations.moveClassSession).not.toHaveBeenCalled();
+  });
+
+  it('should detect same cell correctly in instructor view (period-only comparison)', async () => {
+    const { result } = renderHook(() => useTimetableDnd([mockOwnedSession], 'instructor'), { wrapper });
+
+    const dragSource: DragSource = {
+      from: 'timetable',
+      class_session_id: 's1',
+      class_group_id: 'g1',
+      period_index: 2,
+    };
+
+    const mockEvent = {
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+      dataTransfer: {
+        getData: vi.fn().mockReturnValue(JSON.stringify(dragSource)),
+      },
+    } as unknown as React.DragEvent;
+
+    // Drop on same period within instructor view
+    await result.current.handleDropToGrid(mockEvent, 'i1', 2);
+
+    // Should NOT call moveClassSession (silent abort)
+    expect(mockTimetableOperations.moveClassSession).not.toHaveBeenCalled();
+  });
 });
