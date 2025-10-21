@@ -4,7 +4,10 @@ import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import ClassSessionForm from '../classSession/ClassSessionForm';
+import { AuthProvider } from '../../../../auth/contexts/AuthProvider';
 import { classSessionSchema } from '../../../../classSessions/types/validation';
 import type {
   Course,
@@ -107,20 +110,32 @@ const FormWrapper: React.FC<Partial<React.ComponentProps<typeof ClassSessionForm
     },
   });
 
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, staleTime: Infinity },
+    },
+  });
+
   return (
-    <FormProvider {...formMethods}>
-      <ClassSessionForm
-        courses={mockCourses}
-        instructors={mockInstructors}
-        classGroups={mockClassGroups}
-        classrooms={mockClassrooms}
-        formMethods={formMethods}
-        onSubmit={vi.fn()}
-        loading={false}
-        isEditing={false}
-        {...props}
-      />
-    </FormProvider>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <AuthProvider>
+          <FormProvider {...formMethods}>
+            <ClassSessionForm
+              courses={mockCourses}
+              instructors={mockInstructors}
+              classGroups={mockClassGroups}
+              classrooms={mockClassrooms}
+              formMethods={formMethods}
+              onSubmit={vi.fn()}
+              loading={false}
+              isEditing={false}
+              {...props}
+            />
+          </FormProvider>
+        </AuthProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 };
 

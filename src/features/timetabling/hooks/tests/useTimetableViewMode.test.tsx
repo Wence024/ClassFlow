@@ -1,8 +1,30 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useTimetableViewMode } from '../useTimetableViewMode';
 
 const STORAGE_KEY = 'timetable_view_mode';
+
+// Mock localStorage properly
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value.toString();
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
 
 describe('useTimetableViewMode', () => {
   beforeEach(() => {
@@ -18,7 +40,7 @@ describe('useTimetableViewMode', () => {
     expect(result.current.viewMode).toBe('class-group');
   });
 
-  it('should persist view mode to localStorage', () => {
+  it('should persist view mode to localStorage', async () => {
     const { result } = renderHook(() => useTimetableViewMode());
 
     act(() => {
@@ -26,6 +48,12 @@ describe('useTimetableViewMode', () => {
     });
 
     expect(result.current.viewMode).toBe('classroom');
+    
+    // Wait for useEffect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10));
+    });
+    
     expect(localStorage.getItem(STORAGE_KEY)).toBe('classroom');
   });
 
@@ -62,16 +90,26 @@ describe('useTimetableViewMode', () => {
     expect(result.current.viewMode).toBe('class-group');
   });
 
-  it('should update localStorage when view mode changes', () => {
+  it('should update localStorage when view mode changes', async () => {
     const { result } = renderHook(() => useTimetableViewMode());
 
     act(() => {
       result.current.setViewMode('classroom');
     });
+    
+    // Wait for useEffect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
     expect(localStorage.getItem(STORAGE_KEY)).toBe('classroom');
 
     act(() => {
       result.current.setViewMode('instructor');
+    });
+    
+    // Wait for useEffect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
     expect(localStorage.getItem(STORAGE_KEY)).toBe('instructor');
   });

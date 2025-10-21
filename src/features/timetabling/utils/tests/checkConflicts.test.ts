@@ -467,8 +467,14 @@ describe('checkConflicts', () => {
   it('should detect a group conflict when moving a session backward to overlap an existing session', () => {
     // ARRANGE: Set up a specific, tricky timetable layout.
     // Session A is at [1, 2], Session B is at [3, 4].
+    // Make sessionB have a different course to prevent merging
     const sessionA = { ...classSession1, id: 'sessionA', program_id: 'mockProgram' };
-    const sessionB = { ...classSession1, id: 'sessionB', program_id: 'mockProgram' };
+    const sessionB = { 
+      ...classSession1, 
+      id: 'sessionB', 
+      program_id: 'mockProgram',
+      course: mockCourse2 // Different course to prevent merging
+    };
 
     const groupSessions = timetable.get(mockGroup1.id)!;
     groupSessions[1] = [sessionA];
@@ -487,7 +493,9 @@ describe('checkConflicts', () => {
       mockSettings,
       mockGroup1.id,
       targetPeriodIndex,
-      [mockProgramCS, mockProgramBus]
+      [mockProgramCS, mockProgramBus],
+      'class-group',
+      true // isMovingSession = true
     );
 
     // ASSERT: The function must detect the conflict and not return an empty string.

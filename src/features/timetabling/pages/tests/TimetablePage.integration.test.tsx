@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TimetablePage from '../TimetablePage';
@@ -158,6 +158,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: allGroups,
       timetable,
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -198,6 +199,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup],
       timetable: timetableWithInvalidData,
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -222,6 +224,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup, mockOtherGroup],
       timetable: new Map([['g1', [[mockOwnedSession]]]]),
+      assignments: [{ class_session: mockOwnedSession }], // Mock assignment for assigned session
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -258,6 +261,7 @@ describe('TimetablePage Integration Tests', () => {
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup],
       timetable,
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -299,6 +303,7 @@ describe('TimetablePage Integration Tests', () => {
       groups: [mockMyGroup],
       resources: [mockMyGroup],
       timetable: new Map(),
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -313,10 +318,22 @@ describe('TimetablePage Integration Tests', () => {
   });
 
   it('should update view mode when clicking view selector buttons', async () => {
+    // Mock localStorage BEFORE rendering the component
+    const localStorageMock = {
+      getItem: vi.fn().mockReturnValue('class-group'), // Start with class-group view
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock,
+    });
+
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup],
       resources: [mockMyGroup],
       timetable: new Map(),
+      assignments: [], // Add missing assignments property
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -329,10 +346,16 @@ describe('TimetablePage Integration Tests', () => {
 
     // Click on Classrooms view
     const classroomButton = screen.getByLabelText('Switch to Classrooms view');
-    classroomButton.click();
+    
+    // Use act() to ensure state updates are processed
+    await act(async () => {
+      classroomButton.click();
+    });
 
-    // View mode should be persisted in localStorage
-    expect(localStorage.getItem('timetable_view_mode')).toBeDefined();
+    // Wait for the useEffect to trigger and localStorage to be called
+    await waitFor(() => {
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('timetable_view_mode', 'classroom');
+    });
 
     // Re-render to simulate the state update
     rerender(<TimetablePage />);
