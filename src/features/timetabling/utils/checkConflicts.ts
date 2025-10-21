@@ -139,27 +139,6 @@ function checkBoundaryConflicts(
 }
 
 /**
- * Checks if a specific time slot has a conflict with the session being checked.
- *
- * @param sessionsInSlot - The sessions currently in the time slot.
- * @param sessionToCheck - The session to check for conflicts.
- * @returns A string error message if a conflict is detected, or null if no conflict is found.
- */
-function checkTimeSlotConflict(
-  sessionsInSlot: ClassSession[] | null,
-  sessionToCheck: ClassSession
-): string | null {
-  if (!sessionsInSlot) return null;
-
-  for (const sessionInSlot of sessionsInSlot) {
-    if (sessionInSlot.id !== sessionToCheck.id) {
-      return `Group conflict: Time slot occupied by class '${sessionInSlot.course.code}' of group '${sessionInSlot.group.name}'.`;
-    }
-  }
-  return null;
-}
-
-/**
  * Checks if a class session belongs to the target group.
  * Prevents moving sessions to rows that don't correspond to their class group.
  *
@@ -210,14 +189,49 @@ function checkViewSpecificResourceMismatch(
 }
 
 /**
- * Checks for conflicts within the target group's own row in the timetable.
- * Ensures that no other session is already occupying the same time slot.
+ * Checks for conflicts within the target resource's row in the timetable.
+ * This works for any view mode - checks if another session occupies the same time slot.
  *
  * @param timetable The full timetable grid.
  * @param sessionToCheck The class session to check for conflicts.
- * @param targetGroupId The ID of the target group that the session belongs to.
+ * @param targetResourceId The ID of the target resource (group, classroom, or instructor).
  * @param targetPeriodIndex The index of the period where the session is scheduled to start.
+ * @param resourceType Optional label for error messages (e.g., 'classroom', 'instructor').
  * @returns A string error message if a conflict is detected, or an empty string if no conflict is found.
+ */
+function checkRowConflicts(
+  timetable: TimetableGrid,
+  sessionToCheck: ClassSession,
+  targetResourceId: string,
+  targetPeriodIndex: number,
+  resourceType: string = 'resource'
+): string {
+  const period_count = sessionToCheck.period_count || 1;
+  const targetRow = timetable.get(targetResourceId);
+
+  if (!targetRow) return '';
+
+  for (let i = 0; i < period_count; i++) {
+    const periodIndex = targetPeriodIndex + i;
+    const sessionsInSlot = targetRow[periodIndex];
+    
+    if (!sessionsInSlot) continue;
+
+    // Check if there's a different session already in this period
+    for (const sessionInSlot of sessionsInSlot) {
+      if (sessionInSlot.id !== sessionToCheck.id) {
+        return `${resourceType} conflict: Period ${periodIndex + 1} is already occupied by class '${sessionInSlot.course.code}' for group '${sessionInSlot.group.name}'.`;
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Legacy function for backward compatibility. Delegates to checkRowConflicts.
+ * 
+ * @deprecated Use checkRowConflicts instead for clarity.
  */
 function checkGroupConflicts(
   timetable: TimetableGrid,
@@ -225,18 +239,7 @@ function checkGroupConflicts(
   targetGroupId: string,
   targetPeriodIndex: number
 ): string {
-  const period_count = sessionToCheck.period_count || 1;
-  const targetGroupSchedule = timetable.get(targetGroupId);
-
-  if (!targetGroupSchedule) return '';
-
-  for (let i = 0; i < period_count; i++) {
-    const sessionsInSlot = targetGroupSchedule[targetPeriodIndex + i];
-    const conflict = checkTimeSlotConflict(sessionsInSlot, sessionToCheck);
-    if (conflict) return conflict;
-  }
-
-  return '';
+  return checkRowConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex, 'Group');
 }
 
 /**
@@ -501,23 +504,58 @@ export default function checkTimetableConflicts(
     return resourceMismatchError;
   }
 
-  // Always check group conflicts (double-booking within the same class group)
-  // Use the session's actual group ID, not the targetResourceId which varies by view
-  const groupError = checkGroupConflicts(
+  // Check for time slot conflicts in the target row (view-specific)
+  let resourceType: string;
+  switch (viewMode) {
+    case 'classroom':
+      resourceType = 'Classroom';
+      break;
+    case 'instructor':
+      resourceType = 'Instructor';
+      break;
+    case 'class-group':
+    default:
+      resourceType = 'Group';
+      break;
+  }
+
+  const rowError = checkRowConflicts(
     timetable,
     classSessionToCheck,
-    classSessionToCheck.group.id,
-    targetPeriodIndex
+    targetGroupId,
+    targetPeriodIndex,
+    resourceType
   );
-  if (groupError) {
-    console.error('[checkConflicts] group conflict', {
+  if (rowError) {
+    console.error('[checkConflicts] row conflict', {
       viewMode,
-      error: groupError,
-      groupId: classSessionToCheck.group.id,
+      error: rowError,
+      targetResourceId: targetGroupId,
       targetPeriodIndex,
       sessionId: classSessionToCheck.id,
     });
-    return groupError;
+    return rowError;
+  }
+
+  // Also check the class group row for conflicts (ensures no double-booking of the group)
+  // This is important even in classroom/instructor views
+  if (viewMode !== 'class-group') {
+    const groupError = checkGroupConflicts(
+      timetable,
+      classSessionToCheck,
+      classSessionToCheck.group.id,
+      targetPeriodIndex
+    );
+    if (groupError) {
+      console.error('[checkConflicts] group double-booking', {
+        viewMode,
+        error: groupError,
+        groupId: classSessionToCheck.group.id,
+        targetPeriodIndex,
+        sessionId: classSessionToCheck.id,
+      });
+      return groupError;
+    }
   }
 
   // --- Standard Resource Conflict Check ---
