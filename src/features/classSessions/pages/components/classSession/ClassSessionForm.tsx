@@ -11,6 +11,8 @@ import type {
 } from '../../../../classSessionComponents/types';
 import { AlertTriangle } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
+import { useAuth } from '../../../../auth/hooks/useAuth';
+import type { Program } from '../../../../programs/types/program';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
@@ -19,6 +21,7 @@ interface ClassSessionFormProps {
   classGroups: ClassGroup[];
   instructors: Instructor[];
   classrooms: Classroom[];
+  programs: Program[];
   formMethods: UseFormReturn<ClassSessionFormData>;
   onSubmit: (data: ClassSessionFormData) => Promise<void>;
   onCancel?: () => void;
@@ -36,6 +39,7 @@ interface ClassSessionFormProps {
  * @param csf.classGroups An array of available class groups.
  * @param csf.instructors An array of available instructors.
  * @param csf.classrooms An array of available classrooms.
+ * @param csf.programs An array of available programs (for admin users).
  * @param csf.formMethods The return object from `useForm` hook for form management.
  * @param csf.onSubmit Function to call when the form is submitted.
  * @param [csf.onCancel] Optional function to call when the form is cancelled.
@@ -48,12 +52,14 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   classGroups,
   instructors,
   classrooms,
+  programs,
   formMethods,
   onSubmit,
   onCancel,
   loading,
   isEditing,
 }) => {
+  const { isAdmin } = useAuth();
   const {
     control,
     handleSubmit,
@@ -110,6 +116,27 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       </h3>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <fieldset disabled={loading}>
+          {isAdmin() && (
+            <Controller
+              name="program_id"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  {...field}
+                  value={field.value || ''}
+                  id="program_id"
+                  label="Program"
+                  type="select"
+                  error={errors.program_id?.message}
+                  options={programs.map((p) => ({ 
+                    id: p.id, 
+                    name: `${p.name} (${p.short_code})` 
+                  }))}
+                  required
+                />
+              )}
+            />
+          )}
           <Controller
             name="course_id"
             control={control}

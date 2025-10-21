@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as classSessionsService from '../services/classSessionsService';
 import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
@@ -69,6 +70,17 @@ export function useClassSessions() {
   const removeMutation = useMutation({
     mutationFn: (id: string) => classSessionsService.removeClassSession(id, user!.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+    onError: (error: Error) => {
+      if (error.message.includes('foreign key') || error.message.includes('violates')) {
+        toast.error('Cannot delete class session', {
+          description: 'This class session is being used in timetable assignments and cannot be deleted.',
+        });
+      } else {
+        toast.error('Failed to delete class session', {
+          description: error.message,
+        });
+      }
+    },
   });
 
   return {

@@ -118,10 +118,16 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
   }
 
   // View-specific validation for drawer-to-timetable assignments:
+  // - Class-group view: Only allow assigning to the session's own class group row
   // - Classroom view: Only allow assigning to the session's assigned classroom row
   // - Instructor view: Only allow assigning to the session's assigned instructor row
   if (activeDragSource?.from === 'drawer') {
     switch (viewMode) {
+      case 'class-group':
+        if (activeDraggedSession.group.id !== groupId) {
+          return false;
+        }
+        break;
       case 'classroom':
         if (activeDraggedSession.classroom.id !== groupId) {
           return false;
