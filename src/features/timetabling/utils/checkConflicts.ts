@@ -480,6 +480,7 @@ function checkResourceConflicts(
  * @param targetPeriodIndex - The starting period index in the timetable where the session should be placed.
  * @param programs - An array of all programs, used for resolving program names in conflict messages.
  * @param viewMode - Optional view mode for view-specific validation (defaults to 'class-group').
+ * @param isMovingSession - Whether this is a move operation (true) or assign operation (false). Resource mismatch checks only apply to moves.
  * @returns A string message describing the first detected conflict (boundary, group, or resource), or an empty string if the placement is valid.
  */
 export default function checkTimetableConflicts(
@@ -489,27 +490,30 @@ export default function checkTimetableConflicts(
   targetGroupId: string,
   targetPeriodIndex: number,
   programs: Program[],
-  viewMode: TimetableViewMode = 'class-group'
+  viewMode: TimetableViewMode = 'class-group',
+  isMovingSession: boolean = false
 ): string {
   const period_count = classSessionToCheck.period_count || 1;
 
   const boundaryError = checkBoundaryConflicts(period_count, targetPeriodIndex, settings);
   if (boundaryError) return boundaryError;
 
-  // Check view-specific resource mismatch
-  const resourceMismatchError = checkViewSpecificResourceMismatch(
-    classSessionToCheck,
-    targetGroupId,
-    viewMode
-  );
-  if (resourceMismatchError) {
-    console.error('[checkConflicts] resource mismatch', {
-      viewMode,
-      error: resourceMismatchError,
-      targetId: targetGroupId,
-      sessionId: classSessionToCheck.id,
-    });
-    return resourceMismatchError;
+  // Check view-specific resource mismatch (only for move operations, not drawer assignments)
+  if (isMovingSession) {
+    const resourceMismatchError = checkViewSpecificResourceMismatch(
+      classSessionToCheck,
+      targetGroupId,
+      viewMode
+    );
+    if (resourceMismatchError) {
+      console.error('[checkConflicts] resource mismatch', {
+        viewMode,
+        error: resourceMismatchError,
+        targetId: targetGroupId,
+        sessionId: classSessionToCheck.id,
+      });
+      return resourceMismatchError;
+    }
   }
 
   // Check for time slot conflicts in the target row (view-specific)

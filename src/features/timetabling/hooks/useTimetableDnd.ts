@@ -117,6 +117,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
     }
   }
 
+      const isMovingSession = activeDragSource?.from === 'timetable';
       const conflictMessage = checkTimetableConflicts(
         timetable,
         activeDraggedSession,
@@ -124,7 +125,8 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         groupId,
         periodIndex,
         programs,
-        viewMode
+        viewMode,
+        isMovingSession
       );
 
       return conflictMessage === '';

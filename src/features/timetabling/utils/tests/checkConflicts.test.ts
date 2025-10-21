@@ -745,7 +745,9 @@ describe('checkConflicts', () => {
         mockSettings,
         mockGroup2.id, // Target group is different from session's group
         5,
-        [mockProgramCS]
+        [mockProgramCS],
+        'class-group',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -779,7 +781,9 @@ describe('checkConflicts', () => {
         mockSettings,
         mockGroup1.id, // Target group is the same as session's group
         5,
-        [mockProgramCS]
+        [mockProgramCS],
+        'class-group',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -815,7 +819,8 @@ describe('checkConflicts', () => {
         mockClassroom2.id, // Target is different classroom
         5,
         [mockProgramCS],
-        'classroom'
+        'classroom',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -850,7 +855,8 @@ describe('checkConflicts', () => {
         mockInstructor2.id, // Target is different instructor
         5,
         [mockProgramCS],
-        'instructor'
+        'instructor',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -885,7 +891,8 @@ describe('checkConflicts', () => {
         mockClassroom1.id, // Same classroom
         5,
         [mockProgramCS],
-        'classroom'
+        'classroom',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -917,7 +924,8 @@ describe('checkConflicts', () => {
         mockInstructor1.id, // Same instructor
         5,
         [mockProgramCS],
-        'instructor'
+        'instructor',
+        true // This is a move operation
       );
 
       // ASSERT
@@ -949,12 +957,65 @@ describe('checkConflicts', () => {
         mockSettings,
         mockGroup2.id,
         5,
-        [mockProgramCS]
-        // No viewMode parameter
+        [mockProgramCS],
+        undefined, // No viewMode parameter
+        true // This is a move operation
       );
 
       // ASSERT
       expect(result).toContain('Group mismatch');
+    });
+
+    it('should allow assigning sessions from drawer to any row in classroom/instructor views', () => {
+      // ARRANGE
+      // Session has classroom1, but we're assigning (not moving) to classroom2's row
+      const sessionWithClassroom1: ClassSession = {
+        id: 's1',
+        course: mockCourse1,
+        group: mockGroup1,
+        instructor: mockInstructor1,
+        classroom: mockClassroom1,
+        period_count: 1,
+        user_id: MOCK_USER_ID,
+        created_at: MOCK_CREATED_AT,
+      };
+      
+      const timetable = new Map();
+      timetable.set(mockClassroom1.id, new Array(40).fill(null));
+      timetable.set(mockClassroom2.id, new Array(40).fill(null));
+
+      // ACT - Drawer assignment (isMovingSession = false) to different classroom row
+      const resultClassroom = checkTimetableConflicts(
+        timetable,
+        sessionWithClassroom1,
+        mockSettings,
+        mockClassroom2.id, // Different classroom than session's classroom
+        5,
+        [mockProgramCS],
+        'classroom',
+        false // This is an assignment from drawer, not a move
+      );
+
+      // Test instructor view as well
+      const timetableInstructor = new Map();
+      timetableInstructor.set(mockInstructor1.id, new Array(40).fill(null));
+      timetableInstructor.set(mockInstructor2.id, new Array(40).fill(null));
+
+      const resultInstructor = checkTimetableConflicts(
+        timetableInstructor,
+        sessionWithClassroom1,
+        mockSettings,
+        mockInstructor2.id, // Different instructor than session's instructor
+        5,
+        [mockProgramCS],
+        'instructor',
+        false // This is an assignment from drawer, not a move
+      );
+
+      // ASSERT
+      // When assigning from drawer, resource mismatch checks should NOT apply
+      expect(resultClassroom).not.toContain('Classroom mismatch');
+      expect(resultInstructor).not.toContain('Instructor mismatch');
     });
   });
 
