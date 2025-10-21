@@ -236,19 +236,6 @@ function checkRowConflicts(
   return '';
 }
 
-/**
- * Legacy function for backward compatibility. Delegates to checkRowConflicts.
- * 
- * @deprecated Use checkRowConflicts instead for clarity.
- */
-function checkGroupConflicts(
-  timetable: TimetableGrid,
-  sessionToCheck: ClassSession,
-  targetGroupId: string,
-  targetPeriodIndex: number
-): string {
-  return checkRowConflicts(timetable, sessionToCheck, targetGroupId, targetPeriodIndex, 'Group');
-}
 
 /**
  * Finds all class sessions at a specific period that may conflict with the target session.
@@ -441,6 +428,54 @@ function findClassroomConflictInPeriod(
 }
 
 /**
+ * Checks for group double-booking by searching across all timetable rows.
+ * This works in any view mode by examining all sessions in the timetable.
+ *
+ * @param timetable - The full timetable grid (keyed by view-specific resource IDs).
+ * @param sessionToCheck - The session being validated.
+ * @param targetPeriodIndex - The starting period where the session would be placed.
+ * @returns A string describing the group conflict, or an empty string if no conflict.
+ */
+function checkGroupDoubleBooking(
+  timetable: TimetableGrid,
+  sessionToCheck: ClassSession,
+  targetPeriodIndex: number
+): string {
+  const period_count = sessionToCheck.period_count || 1;
+  const targetGroupId = sessionToCheck.group.id;
+
+  // Search through all rows in the timetable (regardless of view mode)
+  for (let i = 0; i < period_count; i++) {
+    const periodIndex = targetPeriodIndex + i;
+    
+    // Check every row in the timetable
+    for (const [, schedule] of timetable.entries()) {
+      const sessionsInCell = schedule[periodIndex];
+      if (!sessionsInCell) continue;
+
+      // Check if any session in this cell belongs to the same group
+      for (const existingSession of sessionsInCell) {
+        if (existingSession.id === sessionToCheck.id) continue; // Skip self
+        
+        if (existingSession.group.id === targetGroupId) {
+          // Check if it's a valid merge (same course, instructor, classroom)
+          const isMergeable = 
+            existingSession.course.code === sessionToCheck.course.code &&
+            existingSession.instructor.id === sessionToCheck.instructor.id &&
+            existingSession.classroom.id === sessionToCheck.classroom.id;
+          
+          if (!isMergeable) {
+            return `Group conflict: ${sessionToCheck.group.name} is already scheduled for '${existingSession.course.code}' at period ${periodIndex + 1}.`;
+          }
+        }
+      }
+    }
+  }
+
+  return '';
+}
+
+/**
  * Checks for shared resource conflicts, including instructors and classrooms,
  * by delegating to specific conflict checkers.
  *
@@ -549,25 +584,23 @@ export default function checkTimetableConflicts(
     return rowError;
   }
 
-  // Also check the class group row for conflicts (ensures no double-booking of the group)
-  // This is important even in classroom/instructor views
-  if (viewMode !== 'class-group') {
-    const groupError = checkGroupConflicts(
-      timetable,
-      classSessionToCheck,
-      classSessionToCheck.group.id,
-      targetPeriodIndex
-    );
-    if (groupError) {
-      console.error('[checkConflicts] group double-booking', {
-        viewMode,
-        error: groupError,
-        groupId: classSessionToCheck.group.id,
-        targetPeriodIndex,
-        sessionId: classSessionToCheck.id,
-      });
-      return groupError;
-    }
+  // Check for group double-booking in all views
+  // In class-group view, this is covered by checkRowConflicts
+  // In other views, we need to search across all rows
+  const groupDoubleBookingError = checkGroupDoubleBooking(
+    timetable,
+    classSessionToCheck,
+    targetPeriodIndex
+  );
+  if (groupDoubleBookingError) {
+    console.error('[checkConflicts] group double-booking', {
+      viewMode,
+      error: groupDoubleBookingError,
+      groupId: classSessionToCheck.group.id,
+      targetPeriodIndex,
+      sessionId: classSessionToCheck.id,
+    });
+    return groupDoubleBookingError;
   }
 
   // --- Standard Resource Conflict Check ---

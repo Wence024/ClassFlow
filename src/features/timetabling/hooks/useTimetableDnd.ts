@@ -117,6 +117,24 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
     }
   }
 
+  // View-specific validation for drawer-to-timetable assignments:
+  // - Classroom view: Only allow assigning to the session's assigned classroom row
+  // - Instructor view: Only allow assigning to the session's assigned instructor row
+  if (activeDragSource?.from === 'drawer') {
+    switch (viewMode) {
+      case 'classroom':
+        if (activeDraggedSession.classroom.id !== groupId) {
+          return false;
+        }
+        break;
+      case 'instructor':
+        if (activeDraggedSession.instructor.id !== groupId) {
+          return false;
+        }
+        break;
+    }
+  }
+
       const isMovingSession = activeDragSource?.from === 'timetable';
       const conflictMessage = checkTimetableConflicts(
         timetable,
