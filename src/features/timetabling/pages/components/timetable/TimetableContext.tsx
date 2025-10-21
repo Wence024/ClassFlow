@@ -22,6 +22,9 @@ export interface TimetableContextType {
   // Tooltip handlers from TimetablePage
   onShowTooltip: (content: React.ReactNode, target: HTMLElement) => void;
   onHideTooltip: () => void;
+
+  // Pending session tracking
+  pendingSessionIds?: Set<string>;
 }
 
 /**

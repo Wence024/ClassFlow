@@ -68,3 +68,74 @@ export function useDepartmentRequests(departmentId?: string) {
     updateRequest: updateMutation.mutateAsync,
   };
 }
+
+/**
+ * A hook for managing the current user's pending resource requests.
+ *
+ * @returns An object with the user's pending requests and cancellation mutation.
+ */
+export function useMyPendingRequests() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const queryKey = ['my_pending_requests', user?.id];
+
+  const listQuery = useQuery({
+    queryKey,
+    queryFn: () => (user ? service.getMyRequests() : Promise.resolve([])),
+    enabled: !!user,
+    select: (data) => data.filter((r) => r.status === 'pending'),
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: async (requestId: string) => {
+      const { supabase } = await import('../../../lib/supabase');
+      
+      // Get the request to find the class_session_id
+      const { data: request, error: reqError } = await supabase
+        .from('resource_requests')
+        .select('resource_id')
+        .eq('id', requestId)
+        .single();
+      
+      if (reqError) throw reqError;
+      
+      // Delete timetable assignment first (by class_session_id)
+      const { error: assignError } = await supabase
+        .from('timetable_assignments')
+        .delete()
+        .eq('class_session_id', request.resource_id);
+      
+      if (assignError) console.error('Error deleting assignment:', assignError);
+      
+      // Delete class session
+      const { error: sessionError } = await supabase
+        .from('class_sessions')
+        .delete()
+        .eq('id', request.resource_id);
+      
+      if (sessionError) throw sessionError;
+      
+      // Delete the request itself
+      const { error: delError } = await supabase
+        .from('resource_requests')
+        .delete()
+        .eq('id', requestId);
+      
+      if (delError) throw delError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['classSessions'] });
+      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+      queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+    },
+  });
+
+  return {
+    pendingRequests: (listQuery.data as ResourceRequest[]) || [],
+    isLoading: listQuery.isLoading,
+    error: listQuery.error as Error | null,
+    cancelRequest: cancelMutation.mutateAsync,
+    isCancelling: cancelMutation.isPending,
+  };
+}

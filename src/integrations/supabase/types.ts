@@ -529,6 +529,7 @@ export type Database = {
           id: string
           period_index: number
           semester_id: string
+          status: string
           user_id: string
         }
         Insert: {
@@ -538,6 +539,7 @@ export type Database = {
           id?: string
           period_index: number
           semester_id: string
+          status?: string
           user_id: string
         }
         Update: {
@@ -547,6 +549,7 @@ export type Database = {
           id?: string
           period_index?: number
           semester_id?: string
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -643,6 +646,14 @@ export type Database = {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      is_cross_department_resource: {
+        Args: {
+          _classroom_id?: string
+          _instructor_id?: string
+          _program_id: string
         }
         Returns: boolean
       }
