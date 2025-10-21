@@ -177,6 +177,7 @@ Refactor backlogs:
 * [ ] Refactor ClassSessions/Courses - assess if course entity shall be merged with class session entity.
 * [ ] TimetablePage - Replace program.id feedback with program.name/code
 * [ ] [Data Integrity] Harden the database schema by adding ON DELETE RESTRICT constraints to all foreign keys in the class_sessions table + Smart Checks in the App
+* Performance backlog: The conflict checker runs everytime a drag operation starts. Optimization would be nice.
 
 * [ ] Use React Query for usePrograms.ts
 
@@ -184,13 +185,15 @@ Maam Z's Feedback:
 
 * [x] Class merging
   * [x] Requires management of shared classrooms (admin) and instructors (department heads) instead of solely program heads
+  * [ ] Need revision when managers of instructors are department heads: notify them/admin instead?
 
 Sir B's Feedback:
 
 * Approval/Notify feature to Program Head When other program heads assign class sessions from instructors under him?
-  * [ ] Need revision when managers of instructors are department heads: notify them/admin instead?
 * [ ] CSV Import
 * [ ] Classroom/instructor View
+
+Sir M's Feedback:
 * [ ] Reports per instructor and class group.
 
 Maam D's Feedback

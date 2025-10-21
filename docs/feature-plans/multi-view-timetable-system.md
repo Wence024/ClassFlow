@@ -417,7 +417,7 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 
 ## ⚠️ 3. Drag-and-drop works in all views with appropriate conflict detection
 
-### Test Case 3.1: Basic Drag & Drop in All Views
+### ✅ Test Case 3.1: Basic Drag & Drop in All Views
 
 **Prerequisites:** Program Head user with unassigned sessions in drawer
 
@@ -445,7 +445,7 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 
 ---
 
-### Test Case 3.2: Boundary Conflict Detection (All Views)
+### ✅ Test Case 3.2: Boundary Conflict Detection (All Views)
 
 **Prerequisites:** Schedule configured with 8 periods per day, 5 days = 40 total periods
 
@@ -468,7 +468,7 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 
 ---
 
-### Test Case 3.3: Multi-Period Classroom Conflict (Classroom View)
+### ✅ Test Case 3.3: Multi-Period Classroom Conflict (Classroom View)
 
 **Prerequisites:**
 
@@ -493,7 +493,7 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 
 ---
 
-### Test Case 3.4: Multi-Period Instructor Conflict (Instructor View)
+### ✅ Test Case 3.4: Multi-Period Instructor Conflict (Instructor View)
 
 **Prerequisites:**
 
