@@ -543,7 +543,7 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 
 ---
 
-### Test Case 3.6: Merged Session Dragging (Classroom View)
+### ✅ Test Case 3.6: Merged Session Dragging (Classroom View)
 
 **Prerequisites:**
 
@@ -561,13 +561,13 @@ Perfect! Now I have a comprehensive understanding of the multi-view timetabling 
 **Expected Results:**
 
 - Session is draggable because user owns Group A
-- Both Group A and Group B's schedules update (merged session moves together)
+- Only Group A's schedules update (merged session separates)
 - **This fix ensures the user's session is found in merged arrays** ✅
 - If user did NOT own any group in the merge, cursor shows "not-allowed"
 
 ---
 
-### Test Case 3.7: Cross-View Resource Mismatch Prevention
+### ✅ Test Case 3.7: Cross-View Resource Mismatch Prevention
 
 **Prerequisites:** Program Head with multiple sessions
 

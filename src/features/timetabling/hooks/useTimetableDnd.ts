@@ -268,13 +268,13 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         switch (viewMode) {
           case 'classroom':
             if (classSessionToDrop.classroom.id !== targetClassGroupId) {
-              resourceMismatchError = `Cannot move this session to a different classroom. This session is assigned to "${classSessionToDrop.classroom.name}". To reassign the classroom, please edit the session details.`;
+              resourceMismatchError = `Cannot move this session to a different classroom. This session is assigned to "${classSessionToDrop.classroom.name}". To reassign the classroom, please go to Manage Classes page.`;
             }
             break;
           case 'instructor':
             if (classSessionToDrop.instructor.id !== targetClassGroupId) {
               const instructorName = `${classSessionToDrop.instructor.first_name} ${classSessionToDrop.instructor.last_name}`;
-              resourceMismatchError = `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please edit the session details.`;
+              resourceMismatchError = `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please go to Manage Classes page.`;
             }
             break;
           case 'class-group':
