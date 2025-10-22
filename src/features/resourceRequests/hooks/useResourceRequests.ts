@@ -158,6 +158,29 @@ export function useMyPendingRequests() {
     },
   });
 
+  // Real-time subscription for user's pending requests
+  useEffect(() => {
+    if (!user) return;
+    
+    const channel = supabase
+      .channel('my_pending_requests')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'resource_requests',
+          filter: `requester_id=eq.${user.id}`
+        },
+        () => queryClient.invalidateQueries({ queryKey })
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient, queryKey]);
+
   return {
     pendingRequests: (listQuery.data as ResourceRequest[]) || [],
     isLoading: listQuery.isLoading,

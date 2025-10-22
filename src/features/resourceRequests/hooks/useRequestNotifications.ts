@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/notificationsService';
 import type { RequestNotification } from '../services/notificationsService';
-import { type SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '../../../lib/supabase';
 
 /**
  * Hook for cross-department request notifications.
@@ -31,16 +31,18 @@ export function useRequestNotifications() {
 
   useEffect(() => {
     if (!user) return;
-    const channel = (window as { supabase?: SupabaseClient }).supabase
-      ?.channel('request_notifications')
+    
+    const channel = supabase
+      .channel('request_notifications')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'request_notifications' },
         () => queryClient.invalidateQueries({ queryKey })
       )
       .subscribe();
+      
     return () => {
-      channel?.unsubscribe?.();
+      supabase.removeChannel(channel);
     };
   }, [user, queryClient, queryKey]);
 
