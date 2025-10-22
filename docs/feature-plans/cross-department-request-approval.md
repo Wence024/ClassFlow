@@ -1,188 +1,535 @@
-# **Updated Implementation Plan: Interactive Cross-Department Resource Approval System**
+# **Updated Cross-Department Resource Approval System - Department Head Workflow Focus**
 
-## Phase 1: Database Layer Changes (SQL Migrations)
+## Current State Analysis
 
-**1.1 Add `status` Column to `timetable_assignments`**
+### ✅ **Completed Components**
 
-- Add `status TEXT NOT NULL DEFAULT 'confirmed'` with CHECK constraint for 'pending', 'confirmed', 'rejected'
-- Add index on status column for performance
-- Default to 'confirmed' maintains backward compatibility
+1. **Database Layer** (Phase 1)
+   - ✅ `status` column added to `timetable_assignments` with 'pending'/'confirmed' values
+   - ✅ `is_cross_department_resource()` function created and working
+   - ✅ `resource_requests` table with proper structure
+   - ✅ `request_notifications` table created
 
-**1.2 Create Helper Function**
+2. **Service Layer** (Phase 2)
+   - ✅ `resourceRequestService.ts` with CRUD operations
+   - ✅ `notificationsService.ts` for managing notifications
+   - ✅ `getRequestWithDetails()` enriches requests with resource names
+   - ✅ Cross-department detection in `checkCrossDepartmentResources()`
 
-- `is_cross_department_resource(_program_id, _instructor_id, _classroom_id)`
-- Returns boolean if resource is from different department
-- Handles both instructors and classrooms in single function
-- Uses SECURITY DEFINER for RLS bypass
+3. **Hook Layer** (Phase 3)
+   - ✅ `useResourceRequests()` for Program Heads
+   - ✅ `useDepartmentRequests()` for Department Heads
+   - ✅ `useMyPendingRequests()` for Program Head cancellation
+   - ✅ `useRequestNotifications()` (exists but not fully wired)
 
-## Phase 2: Service Layer Changes
+4. **UI Layer - Program Head Side** (Phase 4)
+   - ✅ `ClassSessionsPage.tsx` with cross-department modal
+   - ✅ `PendingRequestsNotification.tsx` component (clock icon)
+   - ✅ Cross-department request submission workflow
+   - ✅ Pending session visual indicators in `SessionCell.tsx`
+   - ✅ `pendingSessionIds` calculated and passed via context
 
-**2.1 File: `classSessionsService.ts`**
+5. **UI Layer - Department Head Side** (Phase 4)
+   - ✅ `RequestNotifications.tsx` component (bell icon)
+   - ✅ Enriched request details display
+   - ✅ Approve/Reject handlers implemented
+   - ✅ Query invalidation for real-time updates
 
-- Add `isCrossDepartmentInstructor(programId, instructorId)` - calls DB function
-- Add `isCrossDepartmentClassroom(programId, classroomId)` - calls DB function  
-- Add `getResourceDepartmentId(instructorId?, classroomId?)` - returns target dept ID
-- No changes to `addClassSession` - logic moves to UI layer
+---
 
-**2.2 File: `timetableService.ts`**
+## 🔴 **Critical Issues Requiring Immediate Fix**
 
-- Update `assignClassSessionToTimetable` signature to accept optional `status: 'pending' | 'confirmed'`
-- Pass status through to database upsert
+### **Priority 1: Missing RLS Policy for Notification Creation**
 
-**2.3 File: `resourceRequestService.ts`**
+**Problem:** The `request_notifications` table has SELECT and UPDATE policies for department heads, but **no INSERT policy**. This causes the RLS violation error when Program Heads try to create requests.
 
-- Add `getRequestWithDetails(requestId)` - fetches request with enriched instructor/classroom data
-- Joins to instructors or classrooms table based on resource_type
+**Current Policies:**
 
-## Phase 3: Hook Layer Changes
+```sql
+-- ✅ Exists
+CREATE POLICY "request_notifications_select_department" 
+  ON "public"."request_notifications" FOR SELECT ...
 
-**3.1 File: `useClassSessions.ts`**
+-- ✅ Exists  
+CREATE POLICY "request_notifications_update_department" 
+  ON "public"."request_notifications" FOR UPDATE ...
 
-- Add exported helper `checkCrossDepartmentResources(data, programId)`
-- Returns object with: `{ isCrossDept, resourceType, resourceId, departmentId }`
-- Called from UI before submission
+-- ❌ MISSING
+-- No INSERT policy exists!
+```
 
-**3.2 File: `useResourceRequests.ts`**
+**Solution:** Add INSERT policy allowing requesters to create notifications:
 
-- Add `useMyPendingRequests()` hook for Program Heads
-- Returns pending requests where `requester_id = current user`
-- Add `cancelRequest` mutation that:
-  - Deletes timetable_assignment (by class_session_id)
-  - Deletes class_session
-  - Deletes resource_request
-  - Invalidates relevant queries
+```sql
+CREATE POLICY "request_notifications_insert_requester" 
+  ON "public"."request_notifications" 
+  FOR INSERT 
+  TO authenticated
+  WITH CHECK (
+    -- Allow if the user is the requester of the associated request
+    EXISTS (
+      SELECT 1 
+      FROM resource_requests 
+      WHERE resource_requests.id = request_notifications.request_id
+        AND resource_requests.requester_id = auth.uid()
+    )
+    OR has_role(auth.uid(), 'admin')
+  );
+```
 
-## Phase 4: UI Layer Changes
+**Impact:** This will fix Test 3, Step 6 (the RLS error in console).
 
-**4.1 File: `ClassSessionForm.tsx`**
+---
 
-- Add state for `showConfirmModal` and `crossDeptInfo`
-- Wrap existing `onSubmit` with `handleFormSubmit` that:
-  - Calls `checkCrossDepartmentResources(data, user.program_id)`
-  - If cross-dept: fetch dept/resource names, show ConfirmModal
-  - If not cross-dept: call original `onSubmit`
-- Add `handleConfirmCrossDeptRequest` that calls `onSubmit` with additional metadata
-- Render `ConfirmModal` with cross-department details
+### **Priority 2: Missing DELETE Policy for Request Cancellation**
 
-**4.2 Parent Component Changes (e.g., `ClassSessionsPage.tsx`)**
+**Problem:** The `resource_requests` table has no DELETE policy, preventing Program Heads from canceling their own pending requests.
 
-- Update to accept pending flag and resource info from form
-- When pending:
-  1. Create class_session normally
-  2. Assign to timetable with `status: 'pending'`
-  3. Create resource_request with appropriate metadata
-- Handle all three operations in sequence with error handling
+**Current Policies:**
 
-**4.3 File: `SessionCell.tsx`**
+```sql
+-- ✅ Exists
+CREATE POLICY "resource_requests_insert_own" ...
+CREATE POLICY "resource_requests_select_own" ...
+CREATE POLICY "resource_requests_update_reviewers" ...
 
-- Add `pendingAssignments?: Set` to props (passed from TimetablePage)
-- Check if `primarySession.id` is in pendingAssignments set
-- For pending sessions:
-  - Apply dashed border (`border: '2px dashed #F59E0B'`)
-  - Reduce opacity to 0.7
-  - Disable dragging (`draggable={isOwnSession && !isPending}`)
-  - Add clock icon indicator in top-right corner
-- Update DropZone to reject drops onto pending sessions
+-- ❌ MISSING
+-- No DELETE policy exists!
+```
 
-**4.4 File: `useTimetable.ts` (parent of SessionCell)**
+**Solution:** Add DELETE policy for requesters:
 
-- Query timetable_assignments and build Set of pending class_session_ids
-- Pass `pendingAssignments` set down to SessionCell via TimetableRow
+```sql
+CREATE POLICY "resource_requests_delete_own" 
+  ON "public"."resource_requests" 
+  FOR DELETE 
+  TO authenticated
+  USING (
+    requester_id = auth.uid()
+    OR has_role(auth.uid(), 'admin')
+  );
+```
 
-**4.5 File: `RequestNotifications.tsx`**
+**Impact:** This will enable Test 6 (Program Head cancellation).
 
-- Add query to fetch enriched request details using `getRequestWithDetails`
-- Display instructor names (`first_name last_name`) or classroom names instead of IDs
-- Update `handleApprove`:
-  - Update resource_request: `status='approved'`, `reviewed_by`, `reviewed_at`
-  - Update timetable_assignments: `status='confirmed'` where `class_session_id` matches
-  - Show toast notification
-- Update `handleReject`:
-  - Find timetable_assignment by class_session_id
-  - Delete timetable_assignment
-  - Delete class_session
-  - Update resource_request: `status='rejected'`, `reviewed_by`, `reviewed_at`
-  - Show toast notification
+---
 
-**4.6 New Component: Program Head Pending Requests**
+### **Priority 3: Missing DELETE Policy for Notifications**
 
-- Create dropdown/section in Header (similar to RequestNotifications)
-- Use `useMyPendingRequests()` hook
-- Display list of user's pending requests with resource details
-- Add "Cancel" button for each request
-- On cancel: call `cancelRequest()` mutation, show confirmation dialog
+**Problem:** When requests are canceled/rejected, the associated notifications should also be deleted. Currently, no DELETE policy exists.
 
-## Phase 5: Testing & Validation
+**Solution:** Add DELETE policy for department heads and system cleanup:
 
-**5.1 Database Testing**
+```sql
+CREATE POLICY "request_notifications_delete" 
+  ON "public"."request_notifications" 
+  FOR DELETE 
+  TO authenticated
+  USING (
+    -- Department heads can delete notifications for their department
+    target_department_id = (
+      SELECT department_id 
+      FROM profiles 
+      WHERE id = auth.uid()
+    )
+    AND has_role(auth.uid(), 'department_head')
+    -- Or admins can delete anything
+    OR has_role(auth.uid(), 'admin')
+    -- Or requesters can delete their own notifications (for cleanup)
+    OR EXISTS (
+      SELECT 1 
+      FROM resource_requests 
+      WHERE resource_requests.id = request_notifications.request_id
+        AND resource_requests.requester_id = auth.uid()
+    )
+  );
+```
 
-- Test `is_cross_department_resource()` with same/different departments
-- Verify status column defaults and constraints work
-- Test RLS policies respect status column
+---
 
-**5.2 Service Layer Testing**
+### **Priority 4: Department Head SELECT Policy for Resource Requests**
 
-- Test cross-department detection functions with various department combinations
-- Test `assignClassSessionToTimetable` with both 'pending' and 'confirmed' status
-- Verify error handling in all service functions
+**Problem:** Department Heads can't see pending requests targeted at their department. The current SELECT policy only allows requesters to see their own requests.
 
-**5.3 UI Flow Testing - Same Department**
+**Current Policy:**
 
-- Create session with same-dept instructor → No modal → Assigned immediately as 'confirmed'
-- Session appears normal (solid border, draggable)
+```sql
+CREATE POLICY "resource_requests_select_own" 
+  ON "public"."resource_requests" 
+  FOR SELECT 
+  TO authenticated 
+  USING (requester_id = auth.uid());
+```
 
-**5.4 UI Flow Testing - Cross Department (Full Workflow)**
+**Solution:** Expand SELECT policy to include department heads:
 
-- Program Head selects cross-dept instructor → Modal appears with dept name
-- Program Head confirms → Session created, assigned as 'pending', request created
-- Session appears with dashed border, reduced opacity, clock icon, non-draggable
-- Dept Head sees notification in bell icon (count updates)
-- Dept Head opens dropdown, sees enriched request details
-- **Approval**: Dept Head approves → Assignment status becomes 'confirmed' → Session becomes normal
-- **Rejection**: Dept Head rejects → Assignment and session deleted → Disappears from timetable
+```sql
+-- First, DROP the existing restrictive policy
+DROP POLICY IF EXISTS "resource_requests_select_own" 
+  ON "public"."resource_requests";
 
-**5.5 UI Flow Testing - Program Head Cancellation**
+-- Create new policy with both requester and reviewer access
+CREATE POLICY "resource_requests_select_access" 
+  ON "public"."resource_requests" 
+  FOR SELECT 
+  TO authenticated 
+  USING (
+    -- Requesters can see their own requests
+    requester_id = auth.uid()
+    -- Department heads can see requests for their department
+    OR (
+      has_role(auth.uid(), 'department_head')
+      AND target_department_id = (
+        SELECT department_id 
+        FROM profiles 
+        WHERE id = auth.uid()
+      )
+    )
+    -- Admins can see everything
+    OR has_role(auth.uid(), 'admin')
+  );
+```
 
-- Program Head sees their pending requests in new dropdown
-- Program Head clicks "Cancel" → Confirmation dialog appears
-- Confirm cancel → Assignment, session, and request all deleted
+**Impact:** This will fix Test 5, Step 3 (bell icon showing pending requests).
 
-**5.6 Real-Time Testing**
+---
 
-- Verify timetable updates in real-time for all users when status changes
-- Verify bell icon count updates when requests are created/resolved
-- Test concurrent actions (e.g., approve while requestor is viewing)
+## 📋 **Recommended Implementation Order**
 
-**5.7 Edge Cases**
+### **Step 1: Database Migration (CRITICAL)**
 
-- Multiple pending sessions in same cell (should all show pending)
-- Cross-department classroom (in addition to instructor)
-- Department Head rejecting while Program Head views timetable
-- Network errors during multi-step operations
-- Permissions: verify non-owners can't drag pending sessions
+Create a new migration file: `docs/postgresql_schema/251023_fix_request_rls_policies.sql`
 
-## Key Design Decisions
+```sql
+-- Fix 1: Add INSERT policy for request_notifications
+CREATE POLICY "request_notifications_insert_requester" 
+  ON "public"."request_notifications" 
+  FOR INSERT 
+  TO authenticated
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 
+      FROM resource_requests 
+      WHERE resource_requests.id = request_notifications.request_id
+        AND resource_requests.requester_id = auth.uid()
+    )
+    OR has_role(auth.uid(), 'admin')
+  );
 
-1. **Application-Layer Approach**: Cross-department detection in UI, not DB trigger (better testability)
-2. **Non-Blocking Creation**: Class sessions and assignments created immediately, just marked pending
-3. **Cascading Deletes on Rejection**: Rejection/cancellation removes all related records
-4. **Visual Distinction**: Multiple indicators (border, opacity, icon) for pending state
-5. **Bidirectional Cancel**: Both requester and reviewer can cancel/reject
-6. **Real-Time Updates**: Leverage existing Supabase subscriptions
-7. **Backward Compatible**: Default status='confirmed' preserves existing behavior
-8. **Enriched Notifications**: Show resource names, not just IDs
+-- Fix 2: Expand SELECT policy for resource_requests
+DROP POLICY IF EXISTS "resource_requests_select_own" 
+  ON "public"."resource_requests";
 
-This updated plan reflects your interactive workflow where:
+CREATE POLICY "resource_requests_select_access" 
+  ON "public"."resource_requests" 
+  FOR SELECT 
+  TO authenticated 
+  USING (
+    requester_id = auth.uid()
+    OR (
+      has_role(auth.uid(), 'department_head')
+      AND target_department_id = (
+        SELECT department_id 
+        FROM profiles 
+        WHERE id = auth.uid()
+      )
+    )
+    OR has_role(auth.uid(), 'admin')
+  );
 
-1. Selection triggers a confirmation modal (not automatic post-creation)
-2. Pending sessions are visually distinct and non-draggable
-3. Both Department Heads and Program Heads can manage requests
-4. Rejection deletes the session entirely
+-- Fix 3: Add DELETE policy for resource_requests
+CREATE POLICY "resource_requests_delete_own" 
+  ON "public"."resource_requests" 
+  FOR DELETE 
+  TO authenticated
+  USING (
+    requester_id = auth.uid()
+    OR has_role(auth.uid(), 'admin')
+  );
+
+-- Fix 4: Add DELETE policy for request_notifications
+CREATE POLICY "request_notifications_delete" 
+  ON "public"."request_notifications" 
+  FOR DELETE 
+  TO authenticated
+  USING (
+    target_department_id = (
+      SELECT department_id 
+      FROM profiles 
+      WHERE id = auth.uid()
+    )
+    AND has_role(auth.uid(), 'department_head')
+    OR has_role(auth.uid(), 'admin')
+    OR EXISTS (
+      SELECT 1 
+      FROM resource_requests 
+      WHERE resource_requests.id = request_notifications.request_id
+        AND resource_requests.requester_id = auth.uid()
+    )
+  );
+```
+
+---
+
+### **Step 2: Service Layer Enhancement (OPTIONAL)**
+
+**File:** `src/features/resourceRequests/services/notificationsService.ts`
+
+Add a delete function for cleanup:
+
+```typescript
+/**
+ * Deletes a notification (for cleanup after approval/rejection).
+ *
+ * @param id - The ID of the notification to delete.
+ * @returns A promise that resolves when the operation is complete.
+ */
+export async function deleteNotification(id: string): Promise {
+  const { error } = await supabase
+    .from('request_notifications')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
+```
+
+---
+
+### **Step 3: UI Enhancement - Automatic Notification Cleanup**
+
+**File:** `src/components/RequestNotifications.tsx`
+
+Update handlers to automatically delete notifications after approval/rejection:
+
+```typescript
+const handleApprove = async (requestId: string, classSessionId: string, notificationId: string) => {
+  setApprovingId(requestId);
+  try {
+    // ... existing approval logic ...
+
+    // Delete the notification after successful approval
+    const { error: notifError } = await supabase
+      .from('request_notifications')
+      .delete()
+      .eq('id', notificationId);
+
+    if (notifError) console.warn('Failed to delete notification:', notifError);
+
+    toast.success('Request approved successfully');
+  } catch (error) {
+    // ... existing error handling ...
+  } finally {
+    setApprovingId(null);
+  }
+};
+
+const handleReject = async (requestId: string, classSessionId: string, notificationId: string) => {
+  setRejectingId(requestId);
+  try {
+    // ... existing rejection logic ...
+
+    // Delete the notification after successful rejection
+    const { error: notifError } = await supabase
+      .from('request_notifications')
+      .delete()
+      .eq('id', notificationId);
+
+    if (notifError) console.warn('Failed to delete notification:', notifError);
+
+    toast.success('Request rejected successfully');
+  } catch (error) {
+    // ... existing error handling ...
+  } finally {
+    setRejectingId(null);
+  }
+};
+```
+
+Update the render to pass notification ID:
+
+```typescript
+ handleApprove(request.id, request.class_session_id, request.id)}
+  // ... existing props ...
+>
+  Approve
+
+ handleReject(request.id, request.class_session_id, request.id)}
+  // ... existing props ...
+>
+  Reject
+
+```
+
+**Note:** Since notifications are fetched via JOIN with requests, the `request.id` in the enriched data is actually the notification ID. Need to verify this mapping.
+
+---
+
+### **Step 4: UI Enhancement - Real-Time Subscription**
+
+**File:** `src/components/RequestNotifications.tsx`
+
+Add real-time subscription for instant updates:
+
+```typescript
+useEffect(() => {
+  if (!departmentId) return;
+
+  const channel = supabase
+    .channel('request-notifications-realtime')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'request_notifications',
+        filter: `target_department_id=eq.${departmentId}`,
+      },
+      () => {
+        // Invalidate queries when notifications change
+        queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept', departmentId] });
+        queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [departmentId, queryClient]);
+```
+
+---
+
+### **Step 5: UI Enhancement - Pending Request Real-Time Updates**
+
+**File:** `src/components/PendingRequestsNotification.tsx`
+
+Add subscription for Program Head's pending requests:
+
+```typescript
+useEffect(() => {
+  if (!user?.id) return;
+
+  const channel = supabase
+    .channel('my-pending-requests-realtime')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'resource_requests',
+        filter: `requester_id=eq.${user.id}`,
+      },
+      () => {
+        queryClient.invalidateQueries({ queryKey: ['my_pending_requests', user.id] });
+        queryClient.invalidateQueries({ queryKey: ['my_enriched_requests'] });
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, [user?.id, queryClient]);
+```
+
+---
+
+## 📊 **Updated Testing Checklist**
+
+### **Test 3: Cross-Department Request Submission** (Should PASS after Step 1)
+
+- ✅ Modal appears with department name
+- ✅ Request created without RLS error
+- ✅ Notification created successfully
+- ✅ Timetable updates instantly (already working via existing subscription)
+
+### **Test 4: Visual Styling** (Already PASSING)
+
+- ✅ Pending sessions show dashed border, opacity 0.7, clock icon
+- ✅ Dragging disabled for pending sessions
+
+### **Test 5: Department Head Approval/Rejection** (Should PASS after Steps 1-4)
+
+- ✅ Bell icon shows badge count
+- ✅ Click bell reveals pending requests with resource names
+- ✅ Approve updates status to 'confirmed'
+- ✅ Session styling updates to normal immediately
+- ✅ Notification disappears from list
+
+### **Test 6: Program Head Cancellation** (Should PASS after Steps 1-2)
+
+- ✅ Clock icon shows badge count
+- ✅ Click clock reveals own pending requests
+- ✅ Cancel deletes session, assignment, and request
+- ✅ Notification cleared from department head's bell
+
+---
+
+## 🎯 **Key Benefits of This Plan**
+
+1. **Minimal Code Changes:** Focuses on database-level RLS policies (most critical issue)
+2. **Security-First:** Ensures proper access control at the database level
+3. **Real-Time Ready:** Existing subscriptions will work once RLS is fixed
+4. **Backward Compatible:** All existing features continue to work
+5. **Incremental:** Can be implemented step-by-step with immediate testing
+
+---
+
+## 🚨 **Critical Dependencies**
+
+Before implementing UI enhancements (Steps 3-5), **Step 1 (Database Migration) MUST be completed first**. Without fixing the RLS policies, the following will fail:
+
+- ❌ Creating notifications (INSERT blocked)
+- ❌ Department heads viewing requests (SELECT blocked)
+- ❌ Program heads canceling requests (DELETE blocked)
+- ❌ Cleaning up notifications (DELETE blocked)
+
+---
+
+## 📝 **Documentation Updates Needed**
+
+1. Update `docs/feature-plans/cross-department-request-approval.md` with:
+   - Mark database RLS fixes as completed
+   - Update test checklist with actual results
+   - Document the RLS policy patterns for future reference
+
+2. Create `docs/rls-patterns.md` documenting:
+   - Pattern for request/notification workflows
+   - When to use SECURITY DEFINER functions
+   - How to handle cross-table access checks
+
+3. Update architecture diagrams showing:
+   - Request approval flow
+   - Notification lifecycle
+   - RLS policy boundaries
+
+Based on my examination of the codebase, I've identified the core issue preventing the Department Head workflow from functioning properly: **missing RLS policies on the `request_notifications` and `resource_requests` tables**.
+
+The good news is that most of the implementation is actually complete! The UI components, services, and hooks are all in place. The critical blocker is at the database security layer.
+
+**Key Findings:**
+
+1. **RLS Policy Gap (CRITICAL):** The `request_notifications` table only has SELECT and UPDATE policies, but no INSERT policy. This is causing the "42501 - new row violates row-level security" error you saw in Test 3.
+
+2. **Department Head Access Blocked:** The `resource_requests` table's SELECT policy only allows requesters to see their own requests. Department Heads can't see requests targeted at their department.
+
+3. **Missing DELETE Policies:** Neither table has DELETE policies, which prevents:
+   - Program Heads from canceling their requests
+   - System cleanup of notifications after approval/rejection
+
+4. **Visual Indicators Working:** The pending session styling with dashed borders, opacity, and clock icons is already implemented correctly via `pendingSessionIds` in `useTimetable`.
+
+The plan I've provided focuses on **Step 1 (Database Migration)** as the highest priority, since without fixing these RLS policies, the entire Department Head workflow will remain blocked. Once that's done, the existing UI components should work immediately.
+
+Would you like me to proceed with implementing this plan, starting with the database migration?
+
 ---
 
 ## **Manual E2E Test Checklist**
 
 ### **Test 1: Database Layer Verification**
+
 - [x] Open Supabase SQL Editor
 - [x] Execute: `SELECT * FROM timetable_assignments LIMIT 5;`
 - [x] Confirm `status` column exists and contains 'pending' or 'confirmed'
@@ -190,6 +537,7 @@ This updated plan reflects your interactive workflow where:
 - [x] Confirm function returns boolean
 
 ### **Test 2: Same-Department Session Creation**
+
 1. [x] Log in as Program Head
 2. [x] Navigate to Classes page
 3. [x] Create new class session with instructor from same department
@@ -197,47 +545,38 @@ This updated plan reflects your interactive workflow where:
 5. [x] Check timetable: session should appear immediately with normal styling
 
 ### **Test 3: Cross-Department Request Submission**
+
 1. [x] Log in as Program Head (e.g., Computer Science program)
 2. [x] Navigate to Classes page
 3. [x] Create session with instructor from different department (e.g., Mathematics)
 4. [x] Verify: **Confirmation Modal appears** with department name and instructor name
 5. [x] Click "Submit Request"
-6. [ ] Check browser console for errors
-
-Error occured:
-This error is caused:
-lovable.js:1 
- Failed to create request notification 
-{code: '42501', details: null, hint: null, message: 'new row violates row-level security policy for table "request_notifications"'}
-console.<computed>	@	lovable.js:1
-createRequest	@	resourceRequestService.ts:68
-await in createRequest		
-handleConfirmCrossDept	@	ClassSessionsPage.tsx:182
-<button>		
-_c	@	button.tsx:22
-<Button>		
-ConfirmModal	@	confirm-modal.tsx:64
-
-It's strange that despite the RLS policy error, the request is still created in the database.
-
-Switching tabs and back is needed before the notification panel updates with the request.
-
+6. [x] Check browser console for errors
 7. [x] Query database: `SELECT * FROM resource_requests WHERE status='pending';`
 8. [x] Verify request was created
+9. [x] Update instantly when the class session with foreign instructor is created, instead of having to switch tabs.
+
+- doesn't apply to classrooms yet.
 
 ### **Test 4: Visual Styling (Conditional)**
+
 ⚠️ **This test will FAIL until Priority 1, Item 2 is fixed**
+
 1. [x] Navigate to Timetable page
 2. [x] Look for sessions with pending status
 3. [x] Verify: Dashed orange border, reduced opacity, clock icon
 4. [x] Try to drag: Should be disabled
+
 - For the workflow, It should be enabled or it is prescheduled in a modal timetable in the manage classes page.
 
 ### **Test 5: Department Head Approval/Rejection**
+
 ⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
+
 1. [x] Log in as Department Head
 2. [x] Look for bell icon with notification badge (won't be visible yet)
 3. [ ] After fix: Click bell, verify list shows pending requests
+
 - does not show pending requests
 
 4. [ ] Click "Approve" on a request
@@ -245,14 +584,14 @@ Switching tabs and back is needed before the notification panel updates with the
 6. [ ] Verify: Session on timetable updates to normal styling
 
 ### **Test 6: Program Head Cancellation**
+
 ⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
+
 1. [x] Log in as Program Head with pending requests
 2. [x] Look for clock icon with badge (won't be visible yet)
 3. [x] After fix: Click clock, verify list shows own pending requests
 4. [x] Click "Cancel"
-5. [ ] Verify: Session removed from timetable, request deleted from database
-- need reload or switch tabs to see timetable class session removed. Notification is persistent and not cleared.
-
+5. [x] Verify: Session removed from timetable, request deleted from database
 
 ---
 
@@ -276,6 +615,7 @@ Switching tabs and back is needed before the notification panel updates with the
 # **5. Architecture Notes**
 
 **Strengths of Current Implementation:**
+
 - ✅ Clean separation of concerns (service → hook → UI)
 - ✅ Database-level validation with RLS policies
 - ✅ Proper use of React Query for state management
@@ -283,6 +623,7 @@ Switching tabs and back is needed before the notification panel updates with the
 - ✅ Optimistic updates for better UX
 
 **Technical Debt to Address:**
+
 - ⚠️ Type safety: Some `as any` casts in RPC calls
 - ⚠️ Missing loading states in some components
 - ⚠️ No rollback mechanism for failed cross-dept request creation (3-step process)
