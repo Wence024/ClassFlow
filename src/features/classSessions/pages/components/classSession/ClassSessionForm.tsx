@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'; // Import useMemo
+import React, { useMemo, useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { Button, FormField } from '../../../../../components/ui';
@@ -13,6 +13,10 @@ import { AlertTriangle } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import { useAuth } from '../../../../auth/hooks/useAuth';
 import type { Program } from '../../../../programs/types/program';
+import { ResourceSelectorModal, type PrioritizedItem } from '../../../../../components/ui/custom/ResourceSelectorModal';
+import { InstructorCard } from '../../../../classSessionComponents/pages/components/instructor/InstructorCard';
+import { ClassroomCard } from '../../../../classSessionComponents/pages/components/classroom/ClassroomCard';
+import { Card } from '../../../../../components/ui/card';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
@@ -59,13 +63,17 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   loading,
   isEditing,
 }) => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const {
     control,
     handleSubmit,
     watch,
     formState: { errors, isDirty },
   } = formMethods;
+
+  // Modal state management
+  const [isInstructorModalOpen, setIsInstructorModalOpen] = useState(false);
+  const [isClassroomModalOpen, setIsClassroomModalOpen] = useState(false);
 
   // Watch all values that could affect soft conflicts
   const watchedValues = watch([
@@ -108,6 +116,37 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
 
     return [];
   }, [watchedValues, classGroups, classrooms, courses, instructors]);
+
+  // Transform instructors and classrooms into PrioritizedItem format
+  const prioritizedInstructors: (Instructor & PrioritizedItem)[] = useMemo(() => {
+    return instructors.map((instructor) => ({
+      ...instructor,
+      isPriority: instructor.department_id === user?.department_id,
+      searchTerm: `${instructor.first_name} ${instructor.last_name} ${instructor.code || ''} ${instructor.email || ''}`,
+    }));
+  }, [instructors, user?.department_id]);
+
+  const prioritizedClassrooms: (Classroom & PrioritizedItem)[] = useMemo(() => {
+    return classrooms.map((classroom) => ({
+      ...classroom,
+      isPriority: classroom.preferred_department_id === user?.department_id,
+      searchTerm: `${classroom.name} ${classroom.code || ''} ${classroom.location || ''}`,
+    }));
+  }, [classrooms, user?.department_id]);
+
+  // Get selected resource names for display
+  const selectedInstructor = instructors.find((i) => i.id === watch('instructor_id'));
+  const selectedClassroom = classrooms.find((c) => c.id === watch('classroom_id'));
+
+  const getInstructorDisplayName = () => {
+    if (!selectedInstructor) return 'Select Instructor';
+    return `${selectedInstructor.first_name} ${selectedInstructor.last_name}`;
+  };
+
+  const getClassroomDisplayName = () => {
+    if (!selectedClassroom) return 'Select Classroom';
+    return selectedClassroom.name;
+  };
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
@@ -153,24 +192,6 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
             )}
           />
           <Controller
-            name="instructor_id"
-            control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="instructor_id"
-                label="Instructor"
-                type="select"
-                error={errors.instructor_id?.message}
-                options={instructors.map((i) => ({
-                  id: i.id,
-                  name: `${i.first_name} ${i.last_name}`,
-                }))}
-                required
-              />
-            )}
-          />
-          <Controller
             name="class_group_id"
             control={control}
             render={({ field }) => (
@@ -185,21 +206,40 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               />
             )}
           />
-          <Controller
-            name="classroom_id"
-            control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="classroom_id"
-                label="Classroom"
-                type="select"
-                error={errors.classroom_id?.message}
-                options={classrooms}
-                required
-              />
+          <div className="space-y-2">
+            <label htmlFor="classroom-selector" className="text-sm font-medium">
+              Classroom <span className="text-destructive">*</span>
+            </label>
+            <Button
+              id="classroom-selector"
+              type="button"
+              variant="outline"
+              className="w-full justify-start text-left font-normal"
+              onClick={() => setIsClassroomModalOpen(true)}
+            >
+              {getClassroomDisplayName()}
+            </Button>
+            {errors.classroom_id && (
+              <p className="text-sm text-destructive">{errors.classroom_id.message}</p>
             )}
-          />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="instructor-selector" className="text-sm font-medium">
+              Instructor <span className="text-destructive">*</span>
+            </label>
+            <Button
+              id="instructor-selector"
+              type="button"
+              variant="outline"
+              className="w-full justify-start text-left font-normal"
+              onClick={() => setIsInstructorModalOpen(true)}
+            >
+              {getInstructorDisplayName()}
+            </Button>
+            {errors.instructor_id && (
+              <p className="text-sm text-destructive">{errors.instructor_id.message}</p>
+            )}
+          </div>
           {conflictWarnings.length > 0 && (
             <div className="flex items-start gap-3 p-3 my-2 text-sm text-yellow-900 bg-yellow-50 border border-yellow-200 rounded-md">
               <div className="flex-shrink-0">
@@ -244,6 +284,53 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
           </div>
         </fieldset>
       </form>
+
+      {/* Resource Selector Modals */}
+      <ResourceSelectorModal
+        isOpen={isInstructorModalOpen}
+        onClose={() => setIsInstructorModalOpen(false)}
+        onSelectItem={(instructor) => {
+          formMethods.setValue('instructor_id', instructor.id, { shouldValidate: true });
+        }}
+        items={prioritizedInstructors}
+        title="Select Instructor"
+        renderItem={(instructor, onSelect) => (
+          <Card 
+            className="hover:bg-accent transition-colors"
+            onClick={onSelect}
+          >
+            <InstructorCard
+              instructor={instructor}
+              onEdit={() => {}}
+              onDelete={() => {}}
+              isOwner={false}
+            />
+          </Card>
+        )}
+      />
+
+      <ResourceSelectorModal
+        isOpen={isClassroomModalOpen}
+        onClose={() => setIsClassroomModalOpen(false)}
+        onSelectItem={(classroom) => {
+          formMethods.setValue('classroom_id', classroom.id, { shouldValidate: true });
+        }}
+        items={prioritizedClassrooms}
+        title="Select Classroom"
+        renderItem={(classroom, onSelect) => (
+          <Card 
+            className="hover:bg-accent transition-colors"
+            onClick={onSelect}
+          >
+            <ClassroomCard
+              classroom={classroom}
+              onEdit={() => {}}
+              onDelete={() => {}}
+              isOwner={false}
+            />
+          </Card>
+        )}
+      />
     </div>
   );
 };

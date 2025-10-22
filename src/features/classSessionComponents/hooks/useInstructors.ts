@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as instructorsService from '../services/instructorsService';
@@ -7,29 +8,40 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
 /**
  * Custom hook to manage instructors data.
  *
- * This hook abstracts the logic for fetching, adding, updating, and removing instructors
- * for the currently authenticated user. It uses React Query for server state management.
+ * This hook abstracts the logic for fetching, adding, updating, and removing instructors.
+ * It fetches all instructors and prioritizes them based on the user's department preference.
+ * Uses React Query for server state management.
  *
- * @returns An object containing the instructors data, granular loading and error states, and mutation functions.
+ * @returns An object containing the prioritized instructors data, granular loading and error states, and mutation functions.
  */
 export function useInstructors() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = ['instructors', user?.id];
+  const queryKey = ['allInstructors'];
 
   const {
-    data: instructors = [],
+    data: allInstructors = [],
     isLoading: isListLoading,
     isFetching,
     error,
   } = useQuery<Instructor[]>({
     queryKey,
-    queryFn: () =>
-      user
-        ? instructorsService.getInstructors({ role: user.role, department_id: (user as { department_id?: string | null })?.department_id || null })
-        : Promise.resolve([]),
+    queryFn: () => instructorsService.getAllInstructors(),
     enabled: !!user,
   });
+
+  const prioritizedInstructors = useMemo(() => {
+    if (!user?.department_id) return allInstructors;
+
+    const preferred = allInstructors.filter(
+      (i) => i.department_id === user.department_id
+    );
+    const other = allInstructors.filter(
+      (i) => i.department_id !== user.department_id
+    );
+
+    return [...preferred, ...other];
+  }, [allInstructors, user?.department_id]);
 
   const addMutation = useMutation({
     mutationFn: (data: InstructorInsert) =>
@@ -60,8 +72,8 @@ export function useInstructors() {
   });
 
   return {
-    /** The cached array of instructors for the current user. */
-    instructors,
+    /** The prioritized array of instructors (preferred first, then others). */
+    instructors: prioritizedInstructors,
 
     /** A boolean indicating if the list of instructors is currently being fetched. */
     isLoading: isListLoading || isFetching,
