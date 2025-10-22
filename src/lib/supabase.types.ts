@@ -401,6 +401,7 @@ export type Database = {
       }
       resource_requests: {
         Row: {
+          class_session_id: string
           id: string
           notes: string | null
           requested_at: string | null
@@ -414,6 +415,7 @@ export type Database = {
           target_department_id: string
         }
         Insert: {
+          class_session_id: string
           id?: string
           notes?: string | null
           requested_at?: string | null
@@ -427,6 +429,7 @@ export type Database = {
           target_department_id: string
         }
         Update: {
+          class_session_id?: string
           id?: string
           notes?: string | null
           requested_at?: string | null
@@ -440,6 +443,13 @@ export type Database = {
           target_department_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "resource_requests_class_session_id_fkey"
+            columns: ["class_session_id"]
+            isOneToOne: false
+            referencedRelation: "class_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "resource_requests_requesting_program_id_fkey"
             columns: ["requesting_program_id"]
@@ -529,6 +539,7 @@ export type Database = {
           id: string
           period_index: number
           semester_id: string
+          status: string
           user_id: string
         }
         Insert: {
@@ -538,6 +549,7 @@ export type Database = {
           id?: string
           period_index: number
           semester_id: string
+          status?: string
           user_id: string
         }
         Update: {
@@ -547,6 +559,7 @@ export type Database = {
           id?: string
           period_index?: number
           semester_id?: string
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -612,6 +625,23 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_test_user: {
+        Args: {
+          department_id?: string
+          email: string
+          full_name: string
+          password: string
+          program_id?: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Returns: string
+      }
+      delete_test_user: { Args: { email: string }; Returns: undefined }
+      get_class_session_program_id: {
+        Args: { _class_session_id: string }
+        Returns: string
+      }
+      get_user_program_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -620,6 +650,14 @@ export type Database = {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
           _user_id: string
+        }
+        Returns: boolean
+      }
+      is_cross_department_resource: {
+        Args: {
+          _classroom_id?: string
+          _instructor_id?: string
+          _program_id: string
         }
         Returns: boolean
       }
