@@ -636,18 +636,12 @@ export type Database = {
         }
         Returns: string
       }
-      delete_test_user: {
-        Args: { email: string }
-        Returns: undefined
-      }
+      delete_test_user: { Args: { email: string }; Returns: undefined }
       get_class_session_program_id: {
         Args: { _class_session_id: string }
         Returns: string
       }
-      get_user_program_id: {
-        Args: { _user_id: string }
-        Returns: string
-      }
+      get_user_program_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
