@@ -199,52 +199,64 @@ This updated plan reflects your interactive workflow where:
 ### **Test 3: Cross-Department Request Submission**
 1. [x] Log in as Program Head (e.g., Computer Science program)
 2. [x] Navigate to Classes page
-3. [ ] Create session with instructor from different department (e.g., Mathematics)
-4. [ ] Verify: **Confirmation Modal appears** with department name and instructor name
-5. [ ] Click "Submit Request"
+3. [x] Create session with instructor from different department (e.g., Mathematics)
+4. [x] Verify: **Confirmation Modal appears** with department name and instructor name
+5. [x] Click "Submit Request"
 6. [ ] Check browser console for errors
-7. [ ] Query database: `SELECT * FROM resource_requests WHERE status='pending';`
-8. [ ] Verify request was created
+
+Error occured:
+This error is caused:
+lovable.js:1 
+ Failed to create request notification 
+{code: '42501', details: null, hint: null, message: 'new row violates row-level security policy for table "request_notifications"'}
+console.<computed>	@	lovable.js:1
+createRequest	@	resourceRequestService.ts:68
+await in createRequest		
+handleConfirmCrossDept	@	ClassSessionsPage.tsx:182
+<button>		
+_c	@	button.tsx:22
+<Button>		
+ConfirmModal	@	confirm-modal.tsx:64
+
+It's strange that despite the RLS policy error, the request is still created in the database.
+
+Switching tabs and back is needed before the notification panel updates with the request.
+
+7. [x] Query database: `SELECT * FROM resource_requests WHERE status='pending';`
+8. [x] Verify request was created
 
 ### **Test 4: Visual Styling (Conditional)**
 ⚠️ **This test will FAIL until Priority 1, Item 2 is fixed**
-1. [ ] Navigate to Timetable page
-2. [ ] Look for sessions with pending status
-3. [ ] Verify: Dashed orange border, reduced opacity, clock icon
-4. [ ] Try to drag: Should be disabled
+1. [x] Navigate to Timetable page
+2. [x] Look for sessions with pending status
+3. [x] Verify: Dashed orange border, reduced opacity, clock icon
+4. [x] Try to drag: Should be disabled
+- For the workflow, It should be enabled or it is prescheduled in a modal timetable in the manage classes page.
 
 ### **Test 5: Department Head Approval/Rejection**
 ⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
-1. [ ] Log in as Department Head
-2. [ ] Look for bell icon with notification badge (won't be visible yet)
+1. [x] Log in as Department Head
+2. [x] Look for bell icon with notification badge (won't be visible yet)
 3. [ ] After fix: Click bell, verify list shows pending requests
+- does not show pending requests
+
 4. [ ] Click "Approve" on a request
 5. [ ] Check database: `timetable_assignments.status` should change to 'confirmed'
 6. [ ] Verify: Session on timetable updates to normal styling
 
 ### **Test 6: Program Head Cancellation**
 ⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
-1. [ ] Log in as Program Head with pending requests
-2. [ ] Look for clock icon with badge (won't be visible yet)
-3. [ ] After fix: Click clock, verify list shows own pending requests
-4. [ ] Click "Cancel"
+1. [x] Log in as Program Head with pending requests
+2. [x] Look for clock icon with badge (won't be visible yet)
+3. [x] After fix: Click clock, verify list shows own pending requests
+4. [x] Click "Cancel"
 5. [ ] Verify: Session removed from timetable, request deleted from database
+- need reload or switch tabs to see timetable class session removed. Notification is persistent and not cleared.
+
 
 ---
 
 # **4. Recommendations**
-
-## **Immediate Next Steps**
-
-1. **Fix Build Errors First** (Priority 2, Item 3)
-   - The application won't run until type mismatches are resolved
-   - Clean up all references to old HR role types
-   - Update profile schema expectations throughout codebase
-
-2. **Add Notifications to Header** (Priority 1, Item 1)
-   - This is a simple integration that unblocks all UI testing
-   - Add both `RequestNotifications` and `PendingRequestsNotification` components to `Header.tsx`
-   - Conditionally render based on user role
 
 3. **Wire Up Pending Session Styling** (Priority 1, Item 2)
    - Update `TimetablePage` to pass `pendingSessionIds` from `useTimetable` hook
