@@ -1,9 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/notificationsService';
 import type { RequestNotification } from '../services/notificationsService';
-import { supabase } from '../../../lib/supabase';
 
 /**
  * Hook for cross-department request notifications.
@@ -28,23 +27,6 @@ export function useRequestNotifications() {
     mutationFn: (id: string) => service.markRead(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
-
-  useEffect(() => {
-    if (!user) return;
-    
-    const channel = supabase
-      .channel('request_notifications')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'request_notifications' },
-        () => queryClient.refetchQueries({ queryKey })
-      )
-      .subscribe();
-      
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, queryClient, queryKey]);
 
   return {
     notifications: (listQuery.data as RequestNotification[]) || [],
