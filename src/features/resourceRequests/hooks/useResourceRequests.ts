@@ -102,7 +102,7 @@ export function useDepartmentRequests(departmentId?: string) {
         },
         () => {
           console.log('New notification received for department:', departmentId);
-          queryClient.invalidateQueries({ queryKey });
+          queryClient.refetchQueries({ queryKey });
         }
       )
       .subscribe();
@@ -198,7 +198,7 @@ export function useMyPendingRequests() {
           table: 'resource_requests',
           filter: `requester_id=eq.${user.id}`
         },
-        () => queryClient.invalidateQueries({ queryKey })
+        () => queryClient.refetchQueries({ queryKey })
       )
       .subscribe();
       
