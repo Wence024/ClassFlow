@@ -575,13 +575,17 @@ Would you like me to proceed with implementing this plan, starting with the data
 
 1. [x] Log in as Department Head
 2. [x] Look for bell icon with notification badge (won't be visible yet)
-3. [ ] After fix: Click bell, verify list shows pending requests
-
-- does not show pending requests
-
-4. [ ] Click "Approve" on a request
+3. [x] After fix: Click bell, verify list shows pending requests
+4. [x] Click "Approve" on a request
 5. [ ] Check database: `timetable_assignments.status` should change to 'confirmed'
+
+- does not change to `confirmed`
+
 6. [ ] Verify: Session on timetable updates to normal styling
+   - does not update to normal styling, still unmovable.
+   - timetable class session should be either programmed or movable
+     - Periods may be converted to timeLogic renders.
+   - Approved class session should be movable, but causes another request.
 
 ### **Test 6: Program Head Cancellation**
 
