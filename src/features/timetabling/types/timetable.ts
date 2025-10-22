@@ -19,6 +19,7 @@ export type TimetableAssignmentUpdate =
  */
 export type HydratedTimetableAssignment = Omit<TimetableAssignment, 'class_session_id'> & {
   class_session: ClassSession;
+  status: 'pending' | 'confirmed';
 };
 
 // --- View Mode System ---

@@ -43,9 +43,11 @@ export async function getTimetableAssignments(
     throw error;
   }
 
-  // DELETED: Obsolete check for data migration.
-
-  return data as HydratedTimetableAssignment[];
+  // Map the data to include the status field explicitly
+  return (data || []).map(assignment => ({
+    ...assignment,
+    status: (assignment as any).status as 'pending' | 'confirmed',
+  })) as HydratedTimetableAssignment[];
 }
 
 /**
