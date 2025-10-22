@@ -1,5 +1,6 @@
 import { supabase } from '../../../lib/supabase';
 import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
+import { updateAssignmentStatusBySession } from '../../timetabling/services/timetableService';
 
 const TABLE = 'resource_requests';
 const NOTIF_TABLE = 'request_notifications';
@@ -74,7 +75,7 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
 }
 
 /**
- * Updates an existing resource request.
+ * Updates an existing resource request and updates related timetable assignments if approved.
  *
  * @param id - The ID of the resource request to update.
  * @param update - The update payload.
@@ -88,7 +89,38 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
     .select()
     .single();
   if (error) throw error;
-  return data as ResourceRequest;
+  
+  const updatedRequest = data as ResourceRequest;
+  
+  // If the request is approved, update the timetable assignment status to 'confirmed'
+  if (update.status === 'approved') {
+    // Type assertion: class_session_id exists in DB but not in generated types
+    const classSessionId = (updatedRequest as any).class_session_id as string | undefined;
+    
+    if (classSessionId) {
+      try {
+        // Get the active semester
+        const { data: activeSemester } = await supabase
+          .from('semesters')
+          .select('id')
+          .eq('is_active', true)
+          .single();
+        
+        if (activeSemester) {
+          await updateAssignmentStatusBySession(
+            classSessionId,
+            activeSemester.id,
+            'confirmed'
+          );
+        }
+      } catch (e) {
+        console.error('Failed to update timetable assignment status', e);
+        // Don't throw - request approval succeeded, assignment update is secondary
+      }
+    }
+  }
+  
+  return updatedRequest;
 }
 
 /**
