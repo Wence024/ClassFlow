@@ -276,7 +276,22 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
       e.preventDefault();
       e.stopPropagation();
 
-      const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
+      const rawData = e.dataTransfer.getData(DRAG_DATA_KEY);
+      if (!rawData) {
+        cleanupDragState();
+        return;
+      }
+
+      let source: DragSource;
+      try {
+        source = JSON.parse(rawData);
+      } catch (err) {
+        console.error('[TimetableDnd] Failed to parse drag data', err);
+        toast('Error', { description: 'Invalid drag data' });
+        cleanupDragState();
+        return;
+      }
+
       const classSessionToDrop = allClassSessions.find((cs) => cs.id === source.class_session_id);
 
       if (!classSessionToDrop) {

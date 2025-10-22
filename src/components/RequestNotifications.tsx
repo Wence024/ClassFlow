@@ -30,7 +30,7 @@ export default function RequestNotifications() {
   const hasNotifications = pendingRequests.length > 0;
 
   // Fetch enriched details for each pending request
-  const { data: enrichedRequests = [] } = useQuery<(ResourceRequest & { resource_name: string })[]>({
+  const { data: enrichedRequests = [] } = useQuery<(ResourceRequest & { resource_name: string; class_session_id: string })[]>({
     queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
@@ -51,7 +51,7 @@ export default function RequestNotifications() {
               .single();
             if (data) resourceName = data.name;
           }
-          return { ...req, resource_name: resourceName };
+          return { ...req, resource_name: resourceName, class_session_id: (req as any).class_session_id };
         })
       );
       return enriched;
@@ -89,10 +89,10 @@ export default function RequestNotifications() {
       if (notifError) console.warn('Failed to delete notification:', notifError);
 
       // Invalidate all affected queries for real-time updates
-      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
-      queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
-      queryClient.invalidateQueries({ queryKey: ['resource_requests'] });
+      await queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
+      await queryClient.refetchQueries({ queryKey: ['timetable_assignments'] });
+      await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
+      await queryClient.refetchQueries({ queryKey: ['resource_requests'] });
 
       toast.success('Request approved successfully');
     } catch (error) {
@@ -141,10 +141,10 @@ export default function RequestNotifications() {
       if (notifError) console.warn('Failed to delete notification:', notifError);
 
       // Invalidate all affected queries for real-time updates
-      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
-      queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
-      queryClient.invalidateQueries({ queryKey: ['resource_requests'] });
+      await queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
+      await queryClient.refetchQueries({ queryKey: ['timetable_assignments'] });
+      await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
+      await queryClient.refetchQueries({ queryKey: ['resource_requests'] });
 
       toast.success('Request rejected successfully');
     } catch (error) {
@@ -224,7 +224,7 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="secondary"
                       className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleApprove(request.id, (request as any).class_session_id)}
+                      onClick={() => handleApprove(request.id, request.class_session_id)}
                       disabled={approvingId === request.id || rejectingId === request.id}
                     >
                       {approvingId === request.id ? 'Approving...' : 'Approve'}
@@ -233,7 +233,7 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="destructive"
                       className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleReject(request.id, (request as any).class_session_id)}
+                      onClick={() => handleReject(request.id, request.class_session_id)}
                       disabled={approvingId === request.id || rejectingId === request.id}
                     >
                       {rejectingId === request.id ? 'Rejecting...' : 'Reject'}

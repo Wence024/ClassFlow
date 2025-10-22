@@ -423,7 +423,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
   const pendingSessionIds = useMemo(() => {
     const pending = new Set<string>();
     assignments.forEach((assignment) => {
-      if ((assignment as any).status === 'pending') {
+      if (assignment.status === 'pending') {
         pending.add(assignment.class_session.id);
       }
     });
