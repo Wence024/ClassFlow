@@ -37,7 +37,7 @@ export function useRequestNotifications() {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'request_notifications' },
-        () => queryClient.invalidateQueries({ queryKey })
+        () => queryClient.refetchQueries({ queryKey })
       )
       .subscribe();
       
