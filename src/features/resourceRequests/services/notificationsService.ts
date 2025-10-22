@@ -41,3 +41,17 @@ export async function markRead(id: string): Promise<void> {
     .eq('id', id);
   if (error) throw error;
 }
+
+/**
+ * Deletes a notification (for cleanup after approval/rejection).
+ *
+ * @param id - The ID of the notification to delete.
+ * @returns A promise that resolves when the operation is complete.
+ */
+export async function deleteNotification(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('request_notifications')
+    .delete()
+    .eq('id', id);
+  if (error) throw error;
+}
