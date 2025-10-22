@@ -128,3 +128,25 @@ export async function moveClassSessionInTimetable(
   
   return newAssignment;
 }
+
+/**
+ * Update the status of all timetable assignments for a specific class session.
+ * Used when approving cross-department resource requests.
+ *
+ * @param class_session_id The class session ID.
+ * @param semester_id The semester ID.
+ * @param status The new status ('pending' or 'confirmed').
+ */
+export async function updateAssignmentStatusBySession(
+  class_session_id: string,
+  semester_id: string,
+  status: 'pending' | 'confirmed'
+): Promise<void> {
+  // Type assertion: status field exists in DB but not in generated types
+  const { error } = await supabase
+    .from('timetable_assignments')
+    .update({ status } as any)
+    .eq('class_session_id', class_session_id)
+    .eq('semester_id', semester_id);
+  if (error) throw error;
+}
