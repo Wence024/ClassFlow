@@ -976,6 +976,146 @@ Before proceeding with missing features, verify that implemented features work c
 ### **Manual E2E Test Checklist**
 
 #### **Test 1: Database Layer Verification**
+
+
+I'll analyze the codebase to understand the project's current state and compare it against the cross-department request approval feature plan.
+
+Let me start by examining the feature plan document and then assess the current implementation.
+
+Let me continue reading the feature plan and examine more of the codebase to understand what's been implemented:
+
+Let me check the existing implementation files:
+
+Now let me check the timetable-related files and session cell implementation:
+
+Now let me check for the database function and the types to see what's implemented:
+
+Now let me check more of the SessionCell to see if pending status is handled there:
+
+Now let me check the TimetableContext to see how pendingSessionIds is passed down:
+
+Let me check the classSessionsService file:
+
+Perfect! Now I have a comprehensive understanding of the project. Let me create the gap analysis report.
+
+---
+
+# **Gap Analysis Report: Cross-Department Resource Approval System**
+
+## **Executive Summary**
+
+The ClassFlow codebase has been successfully pivoted from an HR application to a class scheduling system. The cross-department resource approval workflow has been **partially implemented**, with the core infrastructure and several key features already in place. However, critical UI enhancements and some integration points remain incomplete.
+
+---
+
+## **1. Implemented Features** ✅
+
+The following components from the implementation plan are **already present** in the codebase:
+
+### **Phase 1: Database Layer** ✅ COMPLETE
+
+| Feature | Status | Location/Evidence |
+|---------|--------|-------------------|
+| **`status` column in `timetable_assignments`** | ✅ Implemented | `src/integrations/supabase/types.ts` (line 532: `status: string`) |
+| **`is_cross_department_resource()` function** | ✅ Implemented | Database functions list shows this function exists with correct signature |
+| **`resource_requests` table** | ✅ Implemented | `src/integrations/supabase/types.ts` (lines 402-458) |
+| **`request_notifications` table** | ✅ Implemented | Referenced in `resourceRequestService.ts` (line 5) |
+
+### **Phase 2: Service Layer** ✅ COMPLETE
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| **`isCrossDepartmentInstructor()`** | ✅ Implemented | `src/features/classSessions/services/classSessionsService.ts` (lines 128-139) |
+| **`isCrossDepartmentClassroom()`** | ✅ Implemented | `src/features/classSessions/services/classSessionsService.ts` (lines 148-159) |
+| **`getResourceDepartmentId()`** | ✅ Implemented | `src/features/classSessions/services/classSessionsService.ts` (lines 168-191) |
+| **`assignClassSessionToTimetable()` with status** | ✅ Implemented | `src/features/timetabling/services/timetableService.ts` (lines 58-70) - accepts `status` parameter |
+| **`getRequestWithDetails()`** | ✅ Implemented | `src/features/resourceRequests/services/resourceRequestService.ts` (lines 97-131) |
+
+### **Phase 3: Hook Layer** ✅ COMPLETE
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| **`checkCrossDepartmentResources()` helper** | ✅ Implemented | `src/features/classSessions/hooks/useClassSessions.ts` (lines 115-151) |
+| **`useMyPendingRequests()` hook** | ✅ Implemented | `src/features/resourceRequests/hooks/useResourceRequests.ts` (lines 77-141) |
+| **Cancel request mutation** | ✅ Implemented | `useResourceRequests.ts` (lines 89-132) with full cascading delete logic |
+
+### **Phase 4: UI Layer** ⚠️ PARTIALLY COMPLETE
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| **Cross-department detection in form submission** | ✅ Implemented | `src/features/classSessions/pages/ClassSessionsPage.tsx` (lines 122-154) |
+| **Confirmation modal for cross-dept requests** | ✅ Implemented | `ClassSessionsPage.tsx` (lines 294-321) |
+| **Request creation on confirmation** | ✅ Implemented | `ClassSessionsPage.tsx` (lines 156-193) |
+| **`RequestNotifications` component** | ✅ Implemented | `src/components/RequestNotifications.tsx` - Full approval/rejection logic |
+| **`PendingRequestsNotification` component** | ✅ Implemented | `src/components/PendingRequestsNotification.tsx` - Program head cancellation UI |
+| **Pending session visual indicators** | ✅ Implemented | `src/features/timetabling/pages/components/timetable/SessionCell.tsx` (lines 335-375) |
+| **Pending sessions are non-draggable** | ✅ Implemented | `SessionCell.tsx` (line 359: `draggable={isOwnSession && !isPending}`) |
+| **Clock icon for pending sessions** | ✅ Implemented | `SessionCell.tsx` (lines 371-375) |
+| **`pendingSessionIds` tracking** | ✅ Implemented | `src/features/timetabling/hooks/useTimetable.ts` (lines 318-327) |
+
+---
+
+## **2. Missing Features (To-Do List)** 📋
+
+The following items from the implementation plan are **NOT yet implemented**:
+
+### **Priority 1: Critical UI Integration Issues** 🚨
+
+1. **Notification components not added to Header**
+   - **Issue:** `RequestNotifications` and `PendingRequestsNotification` exist but are not rendered anywhere
+   - **Impact:** Users cannot see or interact with pending requests
+   - **Required Action:** Add both components to `src/components/Header.tsx`
+   - **Reference:** Plan Phase 4.4 and 4.6
+
+2. **`pendingSessionIds` not passed to `SessionCell`**
+   - **Issue:** `useTimetable` hook returns `pendingSessionIds`, but it's not being passed through the component tree to `SessionCell`
+   - **Impact:** Visual styling for pending sessions won't work
+   - **Required Action:** 
+     - Update `TimetablePage` to pass `pendingSessionIds` through context
+     - Verify `TimetableContext` provides this value (already defined in interface line 27)
+   - **Reference:** Plan Phase 4.3 and 4.5
+
+### **Priority 2: Error Handling & Edge Cases** ⚠️
+
+3. **Build errors indicate type mismatches**
+   - **Issues found in build output:**
+     - `profiles` table schema mismatch (expecting `first_name`/`last_name` but schema shows `full_name`)
+     - Old HR role types still referenced in code (`hr_manager`, `hr_staff`, etc.)
+   - **Impact:** Application won't compile
+   - **Required Action:** Clean up old HR-related code and update profile schema expectations
+   - **Files affected:** Multiple (see build errors in prompt)
+
+4. **Missing real-time invalidation after approval/rejection**
+   - **Issue:** When a department head approves/rejects, the timetable query isn't invalidated
+   - **Impact:** Program heads won't see real-time updates on timetable
+   - **Required Action:** Add `queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] })` in `RequestNotifications.tsx` approval/rejection handlers
+   - **Reference:** Plan Phase 4.4, lines 537-550
+
+### **Priority 3: Testing & Validation** 🧪
+
+5. **No E2E tests for cross-department workflow**
+   - **Required:** Create integration tests covering:
+     - Same-department session creation (should be immediate)
+     - Cross-department request submission
+     - Department head approval flow
+     - Department head rejection flow
+     - Program head cancellation flow
+   - **Reference:** Plan Phase 5 (lines 611-643)
+
+6. **Edge case: Concurrent actions not handled**
+   - **Scenario:** What if dept head rejects while program head cancels?
+   - **Required:** Add optimistic locking or error handling for concurrent modifications
+   - **Reference:** Plan Phase 5.4 (lines 638-643)
+
+---
+
+## **3. Verification Plan** 🔍
+
+Before proceeding with missing features, verify that implemented features work correctly:
+
+### **Manual E2E Test Checklist**
+
+#### **Test 1: Database Layer Verification**
 - [x] Open Supabase SQL Editor
 - [x] Execute: `SELECT * FROM timetable_assignments LIMIT 5;`
 - [x] Confirm `status` column exists and contains 'pending' or 'confirmed'
@@ -983,22 +1123,26 @@ Before proceeding with missing features, verify that implemented features work c
 - [x] Confirm function returns boolean
 
 #### **Test 2: Same-Department Session Creation**
+#### **Test 2: Same-Department Session Creation**
 1. [x] Log in as Program Head
 2. [x] Navigate to Classes page
 3. [x] Create new class session with instructor from same department
-4. [x] Verify: **No confirmation modal appears**
+4. [x] Verify: **No modal appears**
 5. [x] Check timetable: session should appear immediately with normal styling
 
 #### **Test 3: Cross-Department Request Submission**
+#### **Test 3: Cross-Department Request Submission**
 1. [x] Log in as Program Head (e.g., Computer Science program)
 2. [x] Navigate to Classes page
-3. [ ] Create session with instructor from different department (e.g., Mathematics)
-4. [ ] Verify: **Confirmation Modal appears** with department name and instructor name
-5. [ ] Click "Submit Request"
+3. [x] Create session with instructor from different department (e.g., Mathematics)
+4. [x] Verify: **Modal appears** with department name and instructor name
+  * Cross Department request should appear when clicking the foreign instructor in the modal selector.
+5. [x] Click "Submit Request"
 6. [ ] Check browser console for errors
 7. [ ] Query database: `SELECT * FROM resource_requests WHERE status='pending';`
 8. [ ] Verify request was created
 
+#### **Test 4: Visual Styling (Conditional)**
 #### **Test 4: Visual Styling (Conditional)**
 ⚠️ **This test will FAIL until Priority 1, Item 2 is fixed**
 1. [ ] Navigate to Timetable page
@@ -1006,6 +1150,7 @@ Before proceeding with missing features, verify that implemented features work c
 3. [ ] Verify: Dashed orange border, reduced opacity, clock icon
 4. [ ] Try to drag: Should be disabled
 
+#### **Test 5: Department Head Approval/Rejection**
 #### **Test 5: Department Head Approval/Rejection**
 ⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
 1. [ ] Log in as Department Head
@@ -1015,6 +1160,7 @@ Before proceeding with missing features, verify that implemented features work c
 5. [ ] Check database: `timetable_assignments.status` should change to 'confirmed'
 6. [ ] Verify: Session on timetable updates to normal styling
 
+#### **Test 6: Program Head Cancellation**
 #### **Test 6: Program Head Cancellation**
 ⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
 1. [ ] Log in as Program Head with pending requests
@@ -1026,7 +1172,9 @@ Before proceeding with missing features, verify that implemented features work c
 ---
 
 ## **4. Recommendations**
+## **4. Recommendations**
 
+### **Immediate Next Steps**
 ### **Immediate Next Steps**
 
 1. **Fix Build Errors First** (Priority 2, Item 3)
@@ -1054,6 +1202,7 @@ Before proceeding with missing features, verify that implemented features work c
 
 ---
 
+## **5. Architecture Notes**
 ## **5. Architecture Notes**
 
 **Strengths of Current Implementation:**
