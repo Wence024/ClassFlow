@@ -55,6 +55,7 @@ export async function getTimetableAssignments(
  * The assignment object MUST include the semester_id.
  *
  * @param assignment TimetableAssignmentInsert object.
+ * @param status The status of the assignment ('pending' or 'confirmed').
  * @returns The upserted timetable assignment object.
  */
 export async function assignClassSessionToTimetable(
@@ -113,15 +114,17 @@ export async function removeClassSessionFromTimetable(
  * @param _to.class_group_id The class group ID of the destination cell.
  * @param _to.period_index The period index of the destination cell.
  * @param assignment TimetableAssignmentInsert for the new cell.
+ * @param status The status of the assignment ('pending' or 'confirmed').
  * @returns The upserted timetable assignment object for the new cell.
  */
 export async function moveClassSessionInTimetable(
   from: { class_group_id: string; period_index: number },
   _to: { class_group_id: string; period_index: number },
-  assignment: TimetableAssignmentInsert // This is the payload for the new location
+  assignment: TimetableAssignmentInsert,
+  status: 'pending' | 'confirmed' = 'confirmed'
 ): Promise<TimetableAssignment> {
   // Step 1: Create the new assignment first (safer order)
-  const newAssignment = await assignClassSessionToTimetable(assignment);
+  const newAssignment = await assignClassSessionToTimetable(assignment, status);
   
   // Step 2: Remove the old assignment only after the new one is successfully created
   await removeClassSessionFromTimetable(from.class_group_id, from.period_index, assignment.semester_id);
