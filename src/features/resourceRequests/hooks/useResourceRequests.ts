@@ -118,17 +118,19 @@ export function useMyPendingRequests() {
       // Get the request to find the class_session_id
       const { data: request, error: reqError } = await supabase
         .from('resource_requests')
-        .select('resource_id')
+        .select('class_session_id')
         .eq('id', requestId)
         .single();
       
       if (reqError) throw reqError;
       
+      const classSessionId = (request as any).class_session_id;
+      
       // Delete timetable assignment first (by class_session_id)
       const { error: assignError } = await supabase
         .from('timetable_assignments')
         .delete()
-        .eq('class_session_id', request.resource_id);
+        .eq('class_session_id', classSessionId);
       
       if (assignError) console.error('Error deleting assignment:', assignError);
       
@@ -136,7 +138,7 @@ export function useMyPendingRequests() {
       const { error: sessionError } = await supabase
         .from('class_sessions')
         .delete()
-        .eq('id', request.resource_id);
+        .eq('id', classSessionId);
       
       if (sessionError) throw sessionError;
       
