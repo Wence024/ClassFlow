@@ -183,10 +183,11 @@ const ClassSessionsPage: React.FC = () => {
         requester_id: user.id,
         requesting_program_id: user.program_id!,
         resource_type: crossDeptInfo.resourceType!,
-        resource_id: newSession.id, // Store class_session_id here
+        resource_id: crossDeptInfo.resourceId!, // Actual instructor/classroom ID
+        class_session_id: newSession.id, // The class session being requested
         target_department_id: crossDeptInfo.departmentId!,
         status: 'pending',
-      });
+      } as any);
 
       toast.success('Cross-department request submitted successfully!');
       formMethods.reset();
