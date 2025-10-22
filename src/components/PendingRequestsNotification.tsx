@@ -5,6 +5,7 @@ import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 /**
  * Notification dropdown for Program Heads to view and cancel their own pending resource requests.
@@ -13,7 +14,7 @@ import { toast } from 'sonner';
  * @returns The PendingRequestsNotification component.
  */
 export default function PendingRequestsNotification() {
-  const { isProgramHead } = useAuth();
+  const { user, isProgramHead } = useAuth();
   const { pendingRequests, cancelRequest, isCancelling } = useMyPendingRequests();
   const queryClient = useQueryClient();
 
@@ -68,6 +69,32 @@ export default function PendingRequestsNotification() {
       toast.error('Failed to cancel request');
     }
   };
+
+  // Real-time subscription for pending request updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('my-pending-requests-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'resource_requests',
+          filter: `requester_id=eq.${user.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['my_pending_requests', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['my_enriched_requests'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
 
   return (
     <Popover>

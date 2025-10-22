@@ -6,7 +6,7 @@ import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { ResourceRequest } from '../features/resourceRequests/types/resourceRequest';
 
 /**
@@ -81,6 +81,14 @@ export default function RequestNotifications() {
         },
       });
 
+      // Delete the notification after successful approval
+      const { error: notifError } = await supabase
+        .from('request_notifications')
+        .delete()
+        .eq('request_id', requestId);
+      
+      if (notifError) console.warn('Failed to delete notification:', notifError);
+
       // Invalidate all affected queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
       queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
@@ -125,6 +133,14 @@ export default function RequestNotifications() {
         },
       });
 
+      // Delete the notification after successful rejection
+      const { error: notifError } = await supabase
+        .from('request_notifications')
+        .delete()
+        .eq('request_id', requestId);
+      
+      if (notifError) console.warn('Failed to delete notification:', notifError);
+
       // Invalidate all affected queries for real-time updates
       queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
       queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
@@ -139,6 +155,33 @@ export default function RequestNotifications() {
       setRejectingId(null);
     }
   };
+
+  // Real-time subscription for notification updates
+  useEffect(() => {
+    if (!departmentId) return;
+
+    const channel = supabase
+      .channel('request-notifications-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'request_notifications',
+          filter: `target_department_id=eq.${departmentId}`,
+        },
+        () => {
+          // Invalidate queries when notifications change
+          queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept', departmentId] });
+          queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [departmentId, queryClient]);
 
   return (
     <Popover>
