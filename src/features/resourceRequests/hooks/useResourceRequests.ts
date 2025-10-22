@@ -86,6 +86,32 @@ export function useDepartmentRequests(departmentId?: string) {
     };
   }, [departmentId, queryClient, queryKey]);
 
+  // Real-time subscription for new notifications
+  useEffect(() => {
+    if (!departmentId) return;
+    
+    const notifChannel = supabase
+      .channel('dept_request_notifications')
+      .on(
+        'postgres_changes',
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'request_notifications',
+          filter: `target_department_id=eq.${departmentId}`
+        },
+        () => {
+          console.log('New notification received for department:', departmentId);
+          queryClient.invalidateQueries({ queryKey });
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(notifChannel);
+    };
+  }, [departmentId, queryClient, queryKey]);
+
   return {
     requests: (listQuery.data as ResourceRequest[]) || [],
     isLoading: listQuery.isLoading,
