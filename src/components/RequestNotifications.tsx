@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import type { ResourceRequest } from '../features/resourceRequests/types/resourceRequest';
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -29,7 +30,7 @@ export default function RequestNotifications() {
   const hasNotifications = pendingRequests.length > 0;
 
   // Fetch enriched details for each pending request
-  const { data: enrichedRequests = [] } = useQuery({
+  const { data: enrichedRequests = [] } = useQuery<(ResourceRequest & { resource_name: string })[]>({
     queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
@@ -180,7 +181,7 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="secondary"
                       className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleApprove(request.id, request.resource_id)}
+                      onClick={() => handleApprove(request.id, (request as any).class_session_id)}
                       disabled={approvingId === request.id || rejectingId === request.id}
                     >
                       {approvingId === request.id ? 'Approving...' : 'Approve'}
@@ -189,7 +190,7 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="destructive"
                       className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleReject(request.id, request.resource_id)}
+                      onClick={() => handleReject(request.id, (request as any).class_session_id)}
                       disabled={approvingId === request.id || rejectingId === request.id}
                     >
                       {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
