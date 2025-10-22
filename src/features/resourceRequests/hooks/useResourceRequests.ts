@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/resourceRequestService';
 import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
@@ -49,7 +49,7 @@ export function useResourceRequests() {
  */
 export function useDepartmentRequests(departmentId?: string) {
   const queryClient = useQueryClient();
-  const queryKey = ['resource_requests', 'dept', departmentId];
+  const queryKey = useMemo(() => ['resource_requests', 'dept', departmentId], [departmentId]);
 
   const listQuery = useQuery({
     queryKey,
