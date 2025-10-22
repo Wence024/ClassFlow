@@ -2,7 +2,7 @@ import { Clock } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useMyPendingRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 
@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 export default function PendingRequestsNotification() {
   const { isProgramHead } = useAuth();
   const { pendingRequests, cancelRequest, isCancelling } = useMyPendingRequests();
+  const queryClient = useQueryClient();
 
   // Only show for program heads
   if (!isProgramHead()) {
@@ -56,6 +57,11 @@ export default function PendingRequestsNotification() {
   const handleCancel = async (requestId: string) => {
     try {
       await cancelRequest(requestId);
+      
+      // Invalidate department request queries so bell icon updates
+      queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept'] });
+      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      
       toast.success('Request cancelled successfully');
     } catch (error) {
       console.error('Error cancelling request:', error);

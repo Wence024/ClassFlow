@@ -3,9 +3,10 @@ import { useAuth } from '../features/auth/hooks/useAuth';
 import { useDepartmentId } from '../features/auth/hooks/useDepartmentId';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -16,6 +17,9 @@ import { toast } from 'sonner';
 export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId, user } = useAuth();
   const { requests, updateRequest } = useDepartmentRequests(departmentId || undefined);
+  const queryClient = useQueryClient();
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   // Only show for department heads and admins
   if (!isDepartmentHead() && !isAdmin()) {
@@ -56,6 +60,7 @@ export default function RequestNotifications() {
   });
 
   const handleApprove = async (requestId: string, classSessionId: string) => {
+    setApprovingId(requestId);
     try {
       // Update timetable assignment status to 'confirmed'
       const { error: assignError } = await supabase
@@ -75,14 +80,23 @@ export default function RequestNotifications() {
         },
       });
 
+      // Invalidate all affected queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+      queryClient.invalidateQueries({ queryKey: ['resource_requests'] });
+
       toast.success('Request approved successfully');
     } catch (error) {
       console.error('Error approving request:', error);
       toast.error('Failed to approve request');
+    } finally {
+      setApprovingId(null);
     }
   };
 
   const handleReject = async (requestId: string, classSessionId: string) => {
+    setRejectingId(requestId);
     try {
       // Delete timetable assignment
       const { error: assignError } = await supabase
@@ -110,10 +124,18 @@ export default function RequestNotifications() {
         },
       });
 
+      // Invalidate all affected queries for real-time updates
+      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+      queryClient.invalidateQueries({ queryKey: ['resource_requests'] });
+
       toast.success('Request rejected successfully');
     } catch (error) {
       console.error('Error rejecting request:', error);
       toast.error('Failed to reject request');
+    } finally {
+      setRejectingId(null);
     }
   };
 
@@ -160,16 +182,18 @@ export default function RequestNotifications() {
                       variant="secondary"
                       className="text-xs px-2 py-1 h-6"
                       onClick={() => handleApprove(request.id, request.resource_id)}
+                      disabled={approvingId === request.id || rejectingId === request.id}
                     >
-                      Approve
+                      {approvingId === request.id ? 'Approving...' : 'Approve'}
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
                       className="text-xs px-2 py-1 h-6"
                       onClick={() => handleReject(request.id, request.resource_id)}
+                      disabled={approvingId === request.id || rejectingId === request.id}
                     >
-                      Reject
+                      {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
                     </Button>
                   </div>
                 </div>
