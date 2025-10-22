@@ -191,23 +191,6 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               />
             )}
           />
-          <div className="space-y-2">
-            <label htmlFor="instructor-selector" className="text-sm font-medium">
-              Instructor <span className="text-destructive">*</span>
-            </label>
-            <Button
-              id="instructor-selector"
-              type="button"
-              variant="outline"
-              className="w-full justify-start text-left font-normal"
-              onClick={() => setIsInstructorModalOpen(true)}
-            >
-              {getInstructorDisplayName()}
-            </Button>
-            {errors.instructor_id && (
-              <p className="text-sm text-destructive">{errors.instructor_id.message}</p>
-            )}
-          </div>
           <Controller
             name="class_group_id"
             control={control}
@@ -238,6 +221,23 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
             </Button>
             {errors.classroom_id && (
               <p className="text-sm text-destructive">{errors.classroom_id.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="instructor-selector" className="text-sm font-medium">
+              Instructor <span className="text-destructive">*</span>
+            </label>
+            <Button
+              id="instructor-selector"
+              type="button"
+              variant="outline"
+              className="w-full justify-start text-left font-normal"
+              onClick={() => setIsInstructorModalOpen(true)}
+            >
+              {getInstructorDisplayName()}
+            </Button>
+            {errors.instructor_id && (
+              <p className="text-sm text-destructive">{errors.instructor_id.message}</p>
             )}
           </div>
           {conflictWarnings.length > 0 && (
