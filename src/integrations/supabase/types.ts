@@ -401,6 +401,7 @@ export type Database = {
       }
       resource_requests: {
         Row: {
+          class_session_id: string
           id: string
           notes: string | null
           requested_at: string | null
@@ -414,6 +415,7 @@ export type Database = {
           target_department_id: string
         }
         Insert: {
+          class_session_id: string
           id?: string
           notes?: string | null
           requested_at?: string | null
@@ -427,6 +429,7 @@ export type Database = {
           target_department_id: string
         }
         Update: {
+          class_session_id?: string
           id?: string
           notes?: string | null
           requested_at?: string | null
@@ -440,6 +443,13 @@ export type Database = {
           target_department_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "resource_requests_class_session_id_fkey"
+            columns: ["class_session_id"]
+            isOneToOne: false
+            referencedRelation: "class_sessions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "resource_requests_requesting_program_id_fkey"
             columns: ["requesting_program_id"]

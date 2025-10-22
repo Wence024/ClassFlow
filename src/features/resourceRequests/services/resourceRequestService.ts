@@ -66,6 +66,9 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
     await createNotificationForRequest(created);
   } catch (e) {
     console.error('Failed to create request notification', e);
+    // Import toast dynamically to avoid circular dependencies
+    const { toast } = await import('sonner');
+    toast.warning('Request created, but notification may not be visible to department head.');
   }
   return created;
 }

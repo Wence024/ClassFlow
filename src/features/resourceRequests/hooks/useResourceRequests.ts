@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/resourceRequestService';
 import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
+import { supabase } from '../../../lib/supabase';
 
 /**
  * A hook for managing resource requests initiated by the current user.
@@ -60,6 +62,29 @@ export function useDepartmentRequests(departmentId?: string) {
       service.updateRequest(id, update),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
+
+  // Real-time subscription for department requests
+  useEffect(() => {
+    if (!departmentId) return;
+    
+    const channel = supabase
+      .channel('dept_resource_requests')
+      .on(
+        'postgres_changes',
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'resource_requests',
+          filter: `target_department_id=eq.${departmentId}`
+        },
+        () => queryClient.invalidateQueries({ queryKey })
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [departmentId, queryClient, queryKey]);
 
   return {
     requests: (listQuery.data as ResourceRequest[]) || [],
