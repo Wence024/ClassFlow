@@ -103,7 +103,7 @@ const AdminInstructorManagement: React.FC = () => {
     
     await addInstructor(instructorData);
     formMethods.reset();
-    toast('Success', { description: 'Instructor added successfully!' });
+    toast.success('Instructor added successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 

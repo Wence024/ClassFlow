@@ -90,9 +90,7 @@ const InstructorManagement: React.FC = () => {
     
     // For department heads, validate they have a department assigned
     if (user.role === 'department_head' && !user.department_id) {
-      toast('Error', { 
-        description: 'You must be assigned to a department before creating instructors. Please contact an administrator.' 
-      });
+      toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
       return;
     }
     
@@ -110,13 +108,13 @@ const InstructorManagement: React.FC = () => {
       // For department heads: use their department_id
       // For admins: use the department_id from the form
       department_id: user.role === 'department_head' 
-        ? user.department_id!
+        ? user.department_id
         : (data.department_id || null),
     };
     
     await addInstructor(instructorData);
     formMethods.reset();
-    toast('Success', { description: 'Instructor added successfully!' });
+    toast.success('Instructor added successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
