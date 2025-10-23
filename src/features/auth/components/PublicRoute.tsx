@@ -12,12 +12,10 @@ interface PublicRouteProps {
  * Redirects based on user role to their appropriate dashboard.
  */
 export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
-  if (loading) {
-    return null; // Or a loading spinner
-  }
-
+  // Only redirect if user is authenticated (don't check loading state)
+  // The child components handle their own loading states
   if (user) {
     // Redirect authenticated users based on their role
     if (user.role === 'admin') {
