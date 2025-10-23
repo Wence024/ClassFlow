@@ -65,7 +65,21 @@ export async function addInstructor(instructor: InstructorInsert): Promise<Instr
   };
   
   const { data, error } = await supabase.from(TABLE).insert([instructorWithCreator]).select().single();
-  if (error) throw error;
+  
+  if (error) {
+    // Provide more context for RLS policy violations
+    if (error.code === '42501') {
+      throw new Error(
+        `Permission denied: Unable to create instructor. This may be due to: \n` +
+        `1. Missing department assignment (department_id: ${instructorWithCreator.department_id})\n` +
+        `2. Insufficient permissions for this operation\n` +
+        `3. Row-level security policy violation\n` +
+        `Original error: ${error.message}`
+      );
+    }
+    throw error;
+  }
+  
   return data;
 }
 
