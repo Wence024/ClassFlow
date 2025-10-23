@@ -9,6 +9,8 @@ import {
   isProgramHead as roleIsProgramHead,
   canManageInstructors as roleCanManageInstructors,
   canManageClassrooms as roleCanManageClassrooms,
+  canManageInstructorRow as roleCanManageInstructorRow,
+  canManageCourses as roleCanManageCourses,
   canReviewRequestsForDepartment as roleCanReviewRequestsForDepartment,
   canManageAssignmentsForProgram as roleCanManageAssignmentsForProgram,
 } from '../utils/permissions';
@@ -160,10 +162,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     canManageClassrooms: () => roleCanManageClassrooms(user?.role || null),
     canReviewRequestsForDepartment: (departmentId: string) =>
       roleCanReviewRequestsForDepartment(user?.role || null, user?.department_id || null, departmentId),
-  canManageInstructorRow: (instructorDepartmentId: string) =>
-      roleCanManageInstructors(user?.role || null) &&
-      roleCanReviewRequestsForDepartment(user?.role || null, user?.department_id || null, instructorDepartmentId),
-  canManageAssignmentsForProgram: (programId: string) =>
+    canManageInstructorRow: (instructorDepartmentId: string) =>
+      roleCanManageInstructorRow(user?.role || null, user?.department_id || null, instructorDepartmentId),
+    canManageCourses: (courseProgramId: string | null | undefined) =>
+      roleCanManageCourses(user?.role || null, user?.program_id || null, courseProgramId),
+    canManageAssignmentsForProgram: (programId: string) =>
       roleCanManageAssignmentsForProgram(user?.role || null, user?.program_id || null, programId),
   };
 

@@ -90,6 +90,23 @@ export function canManageInstructorRow(
 }
 
 /**
+ * Program Head can manage courses for their own program, or admin can manage any.
+ *
+ * @param role - The user's role string.
+ * @param userProgramId - The program ID of the current user.
+ * @param targetProgramId - The program ID of the course being managed.
+ * @returns True if the user can manage courses for the target program.
+ */
+export function canManageCourses(
+  role: RoleString | null | undefined,
+  userProgramId: string | null | undefined,
+  targetProgramId: string | null | undefined
+): boolean {
+  if (role === 'admin') return true;
+  return role === 'program_head' && !!userProgramId && !!targetProgramId && userProgramId === targetProgramId;
+}
+
+/**
  * Program Head can manage assignments for their own program (optionally allow admin).
  *
  * @param role - The user's role string.

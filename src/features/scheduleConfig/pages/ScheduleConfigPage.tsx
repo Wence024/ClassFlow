@@ -18,7 +18,7 @@ import { toast } from 'sonner';
  * @returns The rendered schedule configuration page, tailored to the user's role.
  */
 const ScheduleConfigPage: React.FC = () => {
-  const { user } = useAuth();
+  const { isAdmin } = useAuth();
   const { settings, updateSettings, isLoading, isUpdating, error: queryError } = useScheduleConfig();
   const [formData, setFormData] = useState({
     periods_per_day: 8,
@@ -38,8 +38,6 @@ const ScheduleConfigPage: React.FC = () => {
       });
     }
   }, [settings]);
-
-  const isAdmin = user?.role === 'admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +78,7 @@ const ScheduleConfigPage: React.FC = () => {
 
       <form onSubmit={handleSubmit}>
         {/* The fieldset will disable all inputs for non-admins */}
-        <fieldset disabled={!isAdmin || isUpdating}>
+        <fieldset disabled={!isAdmin() || isUpdating}>
           <FormField
             id="periods_per_day"
             label="Periods Per Day"
@@ -122,7 +120,7 @@ const ScheduleConfigPage: React.FC = () => {
         </fieldset>
 
         {/* Conditionally render the submit button */}
-        {isAdmin && (
+        {isAdmin() && (
           <div className="mt-6">
             <Button type="submit" loading={isUpdating} className="w-full">
               Save Settings

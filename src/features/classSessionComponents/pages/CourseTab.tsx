@@ -28,7 +28,7 @@ type CourseFormData = z.infer<typeof componentSchemas.course>;
  * @returns The CourseManagement component.
  */
 const CourseManagement: React.FC = () => {
-  const { user } = useAuth();
+  const { user, canManageCourses } = useAuth();
   const {
     courses,
     addCourse,
@@ -58,7 +58,7 @@ const CourseManagement: React.FC = () => {
     }
   }, [editingCourse, formMethods, presetColor]);
 
-  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  // Memoize the filtered list to avoid re-calculating on every render
   const filteredCourses = useMemo(() => {
     if (!searchTerm) return courses;
     return courses.filter(
@@ -67,16 +67,6 @@ const CourseManagement: React.FC = () => {
         course.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [courses, searchTerm]);
-
-  // Determine if current user can manage a course (admin or same program, fallback to creator)
-  const canManageCourse = (course: Course) => {
-    if (!user) return false;
-    if (user.role === 'admin') return true;
-    const programMatch = !!course.program_id && !!user.program_id && course.program_id === user.program_id;
-    const creatorId = (course as any).user_id ?? (course as any).created_by;
-    const creatorMatch = creatorId === user.id;
-    return programMatch || creatorMatch;
-  };
 
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
@@ -183,7 +173,7 @@ const CourseManagement: React.FC = () => {
                       course={course}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
-                      isOwner={canManageCourse(course)}
+                      isOwner={canManageCourses(course.program_id)}
                     />
                   ))}
                 </div>
