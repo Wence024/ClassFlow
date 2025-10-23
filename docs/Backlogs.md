@@ -56,7 +56,7 @@ Here is a rearranged, consolidated, and prioritized to-do list.
 
 4. [x] **[Data Integrity] Restrict Invalid Timetabling Moves**
 5. **[RBAC/UI] Add protected navigation links**
-    * **Task:** Add nav links to `/dept-head` and `/browse/instructors` for authorized roles only.
+    * **Task:** Add nav links to `/department-head` and `/browse/instructors` for authorized roles only.
     * **Status:** Pending
 
 6. **[UX] Improve ProgramHeadInstructors selection UX**

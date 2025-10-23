@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    * SINGLE SOURCE OF TRUTH: This is the only place where post-login navigation happens.
    * - admin → /departments
    * - department_head → /department-head
-   * - program_head (or others) → /scheduler
+   * - program_head (or others) → /scheduler.
    *
    * @param email - The user's email address.
    * @param password - The user's password.
@@ -77,6 +77,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
+
+      console.log("Role: ", user.role)
       
       // Role-based redirect after login
       if (user.role === 'admin') {

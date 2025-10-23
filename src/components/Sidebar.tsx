@@ -20,7 +20,7 @@ const adminNavLinks = [
 
 /** An array defining the navigation links for department heads - ordered by workflow. */
 const departmentHeadNavLinks = [
-  { to: '/dept-head', icon: Users, label: 'Department Dashboard' },
+  { to: '/department-head', icon: Users, label: 'Department Dashboard' },
   { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
   { to: '/class-sessions', icon: BookOpenCheck, label: 'Manage Classes' },
   { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
