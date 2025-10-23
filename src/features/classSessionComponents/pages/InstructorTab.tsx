@@ -96,13 +96,22 @@ const InstructorManagement: React.FC = () => {
       return;
     }
     
-    // For department heads, automatically set their department_id
-    // For admins, use the department_id from the form
+    // Explicitly construct instructor data with department_id
     const instructorData: InstructorInsert = {
-      ...data,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      prefix: data.prefix || null,
+      suffix: data.suffix || null,
+      code: data.code || null,
+      contract_type: data.contract_type || null,
+      email: data.email || null,
+      phone: data.phone || null,
+      color: data.color || null,
+      // For department heads: use their department_id
+      // For admins: use the department_id from the form
       department_id: user.role === 'department_head' 
-        ? user.department_id 
-        : data.department_id || null,
+        ? user.department_id!
+        : (data.department_id || null),
     };
     
     await addInstructor(instructorData);

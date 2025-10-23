@@ -15,7 +15,7 @@ import {
   LoadingSpinner,
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
-import type { Instructor } from '../types';
+import type { Instructor, InstructorInsert } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
@@ -86,9 +86,22 @@ const AdminInstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    await addInstructor({
-      ...data,
-    });
+    
+    // Explicitly construct instructor data
+    const instructorData: InstructorInsert = {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      prefix: data.prefix || null,
+      suffix: data.suffix || null,
+      code: data.code || null,
+      contract_type: data.contract_type || null,
+      email: data.email || null,
+      phone: data.phone || null,
+      color: data.color || null,
+      department_id: data.department_id || null,
+    };
+    
+    await addInstructor(instructorData);
     formMethods.reset();
     toast('Success', { description: 'Instructor added successfully!' });
     setRandomPresetColor(getRandomPresetColor());
