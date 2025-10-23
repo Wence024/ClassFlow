@@ -70,7 +70,7 @@ const CourseManagement: React.FC = () => {
 
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
-    await addCourse({ ...data, created_by: user.id });
+    await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
     formMethods.reset();
     toast('Success', { description: 'Course created successfully!' });
     setRandomPresetColor(getRandomPresetColor());

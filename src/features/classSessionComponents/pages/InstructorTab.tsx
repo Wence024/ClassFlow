@@ -217,6 +217,7 @@ const InstructorManagement: React.FC = () => {
                       instructor={instructor}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
+                      isOwner={canManageInstructors()}
                     />
                   ))}
                 </div>
