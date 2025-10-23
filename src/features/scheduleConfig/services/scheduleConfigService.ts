@@ -16,11 +16,9 @@ export async function getScheduleConfig(): Promise<ScheduleConfig | null> {
   const { data, error } = await supabase
     .from('schedule_configuration')
     .select('*')
-    // .eq('user_id', userId)
-    //  // 🛠️ To be removed in future
-    .single();
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     console.error('Error fetching schedule configuration:', error);
     throw error;
   }
@@ -36,7 +34,7 @@ export async function getScheduleConfig(): Promise<ScheduleConfig | null> {
  * @returns The updated schedule configuration.
  * @throws An error if the update fails or if conflicts are found.
  */
-export async function updateScheduleConfig(
+async function updateScheduleConfig(
   configId: string,
   settings: ScheduleConfigUpdate
 ): Promise<ScheduleConfig> {
@@ -72,4 +70,44 @@ export async function updateScheduleConfig(
   }
 
   return updatedSettings;
+}
+
+/**
+ * Creates or updates the global schedule configuration using an upsert strategy.
+ * If no configuration exists, creates one with default values.
+ * If configuration exists, updates it safely using the RPC function.
+ *
+ * @param settings The configuration settings to persist.
+ * @returns The upserted schedule configuration.
+ * @throws An error if the operation fails or if conflicts are found.
+ */
+export async function upsertScheduleConfig(
+  settings: ScheduleConfigUpdate
+): Promise<ScheduleConfig> {
+  // First, try to get the existing configuration
+  const existingConfig = await getScheduleConfig();
+
+  if (existingConfig) {
+    // Configuration exists - use the safe update RPC
+    return updateScheduleConfig(existingConfig.id, settings);
+  } else {
+    // No configuration exists - create one
+    const { data: newConfig, error: insertError } = await supabase
+      .from('schedule_configuration')
+      .insert({
+        periods_per_day: settings.periods_per_day ?? 8,
+        class_days_per_week: settings.class_days_per_week ?? 5,
+        start_time: settings.start_time ?? '09:00',
+        period_duration_mins: settings.period_duration_mins ?? 60,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error creating schedule configuration:', insertError);
+      throw new Error('Failed to create schedule configuration.');
+    }
+
+    return newConfig as ScheduleConfig;
+  }
 }
