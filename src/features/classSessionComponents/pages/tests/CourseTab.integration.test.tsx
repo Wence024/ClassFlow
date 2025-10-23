@@ -52,13 +52,24 @@ const queryClient = new QueryClient();
 // A helper to render the component with all necessary providers
 const renderComponent = () => {
   const authContextValue: AuthContextType = {
-    user: { id: 'u1', name: 'test', email: 'test@test.com', role: 'admin', program_id: 'p1' },
+    user: { id: 'u1', name: 'test', email: 'test@test.com', role: 'admin', program_id: 'p1', department_id: null },
     loading: false,
     login: vi.fn(),
     logout: vi.fn(),
     error: null,
     clearError: vi.fn(),
     role: 'admin',
+    departmentId: null,
+    isAdmin: vi.fn(() => true),
+    isDepartmentHead: vi.fn(() => false),
+    isProgramHead: vi.fn(() => false),
+    canManageInstructors: vi.fn(() => true),
+    canManageClassrooms: vi.fn(() => true),
+    canReviewRequestsForDepartment: vi.fn(() => true),
+    canManageInstructorRow: vi.fn(() => true),
+    canManageCourses: vi.fn(() => true),
+    canManageAssignmentsForProgram: vi.fn(() => true),
+    updateMyProfile: vi.fn(),
   };
   return render(
     <QueryClientProvider client={queryClient}>
