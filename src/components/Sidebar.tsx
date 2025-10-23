@@ -14,7 +14,7 @@ const adminNavLinks = [
   { to: '/departments', icon: Building2, label: 'Departments' },
   { to: '/programs', icon: Blocks, label: 'Programs' },
   { to: '/user-management', icon: Users, label: 'User Management' },
-  { to: '/schedule-configuration', icon: Settings, label: 'Settings' },
+  { to: '/schedule-configuration', icon: Settings, label: 'Schedule Configuration' },
   { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
 ];
 
