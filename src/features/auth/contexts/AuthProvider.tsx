@@ -72,7 +72,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
-      navigate('/scheduler'); // Redirect on successful login
+      
+      // Role-based redirect after login
+      if (user.role === 'admin') {
+        navigate('/departments');
+      } else if (user.role === 'department_head') {
+        navigate('/department-head');
+      } else {
+        navigate('/scheduler');
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Login failed';
       setError(errorMessage);
