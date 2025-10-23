@@ -1,12 +1,14 @@
 import { Outlet, Route } from 'react-router-dom';
 import { ErrorBoundary } from '../components/ui';
+import { PublicRoute } from '../features/auth/components/PublicRoute';
 import LoginPage from '../features/auth/pages/LoginPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import CompleteRegistrationPage from '../features/auth/pages/CompleteRegistrationPage';
 
 /**
- *  A component that renders all routes related to the auth feature.
+ * Routes for authentication-related pages.
+ * Login/signup pages use PublicRoute to redirect authenticated users.
  */
 export const AuthRoutes = (
   <Route
@@ -16,7 +18,14 @@ export const AuthRoutes = (
       </ErrorBoundary>
     }
   >
-    <Route path="/login" element={<LoginPage />} />
+    <Route
+      path="/login"
+      element={
+        <PublicRoute>
+          <LoginPage />
+        </PublicRoute>
+      }
+    />
     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
     <Route path="/reset-password" element={<ResetPasswordPage />} />
     <Route path="/complete-registration" element={<CompleteRegistrationPage />} />

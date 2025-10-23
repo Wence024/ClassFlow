@@ -12,7 +12,7 @@ import { LayoutContext, LayoutContextType } from './types/layout';
  * @returns The provider component.
  */
 export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);

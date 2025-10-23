@@ -48,7 +48,7 @@ function App() {
                   <Route path="/departments" element={<DepartmentManagementPage />} />
                   <Route path="/programs" element={<ProgramManagementPage />} />
                   <Route path="/user-management" element={<UserManagementPage />} />
-                  <Route path="/dept-head" element={<DepartmentHeadDashboard />} />
+                  <Route path="/department-head" element={<DepartmentHeadDashboard />} />
                   <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
                   <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
                   <Route path="/profile" element={<UserProfilePage />} />

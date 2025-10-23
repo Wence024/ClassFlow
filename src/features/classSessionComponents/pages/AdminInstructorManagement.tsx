@@ -15,13 +15,11 @@ import {
   LoadingSpinner,
 } from '../../../components/ui';
 import { componentSchemas } from '../types/validation';
-import type { Instructor } from '../types';
+import type { Instructor, InstructorInsert } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
-type InstructorFormData = z.infer<typeof componentSchemas.instructor> & {
-  department_id?: string;
-};
+type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 
 /**
  * Enhanced instructor management for admins and department heads.
@@ -88,11 +86,34 @@ const AdminInstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    await addInstructor({
-      ...data,
-    });
+    
+    // For department heads, validate they have a department assigned
+    if (!isAdmin() && !user.department_id) {
+      toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
+      return;
+    }
+    
+    // Explicitly construct instructor data
+    const instructorData: InstructorInsert = {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      prefix: data.prefix || null,
+      suffix: data.suffix || null,
+      code: data.code || null,
+      contract_type: data.contract_type || null,
+      email: data.email || null,
+      phone: data.phone || null,
+      color: data.color || null,
+      // For department heads: use their department_id
+      // For admins: use the department_id from the form
+      department_id: !isAdmin() && user.department_id
+        ? user.department_id
+        : (data.department_id || null),
+    };
+    
+    await addInstructor(instructorData);
     formMethods.reset();
-    toast('Success', { description: 'Instructor added successfully!' });
+    toast.success('Instructor added successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 

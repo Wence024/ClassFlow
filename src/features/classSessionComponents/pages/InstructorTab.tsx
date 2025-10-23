@@ -57,8 +57,8 @@ const InstructorManagement: React.FC = () => {
       contract_type: '',
       email: '',
       phone: '',
-      // For department heads, pre-fill their department_id
-      department_id: user?.role === 'department_head' && user.department_id ? user.department_id : undefined,
+      // For department heads, pre-fill their department_id if available
+      department_id: user?.role === 'department_head' ? (user.department_id ?? null) : undefined,
     },
   });
 
@@ -88,19 +88,33 @@ const InstructorManagement: React.FC = () => {
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
     
-    // For department heads, automatically set their department_id
+    // For department heads, validate they have a department assigned
+    if (user.role === 'department_head' && !user.department_id) {
+      toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
+      return;
+    }
+    
+    // Explicitly construct instructor data with department_id
     const instructorData: InstructorInsert = {
-      ...data,
-      // Department heads: auto-set to their own department
-      // Admins: use the department_id from the form
+      first_name: data.first_name,
+      last_name: data.last_name,
+      prefix: data.prefix || null,
+      suffix: data.suffix || null,
+      code: data.code || null,
+      contract_type: data.contract_type || null,
+      email: data.email || null,
+      phone: data.phone || null,
+      color: data.color || null,
+      // For department heads: use their department_id
+      // For admins: use the department_id from the form
       department_id: user.role === 'department_head' 
-        ? (user as { department_id: string | null }).department_id 
-        : data.department_id || null,
+        ? user.department_id
+        : (data.department_id || null),
     };
     
     await addInstructor(instructorData);
     formMethods.reset();
-    toast('Success', { description: 'Instructor added successfully!' });
+    toast.success('Instructor added successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 

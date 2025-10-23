@@ -641,6 +641,7 @@ export type Database = {
         Args: { _class_session_id: string }
         Returns: string
       }
+      get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_program_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
