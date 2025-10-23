@@ -19,9 +19,7 @@ import type { Instructor } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
 
-type InstructorFormData = z.infer<typeof componentSchemas.instructor> & {
-  department_id?: string;
-};
+type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 
 /**
  * Enhanced instructor management for admins and department heads.

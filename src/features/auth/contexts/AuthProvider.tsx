@@ -77,8 +77,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
-
-      console.log("Role: ", user.role)
       
       // Role-based redirect after login
       if (user.role === 'admin') {

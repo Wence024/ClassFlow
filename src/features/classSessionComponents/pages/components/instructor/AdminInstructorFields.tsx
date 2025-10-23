@@ -7,9 +7,7 @@ import { useAuth } from '../../../../auth/hooks/useAuth';
 import { useDepartments } from '../../../../departments/hooks/useDepartments';
 import type { Department } from '../../../../departments/types/department';
 
-type InstructorFormData = z.infer<typeof componentSchemas.instructor> & {
-  department_id?: string;
-};
+type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 
 /**
  * Enhanced instructor form fields for admins and department heads.
