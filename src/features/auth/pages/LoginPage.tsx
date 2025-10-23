@@ -1,34 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { loginSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Button, FormField, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page component for user login.
- * It provides a form for email and password entry, handles client-side validation,
- * and uses the `useAuth` hook to perform the login operation.
+ * 
+ * This component handles form validation and submission only.
+ * Post-login navigation is handled by AuthProvider's login() function,
+ * which redirects users based on their role.
  *
  * @returns A login page component.
  */
 const LoginPage: React.FC = () => {
-  const { login, loading, error: apiError, user, clearError } = useAuth();
+  const { login, loading, error: apiError, clearError } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const navigate = useNavigate();
   const clearErrorRef = useRef(clearError);
 
   // Ensure the ref always has the latest version of the clearError function.
   useEffect(() => {
     clearErrorRef.current = clearError;
   }, [clearError]);
-
-  // If a user is already authenticated, redirect them to the main application.
-  useEffect(() => {
-    if (user) {
-      navigate('/class-sessions');
-    }
-  }, [user, navigate]);
 
   // Clear any existing API errors when the component unmounts.
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import { AuthProvider } from '../AuthProvider';
 import * as authService from '../../services/authService';
 import { useAuth } from '../../hooks/useAuth';
@@ -13,6 +13,15 @@ vi.mock('../../services/authService', () => ({
   logout: vi.fn(),
   updateMyProfileRow: vi.fn(),
 }));
+
+// Mock react-router-dom navigation
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
 
 /**
  * Helper component to test auth context values.
@@ -34,6 +43,7 @@ const TestComponent = ({
 describe('AuthProvider Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useNavigate).mockReturnValue(vi.fn());
   });
 
   it('should initialize with stored user on mount', async () => {
@@ -179,6 +189,110 @@ describe('AuthProvider Integration Tests', () => {
 
     await waitFor(() => {
       expect(capturedContext?.user?.name).toBe('John Updated');
+    });
+  });
+
+  describe('Role-based navigation on login', () => {
+    it('should redirect admin users to /departments', async () => {
+      const mockNavigate = vi.fn();
+      vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+      
+      const adminUser = {
+        id: 'u1',
+        name: 'Admin User',
+        email: 'admin@example.com',
+        role: 'admin',
+        program_id: null,
+        department_id: null,
+      };
+
+      vi.mocked(authService.getStoredUser).mockResolvedValue(null);
+      vi.mocked(authService.login).mockResolvedValue({ user: adminUser, token: 'token' });
+
+      let capturedContext: AuthContextType | null = null;
+      render(
+        <MemoryRouter>
+          <AuthProvider>
+            <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          </AuthProvider>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => expect(capturedContext?.loading).toBe(false));
+
+      await capturedContext?.login('admin@example.com', 'password');
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/departments');
+      });
+    });
+
+    it('should redirect department_head users to /department-head', async () => {
+      const mockNavigate = vi.fn();
+      vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+      
+      const deptHeadUser = {
+        id: 'u2',
+        name: 'Dept Head',
+        email: 'depthead@example.com',
+        role: 'department_head',
+        program_id: null,
+        department_id: 'd1',
+      };
+
+      vi.mocked(authService.getStoredUser).mockResolvedValue(null);
+      vi.mocked(authService.login).mockResolvedValue({ user: deptHeadUser, token: 'token' });
+
+      let capturedContext: AuthContextType | null = null;
+      render(
+        <MemoryRouter>
+          <AuthProvider>
+            <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          </AuthProvider>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => expect(capturedContext?.loading).toBe(false));
+
+      await capturedContext?.login('depthead@example.com', 'password');
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/department-head');
+      });
+    });
+
+    it('should redirect program_head users to /scheduler', async () => {
+      const mockNavigate = vi.fn();
+      vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+      
+      const progHeadUser = {
+        id: 'u3',
+        name: 'Prog Head',
+        email: 'proghead@example.com',
+        role: 'program_head',
+        program_id: 'p1',
+        department_id: null,
+      };
+
+      vi.mocked(authService.getStoredUser).mockResolvedValue(null);
+      vi.mocked(authService.login).mockResolvedValue({ user: progHeadUser, token: 'token' });
+
+      let capturedContext: AuthContextType | null = null;
+      render(
+        <MemoryRouter>
+          <AuthProvider>
+            <TestComponent onRender={(ctx) => (capturedContext = ctx)} />
+          </AuthProvider>
+        </MemoryRouter>
+      );
+
+      await waitFor(() => expect(capturedContext?.loading).toBe(false));
+
+      await capturedContext?.login('proghead@example.com', 'password');
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/scheduler');
+      });
     });
   });
 });

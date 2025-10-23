@@ -60,7 +60,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   /**
-   * Handles user login.
+   * Handles user login and redirects based on role.
+   * 
+   * SINGLE SOURCE OF TRUTH: This is the only place where post-login navigation happens.
+   * - admin → /departments
+   * - department_head → /department-head
+   * - program_head (or others) → /scheduler
    *
    * @param email - The user's email address.
    * @param password - The user's password.

@@ -1,11 +1,21 @@
 /**
  * User object for authentication context.
+ * 
+ * SECURITY WARNING: Roles are currently stored on the user profile object.
+ * This is NOT ideal for production as roles can potentially be manipulated client-side.
+ * 
+ * RECOMMENDED: Move roles to a separate `user_roles` table with:
+ * - An enum type for valid roles
+ * - A `has_role()` security definer function
+ * - RLS policies that use the security definer function
+ * 
+ * See: docs/postgresql_schema for migration examples
  */
 export type User = {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: string; // TODO: Replace with server-side role checking
   program_id: string | null;
   department_id: string | null;
 };
