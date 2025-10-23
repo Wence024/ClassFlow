@@ -68,6 +68,16 @@ const CourseManagement: React.FC = () => {
     );
   }, [courses, searchTerm]);
 
+  // Determine if current user can manage a course (admin or same program, fallback to creator)
+  const canManageCourse = (course: Course) => {
+    if (!user) return false;
+    if (user.role === 'admin') return true;
+    const programMatch = !!course.program_id && !!user.program_id && course.program_id === user.program_id;
+    const creatorId = (course as any).user_id ?? (course as any).created_by;
+    const creatorMatch = creatorId === user.id;
+    return programMatch || creatorMatch;
+  };
+
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
     await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
@@ -173,7 +183,7 @@ const CourseManagement: React.FC = () => {
                       course={course}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
-                      isOwner={course.program_id === user?.program_id}
+                      isOwner={canManageCourse(course)}
                     />
                   ))}
                 </div>
