@@ -59,6 +59,6 @@ export async function updateCourse(id: string, course: CourseUpdate): Promise<Co
  * @throws An error if the Supabase delete fails.
  */
 export async function removeCourse(id: string, user_id: string): Promise<void> {
-  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
+  const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('created_by', user_id);
   if (error) throw error;
 }
