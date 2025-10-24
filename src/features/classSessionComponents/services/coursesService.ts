@@ -22,11 +22,11 @@ export async function getCourses(): Promise<Course[]> {
 
 /**
  * Adds a new course to the database.
- * The input object must include the `user_id` of the owner.
+ * The input object must include `created_by` (user_id) and `program_id`.
  *
  * @param course - The CourseInsert object containing the data for the new course.
  * @returns A promise that resolves to the newly created Course object.
- * @throws An error if the Supabase insert fails.
+ * @throws An error if the Supabase insert fails or required fields are missing.
  */
 export async function addCourse(course: CourseInsert): Promise<Course> {
   const { data, error } = await supabase.from(TABLE).insert([course]).select().single();

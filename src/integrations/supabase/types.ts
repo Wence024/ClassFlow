@@ -179,7 +179,7 @@ export type Database = {
           created_by: string
           id: string
           name: string
-          program_id: string | null
+          program_id: string
         }
         Insert: {
           code: string
@@ -188,7 +188,7 @@ export type Database = {
           created_by: string
           id?: string
           name: string
-          program_id?: string | null
+          program_id: string
         }
         Update: {
           code?: string
@@ -197,7 +197,7 @@ export type Database = {
           created_by?: string
           id?: string
           name?: string
-          program_id?: string | null
+          program_id?: string
         }
         Relationships: [
           {

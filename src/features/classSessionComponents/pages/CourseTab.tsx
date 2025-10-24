@@ -47,16 +47,22 @@ const CourseManagement: React.FC = () => {
 
   const formMethods = useForm<CourseFormData>({
     resolver: zodResolver(componentSchemas.course),
-    defaultValues: { name: '', code: '', color: presetColor },
+    defaultValues: { name: '', code: '', color: presetColor, program_id: user?.program_id || '' },
   });
 
   useEffect(() => {
     if (editingCourse) {
-      formMethods.reset(editingCourse);
+      // Only pass form fields, not database metadata
+      formMethods.reset({
+        name: editingCourse.name,
+        code: editingCourse.code,
+        color: editingCourse.color,
+        program_id: editingCourse.program_id || user?.program_id || '',
+      });
     } else {
-      formMethods.reset({ name: '', code: '', color: presetColor });
+      formMethods.reset({ name: '', code: '', color: presetColor, program_id: user?.program_id || '' });
     }
-  }, [editingCourse, formMethods, presetColor]);
+  }, [editingCourse, formMethods, presetColor, user?.program_id]);
 
   // Memoize the filtered list to avoid re-calculating on every render
   const filteredCourses = useMemo(() => {
@@ -84,10 +90,21 @@ const CourseManagement: React.FC = () => {
 
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
-    await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
-    formMethods.reset();
-    toast('Success', { description: 'Course created successfully!' });
-    setRandomPresetColor(getRandomPresetColor());
+    if (!user.program_id) {
+      toast.error('Program assignment required', {
+        description: 'You must be assigned to a program before creating courses.',
+      });
+      return;
+    }
+    try {
+      await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
+      toast.success('Course created successfully');
+      formMethods.reset({ name: '', code: '', color: getRandomPresetColor(), program_id: user.program_id });
+      setRandomPresetColor(getRandomPresetColor());
+    } catch (error) {
+      console.error('Error adding course:', error);
+      toast.error('Failed to add course');
+    }
   };
 
   const handleSave = async (data: CourseFormData) => {
