@@ -120,4 +120,15 @@ describe('CourseTab (CourseManagement)', () => {
     expect(nameInput).toHaveValue('React Fundamentals');
     expect(codeInput).toHaveValue('R101');
   });
+
+  it('should show edit/delete buttons for courses owned by program head', () => {
+    renderComponent();
+    
+    // Should show buttons for courses in same program (p1)
+    const editButton = screen.getByRole('button', { name: /Edit React Fundamentals/i });
+    const deleteButton = screen.getByRole('button', { name: /Delete React Fundamentals/i });
+    
+    expect(editButton).toBeInTheDocument();
+    expect(deleteButton).toBeInTheDocument();
+  });
 });

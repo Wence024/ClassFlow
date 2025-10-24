@@ -47,7 +47,11 @@ export type AuthContextType = {
   canReviewRequestsForDepartment: (departmentId: string) => boolean;
   /** Row-scoped: manage an instructor with department ownership. */
   canManageInstructorRow: (instructorDepartmentId: string) => boolean;
-  /** Row-scoped: manage courses for a program. */
+  /** 
+   * Row-scoped: manage courses for a program.
+   * Returns true if user is admin OR (is program_head AND targetProgramId matches user's program).
+   * Returns false if either programId is null/undefined.
+   */
   canManageCourses: (courseProgramId: string | null | undefined) => boolean;
   /** Row-scoped: manage timetable assignments for a program. */
   canManageAssignmentsForProgram: (programId: string) => boolean;

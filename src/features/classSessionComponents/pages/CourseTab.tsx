@@ -28,7 +28,7 @@ type CourseFormData = z.infer<typeof componentSchemas.course>;
  * @returns The CourseManagement component.
  */
 const CourseManagement: React.FC = () => {
-  const { user, canManageCourses } = useAuth();
+  const { user } = useAuth();
   const {
     courses,
     addCourse,
@@ -67,6 +67,20 @@ const CourseManagement: React.FC = () => {
         course.code.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [courses, searchTerm]);
+
+  // Determine if current user can manage a course (admin, same program, or creator)
+  const canManageCourse = (course: Course) => {
+    if (!user) return false;
+    if (user.role === 'admin') return true;
+    
+    // Check program-based ownership (both must be non-null and match)
+    const programMatch = !!course.program_id && !!user.program_id && course.program_id === user.program_id;
+    
+    // Check creator-based ownership as fallback
+    const creatorMatch = course.created_by === user.id;
+    
+    return programMatch || creatorMatch;
+  };
 
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
@@ -173,7 +187,7 @@ const CourseManagement: React.FC = () => {
                       course={course}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
-                      isOwner={canManageCourses(course.program_id)}
+                      isOwner={canManageCourse(course)}
                     />
                   ))}
                 </div>
