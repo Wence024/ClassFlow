@@ -36,13 +36,29 @@ export async function getClassrooms(params?: { role?: string | null; department_
  * Returns all classrooms for class session authoring and timetabling workflows.
  *
  * This includes all classrooms; downstream logic handles approvals/conflicts.
+ * Includes preferred department name via join for display purposes.
  * 
- * @returns A promise that resolves to an array of all Classroom objects.
+ * @returns A promise that resolves to an array of all Classroom objects with department info.
  */
 export async function getAllClassrooms(): Promise<Classroom[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('name');
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(`
+      *,
+      departments:preferred_department_id (
+        name
+      )
+    `)
+    .order('name');
+  
   if (error) throw error;
-  return data || [];
+  
+  // Transform the nested department object to a flat preferred_department_name field
+  return (data || []).map((classroom) => ({
+    ...classroom,
+    preferred_department_name: classroom.departments?.name || null,
+    departments: undefined, // Remove the nested object
+  })) as Classroom[];
 }
 
 /**

@@ -79,7 +79,10 @@ export function ClassroomSelector({
               {classroom.capacity !== undefined && (
                 <span className="mr-2">Capacity: {classroom.capacity}</span>
               )}
-              {classroom.location && <span>{classroom.location}</span>}
+              {classroom.location && <span className="mr-2">{classroom.location}</span>}
+              {!classroom.isPriority && classroom.preferred_department_name && (
+                <span className="text-xs italic">({classroom.preferred_department_name})</span>
+              )}
             </div>
           </div>
         </div>

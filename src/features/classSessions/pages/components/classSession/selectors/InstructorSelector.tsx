@@ -90,7 +90,10 @@ export function InstructorSelector({
               <div className="font-medium truncate">{fullName}</div>
               <div className="text-sm text-muted-foreground">
                 {instructor.code && <span className="mr-2">{instructor.code}</span>}
-                {instructor.email && <span>{instructor.email}</span>}
+                {instructor.email && <span className="mr-2">{instructor.email}</span>}
+                {!instructor.isPriority && instructor.department_name && (
+                  <span className="text-xs italic">({instructor.department_name})</span>
+                )}
               </div>
             </div>
           </div>

@@ -36,13 +36,29 @@ export async function getInstructors(params?: { role?: string | null; department
  *
  * This function does not filter by department, as timetabling may need
  * to view cross-department resources (with conflicts/requests enforced elsewhere).
+ * Includes department name via join for display purposes.
  * 
- * @returns A promise that resolves to an array of all Instructor objects.
+ * @returns A promise that resolves to an array of all Instructor objects with department info.
  */
 export async function getAllInstructors(): Promise<Instructor[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(`
+      *,
+      departments:department_id (
+        name
+      )
+    `)
+    .order('first_name');
+  
   if (error) throw error;
-  return data || [];
+  
+  // Transform the nested department object to a flat department_name field
+  return (data || []).map((instructor) => ({
+    ...instructor,
+    department_name: instructor.departments?.name || null,
+    departments: undefined, // Remove the nested object
+  })) as Instructor[];
 }
 
 /**
