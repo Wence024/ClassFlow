@@ -22,8 +22,8 @@ import { toast } from 'sonner';
 import {
   useCourses,
   useClassGroups,
-  useClassrooms,
-  useInstructors,
+  useAllClassrooms,
+  useAllInstructors,
 } from '../../classSessionComponents/hooks';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 
@@ -52,8 +52,8 @@ const ClassSessionsPage: React.FC = () => {
 
   const { courses, isLoading: coursesLoading } = useCourses();
   const { classGroups, isLoading: groupsLoading } = useClassGroups();
-  const { classrooms, isLoading: classroomsLoading } = useClassrooms();
-  const { instructors, isLoading: instructorsLoading } = useInstructors();
+  const { classrooms, isLoading: classroomsLoading } = useAllClassrooms();
+  const { instructors, isLoading: instructorsLoading } = useAllInstructors();
   const { listQuery: programsQuery } = usePrograms();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
