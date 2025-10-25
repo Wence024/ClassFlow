@@ -14,8 +14,6 @@ import {
   canReviewRequestsForDepartment as roleCanReviewRequestsForDepartment,
   canManageAssignmentsForProgram as roleCanManageAssignmentsForProgram,
 } from '../utils/permissions';
-import { getUserDepartmentViaProgramOrDirect } from '../utils/departmentHelpers';
-
 /**
  * Props for the AuthProvider component.
  */
@@ -40,7 +38,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [inferredDepartmentId, setInferredDepartmentId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // On initial mount, check for an existing user session.
@@ -51,15 +48,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (storedUser) {
           setUser(storedUser);
-          
-          // Infer department for program heads (or use explicit department for dept heads)
-          const deptId = await getUserDepartmentViaProgramOrDirect(storedUser.id);
-          setInferredDepartmentId(deptId);
         }
       } catch (err) {
         console.error('Failed to initialize auth:', err);
         setUser(null);
-        setInferredDepartmentId(null);
       } finally {
         setLoading(false);
       }
@@ -155,8 +147,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const authContextValue = {
     user,
     role: user?.role || null, // Derives the role from the user object
-    // Use explicit department_id if set, otherwise use inferred (for program heads)
-    departmentId: user?.department_id ?? inferredDepartmentId,
+    // Department ID is now derived client-side via useDepartmentId hook
+    departmentId: user?.department_id || null,
     login,
     logout,
     updateMyProfile,

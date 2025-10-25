@@ -3,6 +3,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
+import { useDepartmentId } from '../../auth/hooks/useDepartmentId';
 import { useInstructors, useAllInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { AdminInstructorFields, InstructorCard } from './components/instructor';
@@ -30,6 +31,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  */
 const InstructorManagement: React.FC = () => {
   const { user, canManageInstructors, isProgramHead } = useAuth();
+  const departmentId = useDepartmentId();
   
   // Program heads can browse all instructors (read-only)
   // Admins/dept heads can manage instructors (CRUD)
@@ -80,7 +82,7 @@ const InstructorManagement: React.FC = () => {
       email: '',
       phone: '',
       // For department heads, pre-fill their department_id if available
-      department_id: user?.role === 'department_head' ? (user.department_id ?? null) : undefined,
+      department_id: user?.role === 'department_head' ? (departmentId ?? null) : undefined,
     },
   });
 
@@ -111,7 +113,7 @@ const InstructorManagement: React.FC = () => {
     if (!user) return;
     
     // For department heads, validate they have a department assigned
-    if (user.role === 'department_head' && !user.department_id) {
+    if (user.role === 'department_head' && !departmentId) {
       toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
       return;
     }
@@ -130,7 +132,7 @@ const InstructorManagement: React.FC = () => {
       // For department heads: use their department_id
       // For admins: use the department_id from the form
       department_id: user.role === 'department_head' 
-        ? user.department_id
+        ? departmentId
         : (data.department_id || null),
     };
     

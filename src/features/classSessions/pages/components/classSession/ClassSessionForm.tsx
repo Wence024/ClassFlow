@@ -12,6 +12,7 @@ import type {
 import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useDepartmentId } from '../../../../auth/hooks/useDepartmentId';
 import type { Program } from '../../../../programs/types/program';
 import {
   CourseSelector,
@@ -67,6 +68,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   isEditing,
 }) => {
   const { isAdmin, user } = useAuth();
+  const departmentId = useDepartmentId();
   const {
     control,
     handleSubmit,
@@ -251,7 +253,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                     onClose={() => setOpenModal(null)}
                     onSelect={(instructor) => field.onChange(instructor.id)}
                     instructors={instructors}
-                    userDepartmentId={user?.department_id}
+                    userDepartmentId={departmentId}
                     isLoading={loading}
                   />
                 </div>
@@ -333,7 +335,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                     onClose={() => setOpenModal(null)}
                     onSelect={(classroom) => field.onChange(classroom.id)}
                     classrooms={classrooms}
-                    userDepartmentId={user?.department_id}
+                    userDepartmentId={departmentId}
                     isLoading={loading}
                   />
                 </div>
