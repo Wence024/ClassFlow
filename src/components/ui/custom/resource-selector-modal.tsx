@@ -39,6 +39,9 @@ interface ResourceSelectorModalProps<T extends PrioritizedItem> {
   
   /** Whether the items are currently being loaded. */
   isLoading?: boolean;
+  
+  /** Whether to show all items without grouping when no priority items exist. */
+  showAllItemsWhenNoPriority?: boolean;
 }
 
 /**
@@ -64,6 +67,7 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
   title,
   renderItem,
   isLoading = false,
+  showAllItemsWhenNoPriority = false,
 }: ResourceSelectorModalProps<T>) {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -129,6 +133,22 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
               {searchQuery && (
                 <p className="text-sm mt-2">Try adjusting your search terms</p>
               )}
+            </div>
+          ) : priorityItems.length === 0 && showAllItemsWhenNoPriority ? (
+            <div className="space-y-4">
+              {/* Info message when no priority items exist */}
+              <div className="text-sm text-muted-foreground italic px-3 py-2 bg-muted/50 rounded-md">
+                Note: Resources are not assigned to specific departments yet
+              </div>
+              
+              {/* Show all items without grouping */}
+              <div className="space-y-2">
+                {filteredItems.map((item) => (
+                  <div key={item.id} className="cursor-pointer">
+                    {renderItem(item, () => handleSelect(item))}
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="space-y-6">

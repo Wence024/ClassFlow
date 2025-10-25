@@ -64,6 +64,7 @@ export function InstructorSelector({
       items={prioritizedInstructors}
       title="Select Instructor"
       isLoading={isLoading}
+      showAllItemsWhenNoPriority={true}
       renderItem={(instructor: Instructor & PrioritizedItem, onSelectItem: () => void) => {
         const fullName = [
           instructor.prefix,

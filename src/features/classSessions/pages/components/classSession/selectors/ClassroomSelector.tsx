@@ -60,6 +60,7 @@ export function ClassroomSelector({
       items={prioritizedClassrooms}
       title="Select Classroom"
       isLoading={isLoading}
+      showAllItemsWhenNoPriority={true}
       renderItem={(classroom: Classroom & PrioritizedItem, onSelectItem: () => void) => (
         <div
           onClick={onSelectItem}
