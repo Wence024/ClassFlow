@@ -9,15 +9,62 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
 const TABLE = 'courses';
 
 /**
- * Fetches all courses from the database.
+ * Fetches courses from the database, optionally filtered by program and role.
+ * Admins see all courses; program heads see only their program's courses.
  *
+ * @param params - Optional filtering parameters.
+ * @param params.program_id - The program ID to filter by (for non-admin users).
+ * @param params.role - The user's role (determines filtering behavior).
  * @returns A promise that resolves to an array of Course objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getCourses(): Promise<Course[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('name');
+export async function getCourses(params?: {
+  program_id?: string | null;
+  role?: string | null;
+}): Promise<Course[]> {
+  let query = supabase.from(TABLE).select('*').order('name');
+
+  // Only admins see all courses; others see their program's courses
+  if (params?.role !== 'admin' && params?.program_id) {
+    query = query.eq('program_id', params.program_id);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data || [];
+}
+
+/**
+ * Fetches ALL courses from the database with program metadata.
+ * Used for cross-program workflows like class session authoring.
+ *
+ * @returns A promise that resolves to an array of Course objects with program info.
+ * @throws An error if the Supabase query fails.
+ */
+export async function getAllCourses(): Promise<Course[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(
+      `
+      *,
+      programs:program_id (
+        name,
+        short_code
+      )
+    `
+    )
+    .order('name');
+
+  if (error) throw error;
+
+  return (
+    data?.map((course) => ({
+      ...course,
+      program_name: course.programs?.name || null,
+      program_short_code: course.programs?.short_code || null,
+      programs: undefined,
+    })) || []
+  ) as Course[];
 }
 
 /**

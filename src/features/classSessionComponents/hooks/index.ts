@@ -22,3 +22,4 @@ export { useInstructors } from './useInstructors';
 // Selection hooks for cross-department workflows
 export { useAllInstructors } from './useAllInstructors';
 export { useAllClassrooms } from './useAllClassrooms';
+export { useAllCourses } from './useAllCourses';

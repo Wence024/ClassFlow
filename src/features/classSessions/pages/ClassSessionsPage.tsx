@@ -20,7 +20,7 @@ import { classSessionSchema } from '../types/validation';
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
 import { toast } from 'sonner';
 import {
-  useCourses,
+  useAllCourses,
   useClassGroups,
   useAllClassrooms,
   useAllInstructors,
@@ -50,7 +50,7 @@ const ClassSessionsPage: React.FC = () => {
     error,
   } = useClassSessions();
 
-  const { courses, isLoading: coursesLoading } = useCourses();
+  const { courses, isLoading: coursesLoading } = useAllCourses();
   const { classGroups, isLoading: groupsLoading } = useClassGroups();
   const { classrooms, isLoading: classroomsLoading } = useAllClassrooms();
   const { instructors, isLoading: instructorsLoading } = useAllInstructors();
