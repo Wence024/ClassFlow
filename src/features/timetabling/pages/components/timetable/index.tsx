@@ -47,19 +47,22 @@ const Timetable: React.FC<TimetableProps> = ({
   const { handleDragLeave, handleDragOver } = useTimetableContext();
 
   // Separate resources by ownership based on view mode
-  const { myResources, otherResources, separatorLabel } = useMemo(() => {
+  const { myResources, unassignedResources, otherResources } = useMemo(() => {
     if (viewMode === 'classroom') {
       const classrooms = resources as Classroom[];
       const myDeptClassrooms = classrooms.filter(
         (c) => c.preferred_department_id === user?.department_id
       );
+      const unassignedClassrooms = classrooms.filter(
+        (c) => !c.preferred_department_id
+      );
       const otherDeptClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id !== user?.department_id
+        (c) => c.preferred_department_id && c.preferred_department_id !== user?.department_id
       );
       return {
         myResources: myDeptClassrooms,
+        unassignedResources: unassignedClassrooms,
         otherResources: otherDeptClassrooms,
-        separatorLabel: 'Classrooms from Other Departments',
       };
     } else if (viewMode === 'instructor') {
       const instructors = resources as Instructor[];
@@ -71,8 +74,8 @@ const Timetable: React.FC<TimetableProps> = ({
       );
       return {
         myResources: myDeptInstructors,
+        unassignedResources: [],
         otherResources: otherDeptInstructors,
-        separatorLabel: 'Instructors from Other Departments',
       };
     } else {
       // class-group view
@@ -80,8 +83,8 @@ const Timetable: React.FC<TimetableProps> = ({
       const otherGroups = groups.filter((g) => g.program_id !== user?.program_id);
       return {
         myResources: myGroups,
+        unassignedResources: [],
         otherResources: otherGroups,
-        separatorLabel: 'Schedules from Other Programs',
       };
     }
   }, [viewMode, resources, groups, user]);
@@ -141,29 +144,58 @@ const Timetable: React.FC<TimetableProps> = ({
               />
             ))}
 
-            {/* If there are other resources, render a visual separator */}
-            {otherResources.length > 0 && (
-              <tr>
-                <td
-                  colSpan={totalPeriods + 1}
-                  className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
-                >
-                  {separatorLabel}
-                </td>
-              </tr>
+            {/* Render unassigned resources with separator */}
+            {unassignedResources.length > 0 && (
+              <>
+                <tr>
+                  <td
+                    colSpan={totalPeriods + 1}
+                    className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
+                  >
+                    {viewMode === 'classroom' ? 'Unassigned Classrooms' : 'Unassigned Resources'}
+                  </td>
+                </tr>
+                {unassignedResources.map((resource) => (
+                  <TimetableRow
+                    key={resource.id}
+                    viewMode={viewMode}
+                    resource={resource}
+                    timetable={timetable}
+                    periodsPerDay={periodsPerDay}
+                    totalPeriods={totalPeriods}
+                  />
+                ))}
+              </>
             )}
 
-            {/* Render the resources from other programs/departments */}
-            {otherResources.map((resource) => (
-              <TimetableRow
-                key={resource.id}
-                viewMode={viewMode}
-                resource={resource}
-                timetable={timetable}
-                periodsPerDay={periodsPerDay}
-                totalPeriods={totalPeriods}
-              />
-            ))}
+            {/* If there are other resources, render a visual separator */}
+            {otherResources.length > 0 && (
+              <>
+                <tr>
+                  <td
+                    colSpan={totalPeriods + 1}
+                    className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
+                  >
+                    {viewMode === 'classroom' 
+                      ? 'Classrooms from Other Departments'
+                      : viewMode === 'instructor'
+                      ? 'Instructors from Other Departments'
+                      : 'Schedules from Other Programs'}
+                  </td>
+                </tr>
+                {/* Render the resources from other programs/departments */}
+                {otherResources.map((resource) => (
+                  <TimetableRow
+                    key={resource.id}
+                    viewMode={viewMode}
+                    resource={resource}
+                    timetable={timetable}
+                    periodsPerDay={periodsPerDay}
+                    totalPeriods={totalPeriods}
+                  />
+                ))}
+              </>
+            )}
           </tbody>
         </table>
       </div>
