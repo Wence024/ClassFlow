@@ -50,10 +50,21 @@ const Timetable: React.FC<TimetableProps> = ({
 
   // Separate resources by ownership based on view mode
   const { myResources, unassignedResources, otherResources, unassignedLabel, otherLabel } = useMemo(() => {
+    // If user has no department (admin), show all resources without separation
+    if (!userDepartmentId && viewMode !== 'class-group') {
+      return {
+        myResources: resources,
+        unassignedResources: [],
+        otherResources: [],
+        unassignedLabel: '',
+        otherLabel: '',
+      };
+    }
+
     if (viewMode === 'classroom') {
       const classrooms = resources as Classroom[];
       const myDeptClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id === userDepartmentId
+        (c) => c.preferred_department_id !== null && c.preferred_department_id === userDepartmentId
       );
       const unassignedClassrooms = classrooms.filter(
         (c) => c.preferred_department_id === null
@@ -71,7 +82,7 @@ const Timetable: React.FC<TimetableProps> = ({
     } else if (viewMode === 'instructor') {
       const instructors = resources as Instructor[];
       const myDeptInstructors = instructors.filter(
-        (i) => i.department_id === userDepartmentId
+        (i) => i.department_id !== null && i.department_id === userDepartmentId
       );
       const unassignedInstructors = instructors.filter(
         (i) => i.department_id === null
