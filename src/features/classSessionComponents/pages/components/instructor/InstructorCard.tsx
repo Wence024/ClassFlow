@@ -40,6 +40,7 @@ export const InstructorCard: React.FC<InstructorCardProps> = ({
   if (instructor.code) details.push({ label: 'Code', value: instructor.code });
   if (instructor.email) details.push({ label: 'Email', value: instructor.email });
   if (instructor.phone) details.push({ label: 'Phone', value: instructor.phone });
+  if (instructor.department_name) details.push({ label: 'Department', value: instructor.department_name });
 
   return (
     <ItemCard

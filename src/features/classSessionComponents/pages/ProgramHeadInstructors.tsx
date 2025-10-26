@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useDepartments } from '../../departments/hooks/useDepartments';
-import { useInstructorsByDepartment } from '../hooks/useInstructors';
+import { useAllInstructors } from '../hooks/useAllInstructors';
 import { Alert, Card, FormField, LoadingSpinner } from '../../../components/ui';
 import { InstructorCard } from './components/instructor';
 import type { Department } from '@/features/departments/types/department';
@@ -16,19 +16,34 @@ export default function ProgramHeadInstructors() {
   const { isProgramHead } = useAuth();
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string | undefined>(undefined);
   const { listQuery: departmentsQuery } = useDepartments();
-  const instructorsQuery = useInstructorsByDepartment(selectedDepartmentId);
+  const { instructors: allInstructors, isLoading } = useAllInstructors();
   const [search, setSearch] = useState('');
 
   // Hooks must be called unconditionally at the top level.
   const deptOptions = useMemo(() => departmentsQuery.data || [], [departmentsQuery.data]);
+  
+  // Filter instructors by selected department and search term
   const filtered = useMemo(() => {
-    const list = (instructorsQuery.data as Instructor[]) || [];
-    if (!search) return list;
-    const q = search.toLowerCase();
-    return list.filter((i) =>
-      i.first_name.toLowerCase().includes(q) || i.last_name.toLowerCase().includes(q) || i.code?.toLowerCase().includes(q)
-    );
-  }, [instructorsQuery.data, search]);
+    let list = allInstructors || [];
+    
+    // Filter by department if one is selected
+    if (selectedDepartmentId) {
+      list = list.filter((i) => i.department_id === selectedDepartmentId);
+    }
+    
+    // Filter by search term
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter((i) =>
+        i.first_name.toLowerCase().includes(q) || 
+        i.last_name.toLowerCase().includes(q) || 
+        i.code?.toLowerCase().includes(q) ||
+        i.department_name?.toLowerCase().includes(q)
+      );
+    }
+    
+    return list;
+  }, [allInstructors, selectedDepartmentId, search]);
 
   // The permission check now happens before rendering.
   if (!isProgramHead()) {
@@ -58,8 +73,8 @@ export default function ProgramHeadInstructors() {
         />
       </Card>
 
-      {instructorsQuery.isLoading && <LoadingSpinner text="Loading instructors..." />}
-      {selectedDepartmentId && !instructorsQuery.isLoading && (
+      {isLoading && <LoadingSpinner text="Loading instructors..." />}
+      {!isLoading && (
         <div className="space-y-2">
           {filtered.length === 0 ? (
             <div className="text-gray-500">No instructors found.</div>
