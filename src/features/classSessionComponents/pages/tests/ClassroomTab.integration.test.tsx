@@ -141,8 +141,7 @@ describe('ClassroomTab Integration Tests', () => {
     });
 
     it('should display classrooms with a matching preferred department first, followed by a separator', async () => {
-      // The hook returns prioritized classrooms, so we need to provide them in the correct order
-      // CS Room should be first (matches user's dept), then Math and General
+      // Set up the mock BEFORE rendering
       mockedUseClassrooms.useClassrooms.mockReturnValue({
         classrooms: [mockClassrooms[0], mockClassrooms[1], mockClassrooms[2]], // CS Room, Math Room, General Room
         isLoading: false,
@@ -156,8 +155,16 @@ describe('ClassroomTab Integration Tests', () => {
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-      // Wait for data to load and cards to render
-      const allCards = await screen.findAllByRole('article');
+      // Wait for data to load and cards to render with explicit timeout
+      await waitFor(
+        async () => {
+          const allCards = await screen.findAllByRole('article');
+          expect(allCards.length).toBeGreaterThan(0);
+        },
+        { timeout: 3000 }
+      );
+
+      const allCards = screen.getAllByRole('article');
       expect(within(allCards[0]).getByText('CS Room')).toBeInTheDocument();
 
       const separator = screen.getByText('Other Classrooms');

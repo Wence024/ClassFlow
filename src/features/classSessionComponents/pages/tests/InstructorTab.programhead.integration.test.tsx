@@ -6,6 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import InstructorTab from '../InstructorTab';
@@ -169,6 +170,7 @@ describe('InstructorTab - Program Head Integration', () => {
   });
 
   it('should allow program heads to search instructors', async () => {
+    const user = userEvent.setup();
     renderComponent();
 
     await waitFor(() => {
@@ -179,12 +181,8 @@ describe('InstructorTab - Program Head Integration', () => {
     // Find and use the search input
     const searchInput = screen.getByPlaceholderText(/search by name or code/i);
     
-    // Type in search query
-    await waitFor(() => {
-      searchInput.focus();
-      (searchInput as HTMLInputElement).value = 'John';
-      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-    });
+    // Type in search query using userEvent
+    await user.type(searchInput, 'John');
 
     // Should only show matching instructor
     await waitFor(() => {
