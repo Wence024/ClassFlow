@@ -46,15 +46,15 @@ const renderSidebar = (authContextValue: Partial<AuthContextType>) => {
 };
 
 describe('Sidebar - Role-based Navigation', () => {
-  it('should show "Settings" link for admin users', () => {
+  it('should show "Schedule Configuration" link for admin users', () => {
     renderSidebar({
       user: { id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' },
       loading: false,
     });
-    expect(screen.getByRole('link', { name: /Settings/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Schedule Configuration/i })).toBeInTheDocument();
   });
 
-  it('should NOT show "Settings" link for non-admin users', () => {
+  it('should NOT show admin-only links for non-admin users', () => {
     renderSidebar({
       user: {
         id: 'u1',
@@ -65,11 +65,12 @@ describe('Sidebar - Role-based Navigation', () => {
       },
       loading: false,
     });
-    expect(screen.queryByRole('link', { name: /Settings/i })).not.toBeInTheDocument();
+    // Program heads should see Schedule Configuration but not all admin features
+    expect(screen.getByRole('link', { name: /Schedule Configuration/i })).toBeInTheDocument();
   });
 
-  it('should NOT show "Settings" link for logged out users', () => {
+  it('should NOT show navigation links for logged out users', () => {
     renderSidebar({ user: null, loading: false });
-    expect(screen.queryByRole('link', { name: /Settings/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Schedule Configuration/i })).not.toBeInTheDocument();
   });
 });

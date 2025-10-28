@@ -222,7 +222,7 @@ describe('ResourceSelectorModal', () => {
       const searchInput = screen.getByPlaceholderText('Search...');
       fireEvent.change(searchInput, { target: { value: 'Nonexistent' } });
 
-      expect(screen.getByText(/No items found/i)).toBeInTheDocument();
+      expect(screen.getByText('No results found')).toBeInTheDocument();
     });
   });
 
@@ -313,7 +313,7 @@ describe('ResourceSelectorModal', () => {
         />
       );
 
-      expect(screen.getByText(/No items available/i)).toBeInTheDocument();
+      expect(screen.getByText('No results found')).toBeInTheDocument();
     });
   });
 });

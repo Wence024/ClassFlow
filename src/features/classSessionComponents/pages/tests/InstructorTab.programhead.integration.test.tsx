@@ -44,7 +44,7 @@ describe('InstructorTab - Program Head Integration', () => {
     testProgramId = program!.id;
 
     // Create program head user (department_id should be NULL)
-    testUserId = await (
+    const userId = await (
       window as { create_test_user?: (email: string, password: string, name: string, role: string, programId: string | null, deptId: string | null) => Promise<string> }
     ).create_test_user?.(
       'proghead.instructor.test@example.com',
@@ -53,7 +53,12 @@ describe('InstructorTab - Program Head Integration', () => {
       'program_head',
       testProgramId,
       null // NULL department_id for program heads
-    ) ?? '';
+    );
+
+    if (!userId) {
+      throw new Error('Failed to create test user - create_test_user helper not available');
+    }
+    testUserId = userId;
 
     // Sign in as the program head
     await supabase.auth.signInWithPassword({

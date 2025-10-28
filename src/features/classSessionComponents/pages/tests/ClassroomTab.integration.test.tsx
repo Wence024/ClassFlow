@@ -56,7 +56,26 @@ const mockClassrooms: Classroom[] = [
 
 const TestWrapper = ({ children, user }: { children: ReactNode; user: User | null }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ user, canManageClassrooms: () => user?.role === 'admin' } as AuthContextType}>
+    <AuthContext.Provider value={{ 
+      user, 
+      role: user?.role || null,
+      departmentId: user?.department_id || null,
+      loading: false,
+      error: null,
+      login: vi.fn(),
+      logout: vi.fn(),
+      clearError: vi.fn(),
+      updateMyProfile: vi.fn(),
+      isAdmin: () => user?.role === 'admin',
+      isDepartmentHead: () => user?.role === 'department_head',
+      isProgramHead: () => user?.role === 'program_head',
+      canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
+      canManageClassrooms: () => user?.role === 'admin',
+      canReviewRequestsForDepartment: vi.fn().mockReturnValue(false),
+      canManageInstructorRow: vi.fn().mockReturnValue(false),
+      canManageCourses: vi.fn().mockReturnValue(false),
+      canManageAssignmentsForProgram: vi.fn().mockReturnValue(false),
+    } as AuthContextType}>
       {children}
     </AuthContext.Provider>
   </QueryClientProvider>

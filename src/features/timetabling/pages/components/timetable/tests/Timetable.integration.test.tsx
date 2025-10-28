@@ -157,14 +157,14 @@ describe('Timetable - Resource Filtering', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('My Classroom')).toBeInTheDocument();
+        expect(screen.getByText('My Classroom (30)')).toBeInTheDocument();
       });
 
       // Should see all three sections
       expect(screen.getByText('Unassigned Classrooms')).toBeInTheDocument();
       expect(screen.getByText('Classrooms from Other Departments')).toBeInTheDocument();
-      expect(screen.getByText('Unassigned Classroom')).toBeInTheDocument();
-      expect(screen.getByText('Other Classroom')).toBeInTheDocument();
+      expect(screen.getByText('Unassigned Classroom (25)')).toBeInTheDocument();
+      expect(screen.getByText('Other Classroom (40)')).toBeInTheDocument();
     });
 
     it('should show all classrooms without separation for admin', async () => {
@@ -195,7 +195,7 @@ describe('Timetable - Resource Filtering', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByText('My Classroom')).toBeInTheDocument();
+        expect(screen.getByText('My Classroom (30)')).toBeInTheDocument();
       });
 
       // Should NOT see separation labels for admin
@@ -203,9 +203,9 @@ describe('Timetable - Resource Filtering', () => {
       expect(screen.queryByText('Classrooms from Other Departments')).not.toBeInTheDocument();
       
       // But should see all classrooms
-      expect(screen.getByText('My Classroom')).toBeInTheDocument();
-      expect(screen.getByText('Unassigned Classroom')).toBeInTheDocument();
-      expect(screen.getByText('Other Classroom')).toBeInTheDocument();
+      expect(screen.getByText('My Classroom (30)')).toBeInTheDocument();
+      expect(screen.getByText('Unassigned Classroom (25)')).toBeInTheDocument();
+      expect(screen.getByText('Other Classroom (40)')).toBeInTheDocument();
     });
   });
 

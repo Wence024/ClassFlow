@@ -19,10 +19,21 @@ const renderPage = (user: {
     user,
     loading: false,
     role: user.role,
+    departmentId: null,
     login: vi.fn(),
     logout: vi.fn(),
     error: null,
     clearError: vi.fn(),
+    updateMyProfile: vi.fn(),
+    isAdmin: () => user.role === 'admin',
+    isDepartmentHead: () => user.role === 'department_head',
+    isProgramHead: () => user.role === 'program_head',
+    canManageInstructors: () => user.role === 'admin' || user.role === 'department_head',
+    canManageClassrooms: () => user.role === 'admin',
+    canReviewRequestsForDepartment: vi.fn().mockReturnValue(false),
+    canManageInstructorRow: vi.fn().mockReturnValue(false),
+    canManageCourses: vi.fn().mockReturnValue(false),
+    canManageAssignmentsForProgram: vi.fn().mockReturnValue(false),
   };
 
   return render(

@@ -92,6 +92,17 @@ const setupComponent = async (
     removeClassSession: vi.fn(),
   });
 
+  const mockUseAllCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllCourses;
+  mockUseAllCourses.mockReturnValue({
+    courses: [{
+      ...mockClassSession.course,
+      program_name: 'Computer Science',
+      program_short_code: 'CS'
+    }],
+    isLoading: false,
+    error: null,
+  });
+
   const mockUseCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useCourses;
   mockUseCourses.mockReturnValue({
     courses: [mockClassSession.course],
