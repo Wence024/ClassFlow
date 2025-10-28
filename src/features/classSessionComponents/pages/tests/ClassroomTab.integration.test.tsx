@@ -208,6 +208,18 @@ describe('ClassroomTab Integration Tests', () => {
     });
 
     it('should enable the creation/edit form', () => {
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
+        classrooms: [],
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: mockDeleteClassroom,
+        canManage: true, // Set to true for admin
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
+
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
       const fieldset = screen.getByTestId('classroom-form-fieldset');
