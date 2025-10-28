@@ -74,7 +74,7 @@ const ClassGroupManagement: React.FC = () => {
 
   const handleAdd = async (data: ClassGroupFormData) => {
     if (!user) return;
-    await addClassGroup({ ...data, user_id: user.id });
+    await addClassGroup(data);
     formMethods.reset();
     toast('Success', { description: 'Class group created successfully!' });
     setRandomPresetColor(getRandomPresetColor());

@@ -49,8 +49,12 @@ export function useClassGroups() {
 
   // Mutation for adding a new class group.
   const addMutation = useMutation({
-    mutationFn: (data: ClassGroupInsert) =>
-      classGroupsService.addClassGroup({ ...data, user_id: user!.id }),
+    mutationFn: (data: Omit<ClassGroupInsert, 'user_id' | 'program_id'>) =>
+      classGroupsService.addClassGroup({ 
+        ...data, 
+        user_id: user!.id,
+        program_id: user!.program_id 
+      }),
     // After a successful mutation, invalidate the query to refetch the latest data.
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
