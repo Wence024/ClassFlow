@@ -21,7 +21,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
-          program_id: string | null
+          program_id: string
           student_count: number | null
           user_id: string
         }
@@ -31,7 +31,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
-          program_id?: string | null
+          program_id: string
           student_count?: number | null
           user_id: string
         }
@@ -41,7 +41,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
-          program_id?: string | null
+          program_id?: string
           student_count?: number | null
           user_id?: string
         }
@@ -402,6 +402,7 @@ export type Database = {
       resource_requests: {
         Row: {
           class_session_id: string
+          dismissed: boolean
           id: string
           notes: string | null
           requested_at: string | null
@@ -416,6 +417,7 @@ export type Database = {
         }
         Insert: {
           class_session_id: string
+          dismissed?: boolean
           id?: string
           notes?: string | null
           requested_at?: string | null
@@ -430,6 +432,7 @@ export type Database = {
         }
         Update: {
           class_session_id?: string
+          dismissed?: boolean
           id?: string
           notes?: string | null
           requested_at?: string | null
@@ -641,6 +644,7 @@ export type Database = {
         Args: { _class_session_id: string }
         Returns: string
       }
+      get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_program_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }

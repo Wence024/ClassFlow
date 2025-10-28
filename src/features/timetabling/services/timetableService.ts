@@ -141,15 +141,18 @@ export async function moveClassSessionInTimetable(
  * @param status The new status ('pending' or 'confirmed').
  */
 export async function updateAssignmentStatusBySession(
-  class_session_id: string,
-  semester_id: string,
+  classSessionId: string,
+  semesterId: string,
   status: 'pending' | 'confirmed'
 ): Promise<void> {
-  // Type assertion: status field exists in DB but not in generated types
   const { error } = await supabase
     .from('timetable_assignments')
-    .update({ status } as any)
-    .eq('class_session_id', class_session_id)
-    .eq('semester_id', semester_id);
-  if (error) throw error;
+    .update({ status })
+    .eq('class_session_id', classSessionId)
+    .eq('semester_id', semesterId);
+
+  if (error) {
+    console.error('Failed to update timetable assignment status:', error);
+    throw error;
+  }
 }

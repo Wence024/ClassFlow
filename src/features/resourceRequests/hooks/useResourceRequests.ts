@@ -100,7 +100,7 @@ export function useMyPendingRequests() {
       
       if (reqError) throw reqError;
       
-      const classSessionId = (request as any).class_session_id;
+      const classSessionId = request.class_session_id;
       
       // Delete timetable assignment first (by class_session_id)
       const { error: assignError } = await supabase

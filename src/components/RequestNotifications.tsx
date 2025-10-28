@@ -51,7 +51,7 @@ export default function RequestNotifications() {
               .single();
             if (data) resourceName = data.name;
           }
-          return { ...req, resource_name: resourceName, class_session_id: (req as any).class_session_id };
+          return { ...req, resource_name: resourceName, class_session_id: req.class_session_id };
         })
       );
       return enriched;

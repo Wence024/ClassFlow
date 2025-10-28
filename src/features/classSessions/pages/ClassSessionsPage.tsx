@@ -233,7 +233,7 @@ const ClassSessionsPage: React.FC = () => {
         status: 'pending',
       });
 
-      toast.success('Cross-department request submitted successfully!');
+      toast.success('Request submitted! Check the notification panel to view pending requests or cancel if needed.');
       formMethods.reset();
       setCrossDeptInfo(null);
       setPendingFormData(null);

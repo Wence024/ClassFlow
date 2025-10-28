@@ -99,11 +99,16 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
     if (classSessionId) {
       try {
         // Get the active semester
-        const { data: activeSemester } = await supabase
+        const { data: activeSemester, error: semesterError } = await supabase
           .from('semesters')
           .select('id')
           .eq('is_active', true)
           .single();
+        
+        if (semesterError) {
+          console.error('Failed to get active semester:', semesterError);
+          throw semesterError;
+        }
         
         if (activeSemester) {
           await updateAssignmentStatusBySession(
@@ -114,7 +119,9 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
         }
       } catch (e) {
         console.error('Failed to update timetable assignment status', e);
-        // Don't throw - request approval succeeded, assignment update is secondary
+        // Import toast dynamically to avoid circular dependencies
+        const { toast } = await import('sonner');
+        toast.warning('Request approved, but timetable status update failed. Please check the timetable.');
       }
     }
   }

@@ -20,7 +20,7 @@ export default function RequestStatusNotification() {
     return null;
   }
 
-  // Fetch reviewed requests (approved or rejected)
+  // Fetch reviewed requests (approved or rejected) that haven't been dismissed
   const { data: reviewedRequests = [] } = useQuery({
     queryKey: ['my_reviewed_requests', user?.id],
     queryFn: async () => {
@@ -31,6 +31,7 @@ export default function RequestStatusNotification() {
         .select('*')
         .eq('requester_id', user.id)
         .in('status', ['approved', 'rejected'])
+        .eq('dismissed', false)
         .order('reviewed_at', { ascending: false });
       
       if (error) throw error;
@@ -72,10 +73,20 @@ export default function RequestStatusNotification() {
   });
 
   const handleDismiss = async (requestId: string) => {
-    // Mark as read by deleting from user's view (local state management)
-    queryClient.setQueryData(['my_reviewed_requests', user?.id], (old: any[]) => 
-      old?.filter((r) => r.id !== requestId) || []
-    );
+    try {
+      // Mark as dismissed in the database
+      const { error } = await supabase
+        .from('resource_requests')
+        .update({ dismissed: true } as any)
+        .eq('id', requestId);
+      
+      if (error) throw error;
+      
+      // Update local cache
+      queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
+    } catch (error) {
+      console.error('Error dismissing notification:', error);
+    }
   };
 
   // Real-time subscription for reviewed request updates
