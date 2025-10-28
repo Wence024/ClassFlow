@@ -1,0 +1,35 @@
+@startuml Component diagram for ClassFlow Web Application
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Diagram Metadata
+title Component diagram for ClassFlow Web Application
+LAYOUT_WITH_LEGEND()
+
+' The Container (Web Application)
+Container(spa, "Web Application", "React, TypeScript", "Contains all UI and feature modules for Timetabling, Component Management (Courses, Groups), User Management, Department Management, and Authentication.")
+
+' Components within the Web Application container
+Component(timetabling, "Timetabling & Scheduling Component", "React, TypeScript", "Manages the interactive timetable grid, including drag-and-drop scheduling.")
+Component(conflict_checking, "Conflict Checking Logic", "TypeScript", "Validates if class sessions can be placed in a time slot without conflicts.")
+Component(class_merging, "Class Merging Logic", "TypeScript", "Groups and visually displays class sessions that share the same instructor, classroom, and course.")
+Component(academic_component_management, "Academic Component Management", "React, TypeScript", "Allows CRUD operations for managing courses, instructors, classrooms, and class groups.")
+Component(class_session_authoring, "Class Session Authoring Component", "React, TypeScript", "Enables Program Heads to define class sessions for scheduling.")
+Component(auth, "Authentication & Authorization Component", "React, TypeScript", "Handles user login, registration, session management, and role-based access control.")
+Component(resource_requests, "Cross-Department Resource Requests Component", "React, TypeScript", "Facilitates requests for borrowing instructors between departments.")
+Component(admin_configuration, "Administration & Configuration Component", "React, TypeScript", "Centralized management of system data such as users, departments, programs, and timetable settings.")
+
+' Relationships between components
+Rel(spa, timetabling, "Displays timetable and enables scheduling", "HTTPS")
+Rel(timetabling, conflict_checking, "Checks for scheduling conflicts during drag-and-drop", "JavaScript/TypeScript")
+Rel(timetabling, class_merging, "Groups and visualizes similar class sessions", "JavaScript/TypeScript")
+Rel(spa, academic_component_management, "Allows managing academic components like Courses, Groups, and Classrooms", "HTTPS")
+Rel(spa, class_session_authoring, "Defines class sessions for scheduling based on academic components", "HTTPS")
+Rel(spa, auth, "Manages user authentication and role-based access", "HTTPS")
+Rel(spa, resource_requests, "Handles resource requests between departments", "HTTPS")
+Rel(spa, admin_configuration, "Manages administrative features like user and program management", "HTTPS")
+
+' Dependency relationships for sub-components
+Rel(timetabling, conflict_checking, "Uses conflict checking during scheduling", "JavaScript/TypeScript")
+Rel(timetabling, class_merging, "Uses class merging to render timetable", "JavaScript/TypeScript")
+
+@enduml

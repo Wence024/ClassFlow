@@ -1,0 +1,47 @@
+@startuml Container diagram for ClassFlow
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' Diagram Metadata
+title Container diagram for ClassFlow
+LAYOUT_WITH_LEGEND()
+
+' The People (Actors)
+Person(admin, "Admin", "Manages system-wide settings & users.")
+Person(dept_head, "Department Head", "Manages instructor resources.")
+Person(prog_head, "Program Head", "Manages schedules and program data.")
+
+' External Systems
+System_Ext(email_system, "Email System", "Delivers invitation and password reset emails to users.")
+
+' The System Boundary for ClassFlow
+System_Boundary(classflow_system, "ClassFlow") {
+
+    ' --- Containers within the ClassFlow System ---
+
+    Container(spa, "Web Application", "React, TypeScript", "Contains all UI and feature modules for Timetabling, Component Management (Courses, Groups), User Management, Department Management, and Authentication.")
+
+    Container(api, "Scheduling & Management API", "Supabase PostgREST", "Exposes secure RESTful endpoints for all core business logic. Handles creating, reading, updating, and deleting Departments, Programs, Courses, Instructors, Classrooms, Class Sessions, and Timetable Assignments. All access is protected by Row-Level Security policies.")
+
+    Container(auth_api, "Authentication & User API", "Supabase GoTrue & Edge Functions", "Manages user identity, secure invitations, sign-in, password resets, and session management (JWTs).")
+
+    ContainerDb(db, "PostgreSQL Database", "Supabase PostgreSQL", "The single source of truth for all application data. Stores user profiles, roles, academic structures (departments, programs), schedulable components (courses, instructors), and the final timetable assignments. All security policies are defined here.")
+
+}
+
+' --- Relationships ---
+
+' User -> System Relationships (pointing to the SPA)
+Rel(admin, spa, "Manages users, departments, and programs using the administration modules", "HTTPS")
+Rel(dept_head, spa, "Manages instructors using the Department Dashboard", "HTTPS")
+Rel(prog_head, spa, "Manages courses/groups and builds schedules using the Component Management and Timetabling modules", "HTTPS")
+
+' SPA -> Backend Container Relationships
+Rel(spa, auth_api, "Handles user login, registration, and sends invitations", "HTTPS/JSON")
+Rel(spa, api, "Performs all CRUD operations for scheduling and academic data (courses, instructors, timetable assignments, etc.)", "HTTPS/REST")
+
+' Internal Backend & External System Relationships
+Rel(api, db, "Reads/writes data", "PostgreSQL Protocol")
+Rel(auth_api, db, "Reads/writes user profiles and roles", "PostgreSQL Protocol")
+Rel(auth_api, email_system, "Sends invitation and password reset emails", "SMTP")
+
+@enduml

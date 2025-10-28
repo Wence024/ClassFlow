@@ -1,0 +1,30 @@
+@startuml System Context diagram for ClassFlow
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Diagram Metadata
+title System Context diagram for ClassFlow
+LAYOUT_WITH_LEGEND()
+
+' The People (Actors)
+Person(admin, "Admin", "Manages system-wide settings, departments, programs, and user accounts.")
+Person(dept_head, "Department Head", "Manages instructor resources for a specific department and handles resource requests.")
+Person(prog_head, "Program Head", "Manages courses and class groups, and schedules classes on the timetable.")
+
+' The System
+System(classflow, "ClassFlow", "A real-time class scheduling application for academic departments with role-based access control and a drag-and-drop interface.")
+
+' External Systems
+SystemDb_Ext(supabase, "Supabase", "Provides the backend database, user authentication, real-time data synchronization, and serverless edge functions.")
+System_Ext(email_system, "Email System", "The external email service used to deliver invitation links to new users.")
+
+' Relationships
+' User -> System Relationships
+Rel(admin, classflow, "Manages system configuration and invites users via the web application")
+Rel(dept_head, classflow, "Manages instructor resources and approves requests via the web application")
+Rel(prog_head, classflow, "Schedules classes and manages program components via the web application")
+
+' System -> External System Relationships
+Rel(classflow, supabase, "Reads/writes scheduling data, authenticates users, and receives real-time updates using", "PostgreSQL, GoTrue, Realtime")
+Rel(classflow, email_system, "Sends user invitation emails", "via Supabase Auth")
+
+@enduml
