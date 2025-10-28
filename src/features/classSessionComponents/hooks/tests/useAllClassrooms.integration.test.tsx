@@ -63,6 +63,14 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
+const createDelayedPromise = <T,>(data: T, delay: number): Promise<T> => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(data);
+    }, delay);
+  });
+};
+
 describe('useAllClassrooms Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -92,7 +100,7 @@ describe('useAllClassrooms Integration', () => {
     });
 
     const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService')
+      await import('../../services/classroomsService'),
     );
     mockClassroomsService.getAllClassrooms.mockResolvedValue(allMockClassrooms);
 
@@ -130,7 +138,7 @@ describe('useAllClassrooms Integration', () => {
     });
 
     const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService')
+      await import('../../services/classroomsService'),
     );
     mockClassroomsService.getAllClassrooms.mockResolvedValue(allMockClassrooms);
 
@@ -168,10 +176,10 @@ describe('useAllClassrooms Integration', () => {
     });
 
     const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService')
+      await import('../../services/classroomsService'),
     );
-    mockClassroomsService.getAllClassrooms.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve(allMockClassrooms), 100))
+    mockClassroomsService.getAllClassrooms.mockImplementation(() =>
+      createDelayedPromise(allMockClassrooms, 100),
     );
 
     const { result } = renderHook(() => useAllClassrooms(), { wrapper });

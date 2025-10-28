@@ -34,6 +34,11 @@ const mockScheduleSettings = {
  * Renders the Timetable component with required providers.
  *
  * @param props The component props.
+ * @param props.viewMode The current view mode of the timetable.
+ * @param props.groups The list of class groups.
+ * @param props.resources The list of resources to display.
+ * @param props.timetable The timetable data.
+ * @param props.isLoading Whether the timetable is loading.
  * @param authValue Auth context value.
  * @param timetableValue Timetable context value.
  * @returns The rendered component.

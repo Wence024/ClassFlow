@@ -14,12 +14,12 @@ const TABLE = 'instructors';
  * **Use this for:**
  * - InstructorTab (create/edit/delete instructors)
  * - AdminInstructorManagement
- * - Any management interface where users should only see instructors they can manage
+ * - Any management interface where users should only see instructors they can manage.
  *
  * **Filtering logic:**
  * - Admins see all instructors
  * - Department heads see only instructors in their department
- * - Program heads see only instructors in their department (via program relationship)
+ * - Program heads see only instructors in their department (via program relationship).
  *
  * **Do NOT use for selection workflows** - use `getAllInstructors()` instead.
  *
@@ -47,18 +47,18 @@ export async function getInstructors(params?: { role?: string | null; department
  * - ClassSessionForm (selecting instructors for class sessions)
  * - TimetablePage (drag-and-drop instructor assignment)
  * - ProgramHeadInstructors (browsing all instructors by department)
- * - Any interface where users need to SELECT from all available instructors
+ * - Any interface where users need to SELECT from all available instructors.
  *
  * **Key differences from `getInstructors()`:**
  * - Returns ALL instructors regardless of user's department (no filtering)
  * - Includes `department_name` field for display and prioritization
  * - Used for selection workflows where users can see all resources but get prioritized results
- * - Supports cross-department resource selection with conflict detection
+ * - Supports cross-department resource selection with conflict detection.
  *
  * **Department prioritization:**
  * The selector components (InstructorSelector, ResourceSelectorModal) handle grouping:
  * - "From Your Department" - instructors matching user's department
- * - "From Other Departments" - all other instructors
+ * - "From Other Departments" - all other instructors.
  *
  * @returns A promise that resolves to an array of all Instructor objects with department_name included.
  */

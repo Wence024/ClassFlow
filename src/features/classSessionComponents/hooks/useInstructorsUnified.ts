@@ -7,7 +7,7 @@ import type { InstructorInsert, InstructorUpdate } from '../types/instructor';
  * Unified hook for instructor data that adapts based on user role.
  * 
  * - Admins/Dept Heads: Full CRUD access to department instructors
- * - Program Heads: Read-only access to all instructors
+ * - Program Heads: Read-only access to all instructors.
  * 
  * This hook consolidates the dual-hook pattern to follow React's Rules of Hooks
  * and simplify component logic and testing.

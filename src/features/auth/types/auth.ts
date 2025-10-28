@@ -7,15 +7,15 @@
  * RECOMMENDED: Move roles to a separate `user_roles` table with:
  * - An enum type for valid roles
  * - A `has_role()` security definer function
- * - RLS policies that use the security definer function
+ * - RLS policies that use the security definer function.
  * 
- * See: docs/postgresql_schema for migration examples
+ * See: docs/postgresql_schema for migration examples.
  */
 export type User = {
   id: string;
   name: string;
   email: string;
-  role: string; // TODO: Replace with server-side role checking
+  role: string;
   program_id: string | null;
   department_id: string | null;
 };

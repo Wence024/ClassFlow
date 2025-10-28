@@ -13,11 +13,11 @@ const TABLE = 'classrooms';
  *
  * **Use this for:**
  * - ClassroomTab (create/edit/delete classrooms)
- * - Any management interface for classroom administration
+ * - Any management interface for classroom administration.
  *
  * **Filtering logic:**
  * - Admins see all classrooms
- * - Non-admins are restricted (currently returns empty array)
+ * - Non-admins are restricted (currently returns empty array).
  *
  * **Do NOT use for selection workflows** - use `getAllClassrooms()` instead.
  *
@@ -45,18 +45,18 @@ export async function getClassrooms(params?: { role?: string | null; department_
  * **Use this for:**
  * - ClassSessionForm (selecting classrooms for class sessions)
  * - TimetablePage (viewing classroom assignments)
- * - Any interface where users need to SELECT from all available classrooms
+ * - Any interface where users need to SELECT from all available classrooms.
  *
  * **Key differences from `getClassrooms()`:**
  * - Returns ALL classrooms regardless of user's role (no filtering)
  * - Includes `preferred_department_name` field for display and prioritization
  * - Used for selection workflows where users can see all resources but get prioritized results
- * - Supports cross-department resource selection with conflict detection
+ * - Supports cross-department resource selection with conflict detection.
  *
  * **Department prioritization:**
  * The selector components (ClassroomSelector, ResourceSelectorModal) handle grouping:
  * - "From Your Department" - classrooms with preferred_department_id matching user's department
- * - "From Other Departments" - all other classrooms
+ * - "From Other Departments" - all other classrooms.
  *
  * @returns A promise that resolves to an array of all Classroom objects with preferred_department_name included.
  */

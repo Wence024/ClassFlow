@@ -17,23 +17,23 @@ import { usePrograms } from '../../programs/hooks/usePrograms';
 export function useDepartmentId(): string | null {
   const { user } = useAuth();
   const { listQuery } = usePrograms();
-  const programs = listQuery.data || [];
 
   const departmentId = useMemo(() => {
+    const programs = listQuery.data || [];
     if (!user) return null;
-    
+
     // 1. Use explicit department_id (for dept heads)
     if (user.department_id) return user.department_id;
-    
+
     // 2. Derive from program (for program heads)
     if (user.program_id) {
       const program = programs.find(p => p.id === user.program_id);
       return program?.department_id || null;
     }
-    
+
     // 3. No department assignment (admins)
     return null;
-  }, [user, programs]);
+  }, [user, listQuery.data]);
 
   return departmentId;
 }

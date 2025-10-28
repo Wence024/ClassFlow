@@ -7,7 +7,7 @@ import type { ClassroomInsert, ClassroomUpdate } from '../types/classroom';
  * Unified hook for classroom data that adapts based on user role.
  * 
  * - Admins/Dept Heads: Full CRUD access with prioritized list
- * - Program Heads: Read-only access to all classrooms
+ * - Program Heads: Read-only access to all classrooms.
  * 
  * This hook consolidates the dual-hook pattern to follow React's Rules of Hooks
  * and simplify component logic and testing.
