@@ -16,3 +16,9 @@ $combinedOutput | Set-Clipboard
 Write-Host "Git log and diff have been copied to the clipboard."
 
 Start-Process "msedge.exe" -ArgumentList "--inprivate https://chatgpt.com"
+
+# Commit the new message
+git commit
+
+# Push changes to the remote repository with force-with-lease
+git push origin HEAD

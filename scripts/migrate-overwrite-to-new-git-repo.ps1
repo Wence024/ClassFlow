@@ -32,12 +32,28 @@ git fetch origin
 Write-Host "Adding new remote repository..."
 git remote add new-origin $newRepoURL
 
+    # If there is an error (likely no relation), overwrite the new repository
+    # Write-Host "Repositories are not related. Overwriting the new repository with the old repository."
+
+    # Reset the new repository (forcefully overwriting it)
+    git remote rm new-origin
+    git remote add new-origin $newRepoURL
+
+    # Fetch the latest from the old repository
+    Write-Host "Fetching the latest from the old repository..."
+    git fetch origin
+
+    # Push all old repository's code (force overwrite)
+    Write-Host "Overwriting the new repository with the old repository's code..."
+    git push --all new-origin --force
+    git push --tags new-origin --force
+
 # Check if the new repository is related to the old one
-Write-Host "Checking if the repositories are related..."
-try {
+# Write-Host "Checking if the repositories are related..."
+
     # Try fetching the remote branches from the new repository to see if they are related
     git fetch new-origin
-    Write-Host "The new repository is related to the old repository."
+    # Write-Host "The new repository is related to the old repository."
     
     # List all branches and create local copies if necessary
     $branches = git branch -r | Where-Object { $_ -like "origin/*" } | ForEach-Object { $_.Trim() }
@@ -56,24 +72,6 @@ try {
     Write-Host "Pushing all branches and tags to the new repository..."
     git push --all new-origin
     git push --tags new-origin
-}
-catch {
-    # If there is an error (likely no relation), overwrite the new repository
-    Write-Host "Repositories are not related. Overwriting the new repository with the old repository."
-
-    # Reset the new repository (forcefully overwriting it)
-    git remote rm new-origin
-    git remote add new-origin $newRepoURL
-
-    # Fetch the latest from the old repository
-    Write-Host "Fetching the latest from the old repository..."
-    git fetch origin
-
-    # Push all old repository's code (force overwrite)
-    Write-Host "Overwriting the new repository with the old repository's code..."
-    git push --all new-origin --force
-    git push --tags new-origin --force
-}
 
 # Remove old remote and rename new-origin to origin
 Write-Host "Renaming the new remote to 'origin'..."
