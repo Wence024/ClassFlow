@@ -3,6 +3,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
+import { useDepartmentId } from '../../auth/hooks/useDepartmentId';
 import { useInstructors } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { InstructorCard } from './components/instructor';
@@ -29,6 +30,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  */
 const AdminInstructorManagement: React.FC = () => {
   const { user, isAdmin } = useAuth();
+  const departmentId = useDepartmentId();
   const {
     instructors,
     addInstructor,
@@ -88,7 +90,7 @@ const AdminInstructorManagement: React.FC = () => {
     if (!user) return;
     
     // For department heads, validate they have a department assigned
-    if (!isAdmin() && !user.department_id) {
+    if (!isAdmin() && !departmentId) {
       toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
       return;
     }
@@ -106,8 +108,8 @@ const AdminInstructorManagement: React.FC = () => {
       color: data.color || null,
       // For department heads: use their department_id
       // For admins: use the department_id from the form
-      department_id: !isAdmin() && user.department_id
-        ? user.department_id
+      department_id: !isAdmin() && departmentId
+        ? departmentId
         : (data.department_id || null),
     };
     

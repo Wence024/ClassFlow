@@ -65,10 +65,10 @@ describe('Header - Sidebar Toggle Integration', () => {
     expect(screen.getByRole('button', { name: /toggle sidebar/i })).toBeInTheDocument();
   });
 
-  it('should show collapse icon when sidebar is expanded', () => {
+  it('should show expand icon when sidebar is collapsed', () => {
     renderHeader();
     const toggleButton = screen.getByRole('button', { name: /toggle sidebar/i });
-    expect(toggleButton).toHaveAttribute('title', 'Collapse sidebar');
+    expect(toggleButton).toHaveAttribute('title', 'Expand sidebar');
   });
 
   it('should toggle icon when button is clicked', async () => {
@@ -76,13 +76,13 @@ describe('Header - Sidebar Toggle Integration', () => {
     renderHeader();
 
     const toggleButton = screen.getByRole('button', { name: /toggle sidebar/i });
-    expect(toggleButton).toHaveAttribute('title', 'Collapse sidebar');
-
-    await user.click(toggleButton);
     expect(toggleButton).toHaveAttribute('title', 'Expand sidebar');
 
     await user.click(toggleButton);
     expect(toggleButton).toHaveAttribute('title', 'Collapse sidebar');
+
+    await user.click(toggleButton);
+    expect(toggleButton).toHaveAttribute('title', 'Expand sidebar');
   });
 
   it('should render application title and branding', () => {

@@ -4,6 +4,7 @@ import type { Database } from '../../../lib/supabase.types';
 // --- Base Entity Types (from Supabase) ---
 export type Instructor = Database['public']['Tables']['instructors']['Row'] & {
   department_id?: string | null;
+  department_name?: string | null; // Joined from departments table
 };
 
 // --- Insert/Update Types for CRUD Operations ---

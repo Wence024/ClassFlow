@@ -4,11 +4,12 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useClassrooms } from '../hooks';
+import { useClassroomsUnified } from '../hooks/useClassroomsUnified';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useDepartments } from '../../departments/hooks/useDepartments';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
 import {
+  Alert,
   Button,
   ConfirmModal,
   ErrorMessage,
@@ -30,7 +31,9 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
  * @returns The ClassroomManagement component.
  */
 const ClassroomManagement: React.FC = () => {
-  const { user, canManageClassrooms } = useAuth();
+  const { user, isProgramHead } = useAuth();
+  
+  // Use unified hook that adapts based on role
   const {
     classrooms,
     addClassroom,
@@ -40,7 +43,9 @@ const ClassroomManagement: React.FC = () => {
     isSubmitting,
     isRemoving,
     error,
-  } = useClassrooms();
+    canManage,
+  } = useClassroomsUnified();
+  
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
   
@@ -140,36 +145,48 @@ const ClassroomManagement: React.FC = () => {
   return (
     <>
       <div className="flex flex-col md:flex-row-reverse gap-8">
-        <div className="w-full md:w-96">
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              {editingClassroom ? 'Edit Classroom' : 'Create Classroom'}
-            </h2>
-            <FormProvider {...formMethods}>
-              <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
-                                <fieldset data-testid="classroom-form-fieldset" disabled={isSubmitting || !canManageClassrooms()} className="space-y-1">
-                  <ClassroomFields
-                    control={formMethods.control}
-                    errors={formMethods.formState.errors}
-                    departmentOptions={departmentOptions}
-                  />
-                  <div className="flex gap-2 pt-4">
-                    <Button type="submit" loading={isSubmitting} className="flex-1">
-                      {editingClassroom ? 'Save Changes' : 'Create'}
-                    </Button>
-                    {editingClassroom && (
-                      <Button type="button" variant="secondary" onClick={handleCancel}>
-                        Cancel
+        {/* Only show form for admins/dept heads */}
+        {canManage && (
+          <div className="w-full md:w-96">
+            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                {editingClassroom ? 'Edit Classroom' : 'Create Classroom'}
+              </h2>
+              <FormProvider {...formMethods}>
+                <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
+                  <fieldset data-testid="classroom-form-fieldset" disabled={isSubmitting} className="space-y-1">
+                    <ClassroomFields
+                      control={formMethods.control}
+                      errors={formMethods.formState.errors}
+                      departmentOptions={departmentOptions}
+                    />
+                    <div className="flex gap-2 pt-4">
+                      <Button type="submit" loading={isSubmitting} className="flex-1">
+                        {editingClassroom ? 'Save Changes' : 'Create'}
                       </Button>
-                    )}
-                  </div>
-                </fieldset>
-              </form>
-            </FormProvider>
+                      {editingClassroom && (
+                        <Button type="button" variant="secondary" onClick={handleCancel}>
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </fieldset>
+                </form>
+              </FormProvider>
+            </div>
           </div>
-        </div>
+        )}
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
+          
+          {/* Informational alert for program heads */}
+          {isProgramHead() && !canManage && (
+            <Alert className="mb-4">
+              <p className="text-sm">
+                You are viewing all available classrooms. Only administrators and department heads can create or modify classrooms.
+              </p>
+            </Alert>
+          )}
 
           {/* NEW: Search input */}
           <div className="mb-4">
@@ -205,7 +222,7 @@ const ClassroomManagement: React.FC = () => {
                         classroom={classroom}
                         onEdit={handleEdit}
                         onDelete={handleDeleteRequest}
-                        isOwner={canManageClassrooms()}
+                        isOwner={canManage}
                       />
                     </React.Fragment>
                   ))}

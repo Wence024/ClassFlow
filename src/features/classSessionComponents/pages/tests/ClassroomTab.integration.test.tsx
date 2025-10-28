@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import ClassroomManagement from '../ClassroomTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
-import * as useClassroomsHook from '../../hooks/useClassrooms';
+import * as useClassroomsUnifiedHook from '../../hooks/useClassroomsUnified';
 import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../../auth/types/auth';
@@ -14,10 +14,10 @@ import type { Department } from '../../../departments/types/department';
 import { User } from '../../../auth/types/auth';
 
 // Mocks
-vi.mock('../../hooks/useClassrooms');
+vi.mock('../../hooks/useClassroomsUnified');
 vi.mock('../../../departments/hooks/useDepartments');
 
-const mockedUseClassrooms = vi.mocked(useClassroomsHook, true);
+const mockedUseClassroomsUnified = vi.mocked(useClassroomsUnifiedHook, true);
 const mockedUseDepartments = vi.mocked(useDepartmentsHook, true);
 
 const queryClient = new QueryClient({
@@ -56,7 +56,26 @@ const mockClassrooms: Classroom[] = [
 
 const TestWrapper = ({ children, user }: { children: ReactNode; user: User | null }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ user, canManageClassrooms: () => user?.role === 'admin' } as AuthContextType}>
+    <AuthContext.Provider value={{ 
+      user, 
+      role: user?.role || null,
+      departmentId: user?.department_id || null,
+      loading: false,
+      error: null,
+      login: vi.fn(),
+      logout: vi.fn(),
+      clearError: vi.fn(),
+      updateMyProfile: vi.fn(),
+      isAdmin: () => user?.role === 'admin',
+      isDepartmentHead: () => user?.role === 'department_head',
+      isProgramHead: () => user?.role === 'program_head',
+      canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
+      canManageClassrooms: () => user?.role === 'admin',
+      canReviewRequestsForDepartment: vi.fn().mockReturnValue(false),
+      canManageInstructorRow: vi.fn().mockReturnValue(false),
+      canManageCourses: vi.fn().mockReturnValue(false),
+      canManageAssignmentsForProgram: vi.fn().mockReturnValue(false),
+    } as AuthContextType}>
       {children}
     </AuthContext.Provider>
   </QueryClientProvider>
@@ -70,7 +89,7 @@ describe('ClassroomTab Integration Tests', () => {
     vi.resetAllMocks();
     queryClient.clear();
 
-    mockedUseClassrooms.useClassrooms.mockReturnValue({
+    mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
       classrooms: [],
       isLoading: false,
       isSubmitting: false,
@@ -79,7 +98,8 @@ describe('ClassroomTab Integration Tests', () => {
       addClassroom: vi.fn(),
       updateClassroom: mockUpdateClassroom,
       removeClassroom: mockDeleteClassroom,
-    } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+      canManage: false,
+    } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
     mockedUseDepartments.useDepartments.mockReturnValue({
       listQuery: {
@@ -93,7 +113,7 @@ describe('ClassroomTab Integration Tests', () => {
   // --- Persona: Non-Admin ---
   describe('as a Non-Admin User (Program Head)', () => {
     it('should hide Edit/Delete buttons on classroom cards', () => {
-      mockedUseClassrooms.useClassrooms.mockReturnValue({
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
         classrooms: mockClassrooms,
         isLoading: false,
         isSubmitting: false,
@@ -102,7 +122,8 @@ describe('ClassroomTab Integration Tests', () => {
         addClassroom: vi.fn(),
         updateClassroom: mockUpdateClassroom,
         removeClassroom: vi.fn(),
-      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+        canManage: false,
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
@@ -110,18 +131,20 @@ describe('ClassroomTab Integration Tests', () => {
       expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
     });
 
-    it('should disable the creation/edit form', () => {
+    it('should NOT show the creation/edit form for non-admin users', () => {
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-      const fieldset = screen.getByTestId('classroom-form-fieldset');
-      expect(fieldset).toBeDisabled();
-      expect(screen.getByRole('button', { name: /Create/i })).toBeDisabled();
+      // Program heads should NOT see the form at all (isManagementView = false in ClassroomTab)
+      expect(screen.queryByTestId('classroom-form-fieldset')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Create/i })).not.toBeInTheDocument();
+      
+      // But they should see the info alert about viewing
+      expect(screen.getByText(/You are viewing all available classrooms/i)).toBeInTheDocument();
     });
 
-    it('should display classrooms with a matching preferred department first, followed by a separator', () => {
-      // The hook returns prioritized classrooms, so we need to provide them in the correct order
-      // CS Room should be first (matches user's dept), then Math and General
-      mockedUseClassrooms.useClassrooms.mockReturnValue({
+    it('should display classrooms with a matching preferred department first, followed by a separator', async () => {
+      // Set up the mock BEFORE rendering - unified hook returns prioritized data
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
         classrooms: [mockClassrooms[0], mockClassrooms[1], mockClassrooms[2]], // CS Room, Math Room, General Room
         isLoading: false,
         isSubmitting: false,
@@ -130,9 +153,19 @@ describe('ClassroomTab Integration Tests', () => {
         addClassroom: vi.fn(),
         updateClassroom: mockUpdateClassroom,
         removeClassroom: vi.fn(),
-      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+        canManage: false,
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+
+      // Wait for data to load and cards to render with explicit timeout
+      await waitFor(
+        async () => {
+          const allCards = await screen.findAllByRole('article');
+          expect(allCards.length).toBeGreaterThan(0);
+        },
+        { timeout: 3000 }
+      );
 
       const allCards = screen.getAllByRole('article');
       expect(within(allCards[0]).getByText('CS Room')).toBeInTheDocument();
@@ -156,7 +189,7 @@ describe('ClassroomTab Integration Tests', () => {
   // --- Persona: Admin ---
   describe('as an Admin User', () => {
     it('should show Edit/Delete buttons on classroom cards', () => {
-      mockedUseClassrooms.useClassrooms.mockReturnValue({
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
         classrooms: [mockClassrooms[0]],
         isLoading: false,
         isSubmitting: false,
@@ -165,7 +198,8 @@ describe('ClassroomTab Integration Tests', () => {
         addClassroom: vi.fn(),
         updateClassroom: mockUpdateClassroom,
         removeClassroom: vi.fn(),
-      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+        canManage: true,
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
@@ -174,6 +208,18 @@ describe('ClassroomTab Integration Tests', () => {
     });
 
     it('should enable the creation/edit form', () => {
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
+        classrooms: [],
+        isLoading: false,
+        isSubmitting: false,
+        isRemoving: false,
+        error: null,
+        addClassroom: vi.fn(),
+        updateClassroom: mockUpdateClassroom,
+        removeClassroom: mockDeleteClassroom,
+        canManage: true, // Set to true for admin
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
+
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
       const fieldset = screen.getByTestId('classroom-form-fieldset');
@@ -182,7 +228,7 @@ describe('ClassroomTab Integration Tests', () => {
 
     it('should call the update mutation with a department ID when a preferred department is assigned', async () => {
       const user = userEvent.setup();
-      mockedUseClassrooms.useClassrooms.mockReturnValue({
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
         classrooms: [mockClassrooms[2]], // General Room with no preferred dept
         isLoading: false,
         isSubmitting: false,
@@ -191,7 +237,8 @@ describe('ClassroomTab Integration Tests', () => {
         addClassroom: vi.fn(),
         updateClassroom: mockUpdateClassroom,
         removeClassroom: vi.fn(),
-      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+        canManage: true,
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 
@@ -221,7 +268,7 @@ describe('ClassroomTab Integration Tests', () => {
 
     it('should call the update mutation with null when a preferred department is cleared', async () => {
       const user = userEvent.setup();
-      mockedUseClassrooms.useClassrooms.mockReturnValue({
+      mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
         classrooms: [mockClassrooms[0]], // CS Room with preferred dept
         isLoading: false,
         isSubmitting: false,
@@ -230,7 +277,8 @@ describe('ClassroomTab Integration Tests', () => {
         addClassroom: vi.fn(),
         updateClassroom: mockUpdateClassroom,
         removeClassroom: vi.fn(),
-      } as unknown as ReturnType<typeof useClassroomsHook.useClassrooms>);
+        canManage: true,
+      } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
 

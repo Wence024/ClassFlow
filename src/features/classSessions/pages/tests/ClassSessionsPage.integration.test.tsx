@@ -4,8 +4,8 @@ import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import ClassSessionsPage from '../ClassSessionsPage';
-import { AuthProvider } from '../../../auth/contexts/AuthProvider';
-import type { User } from '../../../auth/types/auth';
+import { AuthContext } from '../../../auth/contexts/AuthContext';
+import type { User, AuthContextType } from '../../../auth/types/auth';
 
 
 // --- Mocks ---
@@ -13,7 +13,6 @@ vi.mock('../../../auth/hooks/useAuth');
 vi.mock('../../hooks/useClassSessions');
 vi.mock('../../../classSessionComponents/hooks');
 vi.mock('../../../programs/hooks/usePrograms');
-vi.mock('../../../auth/services/authService');
 
 // --- Mock Data ---
 const mockUser: User = {
@@ -56,21 +55,18 @@ const setupComponent = async (
   isLoading = false,
   error: string | null = null
 ) => {
-  const mockAuthService = await import('../../../auth/services/authService');
-  (mockAuthService.getStoredUser as vi.Mock).mockResolvedValue(mockUser);
-
   const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
   mockUseAuth.mockReturnValue({
     user: mockUser,
     loading: false,
     isAdmin: () => false,
     isDepartmentHead: () => false,
-    isProgramHead: () => true, // The mock user is a program head
+    isProgramHead: () => true,
     canManageInstructors: () => false,
     canManageClassrooms: () => false,
     canReviewRequestsForDepartment: () => false,
     canManageInstructorRow: () => false,
-    canManageAssignmentsForProgram: () => true, // program head can manage assignments
+    canManageAssignmentsForProgram: () => true,
     login: vi.fn(),
     logout: vi.fn(),
     clearError: vi.fn(),
@@ -79,6 +75,26 @@ const setupComponent = async (
     departmentId: 'd1',
     error: null,
   });
+
+  const mockAuthContext: AuthContextType = {
+    user: mockUser,
+    loading: false,
+    error: null,
+    role: 'program_head',
+    departmentId: 'd1',
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn(),
+    updateMyProfile: vi.fn(),
+    isAdmin: () => false,
+    isDepartmentHead: () => false,
+    isProgramHead: () => true,
+    canManageInstructors: () => false,
+    canManageClassrooms: () => false,
+    canReviewRequestsForDepartment: () => false,
+    canManageInstructorRow: () => false,
+    canManageAssignmentsForProgram: () => true,
+  };
 
   const mockUseClassSessions = vi.mocked(await import('../../hooks/useClassSessions')).useClassSessions;
   mockUseClassSessions.mockReturnValue({
@@ -92,16 +108,11 @@ const setupComponent = async (
     removeClassSession: vi.fn(),
   });
 
-  const mockUseCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useCourses;
-  mockUseCourses.mockReturnValue({
+  const mockUseAllCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllCourses;
+  mockUseAllCourses.mockReturnValue({
     courses: [mockClassSession.course],
     isLoading: false,
-    isSubmitting: false,
-    isRemoving: false,
     error: null,
-    addCourse: vi.fn(),
-    updateCourse: vi.fn(),
-    removeCourse: vi.fn(),
   });
 
   const mockUseClassGroups = vi.mocked(await import('../../../classSessionComponents/hooks')).useClassGroups;
@@ -116,28 +127,18 @@ const setupComponent = async (
     removeClassGroup: vi.fn(),
   });
 
-  const mockUseClassrooms = vi.mocked(await import('../../../classSessionComponents/hooks')).useClassrooms;
-  mockUseClassrooms.mockReturnValue({
+  const mockUseAllClassrooms = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllClassrooms;
+  mockUseAllClassrooms.mockReturnValue({
     classrooms: [mockClassSession.classroom],
     isLoading: false,
-    isSubmitting: false,
-    isRemoving: false,
     error: null,
-    addClassroom: vi.fn(),
-    updateClassroom: vi.fn(),
-    removeClassroom: vi.fn(),
   });
 
-  const mockUseInstructors = vi.mocked(await import('../../../classSessionComponents/hooks')).useInstructors;
-  mockUseInstructors.mockReturnValue({
+  const mockUseAllInstructors = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllInstructors;
+  mockUseAllInstructors.mockReturnValue({
     instructors: [mockClassSession.instructor],
     isLoading: false,
-    isSubmitting: false,
-    isRemoving: false,
     error: null,
-    addInstructor: vi.fn(),
-    updateInstructor: vi.fn(),
-    removeInstructor: vi.fn(),
   });
 
   const mockUsePrograms = vi.mocked(await import('../../../programs/hooks/usePrograms')).usePrograms;
@@ -165,9 +166,9 @@ const setupComponent = async (
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <AuthProvider>
+        <AuthContext.Provider value={mockAuthContext}>
           <ClassSessionsPage />
-        </AuthProvider>
+        </AuthContext.Provider>
       </MemoryRouter>
     </QueryClientProvider>
   );

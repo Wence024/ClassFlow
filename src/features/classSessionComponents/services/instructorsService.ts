@@ -9,15 +9,24 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/in
 const TABLE = 'instructors';
 
 /**
- * Returns instructors for the caller's own class session components workflow.
+ * Fetches instructors for CRUD/management views (filtered by department for non-admins).
  *
- * Non-admins are filtered by their `department_id`. Admins receive all.
- * This is intended for the Instructor management views (CRUD) owned by department heads/admins.
+ * **Use this for:**
+ * - InstructorTab (create/edit/delete instructors)
+ * - AdminInstructorManagement
+ * - Any management interface where users should only see instructors they can manage.
+ *
+ * **Filtering logic:**
+ * - Admins see all instructors
+ * - Department heads see only instructors in their department
+ * - Program heads see only instructors in their department (via program relationship).
+ *
+ * **Do NOT use for selection workflows** - use `getAllInstructors()` instead.
  *
  * @param params - Optional parameters for filtering instructors.
  * @param params.role - The role of the user requesting the instructors.
  * @param params.department_id - The department ID to filter by for non-admin users.
- * @returns A promise that resolves to an array of Instructor objects.
+ * @returns A promise that resolves to an array of Instructor objects filtered by role and department.
  */
 export async function getInstructors(params?: { role?: string | null; department_id?: string | null }): Promise<Instructor[]> {
   let query = supabase.from(TABLE).select('*').order('first_name');
@@ -32,17 +41,46 @@ export async function getInstructors(params?: { role?: string | null; department
 }
 
 /**
- * Returns all instructors for class session authoring and timetabling workflows.
+ * Fetches ALL instructors with department information for selection/browsing workflows.
  *
- * This function does not filter by department, as timetabling may need
- * to view cross-department resources (with conflicts/requests enforced elsewhere).
- * 
- * @returns A promise that resolves to an array of all Instructor objects.
+ * **Use this for:**
+ * - ClassSessionForm (selecting instructors for class sessions)
+ * - TimetablePage (drag-and-drop instructor assignment)
+ * - ProgramHeadInstructors (browsing all instructors by department)
+ * - Any interface where users need to SELECT from all available instructors.
+ *
+ * **Key differences from `getInstructors()`:**
+ * - Returns ALL instructors regardless of user's department (no filtering)
+ * - Includes `department_name` field for display and prioritization
+ * - Used for selection workflows where users can see all resources but get prioritized results
+ * - Supports cross-department resource selection with conflict detection.
+ *
+ * **Department prioritization:**
+ * The selector components (InstructorSelector, ResourceSelectorModal) handle grouping:
+ * - "From Your Department" - instructors matching user's department
+ * - "From Other Departments" - all other instructors.
+ *
+ * @returns A promise that resolves to an array of all Instructor objects with department_name included.
  */
 export async function getAllInstructors(): Promise<Instructor[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('first_name');
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(`
+      *,
+      departments:department_id (
+        name
+      )
+    `)
+    .order('first_name');
+  
   if (error) throw error;
-  return data || [];
+  
+  // Transform the nested department object to a flat department_name field
+  return (data || []).map((instructor) => ({
+    ...instructor,
+    department_name: instructor.departments?.name || null,
+    departments: undefined, // Remove the nested object
+  })) as Instructor[];
 }
 
 /**

@@ -5,19 +5,24 @@ import { courseSchema, instructorSchema, classroomSchema, classGroupSchema } fro
 describe('componentSchemas', () => {
   describe('courseSchema', () => {
     it('should fail if name is empty', () => {
-      const result = courseSchema.safeParse({ name: '', code: 'C101' });
+      const result = courseSchema.safeParse({ name: '', code: 'C101', program_id: '550e8400-e29b-41d4-a716-446655440000' });
       expect(result.success).toBe(false);
       expect(result.error?.issues[0].message).toBe('Name is required');
     });
 
     it('should fail if code is empty', () => {
-      const result = courseSchema.safeParse({ name: 'Test Course', code: '' });
+      const result = courseSchema.safeParse({ name: 'Test Course', code: '', program_id: '550e8400-e29b-41d4-a716-446655440000' });
       expect(result.success).toBe(false);
       expect(result.error?.issues[0].message).toBe('Course code is required');
     });
 
     it('should pass with valid data', () => {
-      const result = courseSchema.safeParse({ name: 'Test Course', code: 'C101' });
+      const result = courseSchema.safeParse({ 
+        name: 'Test Course', 
+        code: 'C101', 
+        program_id: '550e8400-e29b-41d4-a716-446655440000',
+        color: '#ff0000'
+      });
       expect(result.success).toBe(true);
     });
   });
@@ -66,13 +71,19 @@ describe('componentSchemas', () => {
 
   describe('classGroupSchema', () => {
     it('should fail if name is empty', () => {
-      const result = classGroupSchema.safeParse({ name: '', code: 'C101' });
+      const result = classGroupSchema.safeParse({ name: '', code: 'C101', student_count: 30, program_id: '550e8400-e29b-41d4-a716-446655440000' });
       expect(result.success).toBe(false);
       expect(result.error?.issues[0].message).toBe('Name is required');
     });
 
     it('should pass with valid data', () => {
-      const result = courseSchema.safeParse({ name: 'Test Course', code: 'C101' });
+      const result = classGroupSchema.safeParse({ 
+        name: 'Test Group', 
+        code: 'GRP1',
+        student_count: 30,
+        program_id: '550e8400-e29b-41d4-a716-446655440000',
+        color: '#ff0000'
+      });
       expect(result.success).toBe(true);
     });
   });

@@ -56,5 +56,6 @@ export { default as ErrorMessage } from './custom/error-message';
 export { default as FormField } from './custom/form-field';
 export { default as ItemCard, type ItemCardBadge } from './custom/item-card';
 export { default as LoadingSpinner } from './custom/loading-spinner';
+export { ResourceSelectorModal, type PrioritizedItem } from './custom/resource-selector-modal';
 export { default as TabNavigation } from './custom/tab-navigation';
 export { default as CustomTooltip } from './custom/tooltip';

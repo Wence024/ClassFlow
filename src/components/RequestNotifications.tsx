@@ -1,5 +1,6 @@
 import { Bell } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
+import { useDepartmentId } from '../features/auth/hooks/useDepartmentId';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
@@ -11,7 +12,8 @@ import type { ResourceRequest } from '@/features/resourceRequests/types/resource
  * @returns The RequestNotifications component.
  */
 export default function RequestNotifications() {
-  const { isDepartmentHead, isAdmin, departmentId } = useAuth();
+  const { isDepartmentHead, isAdmin } = useAuth();
+  const departmentId = useDepartmentId();
   const { requests, updateRequest } = useDepartmentRequests(departmentId || undefined);
 
   // Only show for department heads and admins

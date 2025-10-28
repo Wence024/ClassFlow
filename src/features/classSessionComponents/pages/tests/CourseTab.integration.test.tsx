@@ -1,5 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CourseManagement from '../CourseTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
@@ -13,7 +14,7 @@ const mockCourses = [
     id: 'c1',
     name: 'React Fundamentals',
     code: 'R101',
-    user_id: 'u1',
+    created_by: 'u1',
     created_at: '',
     color: '#4f46e5',
     program_id: 'p1',
@@ -22,7 +23,7 @@ const mockCourses = [
     id: 'c2',
     name: 'Advanced TypeScript',
     code: 'TS201',
-    user_id: 'u1',
+    created_by: 'u1',
     created_at: '',
     color: '#0d9488',
     program_id: 'p1',
@@ -52,13 +53,24 @@ const queryClient = new QueryClient();
 // A helper to render the component with all necessary providers
 const renderComponent = () => {
   const authContextValue: AuthContextType = {
-    user: { id: 'u1', name: 'test', email: 'test@test.com', role: 'admin', program_id: 'p1' },
+    user: { id: 'u1', name: 'test', email: 'test@test.com', role: 'admin', program_id: 'p1', department_id: null },
     loading: false,
     login: vi.fn(),
     logout: vi.fn(),
     error: null,
     clearError: vi.fn(),
     role: 'admin',
+    departmentId: null,
+    isAdmin: vi.fn(() => true),
+    isDepartmentHead: vi.fn(() => false),
+    isProgramHead: vi.fn(() => false),
+    canManageInstructors: vi.fn(() => true),
+    canManageClassrooms: vi.fn(() => true),
+    canReviewRequestsForDepartment: vi.fn(() => true),
+    canManageInstructorRow: vi.fn(() => true),
+    canManageCourses: vi.fn(() => true),
+    canManageAssignmentsForProgram: vi.fn(() => true),
+    updateMyProfile: vi.fn(),
   };
   return render(
     <QueryClientProvider client={queryClient}>
@@ -77,10 +89,11 @@ describe('CourseTab (CourseManagement)', () => {
   });
 
   it('should filter the list of courses when a user types in the search bar', async () => {
+    const user = userEvent.setup();
     renderComponent();
 
     const searchInput = screen.getByLabelText('Search Courses');
-    fireEvent.change(searchInput, { target: { value: 'React' } });
+    await user.type(searchInput, 'React');
 
     await waitFor(() => {
       expect(screen.getByText('React Fundamentals')).toBeInTheDocument();
@@ -89,24 +102,34 @@ describe('CourseTab (CourseManagement)', () => {
   });
 
   it('should populate the form when the edit button is clicked', async () => {
+    const user = userEvent.setup();
     renderComponent();
 
     // 1. Find the specific edit button for "React Fundamentals"
     const editButton = screen.getByRole('button', { name: /Edit React Fundamentals/i });
 
     // 2. Click the button to trigger the state update
-    fireEvent.click(editButton);
+    await user.click(editButton);
 
-    // 3. THIS IS THE FIX: Wait for the form's title to change to "Edit Course".
-    //    `findByRole` is an async query that will wait for the element to appear.
-    //    This ensures the component has re-rendered into edit mode before we proceed.
+    // 3. Wait for the form's title to change to "Edit Course"
     await screen.findByRole('heading', { name: /Edit Course/i });
 
     // 4. Now that we know the form is ready, we can safely query for the populated fields.
-    const nameInput = screen.getByLabelText(/Course Name/i); // Use regex for flexibility
+    const nameInput = screen.getByLabelText(/Course Name/i);
     const codeInput = screen.getByLabelText(/Course Code/i);
 
     expect(nameInput).toHaveValue('React Fundamentals');
     expect(codeInput).toHaveValue('R101');
+  });
+
+  it('should show edit/delete buttons for courses owned by program head', () => {
+    renderComponent();
+    
+    // Should show buttons for courses in same program (p1)
+    const editButton = screen.getByRole('button', { name: /Edit React Fundamentals/i });
+    const deleteButton = screen.getByRole('button', { name: /Delete React Fundamentals/i });
+    
+    expect(editButton).toBeInTheDocument();
+    expect(deleteButton).toBeInTheDocument();
   });
 });

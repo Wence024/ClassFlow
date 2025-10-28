@@ -69,6 +69,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
       code: 'JD',
       email: 'john@example.com',
       department_id: 'dept-1',
+      department_name: 'Computer Science',
       color: null,
       contract_type: null,
       created_at: new Date().toISOString(),
@@ -84,6 +85,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
       code: 'JS',
       email: 'jane@example.com',
       department_id: 'dept-1',
+      department_name: 'Computer Science',
       color: null,
       contract_type: null,
       created_at: new Date().toISOString(),
@@ -105,7 +107,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
 
     // Setup default mocks
     vi.mocked(departmentsService.listDepartments).mockResolvedValue(mockDepartments);
-    vi.mocked(instructorsService.getInstructors).mockResolvedValue(mockInstructors);
+    vi.mocked(instructorsService.getAllInstructors).mockResolvedValue(mockInstructors);
   });
 
   it('should render a list of departments for selection', async () => {
@@ -138,7 +140,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
     await user.click(option);
 
     await waitFor(() => {
-        expect(instructorsService.getInstructors).toHaveBeenCalledWith({ department_id: 'dept-1', role: 'program_head' });
+        expect(instructorsService.getAllInstructors).toHaveBeenCalled();
     });
 
     // Assert that instructors are displayed
@@ -192,7 +194,7 @@ describe('ProgramHeadInstructors Integration Tests', () => {
   });
 
   it('should display a message when no instructors are found', async () => {
-    vi.mocked(instructorsService.getInstructors).mockResolvedValue([]);
+    vi.mocked(instructorsService.getAllInstructors).mockResolvedValue([]);
 
     render(<ProgramHeadInstructors />, {
       wrapper: createWrapper(mockProgramHeadContext),

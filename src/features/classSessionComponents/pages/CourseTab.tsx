@@ -47,18 +47,24 @@ const CourseManagement: React.FC = () => {
 
   const formMethods = useForm<CourseFormData>({
     resolver: zodResolver(componentSchemas.course),
-    defaultValues: { name: '', code: '', color: presetColor },
+    defaultValues: { name: '', code: '', color: presetColor, program_id: user?.program_id || '' },
   });
 
   useEffect(() => {
     if (editingCourse) {
-      formMethods.reset(editingCourse);
+      // Only pass form fields, not database metadata
+      formMethods.reset({
+        name: editingCourse.name,
+        code: editingCourse.code,
+        color: editingCourse.color,
+        program_id: editingCourse.program_id || user?.program_id || '',
+      });
     } else {
-      formMethods.reset({ name: '', code: '', color: presetColor });
+      formMethods.reset({ name: '', code: '', color: presetColor, program_id: user?.program_id || '' });
     }
-  }, [editingCourse, formMethods, presetColor]);
+  }, [editingCourse, formMethods, presetColor, user?.program_id]);
 
-  // NEW: Memoize the filtered list to avoid re-calculating on every render
+  // Memoize the filtered list to avoid re-calculating on every render
   const filteredCourses = useMemo(() => {
     if (!searchTerm) return courses;
     return courses.filter(
@@ -68,12 +74,37 @@ const CourseManagement: React.FC = () => {
     );
   }, [courses, searchTerm]);
 
+  // Determine if current user can manage a course (admin, same program, or creator)
+  const canManageCourse = (course: Course) => {
+    if (!user) return false;
+    if (user.role === 'admin') return true;
+    
+    // Check program-based ownership (both must be non-null and match)
+    const programMatch = !!course.program_id && !!user.program_id && course.program_id === user.program_id;
+    
+    // Check creator-based ownership as fallback
+    const creatorMatch = course.created_by === user.id;
+    
+    return programMatch || creatorMatch;
+  };
+
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
-    await addCourse({ ...data, created_by: user.id });
-    formMethods.reset();
-    toast('Success', { description: 'Course created successfully!' });
-    setRandomPresetColor(getRandomPresetColor());
+    if (!user.program_id) {
+      toast.error('Program assignment required', {
+        description: 'You must be assigned to a program before creating courses.',
+      });
+      return;
+    }
+    try {
+      await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
+      toast.success('Course created successfully');
+      formMethods.reset({ name: '', code: '', color: getRandomPresetColor(), program_id: user.program_id });
+      setRandomPresetColor(getRandomPresetColor());
+    } catch (error) {
+      console.error('Error adding course:', error);
+      toast.error('Failed to add course');
+    }
   };
 
   const handleSave = async (data: CourseFormData) => {
@@ -173,7 +204,7 @@ const CourseManagement: React.FC = () => {
                       course={course}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
-                      isOwner={course.program_id === user?.program_id}
+                      isOwner={canManageCourse(course)}
                     />
                   ))}
                 </div>

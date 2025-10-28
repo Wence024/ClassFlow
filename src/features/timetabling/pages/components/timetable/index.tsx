@@ -6,6 +6,7 @@ import type { ClassSession } from '../../../../classSessions/types/classSession'
 import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useDepartmentId } from '../../../../auth/hooks/useDepartmentId';
 import type { TimetableViewMode } from '../../../types/timetable';
 import type { TimetableRowResource } from '../../../utils/timetableLogic';
 import TimetableHeader from './TimetableHeader';
@@ -43,36 +44,58 @@ const Timetable: React.FC<TimetableProps> = ({
   isLoading,
 }: TimetableProps): JSX.Element => {
   const { user } = useAuth();
+  const userDepartmentId = useDepartmentId();
   const { settings, isLoading: isLoadingConfig } = useScheduleConfig();
   const { handleDragLeave, handleDragOver } = useTimetableContext();
 
   // Separate resources by ownership based on view mode
-  const { myResources, otherResources, separatorLabel } = useMemo(() => {
+  const { myResources, unassignedResources, otherResources, unassignedLabel, otherLabel } = useMemo(() => {
+    // If user has no department (admin), show all resources without separation
+    if (!userDepartmentId && viewMode !== 'class-group') {
+      return {
+        myResources: resources,
+        unassignedResources: [],
+        otherResources: [],
+        unassignedLabel: '',
+        otherLabel: '',
+      };
+    }
+
     if (viewMode === 'classroom') {
       const classrooms = resources as Classroom[];
       const myDeptClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id === user?.department_id
+        (c) => c.preferred_department_id !== null && c.preferred_department_id === userDepartmentId
+      );
+      const unassignedClassrooms = classrooms.filter(
+        (c) => c.preferred_department_id === null
       );
       const otherDeptClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id !== user?.department_id
+        (c) => c.preferred_department_id !== null && c.preferred_department_id !== userDepartmentId
       );
       return {
         myResources: myDeptClassrooms,
+        unassignedResources: unassignedClassrooms,
         otherResources: otherDeptClassrooms,
-        separatorLabel: 'Classrooms from Other Departments',
+        unassignedLabel: 'Unassigned Classrooms',
+        otherLabel: 'Classrooms from Other Departments',
       };
     } else if (viewMode === 'instructor') {
       const instructors = resources as Instructor[];
       const myDeptInstructors = instructors.filter(
-        (i) => i.department_id === user?.department_id
+        (i) => i.department_id !== null && i.department_id === userDepartmentId
+      );
+      const unassignedInstructors = instructors.filter(
+        (i) => i.department_id === null
       );
       const otherDeptInstructors = instructors.filter(
-        (i) => i.department_id !== user?.department_id
+        (i) => i.department_id !== null && i.department_id !== userDepartmentId
       );
       return {
         myResources: myDeptInstructors,
+        unassignedResources: unassignedInstructors,
         otherResources: otherDeptInstructors,
-        separatorLabel: 'Instructors from Other Departments',
+        unassignedLabel: 'Unassigned Instructors',
+        otherLabel: 'Instructors from Other Departments',
       };
     } else {
       // class-group view
@@ -80,11 +103,13 @@ const Timetable: React.FC<TimetableProps> = ({
       const otherGroups = groups.filter((g) => g.program_id !== user?.program_id);
       return {
         myResources: myGroups,
+        unassignedResources: [],
         otherResources: otherGroups,
-        separatorLabel: 'Schedules from Other Programs',
+        unassignedLabel: '',
+        otherLabel: 'Schedules from Other Programs',
       };
     }
-  }, [viewMode, resources, groups, user]);
+  }, [viewMode, resources, groups, user, userDepartmentId]);
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };
@@ -129,7 +154,7 @@ const Timetable: React.FC<TimetableProps> = ({
             periodsPerDay={periodsPerDay}
           />
           <tbody>
-            {/* Render the user's own resources first */}
+            {/* Render the user's own department resources first */}
             {myResources.map((resource) => (
               <TimetableRow
                 key={resource.id}
@@ -141,29 +166,53 @@ const Timetable: React.FC<TimetableProps> = ({
               />
             ))}
 
-            {/* If there are other resources, render a visual separator */}
-            {otherResources.length > 0 && (
-              <tr>
-                <td
-                  colSpan={totalPeriods + 1}
-                  className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
-                >
-                  {separatorLabel}
-                </td>
-              </tr>
+            {/* Render unassigned resources */}
+            {unassignedResources.length > 0 && (
+              <>
+                <tr>
+                  <td
+                    colSpan={totalPeriods + 1}
+                    className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
+                  >
+                    {unassignedLabel}
+                  </td>
+                </tr>
+                {unassignedResources.map((resource) => (
+                  <TimetableRow
+                    key={resource.id}
+                    viewMode={viewMode}
+                    resource={resource}
+                    timetable={timetable}
+                    periodsPerDay={periodsPerDay}
+                    totalPeriods={totalPeriods}
+                  />
+                ))}
+              </>
             )}
 
-            {/* Render the resources from other programs/departments */}
-            {otherResources.map((resource) => (
-              <TimetableRow
-                key={resource.id}
-                viewMode={viewMode}
-                resource={resource}
-                timetable={timetable}
-                periodsPerDay={periodsPerDay}
-                totalPeriods={totalPeriods}
-              />
-            ))}
+            {/* Render resources from other departments */}
+            {otherResources.length > 0 && (
+              <>
+                <tr>
+                  <td
+                    colSpan={totalPeriods + 1}
+                    className="p-2 text-center text-sm font-semibold text-gray-600 bg-gray-100 border-y-2 border-gray-300"
+                  >
+                    {otherLabel}
+                  </td>
+                </tr>
+                {otherResources.map((resource) => (
+                  <TimetableRow
+                    key={resource.id}
+                    viewMode={viewMode}
+                    resource={resource}
+                    timetable={timetable}
+                    periodsPerDay={periodsPerDay}
+                    totalPeriods={totalPeriods}
+                  />
+                ))}
+              </>
+            )}
           </tbody>
         </table>
       </div>

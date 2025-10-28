@@ -9,10 +9,17 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/class
 const TABLE = 'classrooms';
 
 /**
- * Returns classrooms for the caller's own class session components workflow.
+ * Fetches classrooms for CRUD/management views (admin-only access).
  *
- * Admins manage classrooms; non-admins typically view (not manage). We do not hard-filter here
- * to allow discovery for request flows; UI can emphasize preferred/owned first.
+ * **Use this for:**
+ * - ClassroomTab (create/edit/delete classrooms)
+ * - Any management interface for classroom administration.
+ *
+ * **Filtering logic:**
+ * - Admins see all classrooms
+ * - Non-admins are restricted (currently returns empty array).
+ *
+ * **Do NOT use for selection workflows** - use `getAllClassrooms()` instead.
  *
  * @param params - Optional parameters for filtering classrooms.
  * @param params.role - The role of the user requesting the classrooms.
@@ -33,16 +40,45 @@ export async function getClassrooms(params?: { role?: string | null; department_
 }
 
 /**
- * Returns all classrooms for class session authoring and timetabling workflows.
+ * Fetches ALL classrooms with department information for selection/browsing workflows.
  *
- * This includes all classrooms; downstream logic handles approvals/conflicts.
- * 
- * @returns A promise that resolves to an array of all Classroom objects.
+ * **Use this for:**
+ * - ClassSessionForm (selecting classrooms for class sessions)
+ * - TimetablePage (viewing classroom assignments)
+ * - Any interface where users need to SELECT from all available classrooms.
+ *
+ * **Key differences from `getClassrooms()`:**
+ * - Returns ALL classrooms regardless of user's role (no filtering)
+ * - Includes `preferred_department_name` field for display and prioritization
+ * - Used for selection workflows where users can see all resources but get prioritized results
+ * - Supports cross-department resource selection with conflict detection.
+ *
+ * **Department prioritization:**
+ * The selector components (ClassroomSelector, ResourceSelectorModal) handle grouping:
+ * - "From Your Department" - classrooms with preferred_department_id matching user's department
+ * - "From Other Departments" - all other classrooms.
+ *
+ * @returns A promise that resolves to an array of all Classroom objects with preferred_department_name included.
  */
 export async function getAllClassrooms(): Promise<Classroom[]> {
-  const { data, error } = await supabase.from(TABLE).select('*').order('name');
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select(`
+      *,
+      departments:preferred_department_id (
+        name
+      )
+    `)
+    .order('name');
+  
   if (error) throw error;
-  return data || [];
+  
+  // Transform the nested department object to a flat preferred_department_name field
+  return (data || []).map((classroom) => ({
+    ...classroom,
+    preferred_department_name: classroom.departments?.name || null,
+    departments: undefined, // Remove the nested object
+  })) as Classroom[];
 }
 
 /**

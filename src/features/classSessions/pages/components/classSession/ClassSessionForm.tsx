@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react'; // Import useMemo
+import { useMemo, useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
-import { Button, FormField } from '../../../../../components/ui';
+import { Button, Label } from '../../../../../components/ui';
 import { classSessionSchema } from '../../../../classSessions/types/validation';
 import type {
   Course,
@@ -9,10 +9,18 @@ import type {
   Instructor,
   Classroom,
 } from '../../../../classSessionComponents/types';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useDepartmentId } from '../../../../auth/hooks/useDepartmentId';
 import type { Program } from '../../../../programs/types/program';
+import {
+  CourseSelector,
+  InstructorSelector,
+  ClassGroupSelector,
+  ClassroomSelector,
+  ProgramSelector,
+} from './selectors';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
@@ -59,13 +67,19 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
   loading,
   isEditing,
 }) => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
+  const departmentId = useDepartmentId();
   const {
     control,
     handleSubmit,
     watch,
     formState: { errors, isDirty },
   } = formMethods;
+
+  // State to track which modal is open
+  const [openModal, setOpenModal] = useState<
+    'program' | 'course' | 'instructor' | 'classGroup' | 'classroom' | null
+  >(null);
 
   // Watch all values that could affect soft conflicts
   const watchedValues = watch([
@@ -116,89 +130,217 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
       </h3>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <fieldset disabled={loading}>
+          {/* Program Selector (Admin Only) */}
           {isAdmin() && (
             <Controller
               name="program_id"
               control={control}
-              render={({ field }) => (
-                <FormField
-                  {...field}
-                  value={field.value || ''}
-                  id="program_id"
-                  label="Program"
-                  type="select"
-                  error={errors.program_id?.message}
-                  options={programs.map((p) => ({ 
-                    id: p.id, 
-                    name: `${p.name} (${p.short_code})` 
-                  }))}
-                  required
-                />
-              )}
+              render={({ field }) => {
+                const selectedProgram = programs.find((p) => p.id === field.value);
+                return (
+                  <div className="space-y-2">
+                    <Label htmlFor="program_id">
+                      Program <span className="text-destructive">*</span>
+                    </Label>
+                    <button
+                      type="button"
+                      id="program_id"
+                      onClick={() => setOpenModal('program')}
+                      disabled={loading}
+                      className={`w-full text-left border rounded-md px-3 py-2 flex items-center justify-between ${
+                        errors.program_id ? 'border-destructive' : 'border-input'
+                      } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
+                    >
+                      <span className={selectedProgram ? 'text-foreground' : 'text-muted-foreground'}>
+                        {selectedProgram
+                          ? `${selectedProgram.name} (${selectedProgram.short_code})`
+                          : 'Select Program...'}
+                      </span>
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                    {errors.program_id && (
+                      <p className="text-sm text-destructive">{errors.program_id.message}</p>
+                    )}
+                    <ProgramSelector
+                      isOpen={openModal === 'program'}
+                      onClose={() => setOpenModal(null)}
+                      onSelect={(program) => field.onChange(program.id)}
+                      programs={programs}
+                      isLoading={loading}
+                    />
+                  </div>
+                );
+              }}
             />
           )}
+
+          {/* Course Selector */}
           <Controller
             name="course_id"
             control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="course_id"
-                label="Course"
-                type="select"
-                error={errors.course_id?.message}
-                options={courses.map((c) => ({ id: c.id, name: `${c.name} (${c.code})` }))}
-                required
-              />
-            )}
+            render={({ field }) => {
+              const selectedCourse = courses.find((c) => c.id === field.value);
+              return (
+                <div className="space-y-2">
+                  <Label htmlFor="course_id">
+                    Course <span className="text-destructive">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    id="course_id"
+                    onClick={() => setOpenModal('course')}
+                    disabled={loading}
+                    className={`w-full text-left border rounded-md px-3 py-2 flex items-center justify-between ${
+                      errors.course_id ? 'border-destructive' : 'border-input'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
+                  >
+                    <span className={selectedCourse ? 'text-foreground' : 'text-muted-foreground'}>
+                      {selectedCourse
+                        ? `${selectedCourse.name} (${selectedCourse.code})`
+                        : 'Select Course...'}
+                    </span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  {errors.course_id && (
+                    <p className="text-sm text-destructive">{errors.course_id.message}</p>
+                  )}
+                  <CourseSelector
+                    isOpen={openModal === 'course'}
+                    onClose={() => setOpenModal(null)}
+                    onSelect={(course) => field.onChange(course.id)}
+                    courses={courses}
+                    userProgramId={user?.program_id}
+                    isLoading={loading}
+                  />
+                </div>
+              );
+            }}
           />
+
+          {/* Instructor Selector */}
           <Controller
             name="instructor_id"
             control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="instructor_id"
-                label="Instructor"
-                type="select"
-                error={errors.instructor_id?.message}
-                options={instructors.map((i) => ({
-                  id: i.id,
-                  name: `${i.first_name} ${i.last_name}`,
-                }))}
-                required
-              />
-            )}
+            render={({ field }) => {
+              const selectedInstructor = instructors.find((i) => i.id === field.value);
+              const instructorName = selectedInstructor
+                ? `${selectedInstructor.first_name} ${selectedInstructor.last_name}`
+                : null;
+              return (
+                <div className="space-y-2">
+                  <Label htmlFor="instructor_id">
+                    Instructor <span className="text-destructive">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    id="instructor_id"
+                    onClick={() => setOpenModal('instructor')}
+                    disabled={loading}
+                    className={`w-full text-left border rounded-md px-3 py-2 flex items-center justify-between ${
+                      errors.instructor_id ? 'border-destructive' : 'border-input'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
+                  >
+                    <span className={instructorName ? 'text-foreground' : 'text-muted-foreground'}>
+                      {instructorName || 'Select Instructor...'}
+                    </span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  {errors.instructor_id && (
+                    <p className="text-sm text-destructive">{errors.instructor_id.message}</p>
+                  )}
+                  <InstructorSelector
+                    isOpen={openModal === 'instructor'}
+                    onClose={() => setOpenModal(null)}
+                    onSelect={(instructor) => field.onChange(instructor.id)}
+                    instructors={instructors}
+                    userDepartmentId={departmentId}
+                    isLoading={loading}
+                  />
+                </div>
+              );
+            }}
           />
+
+          {/* Class Group Selector */}
           <Controller
             name="class_group_id"
             control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="class_group_id"
-                label="Class Group"
-                type="select"
-                error={errors.class_group_id?.message}
-                options={classGroups}
-                required
-              />
-            )}
+            render={({ field }) => {
+              const selectedGroup = classGroups.find((g) => g.id === field.value);
+              return (
+                <div className="space-y-2">
+                  <Label htmlFor="class_group_id">
+                    Class Group <span className="text-destructive">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    id="class_group_id"
+                    onClick={() => setOpenModal('classGroup')}
+                    disabled={loading}
+                    className={`w-full text-left border rounded-md px-3 py-2 flex items-center justify-between ${
+                      errors.class_group_id ? 'border-destructive' : 'border-input'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
+                  >
+                    <span className={selectedGroup ? 'text-foreground' : 'text-muted-foreground'}>
+                      {selectedGroup ? selectedGroup.name : 'Select Class Group...'}
+                    </span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  {errors.class_group_id && (
+                    <p className="text-sm text-destructive">{errors.class_group_id.message}</p>
+                  )}
+                  <ClassGroupSelector
+                    isOpen={openModal === 'classGroup'}
+                    onClose={() => setOpenModal(null)}
+                    onSelect={(group) => field.onChange(group.id)}
+                    classGroups={classGroups}
+                    userProgramId={user?.program_id}
+                    isLoading={loading}
+                  />
+                </div>
+              );
+            }}
           />
+
+          {/* Classroom Selector */}
           <Controller
             name="classroom_id"
             control={control}
-            render={({ field }) => (
-              <FormField
-                {...field}
-                id="classroom_id"
-                label="Classroom"
-                type="select"
-                error={errors.classroom_id?.message}
-                options={classrooms}
-                required
-              />
-            )}
+            render={({ field }) => {
+              const selectedClassroom = classrooms.find((c) => c.id === field.value);
+              return (
+                <div className="space-y-2">
+                  <Label htmlFor="classroom_id">
+                    Classroom <span className="text-destructive">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    id="classroom_id"
+                    onClick={() => setOpenModal('classroom')}
+                    disabled={loading}
+                    className={`w-full text-left border rounded-md px-3 py-2 flex items-center justify-between ${
+                      errors.classroom_id ? 'border-destructive' : 'border-input'
+                    } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
+                  >
+                    <span className={selectedClassroom ? 'text-foreground' : 'text-muted-foreground'}>
+                      {selectedClassroom ? selectedClassroom.name : 'Select Classroom...'}
+                    </span>
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+                  {errors.classroom_id && (
+                    <p className="text-sm text-destructive">{errors.classroom_id.message}</p>
+                  )}
+                  <ClassroomSelector
+                    isOpen={openModal === 'classroom'}
+                    onClose={() => setOpenModal(null)}
+                    onSelect={(classroom) => field.onChange(classroom.id)}
+                    classrooms={classrooms}
+                    userDepartmentId={departmentId}
+                    isLoading={loading}
+                  />
+                </div>
+              );
+            }}
           />
           {conflictWarnings.length > 0 && (
             <div className="flex items-start gap-3 p-3 my-2 text-sm text-yellow-900 bg-yellow-50 border border-yellow-200 rounded-md">
@@ -216,20 +358,31 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
             </div>
           )}
 
+          {/* Period Count Input */}
           <Controller
             name="period_count"
             control={control}
             render={({ field }) => (
-              <FormField
-                {...field}
-                value={String(field.value ?? '')}
-                onChange={(val) => field.onChange(parseInt(val, 10))}
-                id="period_count"
-                label="Duration (periods)"
-                type="number"
-                error={errors.period_count?.message}
-                required
-              />
+              <div className="space-y-2">
+                <Label htmlFor="period_count">
+                  Duration (periods) <span className="text-destructive">*</span>
+                </Label>
+                <input
+                  {...field}
+                  id="period_count"
+                  type="number"
+                  min="1"
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(parseInt(e.target.value, 10) || 1)}
+                  disabled={loading}
+                  className={`w-full border rounded-md px-3 py-2 ${
+                    errors.period_count ? 'border-destructive' : 'border-input'
+                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                />
+                {errors.period_count && (
+                  <p className="text-sm text-destructive">{errors.period_count.message}</p>
+                )}
+              </div>
             )}
           />
           <div className="flex gap-3 pt-2">

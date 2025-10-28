@@ -3,7 +3,8 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useInstructors } from '../hooks';
+import { useDepartmentId } from '../../auth/hooks/useDepartmentId';
+import { useInstructorsUnified } from '../hooks/useInstructorsUnified';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { AdminInstructorFields, InstructorCard } from './components/instructor';
 import {
@@ -18,6 +19,7 @@ import type { Instructor } from '../types';
 import type { InstructorInsert } from '../types/instructor';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
+import { Alert } from '../../../components/ui/alert';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 
@@ -28,17 +30,22 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  * @returns The InstructorManagement component.
  */
 const InstructorManagement: React.FC = () => {
-  const { user, canManageInstructors } = useAuth();
+  const { user, isProgramHead } = useAuth();
+  const departmentId = useDepartmentId();
+  
+  // Use unified hook that adapts based on role
   const {
     instructors,
+    isLoading,
+    error,
     addInstructor,
     updateInstructor,
     removeInstructor,
-    isLoading,
     isSubmitting,
     isRemoving,
-    error,
-  } = useInstructors();
+    canManage,
+  } = useInstructorsUnified();
+  
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
@@ -58,7 +65,7 @@ const InstructorManagement: React.FC = () => {
       email: '',
       phone: '',
       // For department heads, pre-fill their department_id if available
-      department_id: user?.role === 'department_head' ? (user.department_id ?? null) : undefined,
+      department_id: user?.role === 'department_head' ? (departmentId ?? null) : undefined,
     },
   });
 
@@ -89,7 +96,7 @@ const InstructorManagement: React.FC = () => {
     if (!user) return;
     
     // For department heads, validate they have a department assigned
-    if (user.role === 'department_head' && !user.department_id) {
+    if (user.role === 'department_head' && !departmentId) {
       toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
       return;
     }
@@ -108,7 +115,7 @@ const InstructorManagement: React.FC = () => {
       // For department heads: use their department_id
       // For admins: use the department_id from the form
       department_id: user.role === 'department_head' 
-        ? user.department_id
+        ? departmentId
         : (data.department_id || null),
     };
     
@@ -157,14 +164,15 @@ const InstructorManagement: React.FC = () => {
   return (
     <>
       <div className="flex flex-col md:flex-row-reverse gap-8">
-        <div className="w-full md:w-96">
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              {editingInstructor ? 'Edit Instructor' : 'Create Instructor'}
-            </h2>
+        {canManage && (
+          <div className="w-full md:w-96">
+            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                {editingInstructor ? 'Edit Instructor' : 'Create Instructor'}
+              </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting || !canManageInstructors()} className="space-y-1">
+                <fieldset disabled={isSubmitting || !canManage} className="space-y-1">
                   <AdminInstructorFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}
@@ -186,8 +194,20 @@ const InstructorManagement: React.FC = () => {
             </FormProvider>
           </div>
         </div>
+        )}
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-semibold mb-4">Instructors</h2>
+          <h2 className="text-xl font-semibold mb-4">
+            {canManage ? 'Instructors' : 'Browse Instructors'}
+          </h2>
+          
+          {isProgramHead() && !canManage && (
+            <Alert className="mb-4">
+              <p className="text-sm">
+                You can browse instructors from all departments to assign them to your class sessions.
+                Only department heads can create or modify instructor records.
+              </p>
+            </Alert>
+          )}
 
           {/* NEW: Search input */}
           <div className="mb-4">
@@ -217,6 +237,7 @@ const InstructorManagement: React.FC = () => {
                       instructor={instructor}
                       onEdit={handleEdit}
                       onDelete={handleDeleteRequest}
+                      isOwner={canManage}
                     />
                   ))}
                 </div>

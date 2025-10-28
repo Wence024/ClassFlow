@@ -20,10 +20,10 @@ import { classSessionSchema } from '../types/validation';
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
 import { toast } from 'sonner';
 import {
-  useCourses,
+  useAllCourses,
   useClassGroups,
-  useClassrooms,
-  useInstructors,
+  useAllClassrooms,
+  useAllInstructors,
 } from '../../classSessionComponents/hooks';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 
@@ -50,10 +50,10 @@ const ClassSessionsPage: React.FC = () => {
     error,
   } = useClassSessions();
 
-  const { courses, isLoading: coursesLoading } = useCourses();
+  const { courses, isLoading: coursesLoading } = useAllCourses();
   const { classGroups, isLoading: groupsLoading } = useClassGroups();
-  const { classrooms, isLoading: classroomsLoading } = useClassrooms();
-  const { instructors, isLoading: instructorsLoading } = useInstructors();
+  const { classrooms, isLoading: classroomsLoading } = useAllClassrooms();
+  const { instructors, isLoading: instructorsLoading } = useAllInstructors();
   const { listQuery: programsQuery } = usePrograms();
 
   const [editingSession, setEditingSession] = useState<ClassSession | null>(null);
