@@ -134,10 +134,13 @@ export async function moveClassSessionInTimetable(
 
 /**
  * Update the status of all timetable assignments for a specific class session.
- * Used when approving cross-department resource requests.
+ * 
+ * @deprecated This function is kept for backward compatibility but should not be used
+ * for approving resource requests. Use the `approve_resource_request` database function
+ * via the `approveRequest` service function instead for atomic updates.
  *
- * @param class_session_id The class session ID.
- * @param semester_id The semester ID.
+ * @param classSessionId The class session ID.
+ * @param semesterId The semester ID.
  * @param status The new status ('pending' or 'confirmed').
  */
 export async function updateAssignmentStatusBySession(
@@ -145,14 +148,19 @@ export async function updateAssignmentStatusBySession(
   semesterId: string,
   status: 'pending' | 'confirmed'
 ): Promise<void> {
-  const { error } = await supabase
+  console.warn('updateAssignmentStatusBySession is deprecated. Use approveRequest service function instead.');
+  
+  const { data, error } = await supabase
     .from('timetable_assignments')
     .update({ status })
     .eq('class_session_id', classSessionId)
-    .eq('semester_id', semesterId);
+    .eq('semester_id', semesterId)
+    .select();
 
   if (error) {
     console.error('Failed to update timetable assignment status:', error);
     throw error;
   }
+
+  console.log(`Updated ${data?.length || 0} assignment(s) to status '${status}'`);
 }

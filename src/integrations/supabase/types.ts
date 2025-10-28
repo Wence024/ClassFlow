@@ -628,6 +628,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      approve_resource_request: {
+        Args: { _request_id: string; _reviewer_id: string }
+        Returns: Json
+      }
       create_test_user: {
         Args: {
           department_id?: string

@@ -1,6 +1,5 @@
 import { supabase } from '../../../lib/supabase';
 import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
-import { updateAssignmentStatusBySession } from '../../timetabling/services/timetableService';
 
 const TABLE = 'resource_requests';
 const NOTIF_TABLE = 'request_notifications';
@@ -75,7 +74,57 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
 }
 
 /**
- * Updates an existing resource request and updates related timetable assignments if approved.
+ * Approves a resource request and updates the related timetable assignments atomically.
+ * Uses a database function to ensure both operations succeed or fail together.
+ *
+ * @param id - The ID of the resource request to approve.
+ * @param reviewerId - The ID of the user approving the request.
+ * @returns A promise resolving to the updated resource request.
+ * @throws Error if the approval fails with detailed error message.
+ */
+export async function approveRequest(id: string, reviewerId: string): Promise<ResourceRequest> {
+  // Call the database function to atomically approve the request and update assignments
+  // Note: Using type assertion as the types are auto-generated and may not include new functions yet
+  const { data, error } = await supabase.rpc('approve_resource_request' as any, {
+    _request_id: id,
+    _reviewer_id: reviewerId,
+  });
+
+  if (error) {
+    console.error('Failed to approve request (RPC error):', error);
+    throw new Error(`Failed to approve request: ${error.message}`);
+  }
+
+  // Parse the response as JSON
+  const result = data as any;
+  
+  // Check if the function returned a success response
+  if (!result || !result.success) {
+    const errorMsg = result?.error || 'Unknown error during approval';
+    console.error('Approval function returned failure:', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  console.log('Request approved successfully:', {
+    requestId: id,
+    updatedAssignments: result.updated_assignments,
+    classSessionId: result.class_session_id,
+    semesterId: result.semester_id,
+  });
+
+  // Fetch the updated request to return
+  const { data: updatedRequest, error: fetchError } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (fetchError) throw fetchError;
+  return updatedRequest as ResourceRequest;
+}
+
+/**
+ * Updates an existing resource request (for non-approval updates like rejection).
  *
  * @param id - The ID of the resource request to update.
  * @param update - The update payload.
@@ -89,44 +138,7 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
     .select()
     .single();
   if (error) throw error;
-  
-  const updatedRequest = data as ResourceRequest;
-  
-  // If the request is approved, update the timetable assignment status to 'confirmed'
-  if (update.status === 'approved') {
-    const classSessionId = updatedRequest.class_session_id;
-    
-    if (classSessionId) {
-      try {
-        // Get the active semester
-        const { data: activeSemester, error: semesterError } = await supabase
-          .from('semesters')
-          .select('id')
-          .eq('is_active', true)
-          .single();
-        
-        if (semesterError) {
-          console.error('Failed to get active semester:', semesterError);
-          throw semesterError;
-        }
-        
-        if (activeSemester) {
-          await updateAssignmentStatusBySession(
-            classSessionId,
-            activeSemester.id,
-            'confirmed'
-          );
-        }
-      } catch (e) {
-        console.error('Failed to update timetable assignment status', e);
-        // Import toast dynamically to avoid circular dependencies
-        const { toast } = await import('sonner');
-        toast.warning('Request approved, but timetable status update failed. Please check the timetable.');
-      }
-    }
-  }
-  
-  return updatedRequest;
+  return data as ResourceRequest;
 }
 
 /**

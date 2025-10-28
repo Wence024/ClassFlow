@@ -62,15 +62,11 @@ export default function RequestNotifications() {
   const handleApprove = async (requestId: string) => {
     setApprovingId(requestId);
     try {
-      // Update request status - the service will handle updating the timetable assignment
-      await updateRequest({
-        id: requestId,
-        update: {
-          status: 'approved',
-          reviewed_by: user?.id || null,
-          reviewed_at: new Date().toISOString(),
-        },
-      });
+      // Import the new approveRequest function
+      const { approveRequest } = await import('../features/resourceRequests/services/resourceRequestService');
+      
+      // Use the atomic approval function
+      await approveRequest(requestId, user?.id || '');
 
       // Delete the notification after successful approval
       const { error: notifError } = await supabase
@@ -86,10 +82,11 @@ export default function RequestNotifications() {
       await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
       await queryClient.refetchQueries({ queryKey: ['resource_requests'] });
 
-      toast.success('Request approved successfully');
+      toast.success('Request approved and timetable updated');
     } catch (error) {
       console.error('Error approving request:', error);
-      toast.error('Failed to approve request');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to approve request: ${errorMessage}`);
     } finally {
       setApprovingId(null);
     }

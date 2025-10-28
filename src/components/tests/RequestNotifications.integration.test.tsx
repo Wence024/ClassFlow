@@ -6,6 +6,7 @@ import RequestNotifications from '../RequestNotifications';
 import { AuthContext } from '../../features/auth/contexts/AuthContext';
 import * as useDepartmentIdHook from '../../features/auth/hooks/useDepartmentId';
 import * as useDepartmentRequestsHook from '../../features/resourceRequests/hooks/useResourceRequests';
+import * as resourceRequestService from '../../features/resourceRequests/services/resourceRequestService';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../features/auth/types/auth';
 import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
@@ -13,9 +14,17 @@ import type { ResourceRequest } from '@/features/resourceRequests/types/resource
 // Mocks
 vi.mock('../../features/auth/hooks/useDepartmentId');
 vi.mock('../../features/resourceRequests/hooks/useResourceRequests');
+vi.mock('../../features/resourceRequests/services/resourceRequestService', async () => {
+  const actual = await vi.importActual('../../features/resourceRequests/services/resourceRequestService');
+  return {
+    ...actual,
+    approveRequest: vi.fn(),
+  };
+});
 
 const mockedUseDepartmentId = vi.mocked(useDepartmentIdHook, true);
 const mockedUseDepartmentRequests = vi.mocked(useDepartmentRequestsHook, true);
+const mockedResourceRequestService = vi.mocked(resourceRequestService, true);
 
 const queryClient = new QueryClient();
 
@@ -132,9 +141,8 @@ describe('RequestNotifications', () => {
     });
   });
 
-  it('should call updateRequest with approved status on approve click', async () => {
+  it('should call approveRequest on approve click', async () => {
     const user = userEvent.setup();
-    const updateRequest = vi.fn();
     const deptHeadUser = {
       id: 'user-dh',
       name: 'Department Head',
@@ -144,21 +152,39 @@ describe('RequestNotifications', () => {
       program_id: null,
     };
     const mockRequests: ResourceRequest[] = [
-      { id: 'req1', resource_id: 'res1', resource_type: 'instructor', status: 'pending', requested_at: new Date().toISOString() },
+      { 
+        id: 'req1', 
+        resource_id: 'res1', 
+        resource_type: 'instructor', 
+        status: 'pending', 
+        requested_at: new Date().toISOString(),
+        class_session_id: 'session1',
+      } as ResourceRequest,
     ];
 
     mockedUseDepartmentId.useDepartmentId.mockReturnValue('dept1');
     mockedUseDepartmentRequests.useDepartmentRequests.mockReturnValue({
       requests: mockRequests,
-      updateRequest,
+      updateRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
+
+    // Mock the approveRequest function to resolve successfully
+    mockedResourceRequestService.approveRequest.mockResolvedValue({
+      id: 'req1',
+      status: 'approved',
+      resource_id: 'res1',
+      resource_type: 'instructor',
+    } as ResourceRequest);
 
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 
     await user.click(screen.getByRole('button'));
     await user.click(await screen.findByRole('button', { name: /Approve/i }));
 
-    expect(updateRequest).toHaveBeenCalledWith({ id: 'req1', update: { status: 'approved' } });
+    // Verify the new approveRequest function was called with correct parameters
+    await waitFor(() => {
+      expect(mockedResourceRequestService.approveRequest).toHaveBeenCalledWith('req1', 'user-dh');
+    });
   });
 
   it('should call updateRequest with rejected status on reject click', async () => {
