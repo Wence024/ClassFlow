@@ -130,43 +130,48 @@ const ClassSessionsPage: React.FC = () => {
       return;
     }
 
-    // Check for cross-department resources
-    const crossDeptCheck = await checkCrossDepartmentResources(data, user.program_id);
+    try {
+      // Check for cross-department resources
+      const crossDeptCheck = await checkCrossDepartmentResources(data, user.program_id);
 
-    if (crossDeptCheck.isCrossDept) {
-      // Validate cross-department data before proceeding
-      if (!crossDeptCheck.resourceId || !crossDeptCheck.resourceType || !crossDeptCheck.departmentId) {
-        toast.error('Invalid cross-department resource information');
+      if (crossDeptCheck.isCrossDept) {
+        // Validate cross-department data before proceeding
+        if (!crossDeptCheck.resourceId || !crossDeptCheck.resourceType || !crossDeptCheck.departmentId) {
+          toast.error('Invalid cross-department resource information');
+          return;
+        }
+
+        // Fetch resource name
+        let resourceName = 'Unknown';
+        if (crossDeptCheck.resourceType === 'instructor') {
+          const instructor = instructors.find((i) => i.id === crossDeptCheck.resourceId);
+          if (instructor) resourceName = `${instructor.first_name} ${instructor.last_name}`;
+        } else if (crossDeptCheck.resourceType === 'classroom') {
+          const classroom = classrooms.find((c) => c.id === crossDeptCheck.resourceId);
+          if (classroom) resourceName = classroom.name;
+        }
+
+        // Show confirmation modal
+        setCrossDeptInfo({
+          resourceType: crossDeptCheck.resourceType,
+          resourceId: crossDeptCheck.resourceId,
+          departmentId: crossDeptCheck.departmentId,
+          resourceName,
+        });
+        setPendingFormData(data);
         return;
       }
 
-      // Fetch resource name
-      let resourceName = 'Unknown';
-      if (crossDeptCheck.resourceType === 'instructor') {
-        const instructor = instructors.find((i) => i.id === crossDeptCheck.resourceId);
-        if (instructor) resourceName = `${instructor.first_name} ${instructor.last_name}`;
-      } else if (crossDeptCheck.resourceType === 'classroom') {
-        const classroom = classrooms.find((c) => c.id === crossDeptCheck.resourceId);
-        if (classroom) resourceName = classroom.name;
-      }
-
-      // Show confirmation modal
-      setCrossDeptInfo({
-        resourceType: crossDeptCheck.resourceType,
-        resourceId: crossDeptCheck.resourceId,
-        departmentId: crossDeptCheck.departmentId,
-        resourceName,
-      });
-      setPendingFormData(data);
-      return;
+      // Same-department: create normally
+      // Use program_id from form if provided (admin), otherwise use user's program_id
+      const program_id = data.program_id || user.program_id;
+      await addClassSession({ ...data, user_id: user.id, program_id });
+      formMethods.reset();
+      toast.success('Class session created successfully!');
+    } catch (error) {
+      console.error('Error creating class session:', error);
+      toast.error('Failed to create class session');
     }
-
-    // Same-department: create normally
-    // Use program_id from form if provided (admin), otherwise use user's program_id
-    const program_id = data.program_id || user.program_id;
-    await addClassSession({ ...data, user_id: user.id, program_id });
-    formMethods.reset();
-    toast.success('Class session created successfully!');
   };
 
   const handleConfirmCrossDept = async () => {
@@ -242,9 +247,14 @@ const ClassSessionsPage: React.FC = () => {
 
   const handleSave = async (data: ClassSessionFormData) => {
     if (!editingSession) return;
-    await updateClassSession(editingSession.id, data);
-    setEditingSession(null);
-    toast('Success', { description: 'Class session updated successfully!' });
+    try {
+      await updateClassSession(editingSession.id, data);
+      setEditingSession(null);
+      toast('Success', { description: 'Class session updated successfully!' });
+    } catch (error) {
+      console.error('Error updating class session:', error);
+      toast.error('Failed to update class session');
+    }
   };
 
   const handleCancel = () => setEditingSession(null);

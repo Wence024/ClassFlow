@@ -94,8 +94,7 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
   
   // If the request is approved, update the timetable assignment status to 'confirmed'
   if (update.status === 'approved') {
-    // Type assertion: class_session_id exists in DB but not in generated types
-    const classSessionId = (updatedRequest as any).class_session_id as string | undefined;
+    const classSessionId = updatedRequest.class_session_id;
     
     if (classSessionId) {
       try {

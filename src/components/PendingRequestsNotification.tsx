@@ -1,21 +1,18 @@
-import { Clock } from 'lucide-react';
+import { Bell, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { useMyPendingRequests } from '../features/resourceRequests/hooks/useResourceRequests';
-import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
+import { Popover, PopoverTrigger, PopoverContent } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { toast } from 'sonner';
 import { useEffect } from 'react';
 
 /**
- * Notification dropdown for Program Heads to view and cancel their own pending resource requests.
- * Shows a clock icon with badge count and dropdown list of pending requests.
+ * Notification dropdown for Program Heads to view the status of their reviewed resource requests.
+ * Shows a bell icon with badge count and dropdown list of approved/rejected requests.
  *
- * @returns The PendingRequestsNotification component.
+ * @returns The RequestStatusNotification component.
  */
-export default function PendingRequestsNotification() {
+export default function RequestStatusNotification() {
   const { user, isProgramHead } = useAuth();
-  const { pendingRequests, cancelRequest, isCancelling } = useMyPendingRequests();
   const queryClient = useQueryClient();
 
   // Only show for program heads
@@ -23,14 +20,33 @@ export default function PendingRequestsNotification() {
     return null;
   }
 
-  const hasNotifications = pendingRequests.length > 0;
+  // Fetch reviewed requests (approved or rejected)
+  const { data: reviewedRequests = [] } = useQuery({
+    queryKey: ['my_reviewed_requests', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('resource_requests')
+        .select('*')
+        .eq('requester_id', user.id)
+        .in('status', ['approved', 'rejected'])
+        .order('reviewed_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
 
-  // Fetch enriched details for each pending request
+  const hasNotifications = reviewedRequests.length > 0;
+
+  // Fetch enriched details for each reviewed request
   const { data: enrichedRequests = [] } = useQuery({
-    queryKey: ['my_enriched_requests', pendingRequests.map((r) => r.id)],
+    queryKey: ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
-        pendingRequests.map(async (req) => {
+        reviewedRequests.map(async (req) => {
           let resourceName = 'Unknown';
           if (req.resource_type === 'instructor') {
             const { data } = await supabase
@@ -52,41 +68,36 @@ export default function PendingRequestsNotification() {
       );
       return enriched;
     },
-    enabled: pendingRequests.length > 0,
+    enabled: reviewedRequests.length > 0,
   });
 
-  const handleCancel = async (requestId: string) => {
-    try {
-      await cancelRequest(requestId);
-      
-      // Invalidate department request queries so bell icon updates
-      queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept'] });
-      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
-      
-      toast.success('Request cancelled successfully');
-    } catch (error) {
-      console.error('Error cancelling request:', error);
-      toast.error('Failed to cancel request');
-    }
+  const handleDismiss = async (requestId: string) => {
+    // Mark as read by deleting from user's view (local state management)
+    queryClient.setQueryData(['my_reviewed_requests', user?.id], (old: any[]) => 
+      old?.filter((r) => r.id !== requestId) || []
+    );
   };
 
-  // Real-time subscription for pending request updates
+  // Real-time subscription for reviewed request updates
   useEffect(() => {
     if (!user?.id) return;
 
     const channel = supabase
-      .channel('my-pending-requests-realtime')
+      .channel('my-reviewed-requests-realtime')
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'UPDATE',
           schema: 'public',
           table: 'resource_requests',
           filter: `requester_id=eq.${user.id}`,
         },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['my_pending_requests', user.id] });
-          queryClient.invalidateQueries({ queryKey: ['my_enriched_requests'] });
+        (payload) => {
+          // Only update if status changed to approved or rejected
+          if (payload.new.status === 'approved' || payload.new.status === 'rejected') {
+            queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user.id] });
+            queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'] });
+          }
         }
       )
       .subscribe();
@@ -96,57 +107,68 @@ export default function PendingRequestsNotification() {
     };
   }, [user?.id, queryClient]);
 
+  // Calculate badge color based on statuses
+  const approvedCount = reviewedRequests.filter(r => r.status === 'approved').length;
+  const rejectedCount = reviewedRequests.filter(r => r.status === 'rejected').length;
+  const badgeColor = rejectedCount > 0 ? 'bg-red-500' : 'bg-green-500';
+
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
-          <Clock className="w-5 h-5" />
+          <Bell className="w-5 h-5" />
           {hasNotifications && (
-            <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {pendingRequests.length}
+            <span className={`absolute -top-1 -right-1 ${badgeColor} text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}>
+              {reviewedRequests.length}
             </span>
           )}
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
         <div className="p-3 border-b">
-          <h3 className="font-semibold">My Pending Requests</h3>
+          <h3 className="font-semibold">Request Updates</h3>
           <p className="text-sm text-gray-600">
-            {pendingRequests.length} pending request{pendingRequests.length !== 1 ? 's' : ''}
+            {approvedCount > 0 && `${approvedCount} approved`}
+            {approvedCount > 0 && rejectedCount > 0 && ', '}
+            {rejectedCount > 0 && `${rejectedCount} rejected`}
           </p>
         </div>
         <div className="max-h-96 overflow-y-auto">
           {enrichedRequests.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">No pending requests</div>
+            <div className="p-4 text-center text-gray-500">No reviewed requests</div>
           ) : (
             enrichedRequests.map((request) => (
               <div key={request.id} className="p-3 border-b last:border-b-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm capitalize">
-                      {request.resource_type} Request
+                    <div className="flex items-center gap-2">
+                      {request.status === 'approved' ? (
+                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                      )}
+                      <div className="font-medium text-sm capitalize">
+                        {request.resource_type} Request
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-700 font-medium truncate">
+                    <div className="text-xs text-gray-700 font-medium truncate mt-1">
                       {request.resource_name}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {new Date(request.requested_at || '').toLocaleDateString()}
+                      Reviewed: {new Date(request.reviewed_at || '').toLocaleDateString()}
                     </div>
-                    <div className="text-xs text-blue-600 mt-1">
-                      Awaiting approval
+                    <div className={`text-xs mt-1 font-medium ${
+                      request.status === 'approved' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {request.status === 'approved' ? 'Approved' : 'Rejected'}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleCancel(request.id)}
-                      disabled={isCancelling}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
+                  <button
+                    onClick={() => handleDismiss(request.id)}
+                    className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
+                  >
+                    Dismiss
+                  </button>
                 </div>
               </div>
             ))

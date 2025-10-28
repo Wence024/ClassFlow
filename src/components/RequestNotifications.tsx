@@ -59,18 +59,10 @@ export default function RequestNotifications() {
     enabled: pendingRequests.length > 0,
   });
 
-  const handleApprove = async (requestId: string, classSessionId: string) => {
+  const handleApprove = async (requestId: string) => {
     setApprovingId(requestId);
     try {
-      // Update timetable assignment status to 'confirmed'
-      const { error: assignError } = await supabase
-        .from('timetable_assignments')
-        .update({ status: 'confirmed' } as any)
-        .eq('class_session_id', classSessionId);
-
-      if (assignError) throw assignError;
-
-      // Update request status
+      // Update request status - the service will handle updating the timetable assignment
       await updateRequest({
         id: requestId,
         update: {
@@ -224,7 +216,7 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="secondary"
                       className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleApprove(request.id, request.class_session_id)}
+                      onClick={() => handleApprove(request.id)}
                       disabled={approvingId === request.id || rejectingId === request.id}
                     >
                       {approvingId === request.id ? 'Approving...' : 'Approve'}
