@@ -1,14 +1,17 @@
 # Fetch the latest changes from the remote repository
 git fetch origin
 
-# Undo the last commit (soft reset, keep changes staged)
-git reset --soft HEAD~1
+# Get the current branch name
+$currentBranch = git rev-parse --abbrev-ref HEAD
+
+# Pull the latest changes for the current branch from the remote
+git pull origin $currentBranch
 
 # Execute 'git log --oneline -5' to get the last 5 commits
 $gitLog = git log --oneline -5 | Out-String
 
 # Execute 'git diff --staged' to get the staged changes
-$gitDiff = git diff --staged | Out-String
+$gitDiff = git diff HEAD~1 | Out-String
 
 # Set up the prompt for generating a commit message with Gitmoji
 $prompt = "Do a conventional commit + gitmoji for this. Syntax is ``type(scope): :gitmoji: shortMessage\n\nlongMessage``. Use consistent present verb tense. Avoid redundancy in subject line. Warn me if the current diff necessitates large and vague commit messages in the subject line. Use more descriptive scope for small changes."
@@ -24,12 +27,6 @@ Write-Host "Git log and diff have been copied to the clipboard."
 
 # Open ChatGPT in an InPrivate window to get the commit message suggestion
 Start-Process "msedge.exe" -ArgumentList "--inprivate https://chatgpt.com"
-
-# Discard the staged commit (reset to previous state without affecting changes)
-git reset
-
-# Pull remote changes to make sure you're up to date
-git pull origin HEAD
 
 # Amend the commit with the new message
 git commit --amend
