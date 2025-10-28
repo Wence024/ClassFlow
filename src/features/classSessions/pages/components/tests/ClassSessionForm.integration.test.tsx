@@ -144,16 +144,21 @@ describe('ClassSessionForm', () => {
     const user = userEvent.setup();
     render(<FormWrapper />);
 
+    // Open Class Group selector
     await waitFor(() => expect(screen.getByLabelText(/Class Group/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Class Group/i));
-    const groupListbox = await screen.findByRole('listbox');
-    await user.click(within(groupListbox).getByText('Large Group'));
+    
+    // Wait for dialog and select Large Group
+    const groupDialog = await screen.findByRole('dialog');
+    await user.click(within(groupDialog).getByText('Large Group'));
 
-    // Select the "Small Room"
+    // Open Classroom selector
     await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
-    const classroomListbox = await screen.findByRole('listbox');
-    await user.click(within(classroomListbox).getByText('Small Room'));
+    
+    // Wait for dialog and select Small Room
+    const classroomDialog = await screen.findByRole('dialog');
+    await user.click(within(classroomDialog).getByText('Small Room'));
 
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
     expect(
@@ -167,21 +172,24 @@ describe('ClassSessionForm', () => {
     const user = userEvent.setup();
     render(<FormWrapper />);
 
+    // Select Large Group
     await waitFor(() => expect(screen.getByLabelText(/Class Group/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Class Group/i));
-    const groupListbox = await screen.findByRole('listbox');
-    await user.click(within(groupListbox).getByText('Large Group'));
+    const groupDialog = await screen.findByRole('dialog');
+    await user.click(within(groupDialog).getByText('Large Group'));
+    
+    // Select Small Room (creates conflict)
     await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
-    const classroomListbox = await screen.findByRole('listbox');
-    await user.click(within(classroomListbox).getByText('Small Room'));
+    const classroomDialog1 = await screen.findByRole('dialog');
+    await user.click(within(classroomDialog1).getByText('Small Room'));
     expect(await screen.findByText('Potential Conflicts')).toBeInTheDocument();
 
-    // Fix the conflict
+    // Fix the conflict by selecting Large Room
     await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
-    const classroomListbox2 = await screen.findByRole('listbox');
-    await user.click(within(classroomListbox2).getByText('Large Room'));
+    const classroomDialog2 = await screen.findByRole('dialog');
+    await user.click(within(classroomDialog2).getByText('Large Room'));
 
     await waitFor(() => {
       expect(screen.queryByText('Potential Conflicts')).not.toBeInTheDocument();

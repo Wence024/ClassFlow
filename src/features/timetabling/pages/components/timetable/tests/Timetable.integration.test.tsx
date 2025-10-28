@@ -94,36 +94,39 @@ describe('Timetable - Resource Filtering', () => {
       id: 'c1',
       name: 'My Classroom',
       code: 'C1',
-      user_id: 'u1',
+      created_by: 'u1',
       created_at: '2023-01-01T00:00:00Z',
       preferred_department_id: deptId1,
       preferred_department_name: 'Dept 1',
       location: 'Building A',
       capacity: 30,
+      color: '#4f46e5',
     };
 
     const unassignedClassroom: Classroom = {
       id: 'c2',
       name: 'Unassigned Classroom',
       code: 'C2',
-      user_id: 'u1',
+      created_by: 'u1',
       created_at: '2023-01-01T00:00:00Z',
       preferred_department_id: null,
       preferred_department_name: null,
       location: 'Building B',
       capacity: 25,
+      color: '#10b981',
     };
 
     const otherClassroom: Classroom = {
       id: 'c3',
       name: 'Other Classroom',
       code: 'C3',
-      user_id: 'u2',
+      created_by: 'u2',
       created_at: '2023-01-01T00:00:00Z',
       preferred_department_id: deptId2,
       preferred_department_name: 'Dept 2',
       location: 'Building C',
       capacity: 40,
+      color: '#f59e0b',
     };
 
     it('should separate classrooms by department for program head', async () => {
@@ -215,11 +218,16 @@ describe('Timetable - Resource Filtering', () => {
       first_name: 'John',
       last_name: 'Doe',
       code: 'JD',
-      user_id: 'u1',
+      created_by: 'u1',
       created_at: '2023-01-01T00:00:00Z',
       department_id: deptId1,
       department_name: 'Dept 1',
       email: 'john@example.com',
+      color: '#4f46e5',
+      contract_type: 'full_time',
+      phone: null,
+      prefix: null,
+      suffix: null,
     };
 
     const unassignedInstructor: Instructor = {
@@ -227,11 +235,16 @@ describe('Timetable - Resource Filtering', () => {
       first_name: 'Jane',
       last_name: 'Smith',
       code: 'JS',
-      user_id: 'u1',
+      created_by: 'u1',
       created_at: '2023-01-01T00:00:00Z',
       department_id: null,
       department_name: null,
       email: 'jane@example.com',
+      color: '#10b981',
+      contract_type: 'part_time',
+      phone: null,
+      prefix: null,
+      suffix: null,
     };
 
     const otherInstructor: Instructor = {
@@ -239,11 +252,16 @@ describe('Timetable - Resource Filtering', () => {
       first_name: 'Bob',
       last_name: 'Johnson',
       code: 'BJ',
-      user_id: 'u2',
+      created_by: 'u2',
       created_at: '2023-01-01T00:00:00Z',
       department_id: deptId2,
       department_name: 'Dept 2',
       email: 'bob@example.com',
+      color: '#f59e0b',
+      contract_type: 'full_time',
+      phone: null,
+      prefix: null,
+      suffix: null,
     };
 
     it('should separate instructors by department for program head', async () => {

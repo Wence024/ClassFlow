@@ -20,13 +20,13 @@ const TestComponent = () => {
 };
 
 describe('LayoutContext', () => {
-  it('should provide initial collapsed state as false', () => {
+  it('should provide initial collapsed state as true', () => {
     render(
       <LayoutProvider>
         <TestComponent />
       </LayoutProvider>
     );
-    expect(screen.getByTestId('collapse-state')).toHaveTextContent('expanded');
+    expect(screen.getByTestId('collapse-state')).toHaveTextContent('collapsed');
   });
 
   it('should toggle sidebar state when toggleSidebar is called', async () => {
@@ -37,13 +37,13 @@ describe('LayoutContext', () => {
       </LayoutProvider>
     );
 
-    expect(screen.getByTestId('collapse-state')).toHaveTextContent('expanded');
-
-    await user.click(screen.getByRole('button', { name: /toggle/i }));
     expect(screen.getByTestId('collapse-state')).toHaveTextContent('collapsed');
 
     await user.click(screen.getByRole('button', { name: /toggle/i }));
     expect(screen.getByTestId('collapse-state')).toHaveTextContent('expanded');
+
+    await user.click(screen.getByRole('button', { name: /toggle/i }));
+    expect(screen.getByTestId('collapse-state')).toHaveTextContent('collapsed');
   });
 
   it('should throw error when useLayout is used outside provider', () => {

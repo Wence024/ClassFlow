@@ -65,11 +65,11 @@ describe('AppLayout - Collapsible Sidebar Integration', () => {
     expect(screen.getByRole('main')).toBeInTheDocument();
   });
 
-  it('should have sidebar expanded by default', () => {
+  it('should have sidebar collapsed by default', () => {
     renderAppLayout();
 
     const sidebar = screen.getByRole('complementary');
-    expect(sidebar).toHaveClass('w-64');
+    expect(sidebar).toHaveClass('w-20');
   });
 
   it('should toggle sidebar when header button is clicked', async () => {
@@ -79,13 +79,13 @@ describe('AppLayout - Collapsible Sidebar Integration', () => {
     const toggleButton = screen.getByRole('button', { name: /toggle sidebar/i });
     const sidebar = screen.getByRole('complementary');
 
-    expect(sidebar).toHaveClass('w-64');
-
-    await user.click(toggleButton);
     expect(sidebar).toHaveClass('w-20');
 
     await user.click(toggleButton);
     expect(sidebar).toHaveClass('w-64');
+
+    await user.click(toggleButton);
+    expect(sidebar).toHaveClass('w-20');
   });
 
   it('should persist sidebar state across navigation', async () => {
@@ -96,11 +96,11 @@ describe('AppLayout - Collapsible Sidebar Integration', () => {
     const sidebar = screen.getByRole('complementary');
 
     await user.click(toggleButton);
-    expect(sidebar).toHaveClass('w-20');
+    expect(sidebar).toHaveClass('w-64');
 
     const timetableLink = screen.getByRole('link', { name: /Timetable/i });
     await user.click(timetableLink);
 
-    expect(sidebar).toHaveClass('w-20');
+    expect(sidebar).toHaveClass('w-64');
   });
 });
