@@ -1,6 +1,5 @@
 import { Bell } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { useDepartmentId } from '../features/auth/hooks/useDepartmentId';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';

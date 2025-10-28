@@ -125,12 +125,21 @@ const ClassSessionsPage: React.FC = () => {
   }, [classSessions, searchTerm]);
 
   const handleAdd = async (data: ClassSessionFormData) => {
-    if (!user || !user.program_id) return;
+    if (!user || !user.program_id) {
+      toast.error('User is not assigned to a program');
+      return;
+    }
 
     // Check for cross-department resources
     const crossDeptCheck = await checkCrossDepartmentResources(data, user.program_id);
 
     if (crossDeptCheck.isCrossDept) {
+      // Validate cross-department data before proceeding
+      if (!crossDeptCheck.resourceId || !crossDeptCheck.resourceType || !crossDeptCheck.departmentId) {
+        toast.error('Invalid cross-department resource information');
+        return;
+      }
+
       // Fetch resource name
       let resourceName = 'Unknown';
       if (crossDeptCheck.resourceType === 'instructor') {
@@ -154,7 +163,7 @@ const ClassSessionsPage: React.FC = () => {
 
     // Same-department: create normally
     // Use program_id from form if provided (admin), otherwise use user's program_id
-    const program_id = data.program_id || user.program_id || null;
+    const program_id = data.program_id || user.program_id;
     await addClassSession({ ...data, user_id: user.id, program_id });
     formMethods.reset();
     toast.success('Class session created successfully!');
@@ -163,11 +172,27 @@ const ClassSessionsPage: React.FC = () => {
   const handleConfirmCrossDept = async () => {
     if (!pendingFormData || !user || !crossDeptInfo) return;
 
+    // Validate required fields
+    if (!user.program_id) {
+      toast.error('User is not assigned to a program');
+      return;
+    }
+
     try {
       // 1. Create class session only (no timetable assignment yet)
-      const newSession = await addClassSession({ ...pendingFormData, user_id: user.id });
+      const program_id = pendingFormData.program_id || user.program_id;
+      const newSession = await addClassSession({ 
+        ...pendingFormData, 
+        user_id: user.id, 
+        program_id 
+      });
 
-      // 2. Store the session and show the timetable modal
+      // 2. Validate the created session has an ID
+      if (!newSession || !newSession.id) {
+        throw new Error('Failed to create class session: No ID returned');
+      }
+
+      // 3. Store the session and show the timetable modal
       setPendingSession(newSession);
       setCrossDeptInfo({ ...crossDeptInfo, pendingSessionId: newSession.id });
       setShowTimetableModal(true);
@@ -180,17 +205,28 @@ const ClassSessionsPage: React.FC = () => {
   const handleTimetablePlacement = async () => {
     if (!pendingSession || !crossDeptInfo || !user) return;
 
+    // Validate all required fields before creating the request
+    if (!user.program_id) {
+      toast.error('User is not assigned to a program');
+      return;
+    }
+
+    if (!crossDeptInfo.resourceType || !crossDeptInfo.resourceId || !crossDeptInfo.departmentId) {
+      toast.error('Missing resource information');
+      return;
+    }
+
     try {
       // Create the resource request now that placement is confirmed
       await resourceRequestService.createRequest({
         requester_id: user.id,
-        requesting_program_id: user.program_id!,
-        resource_type: crossDeptInfo.resourceType!,
-        resource_id: crossDeptInfo.resourceId!,
+        requesting_program_id: user.program_id,
+        resource_type: crossDeptInfo.resourceType,
+        resource_id: crossDeptInfo.resourceId,
         class_session_id: pendingSession.id,
-        target_department_id: crossDeptInfo.departmentId!,
+        target_department_id: crossDeptInfo.departmentId,
         status: 'pending',
-      } as any);
+      });
 
       toast.success('Cross-department request submitted successfully!');
       formMethods.reset();

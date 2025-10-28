@@ -12,7 +12,6 @@ import type {
 import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import { useAuth } from '../../../../auth/hooks/useAuth';
-import { useDepartmentId } from '../../../../auth/hooks/useDepartmentId';
 import type { Program } from '../../../../programs/types/program';
 import {
   CourseSelector,
@@ -21,6 +20,7 @@ import {
   ClassroomSelector,
   ProgramSelector,
 } from './selectors';
+import { useDepartmentId } from '@/features/auth/hooks/useDepartmentId';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 
@@ -164,7 +164,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                     <ProgramSelector
                       isOpen={openModal === 'program'}
                       onClose={() => setOpenModal(null)}
-                      onSelect={(program) => field.onChange(program.id)}
+                      onSelect={(program: Program) => field.onChange(program.id)}
                       programs={programs}
                       isLoading={loading}
                     />
@@ -292,7 +292,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                   <ClassGroupSelector
                     isOpen={openModal === 'classGroup'}
                     onClose={() => setOpenModal(null)}
-                    onSelect={(group) => field.onChange(group.id)}
+                    onSelect={(group: ClassGroup) => field.onChange(group.id)}
                     classGroups={classGroups}
                     userProgramId={user?.program_id}
                     isLoading={loading}
