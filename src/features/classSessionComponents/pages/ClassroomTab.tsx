@@ -4,7 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
-import { useClassrooms, useAllClassrooms } from '../hooks';
+import { useClassroomsUnified } from '../hooks/useClassroomsUnified';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { useDepartments } from '../../departments/hooks/useDepartments';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
@@ -31,18 +31,9 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
  * @returns The ClassroomManagement component.
  */
 const ClassroomManagement: React.FC = () => {
-  const { user, canManageClassrooms, isProgramHead } = useAuth();
+  const { user, isProgramHead } = useAuth();
   
-  // Conditional hook usage based on role
-  const isManagementView = canManageClassrooms();
-  
-  // For admins/dept heads: use management hook
-  const managementHook = useClassrooms();
-  
-  // For program heads: use browse-only hook
-  const browseHook = useAllClassrooms();
-  
-  // Select the appropriate hook data
+  // Use unified hook that adapts based on role
   const {
     classrooms,
     addClassroom,
@@ -52,7 +43,9 @@ const ClassroomManagement: React.FC = () => {
     isSubmitting,
     isRemoving,
     error,
-  } = isManagementView ? managementHook : { ...browseHook, addClassroom: async () => {}, updateClassroom: async () => {}, removeClassroom: async () => {}, isSubmitting: false, isRemoving: false };
+    canManage,
+  } = useClassroomsUnified();
+  
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
   
@@ -153,7 +146,7 @@ const ClassroomManagement: React.FC = () => {
     <>
       <div className="flex flex-col md:flex-row-reverse gap-8">
         {/* Only show form for admins/dept heads */}
-        {isManagementView && (
+        {canManage && (
           <div className="w-full md:w-96">
             <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
               <h2 className="text-xl font-semibold mb-4 text-center">
@@ -187,7 +180,7 @@ const ClassroomManagement: React.FC = () => {
           <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
           
           {/* Informational alert for program heads */}
-          {isProgramHead() && !canManageClassrooms() && (
+          {isProgramHead() && !canManage && (
             <Alert className="mb-4">
               <p className="text-sm">
                 You are viewing all available classrooms. Only administrators and department heads can create or modify classrooms.
@@ -229,7 +222,7 @@ const ClassroomManagement: React.FC = () => {
                         classroom={classroom}
                         onEdit={handleEdit}
                         onDelete={handleDeleteRequest}
-                        isOwner={canManageClassrooms()}
+                        isOwner={canManage}
                       />
                     </React.Fragment>
                   ))}

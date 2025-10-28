@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useDepartmentId } from '../../auth/hooks/useDepartmentId';
-import { useInstructors, useAllInstructors } from '../hooks';
+import { useInstructorsUnified } from '../hooks/useInstructorsUnified';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { AdminInstructorFields, InstructorCard } from './components/instructor';
 import {
@@ -30,38 +30,21 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  * @returns The InstructorManagement component.
  */
 const InstructorManagement: React.FC = () => {
-  const { user, canManageInstructors, isProgramHead } = useAuth();
+  const { user, isProgramHead } = useAuth();
   const departmentId = useDepartmentId();
   
-  // Program heads can browse all instructors (read-only)
-  // Admins/dept heads can manage instructors (CRUD)
-  const canManage = canManageInstructors();
-  
-  // Use appropriate hook based on role
-  const managementHook = useInstructors();
-  const browseHook = useAllInstructors();
-  
-  // Select the correct data source
+  // Use unified hook that adapts based on role
   const {
     instructors,
     isLoading,
     error,
-  } = canManage ? managementHook : browseHook;
-  
-  // Only expose mutation functions if user can manage
-  const {
     addInstructor,
     updateInstructor,
     removeInstructor,
     isSubmitting,
     isRemoving,
-  } = canManage ? managementHook : {
-    addInstructor: async () => { throw new Error('Not authorized'); },
-    updateInstructor: async () => { throw new Error('Not authorized'); },
-    removeInstructor: async () => { throw new Error('Not authorized'); },
-    isSubmitting: false,
-    isRemoving: false,
-  };
+    canManage,
+  } = useInstructorsUnified();
   
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
@@ -189,7 +172,7 @@ const InstructorManagement: React.FC = () => {
               </h2>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting || !canManageInstructors()} className="space-y-1">
+                <fieldset disabled={isSubmitting || !canManage} className="space-y-1">
                   <AdminInstructorFields
                     control={formMethods.control}
                     errors={formMethods.formState.errors}

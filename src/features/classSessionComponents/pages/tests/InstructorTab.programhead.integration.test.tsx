@@ -13,12 +13,12 @@ import InstructorTab from '../InstructorTab';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import type { AuthContextType } from '../../../auth/types/auth';
 import type { Instructor } from '../../types/instructor';
-import * as instructorsService from '../../services/instructorsService';
+import * as useInstructorsUnifiedHook from '../../hooks/useInstructorsUnified';
 
-// Mock the instructors service
-vi.mock('../../services/instructorsService');
+// Mock the unified hook
+vi.mock('../../hooks/useInstructorsUnified');
 
-const mockedInstructorsService = vi.mocked(instructorsService, true);
+const mockedUseInstructorsUnified = vi.mocked(useInstructorsUnifiedHook, true);
 
 describe('InstructorTab - Program Head Integration', () => {
   let queryClient: QueryClient;
@@ -106,8 +106,18 @@ describe('InstructorTab - Program Head Integration', () => {
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
     });
 
-    // Mock getAllInstructors to return all instructors
-    mockedInstructorsService.getAllInstructors.mockResolvedValue(mockInstructors);
+    // Mock unified hook to return read-only data for program heads
+    mockedUseInstructorsUnified.useInstructorsUnified.mockReturnValue({
+      instructors: mockInstructors,
+      isLoading: false,
+      error: null,
+      addInstructor: vi.fn(),
+      updateInstructor: vi.fn(),
+      removeInstructor: vi.fn(),
+      isSubmitting: false,
+      isRemoving: false,
+      canManage: false,
+    } as unknown as ReturnType<typeof useInstructorsUnifiedHook.useInstructorsUnified>);
   });
 
   const renderComponent = () => {
@@ -191,7 +201,7 @@ describe('InstructorTab - Program Head Integration', () => {
     });
   });
 
-  it('should fetch instructors using getAllInstructors for program heads', async () => {
+  it('should fetch instructors using unified hook for program heads', async () => {
     renderComponent();
 
     // Program head should see instructors from ALL departments
@@ -201,7 +211,7 @@ describe('InstructorTab - Program Head Integration', () => {
       expect(screen.getByText('Cross Department')).toBeInTheDocument();
     });
 
-    // Verify that getAllInstructors was called (not the scoped getInstructors)
-    expect(mockedInstructorsService.getAllInstructors).toHaveBeenCalled();
+    // Verify that the unified hook was called with canManage: false
+    expect(mockedUseInstructorsUnified.useInstructorsUnified).toHaveBeenCalled();
   });
 });
