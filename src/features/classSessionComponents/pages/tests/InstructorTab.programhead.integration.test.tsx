@@ -4,116 +4,118 @@
  * Tests the read-only browsing behavior for program heads viewing instructors.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import InstructorTab from '../InstructorTab';
-import { AuthProvider } from '../../../auth/contexts/AuthProvider';
-import { supabase } from '../../../../lib/supabase';
+import { AuthContext } from '../../../auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../auth/types/auth';
+import type { Instructor } from '../../types/instructor';
+import * as instructorsService from '../../services/instructorsService';
+
+// Mock the instructors service
+vi.mock('../../services/instructorsService');
+
+const mockedInstructorsService = vi.mocked(instructorsService, true);
 
 describe('InstructorTab - Program Head Integration', () => {
   let queryClient: QueryClient;
-  let testUserId: string;
-  let testProgramId: string;
-  let testDepartmentId: string;
 
-  beforeEach(async () => {
+  const mockProgramHeadUser = {
+    id: 'user-ph',
+    name: 'Program Head',
+    email: 'ph@test.com',
+    role: 'program_head' as const,
+    department_id: null, // Program heads don't have department_id
+    program_id: 'prog-cs',
+  };
+
+  const mockInstructors: Instructor[] = [
+    {
+      id: 'inst1',
+      first_name: 'John',
+      last_name: 'Doe',
+      code: 'JD001',
+      department_id: 'dept1',
+      created_by: 'admin',
+      created_at: new Date().toISOString(),
+      color: '#ff0000',
+      contract_type: null,
+      email: null,
+      phone: null,
+      prefix: null,
+      suffix: null,
+    },
+    {
+      id: 'inst2',
+      first_name: 'Jane',
+      last_name: 'Smith',
+      code: 'JS002',
+      department_id: 'dept1',
+      created_by: 'admin',
+      created_at: new Date().toISOString(),
+      color: '#00ff00',
+      contract_type: null,
+      email: null,
+      phone: null,
+      prefix: null,
+      suffix: null,
+    },
+    {
+      id: 'inst3',
+      first_name: 'Cross',
+      last_name: 'Department',
+      code: 'CD003',
+      department_id: 'dept2', // Different department
+      created_by: 'admin',
+      created_at: new Date().toISOString(),
+      color: '#0000ff',
+      contract_type: null,
+      email: null,
+      phone: null,
+      prefix: null,
+      suffix: null,
+    },
+  ];
+
+  const mockAuthContext = (user: typeof mockProgramHeadUser): AuthContextType => ({
+    user,
+    role: user.role,
+    departmentId: user.department_id,
+    login: vi.fn(),
+    logout: vi.fn(),
+    updateMyProfile: vi.fn(),
+    loading: false,
+    error: null,
+    clearError: vi.fn(),
+    isAdmin: () => false,
+    isDepartmentHead: () => false,
+    isProgramHead: () => true,
+    canManageInstructors: () => false,
+    canManageClassrooms: () => false,
+    canReviewRequestsForDepartment: vi.fn().mockReturnValue(false),
+    canManageInstructorRow: vi.fn().mockReturnValue(false),
+    canManageAssignmentsForProgram: vi.fn().mockReturnValue(true),
+  });
+
+  beforeEach(() => {
+    vi.resetAllMocks();
     queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
     });
 
-    // Create test department
-    const { data: dept } = await supabase
-      .from('departments')
-      .insert({ name: 'Test Department for Instructor Browse', code: 'TDIB' })
-      .select()
-      .single();
-    testDepartmentId = dept!.id;
-
-    // Create test program under the department
-    const { data: program } = await supabase
-      .from('programs')
-      .insert({
-        name: 'Test Program for Instructor Browse',
-        code: 'TPIB',
-        department_id: testDepartmentId,
-      })
-      .select()
-      .single();
-    testProgramId = program!.id;
-
-    // Create program head user (department_id should be NULL)
-    const userId = await (
-      window as { create_test_user?: (email: string, password: string, name: string, role: string, programId: string | null, deptId: string | null) => Promise<string> }
-    ).create_test_user?.(
-      'proghead.instructor.test@example.com',
-      'password123',
-      'Program Head Test User',
-      'program_head',
-      testProgramId,
-      null // NULL department_id for program heads
-    );
-
-    if (!userId) {
-      throw new Error('Failed to create test user - create_test_user helper not available');
-    }
-    testUserId = userId;
-
-    // Sign in as the program head
-    await supabase.auth.signInWithPassword({
-      email: 'proghead.instructor.test@example.com',
-      password: 'password123',
-    });
-
-    // Create test instructors in the department
-    await supabase.from('instructors').insert([
-      {
-        first_name: 'John',
-        last_name: 'Doe',
-        code: 'JD001',
-        department_id: testDepartmentId,
-        created_by: testUserId,
-      },
-      {
-        first_name: 'Jane',
-        last_name: 'Smith',
-        code: 'JS002',
-        department_id: testDepartmentId,
-        created_by: testUserId,
-      },
-    ]);
-  });
-
-  afterEach(async () => {
-    await supabase.auth.signOut();
-    
-    // Cleanup test data
-    if (testUserId) {
-      await (
-        window as { delete_test_user?: (email: string) => Promise<void> }
-      ).delete_test_user?.('proghead.instructor.test@example.com');
-    }
-    
-    if (testProgramId) {
-      await supabase.from('programs').delete().eq('id', testProgramId);
-    }
-    
-    if (testDepartmentId) {
-      await supabase.from('instructors').delete().eq('department_id', testDepartmentId);
-      await supabase.from('departments').delete().eq('id', testDepartmentId);
-    }
-
-    queryClient.clear();
+    // Mock getAllInstructors to return all instructors
+    mockedInstructorsService.getAllInstructors.mockResolvedValue(mockInstructors);
   });
 
   const renderComponent = () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <AuthProvider>
+          <AuthContext.Provider value={mockAuthContext(mockProgramHeadUser)}>
             <InstructorTab />
-          </AuthProvider>
+          </AuthContext.Provider>
         </BrowserRouter>
       </QueryClientProvider>
     );
@@ -192,21 +194,6 @@ describe('InstructorTab - Program Head Integration', () => {
   });
 
   it('should fetch instructors using getAllInstructors for program heads', async () => {
-    // Create an instructor in a different department
-    const { data: otherDept } = await supabase
-      .from('departments')
-      .insert({ name: 'Other Department', code: 'OTHD' })
-      .select()
-      .single();
-
-    await supabase.from('instructors').insert({
-      first_name: 'Cross',
-      last_name: 'Department',
-      code: 'CD003',
-      department_id: otherDept!.id,
-      created_by: testUserId,
-    });
-
     renderComponent();
 
     // Program head should see instructors from ALL departments
@@ -216,8 +203,7 @@ describe('InstructorTab - Program Head Integration', () => {
       expect(screen.getByText('Cross Department')).toBeInTheDocument();
     });
 
-    // Cleanup
-    await supabase.from('instructors').delete().eq('department_id', otherDept!.id);
-    await supabase.from('departments').delete().eq('id', otherDept!.id);
+    // Verify that getAllInstructors was called (not the scoped getInstructors)
+    expect(mockedInstructorsService.getAllInstructors).toHaveBeenCalled();
   });
 });

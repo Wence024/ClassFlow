@@ -129,15 +129,18 @@ describe('ClassroomTab Integration Tests', () => {
       expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
     });
 
-    it('should disable the creation/edit form', () => {
+    it('should NOT show the creation/edit form for non-admin users', () => {
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-      const fieldset = screen.getByTestId('classroom-form-fieldset');
-      expect(fieldset).toBeDisabled();
-      expect(screen.getByRole('button', { name: /Create/i })).toBeDisabled();
+      // Program heads should NOT see the form at all (isManagementView = false in ClassroomTab)
+      expect(screen.queryByTestId('classroom-form-fieldset')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Create/i })).not.toBeInTheDocument();
+      
+      // But they should see the info alert about viewing
+      expect(screen.getByText(/You are viewing all available classrooms/i)).toBeInTheDocument();
     });
 
-    it('should display classrooms with a matching preferred department first, followed by a separator', () => {
+    it('should display classrooms with a matching preferred department first, followed by a separator', async () => {
       // The hook returns prioritized classrooms, so we need to provide them in the correct order
       // CS Room should be first (matches user's dept), then Math and General
       mockedUseClassrooms.useClassrooms.mockReturnValue({
@@ -153,7 +156,8 @@ describe('ClassroomTab Integration Tests', () => {
 
       render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
 
-      const allCards = screen.getAllByRole('article');
+      // Wait for data to load and cards to render
+      const allCards = await screen.findAllByRole('article');
       expect(within(allCards[0]).getByText('CS Room')).toBeInTheDocument();
 
       const separator = screen.getByText('Other Classrooms');

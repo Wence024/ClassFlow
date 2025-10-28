@@ -65,8 +65,9 @@ describe('Sidebar - Role-based Navigation', () => {
       },
       loading: false,
     });
-    // Program heads should see Schedule Configuration but not all admin features
-    expect(screen.getByRole('link', { name: /Schedule Configuration/i })).toBeInTheDocument();
+    // Program heads should NOT see admin-only links
+    expect(screen.queryByRole('link', { name: /Settings/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /User Management/i })).not.toBeInTheDocument();
   });
 
   it('should NOT show navigation links for logged out users', () => {

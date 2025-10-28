@@ -94,25 +94,9 @@ const setupComponent = async (
 
   const mockUseAllCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllCourses;
   mockUseAllCourses.mockReturnValue({
-    courses: [{
-      ...mockClassSession.course,
-      program_name: 'Computer Science',
-      program_short_code: 'CS'
-    }],
-    isLoading: false,
-    error: null,
-  });
-
-  const mockUseCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useCourses;
-  mockUseCourses.mockReturnValue({
     courses: [mockClassSession.course],
     isLoading: false,
-    isSubmitting: false,
-    isRemoving: false,
     error: null,
-    addCourse: vi.fn(),
-    updateCourse: vi.fn(),
-    removeCourse: vi.fn(),
   });
 
   const mockUseClassGroups = vi.mocked(await import('../../../classSessionComponents/hooks')).useClassGroups;
@@ -127,28 +111,18 @@ const setupComponent = async (
     removeClassGroup: vi.fn(),
   });
 
-  const mockUseClassrooms = vi.mocked(await import('../../../classSessionComponents/hooks')).useClassrooms;
-  mockUseClassrooms.mockReturnValue({
+  const mockUseAllClassrooms = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllClassrooms;
+  mockUseAllClassrooms.mockReturnValue({
     classrooms: [mockClassSession.classroom],
     isLoading: false,
-    isSubmitting: false,
-    isRemoving: false,
     error: null,
-    addClassroom: vi.fn(),
-    updateClassroom: vi.fn(),
-    removeClassroom: vi.fn(),
   });
 
-  const mockUseInstructors = vi.mocked(await import('../../../classSessionComponents/hooks')).useInstructors;
-  mockUseInstructors.mockReturnValue({
+  const mockUseAllInstructors = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllInstructors;
+  mockUseAllInstructors.mockReturnValue({
     instructors: [mockClassSession.instructor],
     isLoading: false,
-    isSubmitting: false,
-    isRemoving: false,
     error: null,
-    addInstructor: vi.fn(),
-    updateInstructor: vi.fn(),
-    removeInstructor: vi.fn(),
   });
 
   const mockUsePrograms = vi.mocked(await import('../../../programs/hooks/usePrograms')).usePrograms;
