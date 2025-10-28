@@ -124,7 +124,7 @@ Implemented a modern, docked sidebar with collapsible functionality:
 7. **✅ `src/components/layout/tests/AppLayout.integration.test.tsx`** - Tests for sidebar collapse behavior and state persistence.
 8. **✅ `src/components/layout/tests/Sidebar.integration.test.tsx`** - Updated to include LayoutProvider in test setup.
 
-6. **✅ `src/features/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx`** - Tests invite acceptance and user registration flow.
+9. **✅ `src/features/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx`** - Tests invite acceptance and user registration flow.
 
 **JSDoc Coverage:**
 
@@ -156,14 +156,15 @@ All Phase 4 tasks have been completed successfully:
 1. **✅ Full Project Linting Pass** - All ESLint errors and warnings resolved with `npm run lint:fix`.
 2. **✅ Full Project Type Checking Pass** - All TypeScript errors resolved with `npm run type-check`.
 3. **✅ Iterative Testing Pass** - All test files processed and verified to pass:
-   - `src/contexts/tests/LayoutContext.test.tsx` - LayoutContext state management tests
-   - `src/components/tests/Header.integration.test.tsx` - Header sidebar toggle integration tests (fixed QueryClient provider)
-   - `src/components/layout/tests/AppLayout.integration.test.tsx` - AppLayout collapsible sidebar integration tests (fixed QueryClient provider)
-   - `src/components/layout/tests/Sidebar.integration.test.tsx` - Sidebar role-based navigation tests
+   * `src/contexts/tests/LayoutContext.test.tsx` - LayoutContext state management tests
+   * `src/components/tests/Header.integration.test.tsx` - Header sidebar toggle integration tests (fixed QueryClient provider)
+   * `src/components/layout/tests/AppLayout.integration.test.tsx` - AppLayout collapsible sidebar integration tests (fixed QueryClient provider)
+   * `src/components/layout/tests/Sidebar.integration.test.tsx` - Sidebar role-based navigation tests
 4. **✅ Final Verification Pass** - All checks completed successfully:
-   - Linting: ✅ Passes with zero errors
-   - Type checking: ✅ Passes with zero errors  
-   - Full test suite: ✅ All 171 tests passing
+   * Linting: ✅ Passes with zero errors
+   * Type checking: ✅ Passes with zero errors  
+   * Full test suite: ✅ All 171 tests passing
+
 * **Test Maintenance**: Removed all references to deleted `register()` and `resendVerificationEmail()` functions from test mocks.
 
 ### **Phase 5: Timetabling RLS & Bug Fixes - ✅ COMPLETED**
@@ -181,16 +182,18 @@ All Phase 5 tasks have been completed successfully:
 5. **✅ Created Missing Tests** - Added comprehensive integration tests for `useTimetableDnd` hook
 
 **Key Issues Resolved:**
-- Fixed program head inability to edit timetables due to incorrect RLS policies
-- Fixed merged class session duplication bug in drag-and-drop operations
-- Fixed permission checks to prevent moving sessions from other programs
-- Fixed test mocks to match actual service function signatures
+
+* Fixed program head inability to edit timetables due to incorrect RLS policies
+* Fixed merged class session duplication bug in drag-and-drop operations
+* Fixed permission checks to prevent moving sessions from other programs
+* Fixed test mocks to match actual service function signatures
 
 **Test Coverage:**
-- ✅ `src/features/timetabling/services/timetableService.test.ts` - Service layer unit tests
-- ✅ `src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx` - Hook integration tests (fixed)
-- ✅ `src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx` - DnD hook tests (created)
-- ✅ `src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx` - Page integration tests (fixed)
+
+* ✅ `src/features/timetabling/services/timetableService.test.ts` - Service layer unit tests
+* ✅ `src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx` - Hook integration tests (fixed)
+* ✅ `src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx` - DnD hook tests (created)
+* ✅ `src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx` - Page integration tests (fixed)
 
 ### **Phase 6: Instructor Search & Timetabling Fixes - ✅ COMPLETED**
 
@@ -200,17 +203,18 @@ All Phase 5 tasks have been completed successfully:
 
 All Phase 6 tasks have been completed successfully:
 
-1.  **✅ Fixed Timetabling DnD Tests** - Resolved failures in `useTimetableDnd.integration.test.tsx` by wrapping state updates in `act()`.
-2.  **✅ Fixed Instructor Tab Tests** - Resolved multiple failures in `InstructorTab.integration.test.tsx` by:
-    *   Providing a complete mock for the `AuthContext`.
-    *   Using valid UUIDs in mock data to prevent validation errors.
-    *   Scoping button queries to specific item cards to resolve ambiguity.
-    *   Correcting the assertion for the `removeInstructor` mock call.
-3.  **✅ All Tests Passing** - All tests related to the changed files are now passing.
+1. **✅ Fixed Timetabling DnD Tests** - Resolved failures in `useTimetableDnd.integration.test.tsx` by wrapping state updates in `act()`.
+2. **✅ Fixed Instructor Tab Tests** - Resolved multiple failures in `InstructorTab.integration.test.tsx` by:
+    * Providing a complete mock for the `AuthContext`.
+    * Using valid UUIDs in mock data to prevent validation errors.
+    * Scoping button queries to specific item cards to resolve ambiguity.
+    * Correcting the assertion for the `removeInstructor` mock call.
+3. **✅ All Tests Passing** - All tests related to the changed files are now passing.
 
 **Key Issues Resolved:**
-- Fixed race conditions in `useTimetableDnd` hook tests.
-- Fixed multiple issues in `InstructorTab` integration tests related to mocking, validation, and element selection.
+
+* Fixed race conditions in `useTimetableDnd` hook tests.
+* Fixed multiple issues in `InstructorTab` integration tests related to mocking, validation, and element selection.
 
 ### **Phase 7: Multi-View Timetable Testing - ✅ COMPLETED**
 
@@ -244,25 +248,28 @@ All Phase 7 tasks have been completed successfully:
    * Proper loading and error state handling in components
 
 **Key Features Tested:**
-- Multi-view mode switching (class-group, classroom, instructor)
-- View mode persistence to localStorage
-- Row rendering for different resources (groups, classrooms, instructors)
-- Session cell rendering with merged session support
-- Class session search and filtering functionality
-- Form integration with all component hooks
+
+* Multi-view mode switching (class-group, classroom, instructor)
+* View mode persistence to localStorage
+* Row rendering for different resources (groups, classrooms, instructors)
+* Session cell rendering with merged session support
+* Class session search and filtering functionality
+* Form integration with all component hooks
 
 **Test Files Created:**
-- ViewSelector component test (8 test cases covering all view modes, accessibility, and icon rendering)
-- TimetableRow component test (12 test cases covering all view modes and edge cases)
-- ClassSessionsPage integration test (11 test cases covering CRUD, search, and error states)
+
+* ViewSelector component test (8 test cases covering all view modes, accessibility, and icon rendering)
+* TimetableRow component test (12 test cases covering all view modes and edge cases)
+* ClassSessionsPage integration test (11 test cases covering CRUD, search, and error states)
 
 **Code Review Findings:**
-- ✅ All JSDoc comments follow project conventions
-- ✅ No type annotations in JSDoc (TypeScript handles types)
-- ✅ Cognitive complexity kept under control with helper functions
-- ✅ Proper use of shadcn/ui components throughout
-- ✅ Consistent semantic color tokens from design system
-- ✅ Loading/error states properly implemented
+
+* ✅ All JSDoc comments follow project conventions
+* ✅ No type annotations in JSDoc (TypeScript handles types)
+* ✅ Cognitive complexity kept under control with helper functions
+* ✅ Proper use of shadcn/ui components throughout
+* ✅ Consistent semantic color tokens from design system
+* ✅ Loading/error states properly implemented
 
 ### **Phase 8: Linting, Type-Checking, and Refactoring Pass - ✅ COMPLETED**
 
@@ -273,26 +280,28 @@ All Phase 7 tasks have been completed successfully:
 
 All Phase 8 tasks have been completed successfully:
 
-1.  **✅ Full Project Linting Pass** - Addressed several linting issues, including nested template literals and cognitive complexity in key timetable-related files.
-2.  **✅ Full Project Type Checking Pass** - Resolved a type error related to `DragSource` union type handling.
-3.  **✅ Iterative Testing Pass** - All existing tests passed.
-4.  **✅ Final Verification Pass** - All checks completed successfully:
-    *   Linting: ⚠️ Remaining cognitive complexity error in `checkConflicts.ts` (ignored for now).
-    *   Type checking: ✅ Passes with zero errors.
-    *   Full test suite: ✅ All 253 tests passing.
+1. **✅ Full Project Linting Pass** - Addressed several linting issues, including nested template literals and cognitive complexity in key timetable-related files.
+2. **✅ Full Project Type Checking Pass** - Resolved a type error related to `DragSource` union type handling.
+3. **✅ Iterative Testing Pass** - All existing tests passed.
+4. **✅ Final Verification Pass** - All checks completed successfully:
+    * Linting: ⚠️ Remaining cognitive complexity error in `checkConflicts.ts` (ignored for now).
+    * Type checking: ✅ Passes with zero errors.
+    * Full test suite: ✅ All 253 tests passing.
 
 **Key Issues Resolved:**
-- Refactored `src/features/timetabling/pages/components/timetable/TimetableRow.tsx` to reduce cognitive complexity and fix nested template literals.
-- Refactored `src/features/timetabling/hooks/useTimetableDnd.ts` to reduce cognitive complexity and resolve a `react-hooks/exhaustive-deps` warning.
-- Refactored `src/features/timetabling/utils/checkConflicts.ts` to improve JSDoc comments and reduce cognitive complexity (though one error persists).
-- Refactored `src/features/timetabling/utils/timetableLogic.ts` to reduce cognitive complexity and improve JSDoc comments.
-- Fixed a type error in `src/features/timetabling/hooks/useTimetableDnd.ts` related to `DragSource` type handling.
+
+* Refactored `src/features/timetabling/pages/components/timetable/TimetableRow.tsx` to reduce cognitive complexity and fix nested template literals.
+* Refactored `src/features/timetabling/hooks/useTimetableDnd.ts` to reduce cognitive complexity and resolve a `react-hooks/exhaustive-deps` warning.
+* Refactored `src/features/timetabling/utils/checkConflicts.ts` to improve JSDoc comments and reduce cognitive complexity (though one error persists).
+* Refactored `src/features/timetabling/utils/timetableLogic.ts` to reduce cognitive complexity and improve JSDoc comments.
+* Fixed a type error in `src/features/timetabling/hooks/useTimetableDnd.ts` related to `DragSource` type handling.
 
 **Final Test Results:**
-- **253 tests passing** across 42 test files
-- **1 linting error** (cognitive complexity in `checkConflicts.ts` - ignored)
-- **0 TypeScript errors**
-- **All integration tests passing**
+
+* **253 tests passing** across 42 test files
+* **1 linting error** (cognitive complexity in `checkConflicts.ts` - ignored)
+* **0 TypeScript errors**
+* **All integration tests passing**
 
 The codebase is now stable and ready for production deployment.
 
@@ -321,16 +330,18 @@ All maintenance phases have been successfully completed:
 4. **✅ Final Verification**: Complete test suite passes with 175 tests
 
 **Key Issues Resolved:**
-- Fixed hardcoded password ESLint errors in CompleteRegistrationPage test
-- Resolved element selection issues in test assertions using `getAllByDisplayValue('[1]')`
-- Updated test expectations to match actual component behavior
-- Ensured all integration tests properly wrap components with QueryClientProvider
+
+* Fixed hardcoded password ESLint errors in CompleteRegistrationPage test
+* Resolved element selection issues in test assertions using `getAllByDisplayValue('[1]')`
+* Updated test expectations to match actual component behavior
+* Ensured all integration tests properly wrap components with QueryClientProvider
 
 **Final Test Results:**
-- **175 tests passing** across 34 test files
-- **0 linting errors**
-- **0 TypeScript errors**
-- **All integration tests passing**
+
+* **175 tests passing** across 34 test files
+* **0 linting errors**
+* **0 TypeScript errors**
+* **All integration tests passing**
 
 The codebase is now stable and ready for production deployment.
 
@@ -344,77 +355,181 @@ The codebase is now stable and ready for production deployment.
 **Testing Phase Results:**
 
 1. **✅ ClassSessionsPage Integration Tests - FIXED**
-   - **Problem**: Multiple test failures due to incorrect `findByText` usage and element selection conflicts
-   - **Solution**: Updated all `expect(screen.findByText(...)).toBeInTheDocument()` to `expect(await screen.findByText(...)).toBeInTheDocument()`
-   - **Solution**: Fixed element selection conflicts by using more specific selectors (`{ selector: 'label' }`)
-   - **Solution**: Updated text matching from generic `/Mathematics 101/i` to specific `/Mathematics 101 - CS-1A/i`
-   - **Result**: ✅ All 9 tests now pass
+   * **Problem**: Multiple test failures due to incorrect `findByText` usage and element selection conflicts
+   * **Solution**: Updated all `expect(screen.findByText(...)).toBeInTheDocument()` to `expect(await screen.findByText(...)).toBeInTheDocument()`
+   * **Solution**: Fixed element selection conflicts by using more specific selectors (`{ selector: 'label' }`)
+   * **Solution**: Updated text matching from generic `/Mathematics 101/i` to specific `/Mathematics 101 - CS-1A/i`
+   * **Result**: ✅ All 9 tests now pass
 
 2. **✅ TimetableRow Component Tests - FIXED**
-   - **Problem**: All 11 tests failing with `Cannot read properties of undefined (reading 'Provider')`
-   - **Solution**: Fixed TimetableContext import from named to default import
-   - **Solution**: Added proper mock context value with all required drag-and-drop handlers
-   - **Solution**: Added missing providers: QueryClientProvider, MemoryRouter, AuthProvider
-   - **Result**: ✅ All 11 tests now pass
+   * **Problem**: All 11 tests failing with `Cannot read properties of undefined (reading 'Provider')`
+   * **Solution**: Fixed TimetableContext import from named to default import
+   * **Solution**: Added proper mock context value with all required drag-and-drop handlers
+   * **Solution**: Added missing providers: QueryClientProvider, MemoryRouter, AuthProvider
+   * **Result**: ✅ All 11 tests now pass
 
 3. **✅ useTimetableViewMode localStorage Tests - FIXED**
-   - **Problem**: 3 out of 6 tests failing with localStorage persistence issues
-   - **Solution**: Implemented comprehensive localStorage mock with proper setup/teardown
-   - **Solution**: Added `act()` wrappers and `waitFor()` to handle async state updates
-   - **Result**: ✅ All 6 tests now pass
+   * **Problem**: 3 out of 6 tests failing with localStorage persistence issues
+   * **Solution**: Implemented comprehensive localStorage mock with proper setup/teardown
+   * **Solution**: Added `act()` wrappers and `waitFor()` to handle async state updates
+   * **Result**: ✅ All 6 tests now pass
 
 4. **✅ TimetablePage Integration Tests - FIXED**
-   - **Problem**: localStorage persistence test failing due to timing issues
-   - **Solution**: Set up localStorage mock before component rendering
-   - **Solution**: Used `act()` and `waitFor()` to ensure state updates are processed
-   - **Result**: ✅ All 6 tests now pass
+   * **Problem**: localStorage persistence test failing due to timing issues
+   * **Solution**: Set up localStorage mock before component rendering
+   * **Solution**: Used `act()` and `waitFor()` to ensure state updates are processed
+   * **Result**: ✅ All 6 tests now pass
 
 5. **✅ ClassSessionForm Integration Tests - FIXED**
-   - **Problem**: Missing AuthProvider causing "useAuth must be used within an AuthProvider" error
-   - **Solution**: Added QueryClientProvider, MemoryRouter, and AuthProvider to test wrapper
-   - **Result**: ✅ All 2 tests now pass
+   * **Problem**: Missing AuthProvider causing "useAuth must be used within an AuthProvider" error
+   * **Solution**: Added QueryClientProvider, MemoryRouter, and AuthProvider to test wrapper
+   * **Result**: ✅ All 2 tests now pass
 
 6. **✅ checkConflicts Test Logic - FIXED**
-   - **Problem**: Conflict detection test failing due to mergeable session logic
-   - **Solution**: Modified test data to use different courses to prevent merging
-   - **Solution**: Added `isMovingSession: true` parameter to accurately reflect move operations
-   - **Result**: ✅ All 24 tests now pass
+   * **Problem**: Conflict detection test failing due to mergeable session logic
+   * **Solution**: Modified test data to use different courses to prevent merging
+   * **Solution**: Added `isMovingSession: true` parameter to accurately reflect move operations
+   * **Result**: ✅ All 24 tests now pass
 
 7. **✅ Multi-View Timetable System Tests - WORKING**
-   - **timetableLogic.factory.test.ts**: ✅ 4/4 tests passing
-   - **timetableLogic.classroom.test.ts**: ✅ 5/5 tests passing  
-   - **timetableLogic.instructor.test.ts**: ✅ 5/5 tests passing
-   - **SessionCell.test.tsx**: ✅ 8/8 tests passing
-   - **ViewSelector.test.tsx**: ✅ 7/7 tests passing
-   - **useTimetable.integration.test.tsx**: ✅ 6/6 tests passing
-   - **useTimetableDnd.integration.test.tsx**: ✅ 17/17 tests passing
+   * **timetableLogic.factory.test.ts**: ✅ 4/4 tests passing
+   * **timetableLogic.classroom.test.ts**: ✅ 5/5 tests passing  
+   * **timetableLogic.instructor.test.ts**: ✅ 5/5 tests passing
+   * **SessionCell.test.tsx**: ✅ 8/8 tests passing
+   * **ViewSelector.test.tsx**: ✅ 7/7 tests passing
+   * **useTimetable.integration.test.tsx**: ✅ 6/6 tests passing
+   * **useTimetableDnd.integration.test.tsx**: ✅ 17/17 tests passing
 
 **Key Issues Resolved:**
-- Fixed ClassSessionsPage integration test failures with proper async/await handling
-- Fixed TimetableRow component tests with complete provider setup
-- Resolved localStorage persistence issues in useTimetableViewMode tests
-- Fixed TimetablePage localStorage integration test with proper timing
-- Added missing AuthProvider setup for ClassSessionForm tests
-- Corrected conflict detection logic in checkConflicts tests
-- Verified multi-view timetable system functionality across all view modes
-- Ensured proper test isolation and provider dependencies
+
+* Fixed ClassSessionsPage integration test failures with proper async/await handling
+* Fixed TimetableRow component tests with complete provider setup
+* Resolved localStorage persistence issues in useTimetableViewMode tests
+* Fixed TimetablePage localStorage integration test with proper timing
+* Added missing AuthProvider setup for ClassSessionForm tests
+* Corrected conflict detection logic in checkConflicts tests
+* Verified multi-view timetable system functionality across all view modes
+* Ensured proper test isolation and provider dependencies
 
 **Final Test Coverage Summary:**
-- **Total Test Files**: 42 files
-- **Total Tests**: 253 tests
-- **Passing Tests**: 253 (100%)
-- **Failing Tests**: 0 (0%)
+
+* **Total Test Files**: 42 files
+* **Total Tests**: 253 tests
+* **Passing Tests**: 253 (100%)
+* **Failing Tests**: 0 (0%)
 
 **Test Categories:**
-- **ClassSessionsPage**: ✅ 9/9 tests passing
-- **TimetableRow**: ✅ 11/11 tests passing  
-- **Multi-view Logic**: ✅ 22/22 tests passing
-- **SessionCell**: ✅ 8/8 tests passing
-- **ViewSelector**: ✅ 7/7 tests passing
-- **useTimetableViewMode**: ✅ 6/6 tests passing
-- **TimetablePage Integration**: ✅ 6/6 tests passing
-- **ClassSessionForm**: ✅ 2/2 tests passing
-- **checkConflicts**: ✅ 24/24 tests passing
-- **All Other Components**: ✅ 158/158 tests passing
+
+* **ClassSessionsPage**: ✅ 9/9 tests passing
+* **TimetableRow**: ✅ 11/11 tests passing  
+* **Multi-view Logic**: ✅ 22/22 tests passing
+* **SessionCell**: ✅ 8/8 tests passing
+* **ViewSelector**: ✅ 7/7 tests passing
+* **useTimetableViewMode**: ✅ 6/6 tests passing
+* **TimetablePage Integration**: ✅ 6/6 tests passing
+* **ClassSessionForm**: ✅ 2/2 tests passing
+* **checkConflicts**: ✅ 24/24 tests passing
+* **All Other Components**: ✅ 158/158 tests passing
 
 **Overall Status:** 🎉 **COMPLETE SUCCESS** - All 253 tests are now passing with 100% success rate. The multi-view timetable system is fully functional and comprehensively tested across all components and workflows.
+
+---
+
+## **Phase 9: Common Testing Patterns and Pitfalls**
+
+Based on a review of the existing test suite, several common patterns and potential failure points have been identified. Adhering to these patterns will improve the quality and reliability of future tests.
+
+### **1. Comprehensive Mocking**
+
+**Pattern:** Integration tests heavily rely on mocking hooks and services to isolate the component under test. A `TestWrapper` or `renderWithProviders` helper function is the standard approach to provide necessary contexts like `QueryClientProvider`, `MemoryRouter`, and `AuthContext.Provider`.
+
+**Example (`ClassroomTab.integration.test.tsx`):**
+
+```tsx
+const TestWrapper = ({ children, user }: { children: ReactNode; user: User | null }) => (
+  <QueryClientProvider client={queryClient}>
+    <AuthContext.Provider value={{ user, canManageClassrooms: () => user?.role === 'admin' } as AuthContextType}>
+      {children}
+    </AuthContext.Provider>
+  </QueryClientProvider>
+);
+
+render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+```
+
+#### Pitfall: Incomplete or Generic Mocks
+
+A common source of test failures is a mock that is not specific enough for the test case. Mocks defined in a `beforeEach` block may need to be overridden in individual tests to provide the correct data or permissions.
+
+**Problem:** In `ClassroomTab.integration.test.tsx`, a test for an admin user failed because the generic mock in `beforeEach` set `canManage: false`.
+
+**Solution:** The test was fixed by providing a specific mock for `useClassroomsUnified` within the test case that sets `canManage: true`.
+
+```typescript
+it('should enable the creation/edit form', () => {
+  mockedUseClassroomsUnified.useClassroomsUnified.mockReturnValue({
+    // ... other properties
+    canManage: true, // Override for this test
+  } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
+
+  render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+
+  const fieldset = screen.getByTestId('classroom-form-fieldset');
+  expect(fieldset).not.toBeDisabled();
+});
+```
+
+### **2. Handling Asynchronous Operations**
+
+**Pattern:** Use `async/await` with `waitFor` and `findBy*` queries from React Testing Library to handle asynchronous operations like data fetching and state updates.
+
+**Pitfall: Missing `await` or `waitFor`**
+
+Tests can be flaky or fail if assertions are made before an asynchronous operation has completed.
+
+**Problem:** In `ClassSessionsPage.integration.test.tsx`, tests were failing because `expect(screen.findByText(...))` was used without `await`.
+
+**Solution:** The fix was to `await` the `findByText` query: `expect(await screen.findByText(...)).toBeInTheDocument()`.
+
+### **3. Precise Element Selection**
+
+**Pattern:** Use specific, role-based queries to select elements. `getByRole` with a `name` option is preferred. For more complex scenarios, use `within` to scope queries to a specific part of the component tree.
+
+#### Pitfall: Ambiguous Selectors
+
+Using generic selectors like `getByText` or `getByRole('button')` without a name can lead to multiple elements being found, causing tests to fail.
+
+**Problem:** In `InstructorTab.integration.test.tsx`, a test was failing because `getByRole('button', { name: /delete/i })` was matching multiple delete buttons on the page.
+
+**Solution:** The query was scoped to a specific instructor card using `within`:
+
+```typescript
+const instructorCard = screen.getByText(/John Doe/i).closest('[data-testid="item-card"]');
+if (!instructorCard) throw new Error("Instructor card not found");
+
+await user.click(within(instructorCard).getByRole('button', { name: /Delete/i }));
+```
+
+### **4. State Updates and Re-renders**
+
+**Pattern:** When testing user interactions that trigger state updates and re-renders, wrap the interaction and subsequent assertions in `act` from React Testing Library.
+
+#### Pitfall: Assertions Before State Updates
+
+Making assertions immediately after a state-changing event can lead to failures because the component may not have re-rendered yet.
+
+**Problem:** In `useTimetableViewMode.test.tsx`, tests for `localStorage` persistence were failing due to timing issues.
+
+**Solution:** The state updates and assertions were wrapped in `act` and `waitFor` to ensure the component had re-rendered and the `useEffect` hook had executed.
+
+```typescript
+act(() => {
+  result.current.setViewMode('classroom');
+});
+
+// Wait for useEffect to complete
+await act(async () => {
+  await new Promise(resolve => setTimeout(resolve, 0));
+});
+expect(localStorage.getItem(STORAGE_KEY)).toBe('classroom');
+```
