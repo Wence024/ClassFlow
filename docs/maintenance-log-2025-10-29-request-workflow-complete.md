@@ -1,4 +1,5 @@
 # Maintenance Log: Resource Request Workflow - Complete Implementation
+
 **Date:** 2025-10-29  
 **Status:** ✅ Complete
 
@@ -11,6 +12,7 @@ Implemented a comprehensive resource request workflow with automatic notificatio
 ## What Was Implemented
 
 ### 1. Database-Level Automation ✅
+
 **File:** `docs/postgresql_schema/251029_notification_cleanup_trigger.sql`
 
 - Created `cleanup_request_notifications()` trigger function
@@ -23,6 +25,7 @@ Implemented a comprehensive resource request workflow with automatic notificatio
 - Uses `SECURITY DEFINER` for proper permissions
 
 **Benefits:**
+
 - No more stale notifications accumulating in the database
 - Reduced manual cleanup code in UI components
 - Consistent behavior across all approval/rejection/dismissal paths
@@ -30,20 +33,24 @@ Implemented a comprehensive resource request workflow with automatic notificatio
 ---
 
 ### 2. Service Layer Enhancements ✅
+
 **File:** `src/features/resourceRequests/services/resourceRequestService.ts`
 
 #### New Function: `cancelActiveRequestsForClassSession()`
+
 - Cancels all pending/approved requests for a class session
 - Inserts cancellation notifications for affected department heads
 - Used when program heads drop sessions back to drawer
 - Automatically cleans up via database trigger
 
 **Signature:**
+
 ```typescript
 export async function cancelActiveRequestsForClassSession(classSessionId: string): Promise<void>
 ```
 
 **Workflow:**
+
 1. Fetches all pending/approved requests for the session
 2. For each request, creates a "Request cancelled by program head" notification
 3. Deletes all the requests (trigger handles final notification cleanup)
@@ -51,15 +58,18 @@ export async function cancelActiveRequestsForClassSession(classSessionId: string
 ---
 
 ### 3. Confirmation Dialogs - Timetable Page ✅
+
 **File:** `src/features/timetabling/pages/TimetablePage.tsx`
 
-#### Added Features:
+#### Added Features
+
 - **Generic confirmation dialog** using existing `ConfirmDialog` component
 - **Two confirmation workflows:**
   1. **Move Confirmed Session:** Shows before moving a confirmed cross-dept session
   2. **Remove to Drawer:** Shows before dropping cross-dept session to drawer
 
-#### Implementation Details:
+#### Implementation Details
+
 ```typescript
 // State for confirmation dialog
 const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -84,6 +94,7 @@ const handleDropToDrawerWithConfirm: typeof dnd.handleDropToDrawer = async (e) =
 ```
 
 **User Experience:**
+
 - Program heads see clear warnings before cross-dept operations
 - Can cancel and abort the action
 - Proceeds only on explicit confirmation
@@ -91,22 +102,26 @@ const handleDropToDrawerWithConfirm: typeof dnd.handleDropToDrawer = async (e) =
 ---
 
 ### 4. DnD Hook Enhancements ✅
+
 **File:** `src/features/timetabling/hooks/useTimetableDnd.ts`
 
-#### Updated `handleDropToGrid()`:
+#### Updated `handleDropToGrid()`
+
 - Added optional `onConfirmMove` callback parameter
 - Detects cross-department resources on confirmed sessions
 - Calls confirmation callback before proceeding with move
 - Falls back to normal move if no confirmation needed
 
 **Cross-dept Detection Logic:**
+
 ```typescript
 const hasCrossDeptResource = 
   (session.instructor.department_id && session.instructor.department_id !== user?.program_id) ||
   (session.classroom.preferred_department_id && session.classroom.preferred_department_id !== user?.program_id);
 ```
 
-#### Updated `handleDropToDrawer()`:
+#### Updated `handleDropToDrawer()`
+
 - Uses new `cancelActiveRequestsForClassSession()` service method
 - Shows confirmation for cross-dept sessions before removal
 - Notifies department heads via the cancellation notifications
@@ -115,9 +130,11 @@ const hasCrossDeptResource =
 ---
 
 ### 5. Department Head Notifications - Instant Dismissal ✅
+
 **File:** `src/components/RequestNotifications.tsx`
 
-#### Optimistic Dismissal:
+#### Optimistic Dismissal
+
 ```typescript
 const handleDismiss = async (requestId: string) => {
   setDismissingId(requestId);
@@ -142,11 +159,13 @@ const handleDismiss = async (requestId: string) => {
 ```
 
 **Benefits:**
+
 - Item disappears instantly from UI (no wait for server)
 - Automatic revert if server operation fails
 - Smooth user experience
 
-#### Removed Manual Notification Cleanup:
+#### Removed Manual Notification Cleanup
+
 - Removed ad hoc `.delete()` calls for `request_notifications`
 - Database trigger now handles this automatically
 - Cleaner, more maintainable code
@@ -154,15 +173,18 @@ const handleDismiss = async (requestId: string) => {
 ---
 
 ### 6. Program Head Notifications ✅
+
 **File:** `src/components/PendingRequestsNotification.tsx`
 
-#### Already Working Features (Verified):
+#### Already Working Features (Verified)
+
 - Real-time subscription to resource_requests updates
 - Shows approved/rejected items until dismissed
 - Badge color changes based on status (green for approved, red for rejected)
 - Fetches enriched details (instructor/classroom names)
 
 **No changes needed** - component already handles rejected items correctly via:
+
 ```typescript
 .in('status', ['approved', 'rejected'])
 .eq('dismissed', false)
@@ -173,6 +195,7 @@ const handleDismiss = async (requestId: string) => {
 ## Technical Architecture
 
 ### Database Trigger Flow
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │ resource_requests UPDATE/DELETE                          │
@@ -192,6 +215,7 @@ const handleDismiss = async (requestId: string) => {
 ```
 
 ### Confirmation Workflow
+
 ```
 ┌──────────────────┐
 │ User drags       │
@@ -251,67 +275,88 @@ The following items were explicitly excluded from this iteration:
 
 ## Manual Verification Checklist
 
-### As a Program Head:
+### As a Program Head
 
 #### Creating Cross-Department Requests
-- [ ] Create a cross-dept session (from drawer) → "My Pending Requests" bell shows count
-- [ ] Verify Dept Head sees it in their "Resource Requests" bell
-- [ ] Check that session shows "pending" visual indicator on timetable
+
+- [x] Create a cross-dept session (from drawer) → "My Pending Requests" bell shows count
+- [x] Verify Dept Head sees it in their "Resource Requests" bell
+- [x] Check that session shows "pending" visual indicator on timetable
 
 #### Moving Confirmed Sessions
-- [ ] Move a confirmed cross-dept session on timetable
-- [ ] Confirmation dialog appears with message "This move will require approval"
-- [ ] Click "Cancel" → session stays in place, no request created
+
+- [x] Move a confirmed cross-dept session on timetable
+- [x] Confirmation dialog appears with message "This move will require approval"
+- [x] Click "Cancel" → session stays in place, no request created
 - [ ] Click "Continue" → session moves, status becomes pending, new request created
 - [ ] Verify "My Pending Requests" count increases
 
 #### Removing to Drawer
-- [ ] Drag a cross-dept session (pending or approved) to drawer
-- [ ] Confirmation dialog appears with message "Removing will cancel approval"
-- [ ] Click "Cancel" → session stays on timetable
+
+- [x] Drag a cross-dept session (pending or approved) to drawer
+- [x] Confirmation dialog appears with message "Removing will cancel approval"
+- [x] Click "Cancel" → session stays on timetable
 - [ ] Click "Continue" → session removed, request cancelled, dept head notified
 
 #### Viewing Request Updates
-- [ ] After dept head approves → see green badge on "Request Updates" bell
+
+- [x] After dept head approves → see green badge on "Request Updates" bell
 - [ ] After dept head rejects → see red badge on "Request Updates" bell
 - [ ] Click on rejected item → see rejection message
 - [ ] Click "Dismiss" → item disappears immediately (no refresh needed)
 - [ ] Refresh page → dismissed item stays gone
 
-### As a Department Head:
+### As a Department Head
 
 #### Approving Requests
-- [ ] See pending request in "Resource Requests" bell
-- [ ] Click "Approve" → loading state shown
-- [ ] Success toast appears
-- [ ] Request disappears from list immediately
-- [ ] Program head's session becomes confirmed (green border)
-- [ ] Timetable updates in real-time
+
+- [x] See pending request in "Resource Requests" bell
+- [x] Click "Approve" → loading state shown
+- [x] Success toast appears
+- [x] Request disappears from list immediately
+- [x] Program head's session becomes confirmed (green border)
+- [x] Timetable updates in real-time
 
 #### Rejecting Requests
-- [ ] Click "Reject" on pending request
-- [ ] Rejection dialog appears requiring a message
-- [ ] Cannot submit without entering a message
-- [ ] Enter message and click "Reject Request"
-- [ ] Request disappears from list immediately
-- [ ] If request was from a NEW assignment → class session deleted
+
+- [x] Click "Reject" on pending request
+- [x] Rejection dialog appears requiring a message
+- [x] Cannot submit without entering a message
+- [x] Enter message and click "Reject Request"
+- [x] Request disappears from list immediately
+- [x] If request was from a NEW assignment → class session deleted
 - [ ] If request was from a MOVE → class session restored to original position
 - [ ] Program head sees rejected notification in "Request Updates"
 
 #### Dismissing Requests
-- [ ] Click dismiss (X) button on any pending request
+
+- [x] Click dismiss (X) button on any pending request
 - [ ] Request disappears immediately from UI
 - [ ] Refresh page → dismissed request stays gone
 - [ ] No stale entries accumulate over time
 
-### Real-Time Updates:
+Additional issues:
+
+- When removing a class session to drawer, only toast feedback goes to the program head, but no notification goes to the respective department head; only the resource requests are opened which is vague.
+- [ ] Moving confirmed sessions broke: it just gives feedback without moving the session in the dropped spot and changing to `pending`.
+- [x] Notifications don't dismiss without refresh; they are only cleared after page refresh.
+- [x] Pending requests can't be cancelled as before.
+- Unclean toast feedback after moving confirmed sessions.
+- When moving a cross-department session from drawer to timetable, no confirmation modal occurs.
+- Possible race condition (unexamined for safety): making `pending` a moved confirmed session takes too long, causing it to be movable and cause race conditions.
+- Program head is not notified through notification panel when a request is rejected, just reduced pending request count.
+- Rejecting a move request doesn't restore to original position, just deletes it.
+
+### Real-Time Updates
 
 #### Department Head Perspective
-- [ ] Program head creates request → notification appears immediately (no refresh)
-- [ ] Program head cancels request → notification disappears immediately
+
+- [x] Program head creates request → notification appears immediately (no refresh)
+- [x] Program head cancels request → notification disappears immediately
 
 #### Program Head Perspective
-- [ ] Dept head approves request → "Request Updates" bell increments (no refresh)
+
+- [x] Dept head approves request → "Request Updates" bell increments (no refresh)
 - [ ] Dept head rejects request → "Request Updates" bell increments (no refresh)
 - [ ] Dismissed items stay dismissed across sessions
 
@@ -322,14 +367,17 @@ The following items were explicitly excluded from this iteration:
 1. **Connect to Supabase SQL Editor**
 2. **Run the migration:** `docs/postgresql_schema/251029_notification_cleanup_trigger.sql`
 3. **Verify trigger creation:**
+
    ```sql
    SELECT trigger_name, event_manipulation, event_object_table 
    FROM information_schema.triggers 
    WHERE trigger_name LIKE 'cleanup_notifications%';
    ```
+
    Should return 2 rows (one for UPDATE, one for DELETE)
 
 4. **Test trigger manually:**
+
    ```sql
    -- Create a test request
    INSERT INTO resource_requests (requester_id, target_department_id, resource_type, resource_id, class_session_id, status)
@@ -351,18 +399,21 @@ The following items were explicitly excluded from this iteration:
 
 ## Testing Priority
 
-### High Priority (Must Test):
+### High Priority (Must Test)
+
 1. ✅ Confirmation dialogs appear for cross-dept moves/removals
 2. ✅ Dismiss works instantly and persistently
 3. ✅ Database trigger cleanup works (no manual deletion needed)
 4. ✅ Real-time updates work for both program heads and dept heads
 
-### Medium Priority (Should Test):
+### Medium Priority (Should Test)
+
 1. ✅ Rejection messages are visible to program heads
 2. ✅ Restore-on-reject works for moved sessions
 3. ✅ Cancellation notifications reach department heads
 
-### Low Priority (Nice to Verify):
+### Low Priority (Nice to Verify)
+
 1. ✅ Badge colors change appropriately (green/red)
 2. ✅ Optimistic updates revert on error
 3. ✅ Multiple concurrent requests handle correctly
@@ -389,11 +440,13 @@ The following items were explicitly excluded from this iteration:
 
 ## Files Modified
 
-### New Files (1):
+### New Files (1)
+
 - `docs/postgresql_schema/251029_notification_cleanup_trigger.sql`
 - `docs/maintenance-log-2025-10-29-request-workflow-complete.md`
 
-### Modified Files (4):
+### Modified Files (4)
+
 - `src/features/resourceRequests/services/resourceRequestService.ts` (+37 lines)
   - Added `cancelActiveRequestsForClassSession()`
   
@@ -410,7 +463,8 @@ The following items were explicitly excluded from this iteration:
   - Added optimistic dismissal
   - Cleaner error handling
 
-### Total Changes:
+### Total Changes
+
 - **Lines added:** ~134
 - **Lines removed:** ~20
 - **Net change:** +114 lines
@@ -423,6 +477,7 @@ The following items were explicitly excluded from this iteration:
 If issues are discovered, rollback is simple:
 
 1. **Remove the database trigger:**
+
    ```sql
    DROP TRIGGER IF EXISTS cleanup_notifications_on_update ON public.resource_requests;
    DROP TRIGGER IF EXISTS cleanup_notifications_on_delete ON public.resource_requests;
@@ -430,11 +485,13 @@ If issues are discovered, rollback is simple:
    ```
 
 2. **Revert code changes via Git:**
+
    ```bash
    git revert <commit-hash>
    ```
 
 3. **Manual cleanup (if needed):**
+
    ```sql
    -- Remove orphaned notifications after manual rollback
    DELETE FROM request_notifications 
@@ -457,6 +514,7 @@ If issues are discovered, rollback is simple:
 ## Success Metrics
 
 ✅ **All original issues resolved:**
+
 - Program heads see rejection notifications reliably
 - Pending Requests panel visible and functional
 - Dismiss button works instantly and persistently
@@ -466,12 +524,14 @@ If issues are discovered, rollback is simple:
 - Automatic notification cleanup in database
 
 ✅ **Code quality improved:**
+
 - Reduced manual cleanup code
 - Centralized cancellation logic in service layer
 - Consistent error handling
 - Better user feedback via optimistic updates
 
 ✅ **User experience enhanced:**
+
 - Clear confirmations before destructive actions
 - Instant feedback on dismissals
 - Real-time updates across all views
