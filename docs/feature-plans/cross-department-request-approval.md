@@ -1,416 +1,519 @@
-# Updated Implementation Plan: Interactive Cross-Department Resource Approval System
+# Cross-Department Resource Request Approval System
 
-## Phase 1: Database Layer Changes (SQL Migrations)
+## Overview
 
-### **1.1 Add `status` Column to `timetable_assignments`**
+This feature enables program heads to request instructors or classrooms from other departments, requiring approval from the resource-owning department head before the assignment becomes confirmed. The system includes automatic notifications, confirmations, and state management for the entire request lifecycle.
 
-- Add `status TEXT NOT NULL DEFAULT 'confirmed'` with CHECK constraint for 'pending', 'confirmed', 'rejected'
-- Add index on status column for performance
-- Default to 'confirmed' maintains backward compatibility
+---
 
-### **1.2 Create Helper Function**
+## Core Features
 
-- `is_cross_department_resource(_program_id, _instructor_id, _classroom_id)`
-- Returns boolean if resource is from different department
-- Handles both instructors and classrooms in single function
+### 1. Request Creation & Management
+
+**1.1 Cross-Department Resource Detection**
+- Automatically detect when a program head selects an instructor or classroom from another department
+- Show confirmation modal with clear information about the cross-department request
+- Allow program heads to proceed with or cancel the request
+
+**1.2 Request Status Tracking**
+- Track request status: `pending`, `approved`, `rejected`
+- Store metadata: requester, target department, resource details
+- Track original position for restoration if rejected
+
+**1.3 Visual Indicators for Pending Sessions**
+- Display pending sessions with distinct visual styling:
+  - Dashed orange border
+  - Reduced opacity (0.7)
+  - Clock icon indicator
+- Make pending sessions non-draggable until approved
+- Update styling in real-time when status changes
+
+---
+
+### 2. Approval & Rejection Workflows
+
+**2.1 Department Head Approval**
+- Atomic database function ensures both request and timetable assignment update together
+- Uses `SECURITY DEFINER` to bypass RLS policy edge cases
+- Comprehensive validation (active semester, request exists, pending status)
+- Returns detailed success/failure information
+- Updates assignment status from `pending` to `confirmed`
+
+**2.2 Department Head Rejection with Message**
+- Required rejection message from department head
+- Different behavior based on request origin:
+  - **Pending requests**: Delete session and timetable assignment
+  - **Approved requests (moved)**: Restore session to original position
+- Rejection message displayed to program head via notifications
+- Atomic operations via database function `reject_resource_request()`
+
+**2.3 Request Dismissal**
+- Department heads can dismiss requests without action (mark as irrelevant)
+- Program heads can dismiss approval/rejection notifications after viewing
+- Dismissal is instant with optimistic UI updates
+- Dismissed items persist across sessions
+
+---
+
+### 3. Notification System
+
+**3.1 Department Head Notifications (Resource Requests)**
+- Real-time notifications when new requests are created
+- Display resource details (instructor/classroom name, not just IDs)
+- Badge counter shows pending request count
+- Actions: Approve, Reject (with message), Dismiss
+- Automatic cleanup via database trigger when requests resolved
+
+**3.2 Program Head Notifications (Request Updates)**
+- Real-time notifications when requests are approved/rejected
+- Color-coded badges (green for approved, red for rejected)
+- Display rejection messages from department heads
+- Dismissal clears notification from view
+- Automatic cleanup via database trigger
+
+**3.3 Cancellation Notifications**
+- Department heads notified when program heads cancel requests
+- Triggered when sessions removed from timetable to drawer
+- Message: "Request cancelled by program head"
+
+**3.4 Database-Level Notification Cleanup**
+- Automatic trigger `cleanup_request_notifications()`
+- Deletes notifications when:
+  - Request status changes from 'pending' (approved/rejected)
+  - Request dismissed flag set to true
+  - Request deleted entirely
+- Prevents stale notification accumulation
+
+---
+
+### 4. Session Movement & Re-Approval
+
+**4.1 Moving Confirmed Cross-Department Sessions**
+- Confirmation dialog appears when moving confirmed cross-dept sessions
+- Warning: "This move will require approval from [Department Name] again"
+- Options: Continue (proceed with move) or Cancel (abort)
+- On confirmation:
+  - Session moves to new position
+  - Status changes back to `pending`
+  - New resource request created automatically
+  - Department head notified via `handle_cross_dept_session_move()`
+  - Original position stored for potential restoration
+
+**4.2 Removing Sessions to Drawer**
+- Confirmation dialog for cross-dept sessions being removed
+- Warning: "Removing this session will cancel the approval request"
+- Options: Continue (remove) or Cancel (keep on timetable)
+- On confirmation:
+  - Session removed from timetable
+  - All active requests cancelled via `cancelActiveRequestsForClassSession()`
+  - Department head receives cancellation notification
+
+**4.3 Restoration on Rejection**
+- When department head rejects a moved (approved) session:
+  - Session automatically restored to original time slot
+  - Assignment status returns to `confirmed`
+  - Rejection message delivered to program head
+- Database function `reject_resource_request()` handles restoration atomically
+
+---
+
+### 5. Real-Time Updates
+
+**5.1 Timetable Synchronization**
+- Sessions update visual styling when status changes
+- Changes propagate instantly across all users viewing the timetable
+- Leverages Supabase real-time subscriptions
+
+**5.2 Notification Badge Updates**
+- Badge counts update immediately when:
+  - New requests created
+  - Requests approved/rejected
+  - Requests dismissed
+- No page refresh required
+
+---
+
+## Database Schema Requirements
+
+### Tables
+
+**`timetable_assignments`**
+- Column: `status TEXT NOT NULL DEFAULT 'confirmed'`
+- Check constraint: `status IN ('pending', 'confirmed')`
+- Index on status for performance
+
+**`resource_requests`**
+- Columns: `id`, `requester_id`, `target_department_id`, `resource_type`, `resource_id`, `class_session_id`, `status`, `reviewed_by`, `reviewed_at`, `dismissed`, `rejection_message`, `original_period_index`, `original_class_group_id`
+- Check constraint: `status IN ('pending', 'approved', 'rejected')`
+
+**`request_notifications`**
+- Columns: `id`, `request_id`, `target_department_id`, `message`, `created_at`
+- Foreign key to `resource_requests`
+
+---
+
+### Database Functions
+
+**`is_cross_department_resource(_program_id, _instructor_id, _classroom_id)`**
+- Returns boolean indicating if resource belongs to different department
+- Handles both instructors and classrooms
 - Uses SECURITY DEFINER for RLS bypass
 
-## Phase 2: Service Layer Changes
+**`approve_resource_request(_request_id, _reviewer_id)`**
+- Atomically updates request status to 'approved'
+- Updates timetable_assignment status to 'confirmed'
+- Validates active semester, request existence, pending status
+- Returns JSON with success/failure details
+- Uses SECURITY DEFINER for consistent permissions
 
-**2.1 File: `classSessionsService.ts`**
+**`reject_resource_request(_request_id, _reviewer_id, _rejection_message)`**
+- Validates request and message
+- If approved request: restores session to original position
+- If pending request: deletes session and assignment
+- Updates request status to 'rejected' with message
+- Returns JSON with action taken
+- Uses SECURITY DEFINER for atomic operations
 
-- Add `isCrossDepartmentInstructor(programId, instructorId)` - calls DB function
-- Add `isCrossDepartmentClassroom(programId, classroomId)` - calls DB function  
-- Add `getResourceDepartmentId(instructorId?, classroomId?)` - returns target dept ID
-- No changes to `addClassSession` - logic moves to UI layer
+**`handle_cross_dept_session_move(_class_session_id, _old_period_index, _old_class_group_id, _new_period_index, _new_class_group_id, _semester_id)`**
+- Detects cross-department resources on moved session
+- Changes assignment status to 'pending'
+- Creates new resource request with original position stored
+- Creates notification for department head
+- Returns JSON with request details
+- Uses SECURITY DEFINER
 
-**2.2 File: `timetableService.ts`**
+**`cleanup_request_notifications()` (Trigger Function)**
+- Automatically deletes related notifications when:
+  - Request status changes from 'pending'
+  - Request dismissed flag set to true
+  - Request deleted
+- Fires on UPDATE and DELETE of `resource_requests`
+- Uses SECURITY DEFINER
 
-- Update `assignClassSessionToTimetable` signature to accept optional `status: 'pending' | 'confirmed'`
-- Pass status through to database upsert
+---
 
-**2.3 File: `resourceRequestService.ts`**
+## Service Layer Requirements
 
-- Add `getRequestWithDetails(requestId)` - fetches request with enriched instructor/classroom data
+### `classSessionsService.ts`
+- `isCrossDepartmentInstructor(programId, instructorId)` - Calls database function
+- `isCrossDepartmentClassroom(programId, classroomId)` - Calls database function
+- `getResourceDepartmentId(instructorId?, classroomId?)` - Returns target department ID
+- `checkCrossDepartmentResources(data, programId)` - Returns object with cross-dept details
+
+### `timetableService.ts`
+- `assignClassSessionToTimetable(session, status?)` - Accepts optional status parameter
+- Pass status through to database upsert operation
+
+### `resourceRequestService.ts`
+- `approveRequest(id, reviewerId)` - Calls `approve_resource_request()` database function
+- `rejectRequest(id, reviewerId, message)` - Calls `reject_resource_request()` database function
+- `dismissRequest(id)` - Updates dismissed flag
+- `getRequestWithDetails(requestId)` - Fetches enriched request with instructor/classroom names
+- `cancelActiveRequestsForClassSession(classSessionId)` - Cancels all pending/approved requests for a session
 - Joins to instructors or classrooms table based on resource_type
 
-## Phase 3: Hook Layer Changes
+## Hook Layer Requirements
 
-**3.1 File: `useClassSessions.ts`**
-
-- Add exported helper `checkCrossDepartmentResources(data, programId)`
-- Returns object with: `{ isCrossDept, resourceType, resourceId, departmentId }`
+### `useClassSessions.ts`
+- Export `checkCrossDepartmentResources(data, programId)` helper
+- Returns: `{ isCrossDept, resourceType, resourceId, departmentId }`
 - Called from UI before submission
 
-**3.2 File: `useResourceRequests.ts`**
-
-- Add `useMyPendingRequests()` hook for Program Heads
-- Returns pending requests where `requester_id = current user`
-- Add `cancelRequest` mutation that:
+### `useResourceRequests.ts`
+- `useMyPendingRequests()` hook for Program Heads
+  - Returns pending requests where `requester_id = current user`
+- `useDepartmentRequests()` hook for Department Heads
+  - Returns pending requests for their department
+- `cancelRequest` mutation:
   - Deletes timetable_assignment (by class_session_id)
   - Deletes class_session
   - Deletes resource_request
   - Invalidates relevant queries
+- `dismissRequest` mutation:
+  - Updates dismissed flag
+  - Optimistically removes from UI
+  - Invalidates queries
 
-## Phase 4: UI Layer Changes
+### `useTimetable.ts`
+- Track pending session IDs from timetable_assignments
+- Return `pendingSessionIds` set
+- Detect cross-department moves on confirmed sessions
+- Call `handle_cross_dept_session_move()` when needed
+- Show toast notification for re-approval requirement
 
-**4.1 File: `ClassSessionForm.tsx`**
+### `useTimetableDnd.ts`
+- `handleDropToGrid()` - Accept optional confirmation callback
+  - Detect cross-dept resources on confirmed sessions
+  - Call confirmation before proceeding
+- `handleDropToDrawer()` - Accept optional confirmation callback
+  - Check for cross-dept resources before removal
+  - Call `cancelActiveRequestsForClassSession()` on confirmation
+  - Handle cancellation notifications
 
-- Add state for `showConfirmModal` and `crossDeptInfo`
-- Wrap existing `onSubmit` with `handleFormSubmit` that:
-  - Calls `checkCrossDepartmentResources(data, user.program_id)`
+## UI Component Requirements
+
+### `ClassSessionForm.tsx`
+- State for `showConfirmModal` and `crossDeptInfo`
+- Wrap `onSubmit` with `handleFormSubmit`:
+  - Call `checkCrossDepartmentResources(data, user.program_id)`
   - If cross-dept: fetch dept/resource names, show ConfirmModal
   - If not cross-dept: call original `onSubmit`
-- Add `handleConfirmCrossDeptRequest` that calls `onSubmit` with additional metadata
-- Render `ConfirmModal` with cross-department details
+- `handleConfirmCrossDeptRequest` calls `onSubmit` with metadata
+- Render ConfirmModal with cross-department details
 
-**4.2 Parent Component Changes (e.g., `ClassSessionsPage.tsx`)**
-
-- Update to accept pending flag and resource info from form
+### `ClassSessionsPage.tsx`
+- Accept pending flag and resource info from form
 - When pending:
   1. Create class_session normally
   2. Assign to timetable with `status: 'pending'`
-  3. Create resource_request with appropriate metadata
-- Handle all three operations in sequence with error handling
+  3. Create resource_request with metadata
+- Handle all operations with error handling
 
-**4.3 File: `SessionCell.tsx`**
+### `SessionCell.tsx`
+- Accept `pendingSessionIds?: Set<string>` prop
+- Check if session ID in pendingSessionIds set
+- Pending session styling:
+  - Dashed orange border: `border: '2px dashed #F59E0B'`
+  - Reduced opacity: 0.7
+  - Clock icon indicator (top-right)
+  - Non-draggable: `draggable={isOwnSession && !isPending}`
+- DropZone rejects drops onto pending sessions
 
-- Add `pendingAssignments?: Set` to props (passed from TimetablePage)
-- Check if `primarySession.id` is in pendingAssignments set
-- For pending sessions:
-  - Apply dashed border (`border: '2px dashed #F59E0B'`)
-  - Reduce opacity to 0.7
-  - Disable dragging (`draggable={isOwnSession && !isPending}`)
-  - Add clock icon indicator in top-right corner
-- Update DropZone to reject drops onto pending sessions
+### `TimetablePage.tsx`
+- Pass `pendingSessionIds` from useTimetable hook through context
+- Confirmation dialog state and handlers
+- `handleDropToGridWithConfirm` wrapper with confirmation logic
+- `handleDropToDrawerWithConfirm` wrapper with confirmation logic
+- Render `ConfirmDialog` component
 
-**4.4 File: `useTimetable.ts` (parent of SessionCell)**
+### `RequestNotifications.tsx` (Department Head)
+- Query enriched requests using `getRequestWithDetails`
+- Display resource names (not IDs)
+- `handleApprove`:
+  - Call `approveRequest()` service function
+  - Show success toast
+  - Invalidate queries
+- `handleReject`:
+  - Open `RejectionDialog` component
+  - Require rejection message
+  - Call `rejectRequest()` with message
+  - Show success toast
+  - Invalidate queries
+- `handleDismiss`:
+  - Optimistically remove from UI
+  - Call `dismissRequest()`
+  - Revert on error
+- Display request details with resource names
 
-- Query timetable_assignments and build Set of pending class_session_ids
-- Pass `pendingAssignments` set down to SessionCell via TimetableRow
-
-**4.5 File: `RequestNotifications.tsx`**
-
-- Add query to fetch enriched request details using `getRequestWithDetails`
-- Display instructor names (`first_name last_name`) or classroom names instead of IDs
-- Update `handleApprove`:
-  - Update resource_request: `status='approved'`, `reviewed_by`, `reviewed_at`
-  - Update timetable_assignments: `status='confirmed'` where `class_session_id` matches
-  - Show toast notification
-- Update `handleReject`:
-  - Find timetable_assignment by class_session_id
-  - Delete timetable_assignment
-  - Delete class_session
-  - Update resource_request: `status='rejected'`, `reviewed_by`, `reviewed_at`
-  - Show toast notification
-
-### **4.6 New Component: Program Head Pending Requests**
-
-- Create dropdown/section in Header (similar to RequestNotifications)
+### `PendingRequestsNotification.tsx` (Program Head)
 - Use `useMyPendingRequests()` hook
-- Display list of user's pending requests with resource details
-- Add "Cancel" button for each request
-- On cancel: call `cancelRequest()` mutation, show confirmation dialog
+- Display list of user's pending/resolved requests
+- Badge colors: green (approved), red (rejected), default (pending)
+- "Cancel" button for pending requests
+- "Dismiss" button for approved/rejected requests
+- Display rejection messages from department heads
+- Real-time subscription for updates
 
-## Phase 5: Testing & Validation
+### `RejectionDialog.tsx` (New Component)
+- Modal dialog for rejection
+- Required message field with validation
+- Display resource name being rejected
+- Cancel and Reject buttons
+- Props: `open`, `onClose`, `onReject`, `resourceName`
 
-### **5.1 Database Testing**
+### `ConfirmDialog.tsx` (New Component)
+- Generic confirmation dialog
+- Props: `open`, `onClose`, `onConfirm`, `title`, `description`
+- Used for:
+  - Moving confirmed cross-dept sessions
+  - Removing cross-dept sessions to drawer
 
+## Testing Requirements
+
+### Database Testing
 - Test `is_cross_department_resource()` with same/different departments
-- Verify status column defaults and constraints work
+- Verify status column defaults and constraints
 - Test RLS policies respect status column
+- Test `approve_resource_request()` atomicity
+- Test `reject_resource_request()` restoration logic
+- Test `handle_cross_dept_session_move()` detection
+- Test `cleanup_request_notifications()` trigger fires correctly
+- Test concurrent approval attempts fail gracefully
 
-### **5.2 Service Layer Testing**
-
-- Test cross-department detection functions with various department combinations
-- Test `assignClassSessionToTimetable` with both 'pending' and 'confirmed' status
+### Service Layer Testing
+- Test cross-department detection with various department combinations
+- Test `assignClassSessionToTimetable` with 'pending' and 'confirmed' status
 - Verify error handling in all service functions
+- Test `cancelActiveRequestsForClassSession()` cancels all requests
+- Test `approveRequest()` handles missing active semester
+- Test `rejectRequest()` with pending vs approved requests
 
-### **5.3 UI Flow Testing - Same Department**
-
-- Create session with same-dept instructor → No modal → Assigned immediately as 'confirmed'
+### UI Flow Testing - Same Department
+- Create session with same-dept instructor → No modal
+- Session assigned immediately as 'confirmed'
 - Session appears normal (solid border, draggable)
 
-### **5.4 UI Flow Testing - Cross Department (Full Workflow)**
+### UI Flow Testing - Cross Department (Full Workflow)
+**Initial Request:**
+- Program Head selects cross-dept resource → Modal appears
+- Modal shows department name and resource name
+- Program Head confirms → Session created with status 'pending'
+- Request created automatically
+- Department head notified
 
-- Program Head selects cross-dept instructor → Modal appears with dept name
-- Program Head confirms → Session created, assigned as 'pending', request created
-- Session appears with dashed border, reduced opacity, clock icon, non-draggable
-- Dept Head sees notification in bell icon (count updates)
-- Dept Head opens dropdown, sees enriched request details
-- **Approval**: Dept Head approves → Assignment status becomes 'confirmed' → Session becomes normal
-- **Rejection**: Dept Head rejects → Assignment and session deleted → Disappears from timetable
+**Pending Session Appearance:**
+- Dashed orange border
+- Reduced opacity (0.7)
+- Clock icon indicator
+- Non-draggable
 
-### **5.5 UI Flow Testing - Program Head Cancellation**
+**Department Head Approval:**
+- Notification appears in bell icon
+- Opens dropdown, sees enriched details
+- Clicks "Approve" → Loading state → Success toast
+- Request disappears from dropdown
+- Assignment status becomes 'confirmed'
+- Session updates to normal styling in real-time
+- Program head sees approval notification
 
-- Program Head sees their pending requests in new dropdown
-- Program Head clicks "Cancel" → Confirmation dialog appears
-- Confirm cancel → Assignment, session, and request all deleted
+**Department Head Rejection:**
+- Clicks "Reject" → Dialog opens requiring message
+- Cannot submit without message
+- Enters message, clicks "Reject Request"
+- If pending request: Session deleted from timetable
+- If approved request: Session restored to original position
+- Program head sees rejection with message
 
-### **5.6 Real-Time Testing**
+### UI Flow Testing - Session Movement
+**Moving Confirmed Cross-Dept Sessions:**
+- Drag confirmed cross-dept session to new slot
+- Confirmation dialog appears: "This will require re-approval"
+- Click "Cancel" → Session stays in place
+- Click "Continue" → Session moves, status becomes 'pending'
+- New request created with original position stored
+- Department head notified
 
-- Verify timetable updates in real-time for all users when status changes
-- Verify bell icon count updates when requests are created/resolved
-- Test concurrent actions (e.g., approve while requestor is viewing)
+**Removing to Drawer:**
+- Drag cross-dept session to drawer
+- Confirmation dialog: "This will cancel the approval"
+- Click "Cancel" → Session stays on timetable
+- Click "Continue" → Session removed, requests cancelled
+- Department head receives cancellation notification
 
-### **5.7 Edge Cases**
+### UI Flow Testing - Program Head Notifications
+**Viewing Updates:**
+- After approval → Green badge on notifications bell
+- After rejection → Red badge on notifications bell
+- Click on item → See full details and rejection message
+- Click "Dismiss" → Item disappears immediately
+- Refresh page → Dismissed items stay gone
 
-- Multiple pending sessions in same cell (should all show pending)
-- Cross-department classroom (in addition to instructor)
-- Department Head rejecting while Program Head views timetable
+**Cancelling Requests:**
+- See pending requests in dropdown
+- Click "Cancel" → Confirmation dialog
+- Confirm → Request deleted, session removed
+
+### Real-Time Testing
+- Timetable updates instantly when status changes
+- Bell icon badges update without refresh
+- Multiple users see changes simultaneously
+- Test concurrent approval/rejection
+- Test notification delivery delays
+
+### Edge Cases
+- Multiple pending sessions in same cell
+- Cross-department classroom AND instructor
+- Department Head rejecting while Program Head views
 - Network errors during multi-step operations
-- Permissions: verify non-owners can't drag pending sessions
+- Missing active semester
+- Invalid request IDs
+- Permissions: non-owners can't drag pending sessions
+- Race condition: moving session while approval happening
+- Dismissing already-dismissed requests
+- Approving already-approved requests
 
 ## Key Design Decisions
 
-1. **Application-Layer Approach**: Cross-department detection in UI, not DB trigger (better testability)
-2. **Non-Blocking Creation**: Class sessions and assignments created immediately, just marked pending
-3. **Cascading Deletes on Rejection**: Rejection/cancellation removes all related records
-4. **Visual Distinction**: Multiple indicators (border, opacity, icon) for pending state
-5. **Bidirectional Cancel**: Both requester and reviewer can cancel/reject
-6. **Real-Time Updates**: Leverage existing Supabase subscriptions
-7. **Backward Compatible**: Default status='confirmed' preserves existing behavior
-8. **Enriched Notifications**: Show resource names, not just IDs
+### Architecture
+1. **Application-Layer Detection**: Cross-department detection in UI layer for better testability
+2. **Database-Level Operations**: Approval, rejection, and movement handled by atomic database functions
+3. **Non-Blocking Creation**: Sessions and assignments created immediately, marked as pending
+4. **Automatic Cleanup**: Database trigger handles notification cleanup on status changes
 
-This updated plan reflects your interactive workflow where:
+### User Experience
+5. **Visual Distinction**: Multiple indicators for pending state (border, opacity, clock icon)
+6. **Confirmation Dialogs**: Explicit user confirmation for actions affecting cross-dept sessions
+7. **Enriched Notifications**: Display resource names, not IDs
+8. **Optimistic Updates**: Dismissal removes items instantly from UI
+9. **Real-Time Synchronization**: Leverage Supabase subscriptions for instant updates
 
-1. Selection triggers a confirmation modal (not automatic post-creation)
-2. Pending sessions are visually distinct and non-draggable
-3. Both Department Heads and Program Heads can manage requests
-4. Rejection deletes the session entirely
+### State Management
+10. **Bidirectional Control**: Both requester and reviewer can cancel/dismiss
+11. **Restoration Logic**: Rejected approved sessions restored to original position
+12. **Cascading Operations**: Deletion/cancellation removes all related records
+13. **Backward Compatible**: Default status='confirmed' preserves existing behavior
 
-I'll analyze the codebase to understand the project's current state and compare it against the cross-department request approval feature plan.
+### Security
+14. **SECURITY DEFINER Functions**: Bypass RLS edge cases for consistent behavior
+15. **Atomic Operations**: Multi-step operations wrapped in database functions
+16. **Validation**: Comprehensive checks (active semester, status, permissions)
+17. **Audit Trail**: Track reviewer, timestamps, rejection messages
 
-Let me start by examining the feature plan document and then assess the current implementation.
-
-Let me continue reading the feature plan and examine more of the codebase to understand what's been implemented:
-
-Let me check the existing implementation files:
-
-Now let me check the timetable-related files and session cell implementation:
-
-Now let me check for the database function and the types to see what's implemented:
-
-Now let me check more of the SessionCell to see if pending status is handled there:
-
-Now let me check the TimetableContext to see how pendingSessionIds is passed down:
-
-Let me check the classSessionsService file:
-
-Perfect! Now I have a comprehensive understanding of the project. Let me create the gap analysis report.
+### Performance
+18. **Indexed Status Columns**: Fast queries on pending/confirmed status
+19. **Trigger-Based Cleanup**: Automatic notification cleanup without manual queries
+20. **Query Invalidation**: Targeted cache invalidation for affected data
+21. **Set-Based Tracking**: Use Set data structure for pending session ID lookups
 
 ---
 
-## **Gap Analysis Report: Cross-Department Resource Approval System**
+## Implementation Status
 
-## **Executive Summary**
+This feature is **currently implemented** and operational as of 2025-10-29. For detailed implementation history and verification checklists, see:
 
-The ClassFlow codebase has been successfully pivoted from an HR application to a class scheduling system. The cross-department resource approval workflow has been **partially implemented**, with the core infrastructure and several key features already in place. However, critical UI enhancements and some integration points remain incomplete.
+- `docs/maintenance-log-2025-10-28-approval-fix.md` - Atomic approval operations
+- `docs/maintenance-log-2025-10-29-rejection-workflow.md` - Rejection and restoration logic
+- `docs/maintenance-log-2025-10-29-request-workflow-complete.md` - Complete workflow implementation
 
----
+### Known Issues and Future Enhancements
 
-## **1. Implemented Features** ✅
+1. **Notification Components Integration**
+   - `RequestNotifications` and `PendingRequestsNotification` components need to be added to Header
+   - Currently implemented but not rendered in the UI
 
-The following components from the implementation plan are **already present** in the codebase:
+2. **Real-Time Query Invalidation**
+   - Add timetable query invalidation after approval/rejection for instant updates
+   - Currently requires manual refresh
 
-### **Phase 1: Database Layer** ✅ COMPLETE
+3. **Concurrent Operations**
+   - Add optimistic locking for concurrent approval/rejection attempts
+   - Handle race conditions for simultaneous moves
 
-| Feature | Status | Location/Evidence |
-|---------|--------|-------------------|
-| **`status` column in `timetable_assignments`** | ✅ Implemented | `src/integrations/supabase/types.ts` (line 532: `status: string`) |
-| **`is_cross_department_resource()` function** | ✅ Implemented | Database functions list shows this function exists with correct signature |
-| **`resource_requests` table** | ✅ Implemented | `src/integrations/supabase/types.ts` (lines 402-458) |
-| **`request_notifications` table** | ✅ Implemented | Referenced in `resourceRequestService.ts` (line 5) |
+4. **Bulk Operations**
+   - Future enhancement: Allow department heads to approve/reject multiple requests at once
+   - Not currently in requirements
 
-### **Phase 2: Service Layer** ✅ COMPLETE
+5. **Audit Trail**
+   - Enhanced history tracking for all request state changes
+   - Email notifications for request updates
 
-| Feature | Status | Location |
-|---------|--------|----------|
-| **`isCrossDepartmentInstructor()`** | ✅ Implemented | `src/features/classSessions/services/classSessionsService.ts` (lines 128-139) |
-| **`isCrossDepartmentClassroom()`** | ✅ Implemented | `src/features/classSessions/services/classSessionsService.ts` (lines 148-159) |
-| **`getResourceDepartmentId()`** | ✅ Implemented | `src/features/classSessions/services/classSessionsService.ts` (lines 168-191) |
-| **`assignClassSessionToTimetable()` with status** | ✅ Implemented | `src/features/timetabling/services/timetableService.ts` (lines 58-70) - accepts `status` parameter |
-| **`getRequestWithDetails()`** | ✅ Implemented | `src/features/resourceRequests/services/resourceRequestService.ts` (lines 97-131) |
-
-### **Phase 3: Hook Layer** ✅ COMPLETE
-
-| Feature | Status | Location |
-|---------|--------|----------|
-| **`checkCrossDepartmentResources()` helper** | ✅ Implemented | `src/features/classSessions/hooks/useClassSessions.ts` (lines 115-151) |
-| **`useMyPendingRequests()` hook** | ✅ Implemented | `src/features/resourceRequests/hooks/useResourceRequests.ts` (lines 77-141) |
-| **Cancel request mutation** | ✅ Implemented | `useResourceRequests.ts` (lines 89-132) with full cascading delete logic |
-
-### **Phase 4: UI Layer** ⚠️ PARTIALLY COMPLETE
-
-| Feature | Status | Location |
-|---------|--------|----------|
-| **Cross-department detection in form submission** | ✅ Implemented | `src/features/classSessions/pages/ClassSessionsPage.tsx` (lines 122-154) |
-| **Confirmation modal for cross-dept requests** | ✅ Implemented | `ClassSessionsPage.tsx` (lines 294-321) |
-| **Request creation on confirmation** | ✅ Implemented | `ClassSessionsPage.tsx` (lines 156-193) |
-| **`RequestNotifications` component** | ✅ Implemented | `src/components/RequestNotifications.tsx` - Full approval/rejection logic |
-| **`PendingRequestsNotification` component** | ✅ Implemented | `src/components/PendingRequestsNotification.tsx` - Program head cancellation UI |
-| **Pending session visual indicators** | ✅ Implemented | `src/features/timetabling/pages/components/timetable/SessionCell.tsx` (lines 335-375) |
-| **Pending sessions are non-draggable** | ✅ Implemented | `SessionCell.tsx` (line 359: `draggable={isOwnSession && !isPending}`) |
-| **Clock icon for pending sessions** | ✅ Implemented | `SessionCell.tsx` (lines 371-375) |
-| **`pendingSessionIds` tracking** | ✅ Implemented | `src/features/timetabling/hooks/useTimetable.ts` (lines 318-327) |
+6. **Testing**
+   - Add comprehensive E2E tests for full workflow
+   - Test concurrent operations and edge cases
+   - Verify real-time updates across multiple sessions
 
 ---
 
-## **2. Missing Features (To-Do List)** 📋
+## C4 Component Diagram
 
-The following items from the implementation plan are **NOT yet implemented**:
+For a detailed component diagram specific to this feature, see:
+`docs/c4-diagrams/c3-cross-dept-request-approval.puml`
 
-### **Priority 1: Critical UI Integration Issues** 🚨
-
-1. **Notification components not added to Header**
-   - **Issue:** `RequestNotifications` and `PendingRequestsNotification` exist but are not rendered anywhere
-   - **Impact:** Users cannot see or interact with pending requests
-   - **Required Action:** Add both components to `src/components/Header.tsx`
-   - **Reference:** Plan Phase 4.4 and 4.6
-
-2. **`pendingSessionIds` not passed to `SessionCell`**
-   - **Issue:** `useTimetable` hook returns `pendingSessionIds`, but it's not being passed through the component tree to `SessionCell`
-   - **Impact:** Visual styling for pending sessions won't work
-   - **Required Action:**
-     - Update `TimetablePage` to pass `pendingSessionIds` through context
-     - Verify `TimetableContext` provides this value (already defined in interface line 27)
-   - **Reference:** Plan Phase 4.3 and 4.5
-
-### **Priority 2: Error Handling & Edge Cases** ⚠️
-
-1. **Build errors indicate type mismatches**
-   - **Issues found in build output:**
-     - `profiles` table schema mismatch (expecting `first_name`/`last_name` but schema shows `full_name`)
-     - Old HR role types still referenced in code (`hr_manager`, `hr_staff`, etc.)
-   - **Impact:** Application won't compile
-   - **Required Action:** Clean up old HR-related code and update profile schema expectations
-   - **Files affected:** Multiple (see build errors in prompt)
-
-2. **Missing real-time invalidation after approval/rejection**
-   - **Issue:** When a department head approves/rejects, the timetable query isn't invalidated
-   - **Impact:** Program heads won't see real-time updates on timetable
-   - **Required Action:** Add `queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] })` in `RequestNotifications.tsx` approval/rejection handlers
-   - **Reference:** Plan Phase 4.4, lines 537-550
-
-### **Priority 3: Testing & Validation** 🧪
-
-1. **No E2E tests for cross-department workflow**
-   - **Required:** Create integration tests covering:
-     - Same-department session creation (should be immediate)
-     - Cross-department request submission
-     - Department head approval flow
-     - Department head rejection flow
-     - Program head cancellation flow
-   - **Reference:** Plan Phase 5 (lines 611-643)
-
-2. **Edge case: Concurrent actions not handled**
-   - **Scenario:** What if dept head rejects while program head cancels?
-   - **Required:** Add optimistic locking or error handling for concurrent modifications
-   - **Reference:** Plan Phase 5.4 (lines 638-643)
+This diagram shows:
+- All UI, hook, service, and database components involved
+- Data flow through each layer
+- Five key workflows with detailed annotations
+- Real-time subscription relationships
+- Integration with Supabase database and realtime systems
 
 ---
-
-## **3. Verification Plan** 🔍
-
-Before proceeding with missing features, verify that implemented features work correctly:
-
-### **Manual E2E Test Checklist**
-
-#### **Test 1: Database Layer Verification**
-
-- [x] Open Supabase SQL Editor
-- [x] Execute: `SELECT * FROM timetable_assignments LIMIT 5;`
-- [x] Confirm `status` column exists and contains 'pending' or 'confirmed'
-- [x] Execute: `SELECT is_cross_department_resource('program-uuid', 'instructor-uuid', NULL);`
-- [x] Confirm function returns boolean
-
-#### **Test 2: Same-Department Session Creation**
-
-1. [x] Log in as Program Head
-2. [x] Navigate to Classes page
-3. [x] Create new class session with instructor from same department
-4. [x] Verify: **No modal appears**
-5. [x] Check timetable: session should appear immediately with normal styling
-
-#### **Test 3: Cross-Department Request Submission**
-
-1. [x] Log in as Program Head (e.g., Computer Science program)
-2. [x] Navigate to Classes page
-3. [x] Create session with instructor from different department (e.g., Mathematics)
-4. [x] Verify: **Confirmation Modal appears** with department name and instructor name
-5. [x] Click "Submit Request"
-6. [ ] Check browser console for errors
-7. [x] Verify request was created
-
-#### **Test 4: Visual Styling (Conditional)**
-
-⚠️ **This test will FAIL until Priority 1, Item 2 is fixed**
-
-1. [x] Navigate to Timetable page
-2. [x] Look for sessions with pending status
-3. [x] Verify: Dashed orange border, reduced opacity, clock icon
-4. [x] Try to drag: Should be disabled
-
-- For the workflow, It should be enabled or it is prescheduled in a modal timetable in the manage classes page.
-
-#### **Test 5: Department Head Approval/Rejection**
-
-⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
-
-1. [x] Log in as Department Head
-2. [x] Look for bell icon with notification badge (won't be visible yet)
-3. [ ] After fix: Click bell, verify list shows pending requests
-4. [ ] Click "Approve" on a request
-5. [ ] Check database: `timetable_assignments.status` should change to 'confirmed'
-6. [ ] Verify: Session on timetable updates to normal styling
-
-#### **Test 6: Program Head Cancellation**
-
-⚠️ **This test will FAIL until Priority 1, Item 1 is fixed**
-
-1. [x] Log in as Program Head with pending requests
-2. [x] Look for clock icon with badge (won't be visible yet)
-3. [x] After fix: Click clock, verify list shows own pending requests
-4. [x] Click "Cancel"
-5. [ ] Verify: Session removed from timetable, request deleted from database
-
-- need reload or switch tabs to see timetable class session removed. Notification is persistent and not cleared.
-
----
-
-## **4. Recommendations**
-
-1. **Wire Up Pending Session Styling** (Priority 1, Item 2)
-   - Update `TimetablePage` to pass `pendingSessionIds` from `useTimetable` hook
-   - Ensure context provider includes this value
-   - Verify `SessionCell` receives and uses the prop correctly
-
-2. **Add Query Invalidation** (Priority 2, Item 4)
-   - Quick win to enable real-time updates
-   - Add to both approval and rejection handlers
-
-3. **Write Integration Tests** (Priority 3, Item 5)
-   - Once UI is wired up, create comprehensive tests
-   - Follow the manual test checklist above as a starting point
-
----
-
-## **5. Architecture Notes**
-
-**Strengths of Current Implementation:**
-
-- ✅ Clean separation of concerns (service → hook → UI)
-- ✅ Database-level validation with RLS policies
-- ✅ Proper use of React Query for state management
-- ✅ Comprehensive error handling in service layer
-- ✅ Optimistic updates for better UX
-
-**Technical Debt to Address:**
-
-- ⚠️ Type safety: Some `as any` casts in RPC calls
-- ⚠️ Missing loading states in some components
-- ⚠️ No rollback mechanism for failed cross-dept request creation (3-step process)
-
----
-
-End of Report
