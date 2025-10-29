@@ -15,7 +15,13 @@ $combinedOutput | Set-Clipboard
 # Inform the user that the output has been copied to the clipboard
 Write-Host "Git log and diff have been copied to the clipboard."
 
-Start-Process "msedge.exe" -ArgumentList "--inprivate https://chatgpt.com"
+# Check if the length of combined output exceeds 21,000 characters
+if ($combinedOutput.Length -gt 21000) {
+    # Redirect to non-InPrivate link if output is too long
+    Start-Process "msedge.exe" -ArgumentList "https://aistudio.google.com/prompts/new_chat"
+} else {
+    Start-Process "msedge.exe" -ArgumentList "--inprivate https://chatgpt.com"
+}
 
 # Commit the new message
 git commit
