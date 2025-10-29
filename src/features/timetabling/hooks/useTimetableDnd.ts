@@ -269,10 +269,16 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
    * @param e - The drag event object.
    * @param targetClassGroupId - The ID of the target row (group/classroom/instructor depending on view).
    * @param targetPeriodIndex - The index of the target period.
+   * @param onConfirmMove - Optional callback to show confirmation dialog before moving a confirmed cross-dept session.
    * @returns {void}
    */
   const handleDropToGrid = useCallback(
-    async (e: React.DragEvent, targetClassGroupId: string, targetPeriodIndex: number) => {
+    async (
+      e: React.DragEvent, 
+      targetClassGroupId: string, 
+      targetPeriodIndex: number,
+      onConfirmMove?: (callback: () => void) => void
+    ) => {
       e.preventDefault();
       e.stopPropagation();
 
@@ -315,6 +321,32 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
 
       const dbTargetGroupId = viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
 
+      // Check if this is a move of a confirmed cross-dept session
+      if (source.from === 'timetable' && onConfirmMove) {
+        const hasCrossDeptResource = 
+          (classSessionToDrop.instructor.department_id && classSessionToDrop.instructor.department_id !== user?.program_id) ||
+          (classSessionToDrop.classroom.preferred_department_id && classSessionToDrop.classroom.preferred_department_id !== user?.program_id);
+
+        if (hasCrossDeptResource) {
+          // Show confirmation dialog
+          onConfirmMove(async () => {
+            try {
+              const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
+              if (error) {
+                toast('Error', { description: error });
+              }
+            } catch (err) {
+              const errorMsg = err instanceof Error ? err.message : String(err);
+              toast('Error', { description: errorMsg });
+            } finally {
+              cleanupDragState();
+            }
+          });
+          return;
+        }
+      }
+
+      // Normal move without confirmation
       try {
         const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
         if (error) {
@@ -360,13 +392,13 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
             onConfirm(async () => {
               await removeClassSession(source.class_group_id, source.period_index);
               
-              // Cancel any active resource requests for this session
-              const { supabase } = await import('../../../lib/supabase');
-              await supabase
-                .from('resource_requests')
-                .delete()
-                .eq('class_session_id', session.id)
-                .in('status', ['pending', 'approved']);
+              // Cancel any active resource requests for this session using the new service method
+              const { cancelActiveRequestsForClassSession } = await import('../../resourceRequests/services/resourceRequestService');
+              try {
+                await cancelActiveRequestsForClassSession(session.id);
+              } catch (err) {
+                console.error('Failed to cancel resource requests:', err);
+              }
               
               toast('Session removed and department head notified');
             });

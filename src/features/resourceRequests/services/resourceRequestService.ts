@@ -189,6 +189,52 @@ export async function updateRequest(id: string, update: ResourceRequestUpdate): 
 }
 
 /**
+ * Cancels all active resource requests for a class session and notifies department heads.
+ * Used when a program head drops a session back to the drawer.
+ *
+ * @param classSessionId - The ID of the class session.
+ * @returns A promise resolving when all requests are cancelled and notifications sent.
+ */
+export async function cancelActiveRequestsForClassSession(classSessionId: string): Promise<void> {
+  // Fetch all pending/approved requests for this session
+  const { data: requests, error: fetchError } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('class_session_id', classSessionId)
+    .in('status', ['pending', 'approved']);
+  
+  if (fetchError) throw fetchError;
+  
+  if (!requests || requests.length === 0) return;
+  
+  // For each request, insert a cancellation notification
+  for (const request of requests) {
+    try {
+      await supabase
+        .from(NOTIF_TABLE)
+        .insert([
+          {
+            request_id: request.id,
+            target_department_id: request.target_department_id,
+            message: 'Request cancelled by program head',
+          },
+        ]);
+    } catch (e) {
+      console.error('Failed to create cancellation notification', e);
+    }
+  }
+  
+  // Delete all the requests (trigger will cleanup notifications)
+  const { error: deleteError } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('class_session_id', classSessionId)
+    .in('status', ['pending', 'approved']);
+  
+  if (deleteError) throw deleteError;
+}
+
+/**
  * Fetches a resource request with enriched details (instructor or classroom names).
  *
  * @param requestId - The ID of the resource request.

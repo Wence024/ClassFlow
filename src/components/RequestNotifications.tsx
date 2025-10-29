@@ -73,16 +73,8 @@ export default function RequestNotifications() {
       // Import the new approveRequest function
       const { approveRequest } = await import('../features/resourceRequests/services/resourceRequestService');
       
-      // Use the atomic approval function
+      // Use the atomic approval function (trigger will cleanup notifications)
       await approveRequest(requestId, user?.id || '');
-
-      // Delete the notification after successful approval
-      const { error: notifError } = await supabase
-        .from('request_notifications')
-        .delete()
-        .eq('request_id', requestId);
-      
-      if (notifError) console.warn('Failed to delete notification:', notifError);
 
       // Invalidate all affected queries for real-time updates
       await queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
@@ -112,15 +104,8 @@ export default function RequestNotifications() {
     try {
       const { rejectRequest } = await import('../features/resourceRequests/services/resourceRequestService');
       
+      // Reject request (trigger will cleanup notifications)
       await rejectRequest(selectedRequestForRejection.id, user?.id || '', message);
-
-      // Delete the notification after successful rejection
-      const { error: notifError } = await supabase
-        .from('request_notifications')
-        .delete()
-        .eq('request_id', selectedRequestForRejection.id);
-      
-      if (notifError) console.warn('Failed to delete notification:', notifError);
 
       // Invalidate all affected queries for real-time updates
       await queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
@@ -142,12 +127,27 @@ export default function RequestNotifications() {
 
   const handleDismiss = async (requestId: string) => {
     setDismissingId(requestId);
+    
+    // Optimistically update the UI by removing from enrichedRequests
+    queryClient.setQueryData(
+      ['enriched_requests', pendingRequests.map((r) => r.id)],
+      (old: any[]) => old?.filter((req) => req.id !== requestId) || []
+    );
+    
     try {
       await dismissRequest(requestId);
+      
+      // Refetch to ensure consistency (trigger will have cleaned up notifications)
+      await queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept', departmentId] });
+      await queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
+      
       toast.success('Request dismissed');
     } catch (error) {
       console.error('Error dismissing request:', error);
       toast.error('Failed to dismiss request');
+      
+      // Revert optimistic update on error
+      await queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
     } finally {
       setDismissingId(null);
     }

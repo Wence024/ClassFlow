@@ -9,6 +9,7 @@ import type { ClassSession } from '../../classSessions/types/classSession';
 import TimetableContext from './components/timetable/TimetableContext';
 import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
 import { ViewSelector } from '../components/ViewSelector';
+import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -42,12 +43,59 @@ const TimetablePage: React.FC = () => {
   const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
   const dnd = useTimetableDnd(allClassSessions, viewMode);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  
+  // Confirmation dialog state
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogConfig, setConfirmDialogConfig] = useState<{
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const handleShowTooltip = (content: React.ReactNode, target: HTMLElement) => {
     const rect = target.getBoundingClientRect();
     setTooltip({ content, position: { top: rect.top, left: rect.left + rect.width / 2 } });
   };
   const handleHideTooltip = () => setTooltip(null);
+  
+  // Confirmation callback for DnD operations
+  const handleConfirmAction = (callback: () => void, title: string, description: string) => {
+    setConfirmDialogConfig({ title, description, onConfirm: callback });
+    setConfirmDialogOpen(true);
+  };
+  
+  const handleConfirmDialogConfirm = () => {
+    if (confirmDialogConfig) {
+      confirmDialogConfig.onConfirm();
+    }
+    setConfirmDialogOpen(false);
+    setConfirmDialogConfig(null);
+  };
+  
+  // Wrap DnD handlers with confirmation logic
+  const handleDropToGridWithConfirm: typeof dnd.handleDropToGrid = async (e, targetGroupId, targetPeriodIndex) => {
+    return dnd.handleDropToGrid(
+      e, 
+      targetGroupId, 
+      targetPeriodIndex, 
+      (callback) => handleConfirmAction(
+        callback,
+        'Move Confirmed Session',
+        'This session uses cross-department resources and is currently confirmed. Moving it will require department head approval again. Continue?'
+      )
+    );
+  };
+  
+  const handleDropToDrawerWithConfirm: typeof dnd.handleDropToDrawer = async (e) => {
+    return dnd.handleDropToDrawer(
+      e,
+      (callback) => handleConfirmAction(
+        callback,
+        'Remove Cross-Department Session',
+        'This session uses cross-department resources. Removing it will cancel the approval and notify the department head. Continue?'
+      )
+    );
+  };
 
   // Memoized calculation for the sessions to show in the drawer.
   // Use DB assignments (source of truth) instead of view-dependent grid.
@@ -86,6 +134,8 @@ const TimetablePage: React.FC = () => {
   // Combine D&D handlers and tooltip handlers into a single object for the context
   const contextValue = {
     ...dnd,
+    handleDropToGrid: handleDropToGridWithConfirm,
+    handleDropToDrawer: handleDropToDrawerWithConfirm,
     onShowTooltip: handleShowTooltip,
     onHideTooltip: handleHideTooltip,
     pendingSessionIds,
@@ -115,11 +165,22 @@ const TimetablePage: React.FC = () => {
             <Drawer
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
-              onDropToDrawer={dnd.handleDropToDrawer}
+              onDropToDrawer={handleDropToDrawerWithConfirm}
             />
           </TimetableContext.Provider>
         )}
       </div>
+      
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onOpenChange={setConfirmDialogOpen}
+        onConfirm={handleConfirmDialogConfirm}
+        title={confirmDialogConfig?.title || ''}
+        description={confirmDialogConfig?.description || ''}
+        confirmText="Continue"
+        cancelText="Cancel"
+        variant="default"
+      />
     </div>
   );
 };
