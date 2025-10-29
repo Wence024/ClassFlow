@@ -1,4 +1,4 @@
-import { Bell } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import type { ResourceRequest } from '../features/resourceRequests/types/resourceRequest';
+import RejectionDialog from './dialogs/RejectionDialog';
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -16,17 +17,24 @@ import type { ResourceRequest } from '../features/resourceRequests/types/resourc
  */
 export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId, user } = useAuth();
-  const { requests, updateRequest } = useDepartmentRequests(departmentId || undefined);
+  const { requests, dismissRequest } = useDepartmentRequests(departmentId || undefined);
   const queryClient = useQueryClient();
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [dismissingId, setDismissingId] = useState<string | null>(null);
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [selectedRequestForRejection, setSelectedRequestForRejection] = useState<{
+    id: string;
+    classSessionId: string;
+    resourceName: string;
+  } | null>(null);
 
   // Only show for department heads and admins
   if (!isDepartmentHead() && !isAdmin()) {
     return null;
   }
 
-  const pendingRequests = requests.filter((r) => r.status === 'pending');
+  const pendingRequests = requests.filter((r) => r.status === 'pending' && !r.dismissed);
   const hasNotifications = pendingRequests.length > 0;
 
   // Fetch enriched details for each pending request
@@ -92,40 +100,25 @@ export default function RequestNotifications() {
     }
   };
 
-  const handleReject = async (requestId: string, classSessionId: string) => {
-    setRejectingId(requestId);
+  const handleRejectClick = (requestId: string, classSessionId: string, resourceName: string) => {
+    setSelectedRequestForRejection({ id: requestId, classSessionId, resourceName });
+    setRejectionDialogOpen(true);
+  };
+
+  const handleRejectConfirm = async (message: string) => {
+    if (!selectedRequestForRejection) return;
+
+    setRejectingId(selectedRequestForRejection.id);
     try {
-      // Delete timetable assignment
-      const { error: assignError } = await supabase
-        .from('timetable_assignments')
-        .delete()
-        .eq('class_session_id', classSessionId);
-
-      if (assignError) console.error('Error deleting assignment:', assignError);
-
-      // Delete class session
-      const { error: sessionError } = await supabase
-        .from('class_sessions')
-        .delete()
-        .eq('id', classSessionId);
-
-      if (sessionError) throw sessionError;
-
-      // Update request status
-      await updateRequest({
-        id: requestId,
-        update: {
-          status: 'rejected',
-          reviewed_by: user?.id || null,
-          reviewed_at: new Date().toISOString(),
-        },
-      });
+      const { rejectRequest } = await import('../features/resourceRequests/services/resourceRequestService');
+      
+      await rejectRequest(selectedRequestForRejection.id, user?.id || '', message);
 
       // Delete the notification after successful rejection
       const { error: notifError } = await supabase
         .from('request_notifications')
         .delete()
-        .eq('request_id', requestId);
+        .eq('request_id', selectedRequestForRejection.id);
       
       if (notifError) console.warn('Failed to delete notification:', notifError);
 
@@ -136,11 +129,27 @@ export default function RequestNotifications() {
       await queryClient.refetchQueries({ queryKey: ['resource_requests'] });
 
       toast.success('Request rejected successfully');
+      setRejectionDialogOpen(false);
+      setSelectedRequestForRejection(null);
     } catch (error) {
       console.error('Error rejecting request:', error);
-      toast.error('Failed to reject request');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to reject request: ${errorMessage}`);
     } finally {
       setRejectingId(null);
+    }
+  };
+
+  const handleDismiss = async (requestId: string) => {
+    setDismissingId(requestId);
+    try {
+      await dismissRequest(requestId);
+      toast.success('Request dismissed');
+    } catch (error) {
+      console.error('Error dismissing request:', error);
+      toast.error('Failed to dismiss request');
+    } finally {
+      setDismissingId(null);
     }
   };
 
@@ -208,24 +217,35 @@ export default function RequestNotifications() {
                       {new Date(request.requested_at || '').toLocaleDateString()}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-1">
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="text-xs px-2 py-1 h-6"
+                        onClick={() => handleApprove(request.id)}
+                        disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                      >
+                        {approvingId === request.id ? 'Approving...' : 'Approve'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="text-xs px-2 py-1 h-6"
+                        onClick={() => handleRejectClick(request.id, request.class_session_id, request.resource_name)}
+                        disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                      >
+                        {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
+                      </Button>
+                    </div>
                     <Button
                       size="sm"
-                      variant="secondary"
-                      className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleApprove(request.id)}
-                      disabled={approvingId === request.id || rejectingId === request.id}
+                      variant="ghost"
+                      className="h-6 w-6 p-0"
+                      onClick={() => handleDismiss(request.id)}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
                     >
-                      {approvingId === request.id ? 'Approving...' : 'Approve'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleReject(request.id, request.class_session_id)}
-                      disabled={approvingId === request.id || rejectingId === request.id}
-                    >
-                      {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -234,6 +254,13 @@ export default function RequestNotifications() {
           )}
         </div>
       </PopoverContent>
+      <RejectionDialog
+        open={rejectionDialogOpen}
+        onOpenChange={setRejectionDialogOpen}
+        onConfirm={handleRejectConfirm}
+        isLoading={rejectingId !== null}
+        resourceName={selectedRequestForRejection?.resourceName}
+      />
     </Popover>
   );
 }

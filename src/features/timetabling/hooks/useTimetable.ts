@@ -14,6 +14,7 @@ import * as classroomsService from '../../classSessionComponents/services/classr
 import * as instructorsService from '../../classSessionComponents/services/instructorsService';
 import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
 import { usePrograms } from '../../programs/hooks/usePrograms';
+import { toast } from 'sonner';
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
@@ -420,6 +421,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
 
   /**
    * Moves a class session after performing a conflict check. Returns an error message string on failure.
+   * If the session uses cross-department resources and is currently confirmed, it will require re-approval.
    *
    * @param from - The source location of the class session.
    * @param from.class_group_id - The ID of the class group in the source location.
@@ -436,7 +438,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       to: { class_group_id: string; period_index: number },
       classSession: ClassSession
     ): Promise<string> => {
-      if (!settings) return 'Schedule settings are not loaded yet.';
+      if (!settings || !activeSemester) return 'Schedule settings are not loaded yet.';
       
       // In non-class-group views, we need to use the appropriate resource ID for conflict checking
       const targetRowIdForCheck = (() => {
@@ -467,7 +469,8 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         targetRowIdForCheck,
         to.period_index,
         programs,
-        viewMode
+        viewMode,
+        true
       );
       if (conflict) {
         console.error('[useTimetable] moveClassSession conflict', {
@@ -480,8 +483,16 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         });
         return conflict;
       }
-      
-      const requiresApproval = usesCrossDepartmentResource(classSession);
+
+      // Check if session uses cross-department resources and is currently confirmed
+      const isCrossDept = usesCrossDepartmentResource(classSession);
+      const currentAssignment = assignments.find(
+        a => a.class_session.id === classSession.id &&
+             a.class_group_id === from.class_group_id &&
+             a.period_index === from.period_index
+      );
+      const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
+      const requiresApproval = isCrossDept && isCurrentlyConfirmed;
       
       try {
         await moveClassSessionMutation.mutateAsync({ 
@@ -490,9 +501,24 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
           classSession,
           requiresApproval 
         });
-        
+
+        // If requires approval, call the database function to handle the move
         if (requiresApproval) {
-          await createResourceRequestForSession(classSession);
+          const { supabase } = await import('../../../lib/supabase');
+          const { error } = await supabase.rpc('handle_cross_dept_session_move' as any, {
+            _class_session_id: classSession.id,
+            _old_period_index: from.period_index,
+            _old_class_group_id: from.class_group_id,
+            _new_period_index: to.period_index,
+            _new_class_group_id: to.class_group_id,
+            _semester_id: activeSemester.id,
+          });
+
+          if (error) {
+            console.error('Failed to handle cross-dept move:', error);
+          } else {
+            toast('Session moved - requires department head approval');
+          }
         }
         
         return '';
@@ -508,7 +534,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return errorMsg;
       }
     },
-    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, createResourceRequestForSession]
+    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, assignments, activeSemester]
   );
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */

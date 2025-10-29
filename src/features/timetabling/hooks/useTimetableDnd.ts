@@ -333,25 +333,55 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
   /**
    * Handles dropping a class session back to the drawer (unassign).
    * 
-   * Removes the session from the timetable if it was dragged from the grid.
+   * Shows a confirmation dialog before removing cross-department sessions.
    * 
    * @param e - The drag event object.
+   * @param onConfirm - Callback to show confirmation dialog.
    * @returns {Promise<void>}
    */
   const handleDropToDrawer = useCallback(
-    async (e: React.DragEvent) => {
+    async (e: React.DragEvent, onConfirm?: (callback: () => void) => void) => {
       e.preventDefault();
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
       console.debug('[TimetableDnd] dropToDrawer', { source });
 
       if (source.from === 'timetable') {
+        const session = allClassSessions.find((cs) => cs.id === source.class_session_id);
+        
+        // Check if this is a cross-department session with a pending or confirmed status
+        if (session && onConfirm) {
+          const hasCrossDeptResource = 
+            (session.instructor.department_id && session.instructor.department_id !== user?.program_id) ||
+            (session.classroom.preferred_department_id && session.classroom.preferred_department_id !== user?.program_id);
+
+          if (hasCrossDeptResource) {
+            // Show confirmation dialog
+            onConfirm(async () => {
+              await removeClassSession(source.class_group_id, source.period_index);
+              
+              // Cancel any active resource requests for this session
+              const { supabase } = await import('../../../lib/supabase');
+              await supabase
+                .from('resource_requests')
+                .delete()
+                .eq('class_session_id', session.id)
+                .in('status', ['pending', 'approved']);
+              
+              toast('Session removed and department head notified');
+            });
+            cleanupDragState();
+            return;
+          }
+        }
+        
+        // Normal removal without confirmation
         await removeClassSession(source.class_group_id, source.period_index);
       }
 
       cleanupDragState();
     },
-    [removeClassSession, cleanupDragState]
+    [removeClassSession, cleanupDragState, allClassSessions, user]
   );
 
   return {

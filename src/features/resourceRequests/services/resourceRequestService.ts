@@ -124,7 +124,54 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
 }
 
 /**
- * Updates an existing resource request (for non-approval updates like rejection).
+ * Rejects a resource request with a message and either restores the session to its original
+ * position (if previously approved) or deletes it (if pending).
+ *
+ * @param id - The ID of the resource request to reject.
+ * @param reviewerId - The ID of the user rejecting the request.
+ * @param message - The rejection message from the department head.
+ * @returns A promise resolving to the result of the rejection.
+ */
+export async function rejectRequest(id: string, reviewerId: string, message: string): Promise<any> {
+  const { data, error } = await supabase.rpc('reject_resource_request' as any, {
+    _request_id: id,
+    _reviewer_id: reviewerId,
+    _rejection_message: message,
+  });
+
+  if (error) {
+    console.error('Failed to reject request (RPC error):', error);
+    throw new Error(`Failed to reject request: ${error.message}`);
+  }
+
+  const result = data as any;
+  
+  if (!result || !result.success) {
+    const errorMsg = result?.error || 'Unknown error during rejection';
+    console.error('Rejection function returned failure:', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  console.log('Request rejected successfully:', result);
+  return result;
+}
+
+/**
+ * Dismisses a resource request notification without taking action.
+ *
+ * @param id - The ID of the resource request to dismiss.
+ * @returns A promise resolving when the operation is complete.
+ */
+export async function dismissRequest(id: string): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE)
+    .update({ dismissed: true } as any)
+    .eq('id', id);
+  if (error) throw error;
+}
+
+/**
+ * Updates an existing resource request (for non-approval updates).
  *
  * @param id - The ID of the resource request to update.
  * @param update - The update payload.

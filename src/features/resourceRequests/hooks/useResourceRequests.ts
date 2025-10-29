@@ -31,12 +31,18 @@ export function useResourceRequests() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const dismissMutation = useMutation({
+    mutationFn: (id: string) => service.dismissRequest(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
   return {
     requests: (listQuery.data as ResourceRequest[]) || [],
     isLoading: listQuery.isLoading,
     error: listQuery.error as Error | null,
     createRequest: createMutation.mutateAsync,
     updateRequest: updateMutation.mutateAsync,
+    dismissRequest: dismissMutation.mutateAsync,
   };
 }
 
@@ -62,11 +68,17 @@ export function useDepartmentRequests(departmentId?: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 
+  const dismissMutation = useMutation({
+    mutationFn: (id: string) => service.dismissRequest(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey }),
+  });
+
   return {
     requests: (listQuery.data as ResourceRequest[]) || [],
     isLoading: listQuery.isLoading,
     error: listQuery.error as Error | null,
     updateRequest: updateMutation.mutateAsync,
+    dismissRequest: dismissMutation.mutateAsync,
   };
 }
 
