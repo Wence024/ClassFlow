@@ -73,6 +73,12 @@ export default function RequestStatusNotification() {
   });
 
   const handleDismiss = async (requestId: string) => {
+    // Optimistically remove from UI
+    queryClient.setQueryData(
+      ['my_reviewed_requests', user?.id],
+      (old: any[]) => old?.filter((req) => req.id !== requestId) || []
+    );
+    
     try {
       // Mark as dismissed in the database
       const { error } = await supabase
@@ -82,10 +88,13 @@ export default function RequestStatusNotification() {
       
       if (error) throw error;
       
-      // Update local cache
-      queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
+      // Refetch to ensure consistency
+      await queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'] });
     } catch (error) {
       console.error('Error dismissing notification:', error);
+      // Revert optimistic update on error
+      await queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
     }
   };
 

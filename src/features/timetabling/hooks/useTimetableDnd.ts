@@ -7,7 +7,7 @@ import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useAuth } from '../../auth/hooks/useAuth';
-import type { TimetableViewMode } from '../types/timetable';
+import type { TimetableViewMode, HydratedTimetableAssignment } from '../types/timetable';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -18,9 +18,14 @@ const DRAG_DATA_KEY = 'application/json';
  *
  * @param allClassSessions - All class sessions visible to the user (not just their own).
  * @param viewMode - The current timetable view mode for view-specific validation.
+ * @param assignments - Current timetable assignments for checking confirmation status.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
-export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: TimetableViewMode = 'class-group') => {
+export const useTimetableDnd = (
+  allClassSessions: ClassSession[], 
+  viewMode: TimetableViewMode = 'class-group',
+  assignments?: HydratedTimetableAssignment[]
+) => {
   // --- Core Hooks ---
   const { user } = useAuth();
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable(viewMode);
@@ -321,13 +326,20 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
 
       const dbTargetGroupId = viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
 
-      // Check if this is a move of a confirmed cross-dept session
+      // Check if this is a move of a confirmed cross-dept session requiring re-approval
       if (source.from === 'timetable' && onConfirmMove) {
+        const currentAssignment = assignments?.find(
+          (a: HydratedTimetableAssignment) => a.class_session?.id === classSessionToDrop.id &&
+               a.class_group_id === source.class_group_id &&
+               a.period_index === source.period_index
+        );
+        
+        const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
         const hasCrossDeptResource = 
           (classSessionToDrop.instructor.department_id && classSessionToDrop.instructor.department_id !== user?.program_id) ||
           (classSessionToDrop.classroom.preferred_department_id && classSessionToDrop.classroom.preferred_department_id !== user?.program_id);
 
-        if (hasCrossDeptResource) {
+        if (hasCrossDeptResource && isCurrentlyConfirmed) {
           // Show confirmation dialog
           onConfirmMove(async () => {
             try {
@@ -365,7 +377,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
   /**
    * Handles dropping a class session back to the drawer (unassign).
    * 
-   * Shows a confirmation dialog before removing cross-department sessions.
+   * Shows a confirmation dialog before removing cross-department sessions with pending/confirmed status.
    * 
    * @param e - The drag event object.
    * @param onConfirm - Callback to show confirmation dialog.
@@ -381,7 +393,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
       if (source.from === 'timetable') {
         const session = allClassSessions.find((cs) => cs.id === source.class_session_id);
         
-        // Check if this is a cross-department session with a pending or confirmed status
+        // Check if this is a cross-department session with active requests
         if (session && onConfirm) {
           const hasCrossDeptResource = 
             (session.instructor.department_id && session.instructor.department_id !== user?.program_id) ||
@@ -390,9 +402,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
           if (hasCrossDeptResource) {
             // Show confirmation dialog
             onConfirm(async () => {
-              await removeClassSession(source.class_group_id, source.period_index);
-              
-              // Cancel any active resource requests for this session using the new service method
+              // Cancel any active resource requests for this session
               const { cancelActiveRequestsForClassSession } = await import('../../resourceRequests/services/resourceRequestService');
               try {
                 await cancelActiveRequestsForClassSession(session.id);
@@ -400,7 +410,10 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
                 console.error('Failed to cancel resource requests:', err);
               }
               
-              toast('Session removed and department head notified');
+              // Remove the session from timetable
+              await removeClassSession(source.class_group_id, source.period_index);
+              
+              toast.success('Session removed and department head notified');
             });
             cleanupDragState();
             return;

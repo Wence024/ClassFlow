@@ -41,7 +41,7 @@ const TimetablePage: React.FC = () => {
   });
 
   const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
-  const dnd = useTimetableDnd(allClassSessions, viewMode);
+  const dnd = useTimetableDnd(allClassSessions, viewMode, assignments);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   
   // Confirmation dialog state

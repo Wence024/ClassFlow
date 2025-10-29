@@ -495,30 +495,26 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       const requiresApproval = isCrossDept && isCurrentlyConfirmed;
       
       try {
-        await moveClassSessionMutation.mutateAsync({ 
-          from, 
-          to, 
-          classSession,
-          requiresApproval 
-        });
-
-        // If requires approval, call the database function to handle the move
+        // If re-approval is needed, call the DB function to store original position FIRST
         if (requiresApproval) {
-          const { supabase } = await import('../../../lib/supabase');
-          const { error } = await supabase.rpc('handle_cross_dept_session_move' as any, {
+          await supabase.rpc('handle_cross_dept_session_move' as any, {
             _class_session_id: classSession.id,
             _old_period_index: from.period_index,
             _old_class_group_id: from.class_group_id,
             _new_period_index: to.period_index,
             _new_class_group_id: to.class_group_id,
             _semester_id: activeSemester.id,
+            _requester_id: user?.id || '',
           });
-
-          if (error) {
-            console.error('Failed to handle cross-dept move:', error);
-          } else {
-            toast('Session moved - requires department head approval');
-          }
+          toast.success('Session moved - requires department head approval');
+        } else {
+          // Normal move without re-approval
+          await moveClassSessionMutation.mutateAsync({ 
+            from, 
+            to,
+            classSession,
+            requiresApproval: false
+          });
         }
         
         return '';
@@ -534,7 +530,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return errorMsg;
       }
     },
-    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, assignments, activeSemester]
+    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, assignments, activeSemester, user]
   );
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */

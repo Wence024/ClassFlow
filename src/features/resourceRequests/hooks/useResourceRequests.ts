@@ -143,6 +143,8 @@ export function useMyPendingRequests() {
       queryClient.invalidateQueries({ queryKey: ['classSessions'] });
       queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
       queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests'] });
     },
   });
 
