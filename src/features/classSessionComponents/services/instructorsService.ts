@@ -147,6 +147,10 @@ export async function updateInstructor(
 /**
  * Removes an instructor from the database.
  * This operation is protected by RLS policies in the database.
+ * 
+ * **Edge Case Handling:**
+ * - Cancels all active resource requests for this instructor before deletion
+ * - Notifies department heads if requests are cancelled
  *
  * @param id - The unique identifier of the instructor to remove.
  * @param _user_id - The user ID, kept for API consistency but unused due to RLS.
@@ -154,6 +158,14 @@ export async function updateInstructor(
  * @throws An error if the Supabase delete fails.
  */
 export async function removeInstructor(id: string, _user_id: string): Promise<void> {
+  // Cancel any active requests for this instructor before deletion
+  const { cancelActiveRequestsForResource } = await import('../../resourceRequests/services/resourceRequestService');
+  try {
+    await cancelActiveRequestsForResource('instructor', id);
+  } catch (err) {
+    console.error('Failed to cancel requests for instructor:', err);
+  }
+  
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

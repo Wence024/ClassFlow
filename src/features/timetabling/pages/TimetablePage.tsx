@@ -12,6 +12,7 @@ import TimetableContext from './components/timetable/TimetableContext';
 import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
 import { ViewSelector } from '../components/ViewSelector';
 import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
+import { supabase } from '../../../lib/supabase';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -49,7 +50,7 @@ const TimetablePage: React.FC = () => {
     queryFn: classSessionsService.getAllClassSessions,
   });
   
-  // Validate URL parameters
+  // Validate URL parameters and handle edge cases
   useEffect(() => {
     if (pendingSessionId && !isLoadingSessions) {
       const sessionExists = allClassSessions.some(s => s.id === pendingSessionId);
@@ -64,6 +65,41 @@ const TimetablePage: React.FC = () => {
       }
     }
   }, [pendingSessionId, allClassSessions, isLoadingSessions, searchParams]);
+  
+  // Clear pending placement when active semester changes (edge case)
+  useEffect(() => {
+    if (pendingSessionId) {
+      const clearPendingPlacement = () => {
+        searchParams.delete('pendingSessionId');
+        searchParams.delete('resourceType');
+        searchParams.delete('resourceId');
+        searchParams.delete('departmentId');
+        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+        toast.info('Pending placement cleared due to semester change');
+      };
+      
+      // Subscribe to semester changes
+      const channel = supabase
+        .channel('semester-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'semesters',
+            filter: 'is_active=eq.true',
+          },
+          () => {
+            clearPendingPlacement();
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [pendingSessionId, searchParams]);
 
   const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
   const dnd = useTimetableDnd(allClassSessions, viewMode, assignments, {

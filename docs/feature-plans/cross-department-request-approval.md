@@ -446,6 +446,10 @@ This feature enables program heads to request instructors or classrooms from oth
 - Department Head rejecting while Program Head views
 - Network errors during multi-step operations
 - Missing active semester
+- **Resource deletion during pending request** (NEW)
+- **Session deletion during pending placement** (NEW)
+- **Active semester change during pending placement** (NEW)
+- **Duplicate request prevention** (NEW)
 - Invalid request IDs
 - Permissions: non-owners can't drag pending sessions
 - Race condition: moving session while approval happening
@@ -494,6 +498,38 @@ This feature is **currently implemented** and operational as of 2025-10-29. For 
 - `docs/maintenance-log-2025-10-28-approval-fix.md` - Atomic approval operations
 - `docs/maintenance-log-2025-10-29-rejection-workflow.md` - Rejection and restoration logic
 - `docs/maintenance-log-2025-10-29-request-workflow-complete.md` - Complete workflow implementation
+
+### Edge Case Handling (NEW - 2025-10-30)
+
+**Implemented edge cases:**
+
+1. **Resource Deletion During Pending Request**
+   - When an instructor or classroom is deleted, all active requests for that resource are automatically cancelled
+   - Department heads receive notification: "Request cancelled - [resource type] was deleted"
+   - Implementation: `cancelActiveRequestsForResource()` in `resourceRequestService.ts`
+   - Called from `removeInstructor()` and `removeClassroom()` service functions
+
+2. **Session Deletion During Pending Placement**
+   - When a class session is deleted from URL pending placement, the URL params are validated and cleared
+   - User receives error toast: "Session not found. It may have been deleted"
+   - Implementation: URL validation effect in `TimetablePage.tsx`
+   - Automatic cleanup of active requests via `cancelActiveRequestsForClassSession()`
+
+3. **Active Semester Change During Pending Placement**
+   - Real-time subscription to semester changes clears pending placement state
+   - User receives info toast: "Pending placement cleared due to semester change"
+   - Implementation: Semester change subscription in `TimetablePage.tsx`
+   - Prevents stale placements in wrong semester context
+
+4. **Duplicate Request Prevention**
+   - Before creating new request, checks for existing pending/approved requests
+   - Returns existing request if found instead of creating duplicate
+   - Implementation: Validation check in `createRequest()` in `resourceRequestService.ts`
+   - Prevents multiple notifications for same resource
+
+**Test Coverage:**
+- Edge case test suite: `src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts`
+- Tests resource deletion, session deletion, duplicate prevention scenarios
 
 ### Known Issues and Future Enhancements
 
