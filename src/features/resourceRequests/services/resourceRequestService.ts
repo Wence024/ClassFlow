@@ -50,11 +50,27 @@ export async function getRequestsForDepartment(departmentId: string): Promise<Re
 
 /**
  * Creates a new resource request and a corresponding notification.
+ * 
+ * **Edge Case Handling:**
+ * - Checks for existing pending/approved requests to prevent duplicates
+ * - Returns existing request if one already exists for this session
  *
  * @param payload - The data for the new resource request.
  * @returns A promise resolving to the created resource request.
  */
 export async function createRequest(payload: ResourceRequestInsert): Promise<ResourceRequest> {
+  // Check for existing pending/approved requests to prevent duplicates
+  const { data: existingRequests } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('class_session_id', payload.class_session_id)
+    .in('status', ['pending', 'approved']);
+  
+  if (existingRequests && existingRequests.length > 0) {
+    console.warn('Request already exists for this class session:', existingRequests[0]);
+    return existingRequests[0] as ResourceRequest;
+  }
+  
   const { data, error } = await supabase
     .from(TABLE)
     .insert([payload])
@@ -274,4 +290,56 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
   }
   
   return { ...request, resource_name: resourceName } as ResourceRequest & { resource_name: string };
+}
+
+/**
+ * Cancels all active resource requests for a specific resource (instructor or classroom).
+ * Used as an edge case handler when resources are deleted.
+ * 
+ * @param resourceType - The type of resource ('instructor' or 'classroom').
+ * @param resourceId - The ID of the resource.
+ * @returns A promise resolving when all requests are cancelled and notifications sent.
+ */
+export async function cancelActiveRequestsForResource(
+  resourceType: 'instructor' | 'classroom',
+  resourceId: string
+): Promise<void> {
+  // Fetch all pending/approved requests for this resource
+  const { data: requests, error: fetchError } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('resource_type', resourceType)
+    .eq('resource_id', resourceId)
+    .in('status', ['pending', 'approved']);
+  
+  if (fetchError) throw fetchError;
+  
+  if (!requests || requests.length === 0) return;
+  
+  // For each request, insert a cancellation notification
+  for (const request of requests) {
+    try {
+      await supabase
+        .from(NOTIF_TABLE)
+        .insert([
+          {
+            request_id: request.id,
+            target_department_id: request.target_department_id,
+            message: `Request cancelled - ${resourceType} was deleted`,
+          },
+        ]);
+    } catch (e) {
+      console.error('Failed to create cancellation notification', e);
+    }
+  }
+  
+  // Delete all the requests (trigger will cleanup notifications)
+  const { error: deleteError } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('resource_type', resourceType)
+    .eq('resource_id', resourceId)
+    .in('status', ['pending', 'approved']);
+  
+  if (deleteError) throw deleteError;
 }

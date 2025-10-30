@@ -156,7 +156,8 @@ Refactor backlogs:
 * [ ] **[Bug]** The `ColorPicker` popover closes immediately when the custom color input is clicked, preventing users from selecting a custom color.
 
 * [x] TODO: Break down the forms and viewing into individual components (CourseTab, ClassroomTab, ClassGroupsTab, InstructorsTab)
-* [ ] TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
+* [x] TODO: Fix issue where refresh clears the form especially when switching windows or tabs, hindering user experience. (ClassSessionComponentsPage)
+* [ ] TODO: Add form persistence for component management pages (CourseTab, ClassroomTab, InstructorTab, ClassGroupTab)
 
 * [ ] TODO: Consider duplicate courses, class groups, classrooms and instructors a data anomaly; such entities should be singleton. (ClassSessionComponentsPage)
 

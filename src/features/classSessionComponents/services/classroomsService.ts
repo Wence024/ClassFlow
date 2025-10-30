@@ -122,6 +122,10 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 /**
  * Removes a classroom from the database.
  * This operation is protected by RLS policies in the database.
+ * 
+ * **Edge Case Handling:**
+ * - Cancels all active resource requests for this classroom before deletion
+ * - Notifies department heads if requests are cancelled
  *
  * @param id - The unique identifier of the classroom to remove.
  * @param _user_id - The user ID, kept for API consistency but unused due to RLS.
@@ -129,6 +133,14 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassroom(id: string, _user_id: string): Promise<void> {
+  // Cancel any active requests for this classroom before deletion
+  const { cancelActiveRequestsForResource } = await import('../../resourceRequests/services/resourceRequestService');
+  try {
+    await cancelActiveRequestsForResource('classroom', id);
+  } catch (err) {
+    console.error('Failed to cancel requests for classroom:', err);
+  }
+  
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

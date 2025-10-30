@@ -242,9 +242,13 @@ This feature enables program heads to request instructors or classrooms from oth
 - Show toast notification for re-approval requirement
 
 ### `useTimetableDnd.ts`
-- `handleDropToGrid()` - Accept optional confirmation callback
+- Accept `pendingPlacementInfo` parameter with cross-dept details
+- `handleDropToGrid()`:
+  - Accept optional confirmation callback
   - Detect cross-dept resources on confirmed sessions
   - Call confirmation before proceeding
+  - After successful placement of pending session, automatically create resource request
+  - Show success toast with notification reminder
 - `handleDropToDrawer()` - Accept optional confirmation callback
   - Check for cross-dept resources before removal
   - Call `cancelActiveRequestsForClassSession()` on confirmation
@@ -262,12 +266,12 @@ This feature enables program heads to request instructors or classrooms from oth
 - Render ConfirmModal with cross-department details
 
 ### `ClassSessionsPage.tsx`
-- Accept pending flag and resource info from form
-- When pending:
-  1. Create class_session normally
-  2. Assign to timetable with `status: 'pending'`
-  3. Create resource_request with metadata
-- Handle all operations with error handling
+- When cross-dept resource detected:
+  1. Show confirmation modal with resource details
+  2. On confirm: create class_session (unassigned)
+  3. Redirect to `/scheduler` with URL params: `pendingSessionId`, `resourceType`, `resourceId`, `departmentId`
+  4. Show success toast: "Session created! Drag it to timetable..."
+- No longer uses `PendingTimetableModal` component (removed)
 
 ### `SessionCell.tsx`
 - Accept `pendingSessionIds?: Set<string>` prop
@@ -280,6 +284,10 @@ This feature enables program heads to request instructors or classrooms from oth
 - DropZone rejects drops onto pending sessions
 
 ### `TimetablePage.tsx`
+- Read URL params: `pendingSessionId`, `resourceType`, `resourceId`, `departmentId`
+- Pass pending placement info to `useTimetableDnd` hook
+- Show toast notification on mount if `pendingSessionId` exists
+- Pass `pendingPlacementSessionId` to `Drawer` component for highlighting
 - Pass `pendingSessionIds` from useTimetable hook through context
 - Confirmation dialog state and handlers
 - `handleDropToGridWithConfirm` wrapper with confirmation logic
@@ -313,6 +321,15 @@ This feature enables program heads to request instructors or classrooms from oth
 - "Dismiss" button for approved/rejected requests
 - Display rejection messages from department heads
 - Real-time subscription for updates
+
+### `Drawer.tsx`
+- Accept `pendingPlacementSessionId?: string` prop
+- Apply special highlighting to pending placement session:
+  - Pulsing orange border animation
+  - Orange background tint
+  - Exclamation badge (top-right)
+  - Shadow glow effect
+- Regular sessions maintain normal styling
 
 ### `RejectionDialog.tsx` (New Component)
 - Modal dialog for rejection
@@ -357,11 +374,14 @@ This feature enables program heads to request instructors or classrooms from oth
 **Initial Request:**
 - Program Head selects cross-dept resource → Modal appears
 - Modal shows department name and resource name
-- Program Head confirms → Session created with status 'pending'
-- Request created automatically
+- Program Head confirms → Redirected to timetable page
+- Session appears in drawer with pulsing orange border and badge
+- Toast notification guides user to drag session
+- Program Head drags session to timetable slot
+- Request created automatically after placement
 - Department head notified
 
-**Pending Session Appearance:**
+**Pending Session Appearance (after placement):**
 - Dashed orange border
 - Reduced opacity (0.7)
 - Clock icon indicator
@@ -426,6 +446,10 @@ This feature enables program heads to request instructors or classrooms from oth
 - Department Head rejecting while Program Head views
 - Network errors during multi-step operations
 - Missing active semester
+- **Resource deletion during pending request** (NEW)
+- **Session deletion during pending placement** (NEW)
+- **Active semester change during pending placement** (NEW)
+- **Duplicate request prevention** (NEW)
 - Invalid request IDs
 - Permissions: non-owners can't drag pending sessions
 - Race condition: moving session while approval happening
@@ -474,6 +498,47 @@ This feature is **currently implemented** and operational as of 2025-10-29. For 
 - `docs/maintenance-log-2025-10-28-approval-fix.md` - Atomic approval operations
 - `docs/maintenance-log-2025-10-29-rejection-workflow.md` - Rejection and restoration logic
 - `docs/maintenance-log-2025-10-29-request-workflow-complete.md` - Complete workflow implementation
+
+### Edge Case Handling (NEW - 2025-10-30)
+
+**Implemented edge cases:**
+
+1. **Pending Session Highlight Persistence**
+   - Orange highlight for pending cross-department sessions persists across page navigation
+   - URL parameters (`pendingSessionId`, `resourceType`, `resourceId`, `departmentId`) are primary storage
+   - `localStorage` backup automatically restores state if URL params are lost
+   - 1-second validation delay prevents false "session not found" errors on fresh redirects
+   - Both URL params and localStorage cleared after successful placement and request creation
+   - Implementation: Dual-storage system in `TimetablePage.tsx` with restore logic
+   - Benefit: Users can navigate away and return without losing workflow progress
+
+2. **Resource Deletion During Pending Request**
+   - When an instructor or classroom is deleted, all active requests for that resource are automatically cancelled
+   - Department heads receive notification: "Request cancelled - [resource type] was deleted"
+   - Implementation: `cancelActiveRequestsForResource()` in `resourceRequestService.ts`
+   - Called from `removeInstructor()` and `removeClassroom()` service functions
+
+3. **Session Deletion During Pending Placement**
+   - When a class session is deleted from URL pending placement, the URL params are validated and cleared
+   - User receives error toast: "Session not found. It may have been deleted"
+   - Implementation: URL validation effect in `TimetablePage.tsx`
+   - Automatic cleanup of active requests via `cancelActiveRequestsForClassSession()`
+
+4. **Active Semester Change During Pending Placement**
+   - Real-time subscription to semester changes clears pending placement state
+   - User receives info toast: "Pending placement cleared due to semester change"
+   - Implementation: Semester change subscription in `TimetablePage.tsx`
+   - Prevents stale placements in wrong semester context
+
+5. **Duplicate Request Prevention**
+   - Before creating new request, checks for existing pending/approved requests
+   - Returns existing request if found instead of creating duplicate
+   - Implementation: Validation check in `createRequest()` in `resourceRequestService.ts`
+   - Prevents multiple notifications for same resource
+
+**Test Coverage:**
+- Edge case test suite: `src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts`
+- Tests resource deletion, session deletion, duplicate prevention scenarios
 
 ### Known Issues and Future Enhancements
 

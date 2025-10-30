@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { useTimetable } from '../hooks/useTimetable';
+import { toast } from 'sonner';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, CustomTooltip } from '../../../components/ui';
@@ -10,6 +12,7 @@ import TimetableContext from './components/timetable/TimetableContext';
 import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
 import { ViewSelector } from '../components/ViewSelector';
 import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
+import { supabase } from '../../../lib/supabase';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -33,16 +36,143 @@ interface TooltipState {
  */
 const TimetablePage: React.FC = () => {
   const { viewMode, setViewMode } = useTimetableViewMode();
+  const [searchParams] = useSearchParams();
+  
+  // Extract pending placement info from URL
+  const pendingSessionId = searchParams.get('pendingSessionId');
+  const resourceType = searchParams.get('resourceType') as 'instructor' | 'classroom' | null;
+  const resourceId = searchParams.get('resourceId');
+  const departmentId = searchParams.get('departmentId');
   
   // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
     queryKey: ['allClassSessions'],
     queryFn: classSessionsService.getAllClassSessions,
   });
+  
+  // Store pending session info in localStorage for persistence across navigation
+  useEffect(() => {
+    if (pendingSessionId && resourceType && resourceId && departmentId) {
+      const pendingInfo = { pendingSessionId, resourceType, resourceId, departmentId };
+      localStorage.setItem('pendingCrossDeptSession', JSON.stringify(pendingInfo));
+    } else {
+      // Clear from localStorage if no pending session in URL
+      const stored = localStorage.getItem('pendingCrossDeptSession');
+      if (stored && !pendingSessionId) {
+        localStorage.removeItem('pendingCrossDeptSession');
+      }
+    }
+  }, [pendingSessionId, resourceType, resourceId, departmentId]);
+  
+  // Load pending session info from localStorage if not in URL (persistence across navigation)
+  useEffect(() => {
+    if (!pendingSessionId) {
+      try {
+        const stored = localStorage.getItem('pendingCrossDeptSession');
+        if (stored) {
+          const { pendingSessionId: storedId, resourceType: storedType, resourceId: storedResId, departmentId: storedDeptId } = JSON.parse(stored);
+          // Restore URL params from localStorage
+          searchParams.set('pendingSessionId', storedId);
+          searchParams.set('resourceType', storedType);
+          searchParams.set('resourceId', storedResId);
+          searchParams.set('departmentId', storedDeptId);
+          window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+        }
+      } catch (error) {
+        console.error('Failed to restore pending session from localStorage:', error);
+      }
+    }
+  }, [pendingSessionId, searchParams]);
+  
+  // Validate session existence with delayed retry to avoid false positives on fresh redirects
+  useEffect(() => {
+    if (pendingSessionId && !isLoadingSessions) {
+      // Wait a bit for the query to settle after redirect
+      const timeoutId = setTimeout(() => {
+        const sessionExists = allClassSessions.some(s => s.id === pendingSessionId);
+        if (!sessionExists) {
+          toast.error('Session not found. It may have been deleted.');
+          // Clear both URL params and localStorage
+          searchParams.delete('pendingSessionId');
+          searchParams.delete('resourceType');
+          searchParams.delete('resourceId');
+          searchParams.delete('departmentId');
+          window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+          localStorage.removeItem('pendingCrossDeptSession');
+        }
+      }, 1000); // 1 second delay to allow query cache to update
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [pendingSessionId, allClassSessions, isLoadingSessions, searchParams]);
+  
+  // Clear pending placement when active semester changes (edge case)
+  useEffect(() => {
+    if (pendingSessionId) {
+      const clearPendingPlacement = () => {
+        searchParams.delete('pendingSessionId');
+        searchParams.delete('resourceType');
+        searchParams.delete('resourceId');
+        searchParams.delete('departmentId');
+        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+        localStorage.removeItem('pendingCrossDeptSession');
+        toast.info('Pending placement cleared due to semester change');
+      };
+      
+      // Subscribe to semester changes
+      const channel = supabase
+        .channel('semester-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'semesters',
+            filter: 'is_active=eq.true',
+          },
+          () => {
+            clearPendingPlacement();
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [pendingSessionId, searchParams]);
 
   const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
-  const dnd = useTimetableDnd(allClassSessions, viewMode, assignments);
+  
+  const clearPendingPlacement = useCallback(() => {
+    searchParams.delete('pendingSessionId');
+    searchParams.delete('resourceType');
+    searchParams.delete('resourceId');
+    searchParams.delete('departmentId');
+    window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+    localStorage.removeItem('pendingCrossDeptSession');
+  }, [searchParams]);
+  
+  const dnd = useTimetableDnd(allClassSessions, viewMode, assignments, {
+    pendingSessionId: pendingSessionId || undefined,
+    resourceType: resourceType || undefined,
+    resourceId: resourceId || undefined,
+    departmentId: departmentId || undefined,
+    onClearPending: clearPendingPlacement,
+  });
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  
+  // Show toast notification for pending placement
+  useEffect(() => {
+    if (pendingSessionId && !isLoadingSessions) {
+      const session = allClassSessions.find(s => s.id === pendingSessionId);
+      if (session) {
+        toast.info('Drag the highlighted session to the timetable to submit your request', {
+          duration: 8000,
+        });
+      }
+    }
+  }, [pendingSessionId, allClassSessions, isLoadingSessions]);
   
   // Confirmation dialog state
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -139,6 +269,7 @@ const TimetablePage: React.FC = () => {
     onShowTooltip: handleShowTooltip,
     onHideTooltip: handleHideTooltip,
     pendingSessionIds,
+    pendingPlacementSessionId: pendingSessionId || undefined,
   };
 
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
@@ -166,6 +297,7 @@ const TimetablePage: React.FC = () => {
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
               onDropToDrawer={handleDropToDrawerWithConfirm}
+              pendingPlacementSessionId={pendingSessionId || undefined}
             />
           </TimetableContext.Provider>
         )}

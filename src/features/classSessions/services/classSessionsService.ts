@@ -107,6 +107,10 @@ export async function updateClassSession(
 
 /**
  * Removes a class session from the database.
+ * 
+ * **Edge Case Handling:**
+ * - Cancels all active resource requests for this session before deletion
+ * - Notifies department heads if requests are cancelled
  *
  * @param id - The unique identifier of the class session to remove.
  * @param user_id - The ID of the user, to ensure they own the record being deleted.
@@ -114,6 +118,14 @@ export async function updateClassSession(
  * @throws An error if the Supabase delete fails.
  */
 export async function removeClassSession(id: string, user_id: string): Promise<void> {
+  // Cancel any active requests for this session before deletion
+  const { cancelActiveRequestsForClassSession } = await import('../../resourceRequests/services/resourceRequestService');
+  try {
+    await cancelActiveRequestsForClassSession(id);
+  } catch (err) {
+    console.error('Failed to cancel requests for session:', err);
+  }
+  
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }
