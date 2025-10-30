@@ -48,6 +48,22 @@ const TimetablePage: React.FC = () => {
     queryKey: ['allClassSessions'],
     queryFn: classSessionsService.getAllClassSessions,
   });
+  
+  // Validate URL parameters
+  useEffect(() => {
+    if (pendingSessionId && !isLoadingSessions) {
+      const sessionExists = allClassSessions.some(s => s.id === pendingSessionId);
+      if (!sessionExists) {
+        toast.error('Session not found. It may have been deleted.');
+        // Clear invalid URL params
+        searchParams.delete('pendingSessionId');
+        searchParams.delete('resourceType');
+        searchParams.delete('resourceId');
+        searchParams.delete('departmentId');
+        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+      }
+    }
+  }, [pendingSessionId, allClassSessions, isLoadingSessions, searchParams]);
 
   const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
   const dnd = useTimetableDnd(allClassSessions, viewMode, assignments, {

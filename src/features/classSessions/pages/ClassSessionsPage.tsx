@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useFormPersistence } from '../hooks/useFormPersistence';
 
 // Import hooks for fetching data
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -86,6 +87,12 @@ const ClassSessionsPage: React.FC = () => {
     },
   });
 
+  // Enable form persistence
+  const { clearPersistedData } = useFormPersistence({
+    formMethods,
+    isEditing: !!editingSession,
+  });
+
   useEffect(() => {
     if (editingSession && editingSession.course) {
       formMethods.reset({
@@ -164,6 +171,7 @@ const ClassSessionsPage: React.FC = () => {
       const program_id = data.program_id || user.program_id;
       await addClassSession({ ...data, user_id: user.id, program_id });
       formMethods.reset();
+      clearPersistedData();
       toast.success('Class session created successfully!');
     } catch (error) {
       console.error('Error creating class session:', error);
@@ -200,6 +208,7 @@ const ClassSessionsPage: React.FC = () => {
       });
 
       formMethods.reset();
+      clearPersistedData();
       setCrossDeptInfo(null);
       setPendingFormData(null);
       
