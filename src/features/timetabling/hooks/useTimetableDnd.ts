@@ -31,6 +31,7 @@ export const useTimetableDnd = (
     resourceType?: 'instructor' | 'classroom';
     resourceId?: string;
     departmentId?: string;
+    onClearPending?: () => void;
   }
 ) => {
   // --- Core Hooks ---
@@ -387,6 +388,8 @@ export const useTimetableDnd = (
               status: 'pending',
             });
             toast.success('Session placed and request submitted! Check notifications for updates.');
+            // Clear pending placement state
+            pendingPlacementInfo.onClearPending?.();
           } catch (requestErr) {
             console.error('Failed to create resource request:', requestErr);
             toast.error('Session placed but failed to create request. Please try again from Classes page.');

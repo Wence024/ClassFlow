@@ -213,7 +213,8 @@ const ClassSessionsPage: React.FC = () => {
       setPendingFormData(null);
       
       toast.success('Session created! Now drag it to the timetable to submit your request.');
-      navigate(`/scheduler?${params.toString()}`);
+      // Use navigate with state to ensure smooth transition
+      navigate(`/scheduler?${params.toString()}`, { replace: false });
     } catch (error) {
       console.error('Error creating class session:', error);
       toast.error('Failed to create class session');

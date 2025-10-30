@@ -503,25 +503,34 @@ This feature is **currently implemented** and operational as of 2025-10-29. For 
 
 **Implemented edge cases:**
 
-1. **Resource Deletion During Pending Request**
+1. **Pending Session Highlight Persistence**
+   - Orange highlight for pending cross-department sessions persists across page navigation
+   - URL parameters (`pendingSessionId`, `resourceType`, `resourceId`, `departmentId`) are primary storage
+   - `localStorage` backup automatically restores state if URL params are lost
+   - 1-second validation delay prevents false "session not found" errors on fresh redirects
+   - Both URL params and localStorage cleared after successful placement and request creation
+   - Implementation: Dual-storage system in `TimetablePage.tsx` with restore logic
+   - Benefit: Users can navigate away and return without losing workflow progress
+
+2. **Resource Deletion During Pending Request**
    - When an instructor or classroom is deleted, all active requests for that resource are automatically cancelled
    - Department heads receive notification: "Request cancelled - [resource type] was deleted"
    - Implementation: `cancelActiveRequestsForResource()` in `resourceRequestService.ts`
    - Called from `removeInstructor()` and `removeClassroom()` service functions
 
-2. **Session Deletion During Pending Placement**
+3. **Session Deletion During Pending Placement**
    - When a class session is deleted from URL pending placement, the URL params are validated and cleared
    - User receives error toast: "Session not found. It may have been deleted"
    - Implementation: URL validation effect in `TimetablePage.tsx`
    - Automatic cleanup of active requests via `cancelActiveRequestsForClassSession()`
 
-3. **Active Semester Change During Pending Placement**
+4. **Active Semester Change During Pending Placement**
    - Real-time subscription to semester changes clears pending placement state
    - User receives info toast: "Pending placement cleared due to semester change"
    - Implementation: Semester change subscription in `TimetablePage.tsx`
    - Prevents stale placements in wrong semester context
 
-4. **Duplicate Request Prevention**
+5. **Duplicate Request Prevention**
    - Before creating new request, checks for existing pending/approved requests
    - Returns existing request if found instead of creating duplicate
    - Implementation: Validation check in `createRequest()` in `resourceRequestService.ts`
