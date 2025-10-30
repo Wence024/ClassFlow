@@ -14,7 +14,8 @@ Container_Boundary(web_app, "ClassFlow Web Application") {
   
   ' UI Layer Components
   Component(class_session_form, "Class Session Form", "React Component", "Detects cross-department resources, shows confirmation modal")
-  Component(timetable_page, "Timetable Page", "React Component", "Displays timetable grid, manages drag-and-drop, shows confirmation dialogs")
+  Component(timetable_page, "Timetable Page", "React Component", "Displays timetable grid, manages drag-and-drop, handles pending placement mode from URL params")
+  Component(drawer, "Drawer", "React Component", "Displays unassigned sessions, highlights pending placement session with pulsing border")
   Component(session_cell, "Session Cell", "React Component", "Renders individual sessions with pending/confirmed visual states")
   Component(dept_head_notifications, "Department Head Notifications", "React Component", "Displays pending resource requests with approve/reject/dismiss actions")
   Component(prog_head_notifications, "Program Head Notifications", "React Component", "Shows approval/rejection updates with dismissal")
@@ -39,10 +40,13 @@ Container_Boundary(web_app, "ClassFlow Web Application") {
 ' UI Layer Relationships
 Rel(class_session_form, use_class_sessions, "Uses", "checkCrossDepartmentResources()")
 Rel(class_session_form, confirm_dialog, "Shows", "On cross-dept detection")
+Rel(class_session_form, timetable_page, "Redirects to", "With URL params after session creation")
+Rel(timetable_page, drawer, "Renders", "Passes pendingPlacementSessionId")
 Rel(timetable_page, session_cell, "Renders", "Passes pendingSessionIds")
 Rel(timetable_page, use_timetable, "Uses", "Gets pending sessions")
-Rel(timetable_page, use_timetable_dnd, "Uses", "Handles drag-and-drop")
+Rel(timetable_page, use_timetable_dnd, "Uses", "Passes pending placement info")
 Rel(timetable_page, confirm_dialog, "Shows", "On move/remove cross-dept session")
+Rel(drawer, use_timetable_dnd, "Uses", "Drag start handler")
 Rel(session_cell, use_timetable, "Uses", "Checks if session is pending")
 Rel(dept_head_notifications, use_resource_requests, "Uses", "Fetches requests, approve/reject/dismiss")
 Rel(dept_head_notifications, rejection_dialog, "Opens", "On reject action")
@@ -75,9 +79,11 @@ note right of class_session_form
   1. User selects cross-dept resource
   2. checkCrossDepartmentResources() detects
   3. Confirmation modal shows dept name
-  4. On confirm: create session with status='pending'
-  5. Create resource_request
-  6. Notify department head
+  4. On confirm: create session (unassigned)
+  5. Redirect to /scheduler with URL params
+  6. Session highlighted in drawer with pulsing border
+  7. User drags session to timetable
+  8. Request created automatically on placement
 end note
 
 note right of dept_head_notifications

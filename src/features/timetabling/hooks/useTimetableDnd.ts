@@ -19,12 +19,19 @@ const DRAG_DATA_KEY = 'application/json';
  * @param allClassSessions - All class sessions visible to the user (not just their own).
  * @param viewMode - The current timetable view mode for view-specific validation.
  * @param assignments - Current timetable assignments for checking confirmation status.
+ * @param pendingPlacementInfo - Optional info about a session awaiting cross-dept placement.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
 export const useTimetableDnd = (
   allClassSessions: ClassSession[], 
   viewMode: TimetableViewMode = 'class-group',
-  assignments?: HydratedTimetableAssignment[]
+  assignments?: HydratedTimetableAssignment[],
+  pendingPlacementInfo?: {
+    pendingSessionId?: string;
+    resourceType?: 'instructor' | 'classroom';
+    resourceId?: string;
+    departmentId?: string;
+  }
 ) => {
   // --- Core Hooks ---
   const { user } = useAuth();
@@ -358,11 +365,32 @@ export const useTimetableDnd = (
         }
       }
 
+      // Check if this is a pending placement for cross-dept request
+      const isPendingPlacement = pendingPlacementInfo?.pendingSessionId === classSessionToDrop.id;
+      
       // Normal move without confirmation
       try {
         const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
         if (error) {
           toast('Error', { description: error });
+        } else if (isPendingPlacement && pendingPlacementInfo?.resourceType && pendingPlacementInfo?.resourceId && pendingPlacementInfo?.departmentId) {
+          // Create the cross-department request after successful placement
+          const { createRequest } = await import('../../resourceRequests/services/resourceRequestService');
+          try {
+            await createRequest({
+              requester_id: user?.id || '',
+              requesting_program_id: user?.program_id || '',
+              resource_type: pendingPlacementInfo.resourceType,
+              resource_id: pendingPlacementInfo.resourceId,
+              class_session_id: classSessionToDrop.id,
+              target_department_id: pendingPlacementInfo.departmentId,
+              status: 'pending',
+            });
+            toast.success('Session placed and request submitted! Check notifications for updates.');
+          } catch (requestErr) {
+            console.error('Failed to create resource request:', requestErr);
+            toast.error('Session placed but failed to create request. Please try again from Classes page.');
+          }
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
@@ -371,7 +399,7 @@ export const useTimetableDnd = (
         cleanupDragState();
       }
     },
-    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation]
+    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation, pendingPlacementInfo]
   );
 
   /**

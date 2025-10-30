@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 // Import hooks from react-hook-form
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,8 +28,6 @@ import {
 } from '../../classSessionComponents/hooks';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useDepartments } from '../../departments/hooks/useDepartments';
-import * as resourceRequestService from '../../resourceRequests/services/resourceRequestService';
-import { PendingTimetableModal } from '../../resourceRequests/components/PendingTimetableModal';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
@@ -42,6 +41,7 @@ type ClassSessionFormData = z.infer<typeof classSessionSchema>;
  */
 const ClassSessionsPage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const {
     classSessions,
     addClassSession,
@@ -67,11 +67,8 @@ const ClassSessionsPage: React.FC = () => {
     resourceId: string | null;
     departmentId: string | null;
     resourceName: string;
-    pendingSessionId?: string;
   } | null>(null);
   const [pendingFormData, setPendingFormData] = useState<ClassSessionFormData | null>(null);
-  const [showTimetableModal, setShowTimetableModal] = useState(false);
-  const [pendingSession, setPendingSession] = useState<any>(null);
 
   const { listQuery: deptQuery } = useDepartments();
   const departments = useMemo(() => deptQuery.data || [], [deptQuery.data]);
@@ -177,14 +174,12 @@ const ClassSessionsPage: React.FC = () => {
   const handleConfirmCrossDept = async () => {
     if (!pendingFormData || !user || !crossDeptInfo) return;
 
-    // Validate required fields
     if (!user.program_id) {
       toast.error('User is not assigned to a program');
       return;
     }
 
     try {
-      // 1. Create class session only (no timetable assignment yet)
       const program_id = pendingFormData.program_id || user.program_id;
       const newSession = await addClassSession({ 
         ...pendingFormData, 
@@ -192,56 +187,27 @@ const ClassSessionsPage: React.FC = () => {
         program_id 
       });
 
-      // 2. Validate the created session has an ID
       if (!newSession || !newSession.id) {
         throw new Error('Failed to create class session: No ID returned');
       }
 
-      // 3. Store the session and show the timetable modal
-      setPendingSession(newSession);
-      setCrossDeptInfo({ ...crossDeptInfo, pendingSessionId: newSession.id });
-      setShowTimetableModal(true);
-    } catch (error) {
-      console.error('Error creating class session:', error);
-      toast.error('Failed to create class session');
-    }
-  };
-
-  const handleTimetablePlacement = async () => {
-    if (!pendingSession || !crossDeptInfo || !user) return;
-
-    // Validate all required fields before creating the request
-    if (!user.program_id) {
-      toast.error('User is not assigned to a program');
-      return;
-    }
-
-    if (!crossDeptInfo.resourceType || !crossDeptInfo.resourceId || !crossDeptInfo.departmentId) {
-      toast.error('Missing resource information');
-      return;
-    }
-
-    try {
-      // Create the resource request now that placement is confirmed
-      await resourceRequestService.createRequest({
-        requester_id: user.id,
-        requesting_program_id: user.program_id,
-        resource_type: crossDeptInfo.resourceType,
-        resource_id: crossDeptInfo.resourceId,
-        class_session_id: pendingSession.id,
-        target_department_id: crossDeptInfo.departmentId,
-        status: 'pending',
+      // Store cross-dept info in URL for timetable page
+      const params = new URLSearchParams({
+        pendingSessionId: newSession.id,
+        resourceType: crossDeptInfo.resourceType || '',
+        resourceId: crossDeptInfo.resourceId || '',
+        departmentId: crossDeptInfo.departmentId || '',
       });
 
-      toast.success('Request submitted! Check the notification panel to view pending requests or cancel if needed.');
       formMethods.reset();
       setCrossDeptInfo(null);
       setPendingFormData(null);
-      setPendingSession(null);
-      setShowTimetableModal(false);
+      
+      toast.success('Session created! Now drag it to the timetable to submit your request.');
+      navigate(`/scheduler?${params.toString()}`);
     } catch (error) {
-      console.error('Error creating cross-department request:', error);
-      toast.error('Failed to submit request');
+      console.error('Error creating class session:', error);
+      toast.error('Failed to create class session');
     }
   };
 
@@ -352,7 +318,7 @@ const ClassSessionsPage: React.FC = () => {
       </ConfirmModal>
 
       <ConfirmModal
-        isOpen={!!crossDeptInfo && !showTimetableModal}
+        isOpen={!!crossDeptInfo}
         title="Cross-Department Request Required"
         onClose={() => {
           setCrossDeptInfo(null);
@@ -360,39 +326,23 @@ const ClassSessionsPage: React.FC = () => {
         }}
         onConfirm={handleConfirmCrossDept}
         isLoading={isSubmitting}
-        confirmText="Continue to Place on Timetable"
+        confirmText="Create Session & Go to Timetable"
       >
         <div className="space-y-2">
           <p>
             The selected {crossDeptInfo?.resourceType} (<strong>{crossDeptInfo?.resourceName}</strong>) belongs to a
             different department.
           </p>
-          <p className="text-sm text-gray-600">
-            You'll need to place this session on the timetable before submitting a request to the{' '}
+          <p className="text-sm text-muted-foreground">
+            You'll be redirected to the timetable where you can drag the session to a time slot. 
+            After placement, a request will be sent to the{' '}
             <strong>
               {departments.find((d) => d.id === crossDeptInfo?.departmentId)?.name || 'department'}
             </strong>{' '}
             head for approval.
           </p>
-          <p className="text-xs text-gray-500">
-            The session will be marked as pending until approved.
-          </p>
         </div>
       </ConfirmModal>
-
-      {pendingSession && (
-        <PendingTimetableModal
-          isOpen={showTimetableModal}
-          onClose={() => {
-            setShowTimetableModal(false);
-            setPendingSession(null);
-            setCrossDeptInfo(null);
-            setPendingFormData(null);
-          }}
-          classSession={pendingSession}
-          onPlacementComplete={handleTimetablePlacement}
-        />
-      )}
     </>
   );
 };

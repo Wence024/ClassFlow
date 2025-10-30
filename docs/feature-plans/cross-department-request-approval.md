@@ -242,9 +242,13 @@ This feature enables program heads to request instructors or classrooms from oth
 - Show toast notification for re-approval requirement
 
 ### `useTimetableDnd.ts`
-- `handleDropToGrid()` - Accept optional confirmation callback
+- Accept `pendingPlacementInfo` parameter with cross-dept details
+- `handleDropToGrid()`:
+  - Accept optional confirmation callback
   - Detect cross-dept resources on confirmed sessions
   - Call confirmation before proceeding
+  - After successful placement of pending session, automatically create resource request
+  - Show success toast with notification reminder
 - `handleDropToDrawer()` - Accept optional confirmation callback
   - Check for cross-dept resources before removal
   - Call `cancelActiveRequestsForClassSession()` on confirmation
@@ -262,12 +266,12 @@ This feature enables program heads to request instructors or classrooms from oth
 - Render ConfirmModal with cross-department details
 
 ### `ClassSessionsPage.tsx`
-- Accept pending flag and resource info from form
-- When pending:
-  1. Create class_session normally
-  2. Assign to timetable with `status: 'pending'`
-  3. Create resource_request with metadata
-- Handle all operations with error handling
+- When cross-dept resource detected:
+  1. Show confirmation modal with resource details
+  2. On confirm: create class_session (unassigned)
+  3. Redirect to `/scheduler` with URL params: `pendingSessionId`, `resourceType`, `resourceId`, `departmentId`
+  4. Show success toast: "Session created! Drag it to timetable..."
+- No longer uses `PendingTimetableModal` component (removed)
 
 ### `SessionCell.tsx`
 - Accept `pendingSessionIds?: Set<string>` prop
@@ -280,6 +284,10 @@ This feature enables program heads to request instructors or classrooms from oth
 - DropZone rejects drops onto pending sessions
 
 ### `TimetablePage.tsx`
+- Read URL params: `pendingSessionId`, `resourceType`, `resourceId`, `departmentId`
+- Pass pending placement info to `useTimetableDnd` hook
+- Show toast notification on mount if `pendingSessionId` exists
+- Pass `pendingPlacementSessionId` to `Drawer` component for highlighting
 - Pass `pendingSessionIds` from useTimetable hook through context
 - Confirmation dialog state and handlers
 - `handleDropToGridWithConfirm` wrapper with confirmation logic
@@ -313,6 +321,15 @@ This feature enables program heads to request instructors or classrooms from oth
 - "Dismiss" button for approved/rejected requests
 - Display rejection messages from department heads
 - Real-time subscription for updates
+
+### `Drawer.tsx`
+- Accept `pendingPlacementSessionId?: string` prop
+- Apply special highlighting to pending placement session:
+  - Pulsing orange border animation
+  - Orange background tint
+  - Exclamation badge (top-right)
+  - Shadow glow effect
+- Regular sessions maintain normal styling
 
 ### `RejectionDialog.tsx` (New Component)
 - Modal dialog for rejection
@@ -357,11 +374,14 @@ This feature enables program heads to request instructors or classrooms from oth
 **Initial Request:**
 - Program Head selects cross-dept resource → Modal appears
 - Modal shows department name and resource name
-- Program Head confirms → Session created with status 'pending'
-- Request created automatically
+- Program Head confirms → Redirected to timetable page
+- Session appears in drawer with pulsing orange border and badge
+- Toast notification guides user to drag session
+- Program Head drags session to timetable slot
+- Request created automatically after placement
 - Department head notified
 
-**Pending Session Appearance:**
+**Pending Session Appearance (after placement):**
 - Dashed orange border
 - Reduced opacity (0.7)
 - Clock icon indicator

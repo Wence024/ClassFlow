@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { useTimetable } from '../hooks/useTimetable';
+import { toast } from 'sonner';
 import { Drawer, Timetable } from './components';
 import { useTimetableDnd } from '../hooks/useTimetableDnd';
 import { LoadingSpinner, CustomTooltip } from '../../../components/ui';
@@ -33,6 +35,13 @@ interface TooltipState {
  */
 const TimetablePage: React.FC = () => {
   const { viewMode, setViewMode } = useTimetableViewMode();
+  const [searchParams] = useSearchParams();
+  
+  // Extract pending placement info from URL
+  const pendingSessionId = searchParams.get('pendingSessionId');
+  const resourceType = searchParams.get('resourceType') as 'instructor' | 'classroom' | null;
+  const resourceId = searchParams.get('resourceId');
+  const departmentId = searchParams.get('departmentId');
   
   // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
@@ -41,8 +50,25 @@ const TimetablePage: React.FC = () => {
   });
 
   const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
-  const dnd = useTimetableDnd(allClassSessions, viewMode, assignments);
+  const dnd = useTimetableDnd(allClassSessions, viewMode, assignments, {
+    pendingSessionId: pendingSessionId || undefined,
+    resourceType: resourceType || undefined,
+    resourceId: resourceId || undefined,
+    departmentId: departmentId || undefined,
+  });
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  
+  // Show toast notification for pending placement
+  useEffect(() => {
+    if (pendingSessionId && !isLoadingSessions) {
+      const session = allClassSessions.find(s => s.id === pendingSessionId);
+      if (session) {
+        toast.info('Drag the highlighted session to the timetable to submit your request', {
+          duration: 8000,
+        });
+      }
+    }
+  }, [pendingSessionId, allClassSessions, isLoadingSessions]);
   
   // Confirmation dialog state
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -139,6 +165,7 @@ const TimetablePage: React.FC = () => {
     onShowTooltip: handleShowTooltip,
     onHideTooltip: handleHideTooltip,
     pendingSessionIds,
+    pendingPlacementSessionId: pendingSessionId || undefined,
   };
 
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
@@ -166,6 +193,7 @@ const TimetablePage: React.FC = () => {
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
               onDropToDrawer={handleDropToDrawerWithConfirm}
+              pendingPlacementSessionId={pendingSessionId || undefined}
             />
           </TimetableContext.Provider>
         )}

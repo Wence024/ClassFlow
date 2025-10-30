@@ -13,6 +13,7 @@ type DrawerClassSession = Pick<ClassSession, 'id'> & { displayName: string };
  * @param drawerClassSessions - An array of unassigned class sessions to be displayed.
  * @param onDragStart - The handler to call when dragging starts.
  * @param onDropToDrawer - The handler to call when something is dropped on the drawer.
+ * @param pendingPlacementSessionId - Optional ID of session awaiting timetable placement for cross-dept request.
  * @returns The rendered Drawer component.
  */
 interface DrawerProps {
@@ -22,6 +23,8 @@ interface DrawerProps {
   onDragStart: (e: React.DragEvent, source: DragSource) => void;
   /** The `onDrop` handler for the drawer area from the `useTimetableDnd` hook. */
   onDropToDrawer: (e: React.DragEvent) => void;
+  /** Optional ID of session awaiting placement for cross-dept request (highlighted with pulsing border). */
+  pendingPlacementSessionId?: string;
 }
 
 /**
@@ -37,7 +40,7 @@ interface DrawerProps {
  * @param d.onDropToDrawer - The handler to call when something is dropped on the drawer.
  * @returns The rendered drawer component.
  */
-const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer }) => {
+const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer, pendingPlacementSessionId }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Load collapsed state from localStorage on mount
@@ -97,17 +100,29 @@ const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDro
       >
         {drawerClassSessions.length > 0 ? (
           <ul className="flex flex-wrap gap-2 justify-center">
-            {drawerClassSessions.map((session) => (
-              <li
-                key={session.id}
-                draggable
-                onDragStart={(e) => onDragStart(e, { from: 'drawer', class_session_id: session.id })}
-                className="px-3 py-2 bg-muted rounded-md cursor-grab text-sm hover:bg-muted/80 transition-colors"
-                aria-label={`Draggable session: ${session.displayName}`}
-              >
-                {session.displayName}
-              </li>
-            ))}
+            {drawerClassSessions.map((session) => {
+              const isPendingPlacement = session.id === pendingPlacementSessionId;
+              return (
+                <li
+                  key={session.id}
+                  draggable
+                  onDragStart={(e) => onDragStart(e, { from: 'drawer', class_session_id: session.id })}
+                  className={`relative px-3 py-2 rounded-md cursor-grab text-sm transition-all ${
+                    isPendingPlacement 
+                      ? 'bg-orange-500/10 border-2 border-orange-500 animate-pulse shadow-lg shadow-orange-500/20' 
+                      : 'bg-muted hover:bg-muted/80'
+                  }`}
+                  aria-label={`Draggable session: ${session.displayName}`}
+                >
+                  {session.displayName}
+                  {isPendingPlacement && (
+                    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                      !
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <p className="text-center text-muted-foreground py-4">All classes have been scheduled.</p>
