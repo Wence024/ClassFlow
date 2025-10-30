@@ -139,9 +139,9 @@ export default function RequestNotifications() {
 
   const handleSeeInTimetable = (_classSessionId: string, periodIndex?: number, classGroupId?: string) => {
     if (periodIndex !== undefined && classGroupId) {
-      // Navigate to timetable - in future we can add highlighting logic
-      navigate('/scheduler');
-      toast.info('Opening timetable. Look for the pending session with the requested resource.');
+      // Navigate to timetable with highlight parameters
+      navigate(`/scheduler?highlightPeriod=${periodIndex}&highlightGroup=${classGroupId}`);
+      toast.info('Highlighted session in timetable');
     } else {
       toast.error('Timetable position not available');
     }

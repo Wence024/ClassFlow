@@ -348,7 +348,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
   isNotLastInTable,
   viewMode,
 }) => {
-  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip, pendingSessionIds } =
+  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip, pendingSessionIds, highlightPeriod, highlightGroup } =
     useTimetableContext();
   const { user } = useAuth();
 
@@ -384,10 +384,13 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const ownSession = sessions.find((s) => s.program_id === user?.program_id);
   const isOwnSession = !!ownSession;
   const isPending = pendingSessionIds?.has(primarySession.id) || false;
+  const isHighlighted = highlightPeriod === periodIndex && highlightGroup === groupId;
 
   const cellStyle = isOwnSession
     ? isPending
       ? { ...createCellBackground(sessions, isDraggedSession), border: '2px dashed #F59E0B', opacity: 0.7 }
+      : isHighlighted
+      ? { ...createCellBackground(sessions, isDraggedSession), border: '3px solid #10B981', boxShadow: '0 0 12px rgba(16, 185, 129, 0.6)' }
       : createCellBackground(sessions, isDraggedSession)
     : { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
 

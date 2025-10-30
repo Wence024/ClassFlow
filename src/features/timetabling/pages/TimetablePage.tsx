@@ -36,13 +36,17 @@ interface TooltipState {
  */
 const TimetablePage: React.FC = () => {
   const { viewMode, setViewMode } = useTimetableViewMode();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Extract pending placement info from URL
   const pendingSessionId = searchParams.get('pendingSessionId');
   const resourceType = searchParams.get('resourceType') as 'instructor' | 'classroom' | null;
   const resourceId = searchParams.get('resourceId');
   const departmentId = searchParams.get('departmentId');
+  
+  // Extract highlight info from URL
+  const highlightPeriod = searchParams.get('highlightPeriod');
+  const highlightGroup = searchParams.get('highlightGroup');
   
   // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
@@ -261,6 +265,29 @@ const TimetablePage: React.FC = () => {
     displayName: `${cs.course.name} - ${cs.group.name}`,
   }));
 
+  // Auto-scroll to highlighted cell and clear params after scroll
+  useEffect(() => {
+    if (highlightPeriod && highlightGroup && !loadingTimetable) {
+      const timer = setTimeout(() => {
+        const cellElement = document.querySelector(
+          `[data-testid="cell-${highlightGroup}-${highlightPeriod}"]`
+        );
+        if (cellElement) {
+          cellElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+          
+          // Clear highlight params after 5 seconds
+          setTimeout(() => {
+            searchParams.delete('highlightPeriod');
+            searchParams.delete('highlightGroup');
+            setSearchParams(searchParams, { replace: true });
+          }, 5000);
+        }
+      }, 300); // Small delay to ensure DOM is ready
+      
+      return () => clearTimeout(timer);
+    }
+  }, [highlightPeriod, highlightGroup, loadingTimetable, searchParams, setSearchParams]);
+
   // Combine D&D handlers and tooltip handlers into a single object for the context
   const contextValue = {
     ...dnd,
@@ -270,6 +297,8 @@ const TimetablePage: React.FC = () => {
     onHideTooltip: handleHideTooltip,
     pendingSessionIds,
     pendingPlacementSessionId: pendingSessionId || undefined,
+    highlightPeriod: highlightPeriod ? parseInt(highlightPeriod) : undefined,
+    highlightGroup: highlightGroup || undefined,
   };
 
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
