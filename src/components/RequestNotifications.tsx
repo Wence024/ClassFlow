@@ -1,4 +1,4 @@
-import { Bell, X } from 'lucide-react';
+import { Bell, X, MapPin } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
@@ -6,8 +6,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
-import type { ResourceRequest } from '../features/resourceRequests/types/resourceRequest';
+import { useNavigate } from 'react-router-dom';
 import RejectionDialog from './dialogs/RejectionDialog';
+import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -19,6 +20,7 @@ export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId, user } = useAuth();
   const { requests, dismissRequest } = useDepartmentRequests(departmentId || undefined);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [dismissingId, setDismissingId] = useState<string | null>(null);
@@ -38,29 +40,11 @@ export default function RequestNotifications() {
   const hasNotifications = pendingRequests.length > 0;
 
   // Fetch enriched details for each pending request
-  const { data: enrichedRequests = [] } = useQuery<(ResourceRequest & { resource_name: string; class_session_id: string })[]>({
+  const { data: enrichedRequests = [] } = useQuery({
     queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
-        pendingRequests.map(async (req) => {
-          let resourceName = 'Unknown';
-          if (req.resource_type === 'instructor') {
-            const { data } = await supabase
-              .from('instructors')
-              .select('first_name, last_name')
-              .eq('id', req.resource_id)
-              .single();
-            if (data) resourceName = `${data.first_name} ${data.last_name}`;
-          } else if (req.resource_type === 'classroom') {
-            const { data } = await supabase
-              .from('classrooms')
-              .select('name')
-              .eq('id', req.resource_id)
-              .single();
-            if (data) resourceName = data.name;
-          }
-          return { ...req, resource_name: resourceName, class_session_id: req.class_session_id };
-        })
+        pendingRequests.map(req => getRequestWithDetails(req.id))
       );
       return enriched;
     },
@@ -153,6 +137,16 @@ export default function RequestNotifications() {
     }
   };
 
+  const handleSeeInTimetable = (_classSessionId: string, periodIndex?: number, classGroupId?: string) => {
+    if (periodIndex !== undefined && classGroupId) {
+      // Navigate to timetable - in future we can add highlighting logic
+      navigate('/scheduler');
+      toast.info('Opening timetable. Look for the pending session with the requested resource.');
+    } else {
+      toast.error('Timetable position not available');
+    }
+  };
+
   // Real-time subscription for notification updates
   useEffect(() => {
     if (!departmentId) return;
@@ -205,38 +199,24 @@ export default function RequestNotifications() {
           ) : (
             enrichedRequests.map((request) => (
               <div key={request.id} className="p-3 border-b last:border-b-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm capitalize">
-                      {request.resource_type} Request
-                    </div>
-                    <div className="text-xs text-gray-700 font-medium truncate">
-                      {request.resource_name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(request.requested_at || '').toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="flex flex-col gap-1">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="text-xs px-2 py-1 h-6"
-                        onClick={() => handleApprove(request.id)}
-                        disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
-                      >
-                        {approvingId === request.id ? 'Approving...' : 'Approve'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="text-xs px-2 py-1 h-6"
-                        onClick={() => handleRejectClick(request.id, request.class_session_id, request.resource_name)}
-                        disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
-                      >
-                        {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
-                      </Button>
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm capitalize">
+                        {request.resource_type} Request
+                      </div>
+                      <div className="text-xs text-gray-700 font-medium truncate">
+                        {request.resource_name}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Requested by: <span className="font-medium text-gray-700">{request.requester_name}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Program: <span className="font-medium text-gray-700">{request.program_name}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(request.requested_at || '').toLocaleDateString()}
+                      </div>
                     </div>
                     <Button
                       size="sm"
@@ -246,6 +226,37 @@ export default function RequestNotifications() {
                       disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
                     >
                       <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="text-xs px-2 py-1 h-7"
+                      onClick={() => handleApprove(request.id)}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                    >
+                      {approvingId === request.id ? 'Approving...' : 'Approve'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="text-xs px-2 py-1 h-7"
+                      onClick={() => handleRejectClick(request.id, request.class_session_id, request.resource_name || 'Resource')}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                    >
+                      {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs px-2 py-1 h-7 flex items-center gap-1"
+                      onClick={() => handleSeeInTimetable(request.class_session_id, request.period_index, request.class_group_id)}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                    >
+                      <MapPin className="h-3 w-3" />
+                      See in Timetable
                     </Button>
                   </div>
                 </div>

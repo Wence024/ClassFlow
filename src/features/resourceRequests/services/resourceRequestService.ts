@@ -251,12 +251,18 @@ export async function cancelActiveRequestsForClassSession(classSessionId: string
 }
 
 /**
- * Fetches a resource request with enriched details (instructor or classroom names).
+ * Fetches a resource request with enriched details including requester info and timetable position.
  *
  * @param requestId - The ID of the resource request.
- * @returns A promise resolving to the enriched resource request.
+ * @returns A promise resolving to the enriched resource request with additional metadata.
  */
-export async function getRequestWithDetails(requestId: string): Promise<ResourceRequest & { resource_name?: string }> {
+export async function getRequestWithDetails(requestId: string): Promise<ResourceRequest & { 
+  resource_name?: string;
+  requester_name?: string;
+  program_name?: string;
+  period_index?: number;
+  class_group_id?: string;
+}> {
   const { data: request, error } = await supabase
     .from(TABLE)
     .select('*')
@@ -266,7 +272,12 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
   if (error) throw error;
   
   let resourceName = 'Unknown Resource';
+  let requesterName = 'Unknown User';
+  let programName = 'Unknown Program';
+  let periodIndex: number | undefined;
+  let classGroupId: string | undefined;
   
+  // Fetch resource name
   if (request.resource_type === 'instructor') {
     const { data: instructor } = await supabase
       .from('instructors')
@@ -289,7 +300,54 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
     }
   }
   
-  return { ...request, resource_name: resourceName } as ResourceRequest & { resource_name: string };
+  // Fetch requester profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', request.requester_id)
+    .single();
+  
+  if (profile?.full_name) {
+    requesterName = profile.full_name;
+  }
+  
+  // Fetch program name
+  const { data: program } = await supabase
+    .from('programs')
+    .select('name')
+    .eq('id', request.requesting_program_id)
+    .single();
+  
+  if (program?.name) {
+    programName = program.name;
+  }
+  
+  // Fetch timetable assignment position
+  const { data: assignment } = await supabase
+    .from('timetable_assignments')
+    .select('period_index, class_group_id')
+    .eq('class_session_id', request.class_session_id)
+    .single();
+  
+  if (assignment) {
+    periodIndex = assignment.period_index;
+    classGroupId = assignment.class_group_id;
+  }
+  
+  return { 
+    ...request, 
+    resource_name: resourceName,
+    requester_name: requesterName,
+    program_name: programName,
+    period_index: periodIndex,
+    class_group_id: classGroupId,
+  } as ResourceRequest & { 
+    resource_name: string;
+    requester_name: string;
+    program_name: string;
+    period_index?: number;
+    class_group_id?: string;
+  };
 }
 
 /**
