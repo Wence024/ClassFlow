@@ -3,9 +3,27 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { DragSource } from '../../types/DragSource';
 import type { ClassSession } from '../../../classSessions/types/classSession';
 import { Button } from '@/components/ui';
+import { useTimetableContext } from './timetable/useTimetableContext';
 
 /** Represents the minimal data needed to display a class session in the drawer. */
-type DrawerClassSession = Pick<ClassSession, 'id'> & { displayName: string };
+type DrawerClassSession = Pick<ClassSession, 'id' | 'course' | 'group' | 'instructor' | 'classroom'> & { displayName: string };
+
+/**
+ * Builds tooltip content for a drawer session.
+ *
+ * @param session - The class session to build tooltip for.
+ * @returns The JSX element to be rendered inside the tooltip.
+ */
+const buildDrawerTooltipContent = (session: DrawerClassSession): React.ReactElement => (
+  <>
+    <p className="font-bold text-sm">{session.course.name}</p>
+    <p className="text-gray-300">{session.course.code}</p>
+    <p className="mt-1">Class Group: {session.group.name}</p>
+    <p>Instructor: {session.instructor.first_name} {session.instructor.last_name}</p>
+    <p>Classroom: {session.classroom.name}</p>
+    <p className="mt-1 text-xs text-gray-400">Drag to timetable to schedule</p>
+  </>
+);
 
 /**
  * Props for the Drawer component.
@@ -42,6 +60,7 @@ interface DrawerProps {
  */
 const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer, pendingPlacementSessionId }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { onShowTooltip, onHideTooltip } = useTimetableContext();
 
   // Load collapsed state from localStorage on mount
   useEffect(() => {
@@ -107,6 +126,8 @@ const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDro
                   key={session.id}
                   draggable
                   onDragStart={(e) => onDragStart(e, { from: 'drawer', class_session_id: session.id })}
+                  onMouseEnter={(e) => onShowTooltip(buildDrawerTooltipContent(session), e.currentTarget)}
+                  onMouseLeave={onHideTooltip}
                   className={`relative px-3 py-2 rounded-md cursor-grab text-sm transition-all ${
                     isPendingPlacement 
                       ? 'bg-orange-500/10 border-2 border-orange-500 animate-pulse shadow-lg shadow-orange-500/20' 

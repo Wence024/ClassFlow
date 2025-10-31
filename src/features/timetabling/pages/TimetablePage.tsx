@@ -263,6 +263,10 @@ const TimetablePage: React.FC = () => {
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
     displayName: `${cs.course.name} - ${cs.group.name}`,
+    course: cs.course,
+    group: cs.group,
+    instructor: cs.instructor,
+    classroom: cs.classroom,
   }));
 
   // Auto-scroll to highlighted cell and clear params after scroll
