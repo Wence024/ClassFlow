@@ -4,6 +4,7 @@ import { Popover, PopoverTrigger, PopoverContent } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 /**
  * Notification dropdown for Program Heads to view the status of their reviewed resource requests.
@@ -123,6 +124,11 @@ export default function RequestStatusNotification() {
       });
     } catch (error) {
       console.error('Error dismissing notification:', error);
+      
+      // Show specific error message to user
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to dismiss notification: ${errorMessage}`);
+      
       // Revert BOTH optimistic updates on error
       await queryClient.invalidateQueries({ 
         queryKey: ['my_reviewed_requests', user?.id],

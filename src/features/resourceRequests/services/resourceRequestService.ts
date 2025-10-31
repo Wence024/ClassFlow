@@ -174,16 +174,28 @@ export async function rejectRequest(id: string, reviewerId: string, message: str
 
 /**
  * Dismisses a resource request notification without taking action.
+ * Can only be called by the requester on approved/rejected requests.
  *
  * @param id - The ID of the resource request to dismiss.
  * @returns A promise resolving when the operation is complete.
+ * @throws Error if the user lacks permission or the request is in the wrong state.
  */
 export async function dismissRequest(id: string): Promise<void> {
   const { error } = await supabase
     .from(TABLE)
     .update({ dismissed: true } as any)
     .eq('id', id);
-  if (error) throw error;
+    
+  if (error) {
+    // Provide more context for RLS policy violations
+    if (error.code === '42501') {
+      throw new Error(
+        'Permission denied: You can only dismiss your own reviewed requests (approved/rejected). ' +
+        'If this is your request, please contact an administrator.'
+      );
+    }
+    throw error;
+  }
 }
 
 /**

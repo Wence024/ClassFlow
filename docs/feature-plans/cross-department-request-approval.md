@@ -204,6 +204,19 @@ To prevent dismissed notifications from reappearing:
 5. **Query Cancellation**: Pending queries cancelled on component unmount to prevent stale updates
 6. **Selective RealtimeProvider Invalidation**: DELETE events don't trigger reviewed requests invalidation (handled by component)
 
+#### Dismissal Permissions
+
+Program Heads can dismiss their **own** reviewed requests (approved or rejected) to clear notifications:
+- **RLS Policy**: `resource_requests_update_requesters_dismiss`
+  - Allows `requester_id = auth.uid()` to UPDATE
+  - Restricted to `status IN ('approved', 'rejected')`
+  - Only allows updating the `dismissed` field
+  - Cannot dismiss pending requests (those should be cancelled instead)
+  
+Department Heads and Admins retain full update permissions for request management via the `resource_requests_update_reviewers` policy.
+
+**Database Constraint**: The `enforce_dismissed_on_reviewed_only` trigger prevents accidentally dismissing pending requests at the database level.
+
 **5.2 Timetable Synchronization**
 
 - Sessions update visual styling when status changes
