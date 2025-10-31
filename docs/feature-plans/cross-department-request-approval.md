@@ -182,13 +182,27 @@ This feature enables program heads to request instructors or classrooms from oth
 - Single global subscription per table to avoid conflicts
 - Uses `invalidateQueries` instead of `refetchQueries` to prevent race conditions
 - Subscribed tables with invalidation strategy:
-  - `resource_requests` - invalidates `resource_requests`, `my_pending_requests`, `my_reviewed_requests` (exact: false)
+  - `resource_requests` - invalidates `resource_requests`, `my_pending_requests`, `my_reviewed_requests` (exact: false) for INSERT/UPDATE events only (DELETE events skipped to prevent dismiss race conditions)
   - `request_notifications` - invalidates `request-notifications` (exact: false)
   - `timetable_assignments` - invalidates `timetable_assignments`, `hydratedTimetable` (exact: false)
   - `class_sessions` - invalidates `classSessions`, `allClassSessions` (exact: false)
 - Prevents "disconnected port" errors from duplicate subscriptions
 - Query invalidation marks queries as stale without forcing immediate refetch
 - Queries refetch only when actively observed (component mounted)
+
+#### Dismiss Action Race Condition Prevention
+
+To prevent dismissed notifications from reappearing:
+
+1. **Dual Optimistic Updates**: Both base query (`my_reviewed_requests`) and enriched query (`my_enriched_reviewed_requests`) are updated optimistically
+2. **Extended Propagation Delay**: 300ms delay allows for:
+   - Database update commit
+   - Supabase real-time event broadcast
+   - React Query invalidation cascade
+3. **Defensive Rendering**: Filter out dismissed items in render even if they slip through queries
+4. **Matched Stale Times**: Both queries use same `staleTime: 10000` to prevent premature refetches
+5. **Query Cancellation**: Pending queries cancelled on component unmount to prevent stale updates
+6. **Selective RealtimeProvider Invalidation**: DELETE events don't trigger reviewed requests invalidation (handled by component)
 
 **5.2 Timetable Synchronization**
 

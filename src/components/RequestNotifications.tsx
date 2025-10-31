@@ -108,25 +108,37 @@ export default function RequestNotifications() {
 
   const handleDismiss = async (requestId: string) => {
     setDismissingId(requestId);
-    
-    // Optimistically update the UI by removing from enrichedRequests
+
+    // Use stable query key with filtering
+    const currentQueryKey = ['enriched_requests', pendingRequests.map((r) => r.id)];
+
     queryClient.setQueryData(
-      ['enriched_requests', pendingRequests.map((r) => r.id)],
+      currentQueryKey,
       (old: any[]) => old?.filter((req) => req.id !== requestId) || []
     );
-    
+
     try {
       await dismissRequest(requestId);
-      
-      // RealtimeProvider handles resource_requests invalidation automatically
-      
+
+      // Wait for propagation
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Invalidate department requests with exact match
+      await queryClient.invalidateQueries({ 
+        queryKey: ['resource_requests', 'dept', departmentId],
+        exact: true 
+      });
+
       toast.success('Request dismissed');
     } catch (error) {
       console.error('Error dismissing request:', error);
       toast.error('Failed to dismiss request');
-      
-      // Revert optimistic update on error
-      await queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
+
+      // Revert optimistic update
+      await queryClient.invalidateQueries({ 
+        queryKey: currentQueryKey,
+        exact: true 
+      });
     } finally {
       setDismissingId(null);
     }

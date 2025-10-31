@@ -21,11 +21,16 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'resource_requests' },
-        () => {
-          console.log('[Realtime] resource_requests changed');
-          queryClient.invalidateQueries({ queryKey: ['resource_requests'], exact: false });
-          queryClient.invalidateQueries({ queryKey: ['my_pending_requests'], exact: false });
-          queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests'], exact: false });
+        (payload) => {
+          console.log('[Realtime] resource_requests changed:', payload.eventType);
+
+          // Only invalidate reviewed requests for INSERT/UPDATE events (not DELETE)
+          // DELETE events are handled by component-level optimistic updates
+          if (payload.eventType !== 'DELETE') {
+            queryClient.invalidateQueries({ queryKey: ['resource_requests'], exact: false });
+            queryClient.invalidateQueries({ queryKey: ['my_pending_requests'], exact: false });
+            queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests'], exact: false });
+          }
         }
       )
       .subscribe();

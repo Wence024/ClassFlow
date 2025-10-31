@@ -39,7 +39,7 @@ Container_Boundary(web_app, "ClassFlow Web Application") {
 }
 
 ' RealtimeProvider Relationships
-Rel(realtime_provider, supabase_realtime, "Subscribes", "Single global subscriptions with invalidateQueries (exact: false) to prevent race conditions")
+Rel(realtime_provider, supabase_realtime, "Subscribes", "Single global subscriptions, selective invalidation (INSERT/UPDATE only for reviewed requests)")
 Rel(supabase_realtime, realtime_provider, "Pushes", "Database change events trigger query invalidation")
 note right of realtime_provider
   **Query Invalidation Strategy**
@@ -47,6 +47,7 @@ note right of realtime_provider
   - Marks queries as stale without forcing refetch
   - Queries refetch only when actively observed
   - Prevents race conditions with dismiss operations
+  - DELETE events skipped for reviewed requests
   - All invalidations use exact: false for flexibility
 end note
 

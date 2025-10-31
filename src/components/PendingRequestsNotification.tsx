@@ -3,6 +3,7 @@ import { useAuth } from '../features/auth/hooks/useAuth';
 import { Popover, PopoverTrigger, PopoverContent } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
+import { useEffect } from 'react';
 
 /**
  * Notification dropdown for Program Heads to view the status of their reviewed resource requests.
@@ -13,6 +14,14 @@ import { supabase } from '../lib/supabase';
 export default function RequestStatusNotification() {
   const { user, isProgramHead } = useAuth();
   const queryClient = useQueryClient();
+
+  // Cancel pending queries on unmount to prevent stale updates
+  useEffect(() => {
+    return () => {
+      queryClient.cancelQueries({ queryKey: ['my_reviewed_requests', user?.id] });
+      queryClient.cancelQueries({ queryKey: ['my_enriched_reviewed_requests'] });
+    };
+  }, [user?.id, queryClient]);
 
   // Only show for program heads
   if (!isProgramHead()) {
@@ -37,7 +46,7 @@ export default function RequestStatusNotification() {
       return data || [];
     },
     enabled: !!user?.id,
-    staleTime: 5000, // Consider data fresh for 5 seconds to prevent race conditions
+    staleTime: 10000, // Consider data fresh for 10 seconds to prevent race conditions
   });
 
   const hasNotifications = reviewedRequests.length > 0;
@@ -74,38 +83,54 @@ export default function RequestStatusNotification() {
       return enriched;
     },
     enabled: reviewedRequests.length > 0,
+    staleTime: 10000, // Match base query staleTime to prevent premature refetches
   });
 
   const handleDismiss = async (requestId: string) => {
-    // Optimistically remove from UI
+    // Optimistically remove from BOTH queries
     queryClient.setQueryData(
       ['my_reviewed_requests', user?.id],
       (old: any[]) => old?.filter((req) => req.id !== requestId) || []
     );
-    
+
+    queryClient.setQueryData(
+      ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
+      (old: any[]) => old?.filter((req) => req.id !== requestId) || []
+    );
+
     try {
       // Mark as dismissed in the database
       const { error } = await supabase
         .from('resource_requests')
         .update({ dismissed: true } as any)
         .eq('id', requestId);
-      
+
       if (error) throw error;
-      
-      // Wait briefly for database to propagate before invalidating
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Invalidate with exact match to prevent race conditions
+
+      // Wait longer for full propagation (DB + realtime + React Query cascade)
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Then invalidate with exact match
       await queryClient.invalidateQueries({ 
         queryKey: ['my_reviewed_requests', user?.id],
         exact: true 
       });
+
+      // Force refetch enriched requests after base query updates
+      await queryClient.invalidateQueries({ 
+        queryKey: ['my_enriched_reviewed_requests'],
+        exact: false
+      });
     } catch (error) {
       console.error('Error dismissing notification:', error);
-      // Revert optimistic update on error
+      // Revert BOTH optimistic updates on error
       await queryClient.invalidateQueries({ 
         queryKey: ['my_reviewed_requests', user?.id],
         exact: true 
+      });
+      await queryClient.invalidateQueries({ 
+        queryKey: ['my_enriched_reviewed_requests'],
+        exact: false
       });
     }
   };
@@ -140,7 +165,7 @@ export default function RequestStatusNotification() {
           {enrichedRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No reviewed requests</div>
           ) : (
-            enrichedRequests.map((request) => (
+            enrichedRequests.filter(request => !request.dismissed).map((request) => (
               <div key={request.id} className="p-3 border-b last:border-b-0">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
