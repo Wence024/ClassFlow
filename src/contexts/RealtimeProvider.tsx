@@ -23,8 +23,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         { event: '*', schema: 'public', table: 'resource_requests' },
         () => {
           console.log('[Realtime] resource_requests changed');
-          queryClient.refetchQueries({ queryKey: ['resource_requests'] });
-          queryClient.refetchQueries({ queryKey: ['my_pending_requests'] });
+          queryClient.invalidateQueries({ queryKey: ['resource_requests'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['my_pending_requests'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests'], exact: false });
         }
       )
       .subscribe();
@@ -37,7 +38,7 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         { event: 'INSERT', schema: 'public', table: 'request_notifications' },
         () => {
           console.log('[Realtime] New request notification');
-          queryClient.refetchQueries({ queryKey: ['request-notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['request-notifications'], exact: false });
         }
       )
       .subscribe();
@@ -50,8 +51,8 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         { event: '*', schema: 'public', table: 'timetable_assignments' },
         () => {
           console.log('[Realtime] timetable_assignments changed');
-          queryClient.refetchQueries({ queryKey: ['timetable_assignments'] });
-          queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
+          queryClient.invalidateQueries({ queryKey: ['timetable_assignments'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'], exact: false });
         }
       )
       .subscribe();
@@ -64,8 +65,8 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
         { event: '*', schema: 'public', table: 'class_sessions' },
         () => {
           console.log('[Realtime] class_sessions changed');
-          queryClient.refetchQueries({ queryKey: ['classSessions'] });
-          queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
+          queryClient.invalidateQueries({ queryKey: ['classSessions'], exact: false });
+          queryClient.invalidateQueries({ queryKey: ['allClassSessions'], exact: false });
         }
       )
       .subscribe();

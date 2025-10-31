@@ -37,6 +37,7 @@ export default function RequestStatusNotification() {
       return data || [];
     },
     enabled: !!user?.id,
+    staleTime: 5000, // Consider data fresh for 5 seconds to prevent race conditions
   });
 
   const hasNotifications = reviewedRequests.length > 0;
@@ -91,13 +92,21 @@ export default function RequestStatusNotification() {
       
       if (error) throw error;
       
-      // Refetch to ensure consistency (RealtimeProvider handles real-time updates)
-      await queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
-      await queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'] });
+      // Wait briefly for database to propagate before invalidating
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Invalidate with exact match to prevent race conditions
+      await queryClient.invalidateQueries({ 
+        queryKey: ['my_reviewed_requests', user?.id],
+        exact: true 
+      });
     } catch (error) {
       console.error('Error dismissing notification:', error);
       // Revert optimistic update on error
-      await queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
+      await queryClient.invalidateQueries({ 
+        queryKey: ['my_reviewed_requests', user?.id],
+        exact: true 
+      });
     }
   };
 

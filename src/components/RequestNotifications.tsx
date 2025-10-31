@@ -59,11 +59,10 @@ export default function RequestNotifications() {
       // Use the atomic approval function (trigger will cleanup notifications)
       await approveRequest(requestId, user?.id || '');
 
-      // Invalidate all affected queries for real-time updates
-      await queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
-      await queryClient.refetchQueries({ queryKey: ['timetable_assignments'] });
-      await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
-      await queryClient.refetchQueries({ queryKey: ['resource_requests'] });
+      // Invalidate affected queries (RealtimeProvider handles resource_requests)
+      await queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      await queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
 
       toast.success('Request approved and timetable updated');
     } catch (error) {
@@ -90,11 +89,10 @@ export default function RequestNotifications() {
       // Reject request (trigger will cleanup notifications)
       await rejectRequest(selectedRequestForRejection.id, user?.id || '', message);
 
-      // Invalidate all affected queries for real-time updates
-      await queryClient.refetchQueries({ queryKey: ['hydratedTimetable'] });
-      await queryClient.refetchQueries({ queryKey: ['timetable_assignments'] });
-      await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
-      await queryClient.refetchQueries({ queryKey: ['resource_requests'] });
+      // Invalidate affected queries (RealtimeProvider handles resource_requests)
+      await queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      await queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
 
       toast.success('Request rejected successfully');
       setRejectionDialogOpen(false);
@@ -120,9 +118,7 @@ export default function RequestNotifications() {
     try {
       await dismissRequest(requestId);
       
-      // Refetch to ensure consistency (RealtimeProvider handles real-time updates)
-      await queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept', departmentId] });
-      await queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
+      // RealtimeProvider handles resource_requests invalidation automatically
       
       toast.success('Request dismissed');
     } catch (error) {

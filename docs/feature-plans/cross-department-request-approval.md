@@ -180,12 +180,15 @@ This feature enables program heads to request instructors or classrooms from oth
 
 - All real-time updates managed by `RealtimeProvider.tsx`
 - Single global subscription per table to avoid conflicts
-- Subscribed tables:
-  - `resource_requests` - invalidates all request-related queries
-  - `request_notifications` - invalidates notification queries
-  - `timetable_assignments` - invalidates timetable queries
-  - `class_sessions` - invalidates session queries
+- Uses `invalidateQueries` instead of `refetchQueries` to prevent race conditions
+- Subscribed tables with invalidation strategy:
+  - `resource_requests` - invalidates `resource_requests`, `my_pending_requests`, `my_reviewed_requests` (exact: false)
+  - `request_notifications` - invalidates `request-notifications` (exact: false)
+  - `timetable_assignments` - invalidates `timetable_assignments`, `hydratedTimetable` (exact: false)
+  - `class_sessions` - invalidates `classSessions`, `allClassSessions` (exact: false)
 - Prevents "disconnected port" errors from duplicate subscriptions
+- Query invalidation marks queries as stale without forcing immediate refetch
+- Queries refetch only when actively observed (component mounted)
 
 **5.2 Timetable Synchronization**
 
@@ -391,28 +394,33 @@ This feature enables program heads to request instructors or classrooms from oth
 - `handleApprove`:
   - Call `approveRequest()` service function
   - Show success toast
-  - Invalidate queries
+  - Invalidate only timetable-related queries (RealtimeProvider handles resource_requests)
 - `handleReject`:
   - Open `RejectionDialog` component
   - Require rejection message
   - Call `rejectRequest()` with message
   - Show success toast
-  - Invalidate queries
+  - Invalidate only timetable-related queries (RealtimeProvider handles resource_requests)
 - ✅ **`handleDismiss`:**
   - Optimistically remove from UI
   - Call `dismissRequest()`
+  - No manual invalidation needed (RealtimeProvider handles it)
   - Revert on error
 - Display request details with resource names
+- No local real-time subscription (handled by RealtimeProvider)
 
 ### `PendingRequestsNotification.tsx` (Program Head)
 
 - Fetches reviewed requests (approved/rejected) that haven't been dismissed
+- Query configured with `staleTime: 5000` to prevent race conditions
 - Display list of user's reviewed requests
 - Badge colors: green (approved), red (rejected)
 - ✅ **"Dismiss" button for approved/rejected requests**
 - ✅ **Display rejection messages from department heads** in styled box with "Reason:" label
-- Real-time subscription for updates
 - Optimistic UI updates on dismissal
+- 100ms debounce before invalidation to allow database propagation
+- Uses `exact: true` invalidation to prevent partial key matches
+- No local real-time subscription (handled by RealtimeProvider)
 
 ### `Drawer.tsx`
 
