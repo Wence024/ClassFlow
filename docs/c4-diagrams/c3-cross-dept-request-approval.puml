@@ -18,7 +18,7 @@ Container_Boundary(web_app, "ClassFlow Web Application") {
   Component(drawer, "Drawer", "React Component", "Displays unassigned sessions, highlights pending placement session with pulsing border")
   Component(session_cell, "Session Cell", "React Component", "Renders individual sessions with pending/confirmed visual states")
   Component(dept_head_notifications, "Department Head Notifications", "React Component", "Displays pending resource requests with approve/reject/dismiss actions")
-  Component(prog_head_notifications, "Program Head Notifications", "React Component", "Shows approval/rejection updates with dismissal")
+  Component(prog_head_notifications, "Program Head Notifications", "React Component", "Shows approval/rejection updates with dismissal and rejection messages")
   Component(rejection_dialog, "Rejection Dialog", "React Component", "Modal requiring rejection message from department head")
   Component(confirm_dialog, "Confirm Dialog", "React Component", "Generic confirmation for moving/removing cross-dept sessions")
   
@@ -100,12 +100,15 @@ end note
 note right of rejection_dialog
   **Workflow 3: Reject Request**
   1. Dept head clicks "Reject"
-  2. Dialog requires message
-  3. rejectRequest() calls DB function
+  2. Dialog requires message (validation)
+  3. rejectRequest() calls DB function with message
   4. DB logic:
      - If pending: delete session/assignment
      - If approved: restore to original position
-  5. Program head notified with message
+     - Store rejection_message in resource_requests
+  5. Trigger deletes request_notifications
+  6. Program head sees notification with feedback
+  7. Message displayed in styled red box
 end note
 
 note right of use_timetable_dnd

@@ -47,7 +47,7 @@ export default function RequestStatusNotification() {
     queryKey: ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
-        reviewedRequests.map(async (req) => {
+        reviewedRequests.map(async (req: any) => {
           let resourceName = 'Unknown';
           if (req.resource_type === 'instructor') {
             const { data } = await supabase
@@ -64,7 +64,11 @@ export default function RequestStatusNotification() {
               .single();
             if (data) resourceName = data.name;
           }
-          return { ...req, resource_name: resourceName };
+          return { 
+            ...req, 
+            resource_name: resourceName,
+            rejection_message: req.rejection_message as string | null
+          };
         })
       );
       return enriched;
@@ -182,6 +186,12 @@ export default function RequestStatusNotification() {
                     }`}>
                       {request.status === 'approved' ? 'Approved' : 'Rejected'}
                     </div>
+                    {request.status === 'rejected' && request.rejection_message && (
+                      <div className="text-xs mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                        <span className="font-medium text-red-700">Reason: </span>
+                        <span className="text-gray-700">{request.rejection_message}</span>
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={() => handleDismiss(request.id)}

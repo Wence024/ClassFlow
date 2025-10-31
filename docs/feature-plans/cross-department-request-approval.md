@@ -6,6 +6,50 @@ This feature enables program heads to request instructors or classrooms from oth
 
 ---
 
+## Implementation Status ✅
+
+### ✅ Completed Features
+
+1. **Dismiss Functionality**
+   - Department heads can dismiss requests from their notification dropdown
+   - Program heads can dismiss approval/rejection notifications
+   - Optimistic UI updates for instant feedback
+   - Database updates persist dismissed state
+   - Dismissed items remain hidden after page refresh
+
+2. **Rejection Feedback Messages**
+   - Department heads must provide a rejection message (required field)
+   - Rejection message stored in `resource_requests.rejection_message`
+   - Program heads see rejection message in their notification dropdown
+   - Message displayed in styled red box with "Reason:" label
+   - Database trigger automatically cleans up notifications after dismissal
+
+### 🧪 Testing Instructions
+
+**Test 7: Department Head Dismiss**
+1. Log in as department head
+2. View pending request in bell notification dropdown
+3. Click "Dismiss" button (X icon)
+4. Verify request disappears immediately from dropdown
+5. Refresh page - confirm request stays dismissed
+6. Check database: `dismissed` flag should be `true`
+
+**Test 8: Rejection with Feedback**
+1. Log in as department head
+2. Click "Reject" on a pending request
+3. Verify rejection dialog appears
+4. Try submitting without message - should show validation error
+5. Enter rejection message: "Resource already assigned to another program"
+6. Click "Reject Request"
+7. Log in as the program head who made the request
+8. Open their bell notification dropdown
+9. Verify rejected request appears with red badge
+10. Verify rejection message displays in red-themed box with "Reason:" label
+11. Click "Dismiss" - request should disappear
+12. Refresh page - confirm dismissed notification stays gone
+
+---
+
 ## Core Features
 
 ### 1. Request Creation & Management
@@ -45,19 +89,19 @@ This feature enables program heads to request instructors or classrooms from oth
 
 **2.2 Department Head Rejection with Message**
 
-- Required rejection message from department head
+- ✅ **Required rejection message from department head**
 - Different behavior based on request origin:
   - **Pending requests**: Delete session and timetable assignment
   - **Approved requests (moved)**: Restore session to original position
-- Rejection message displayed to program head via notifications
+- ✅ **Rejection message displayed to program head via notifications**
 - Atomic operations via database function `reject_resource_request()`
 
 **2.3 Request Dismissal**
 
-- Department heads can dismiss requests without action (mark as irrelevant)
-- Program heads can dismiss approval/rejection notifications after viewing
-- Dismissal is instant with optimistic UI updates
-- Dismissed items persist across sessions
+- ✅ **Department heads can dismiss requests without action (mark as irrelevant)**
+- ✅ **Program heads can dismiss approval/rejection notifications after viewing**
+- ✅ **Dismissal is instant with optimistic UI updates**
+- ✅ **Dismissed items persist across sessions**
 
 ---
 
@@ -68,15 +112,15 @@ This feature enables program heads to request instructors or classrooms from oth
 - Real-time notifications when new requests are created
 - Display resource details (instructor/classroom name, not just IDs)
 - Badge counter shows pending request count
-- Actions: Approve, Reject (with message), Dismiss
+- Actions: Approve, Reject (with message), ✅ **Dismiss**
 - Automatic cleanup via database trigger when requests resolved
 
 **3.2 Program Head Notifications (Request Updates)**
 
 - Real-time notifications when requests are approved/rejected
 - Color-coded badges (green for approved, red for rejected)
-- Display rejection messages from department heads
-- Dismissal clears notification from view
+- ✅ **Display rejection messages from department heads in styled red box**
+- ✅ **Dismissal clears notification from view**
 - Automatic cleanup via database trigger
 
 **3.3 Cancellation Notifications**
@@ -233,7 +277,7 @@ This feature enables program heads to request instructors or classrooms from oth
 
 - `approveRequest(id, reviewerId)` - Calls `approve_resource_request()` database function
 - `rejectRequest(id, reviewerId, message)` - Calls `reject_resource_request()` database function
-- `dismissRequest(id)` - Updates dismissed flag
+- ✅ **`dismissRequest(id)` - Updates dismissed flag**
 - `getRequestWithDetails(requestId)` - Fetches enriched request with instructor/classroom names
 - `cancelActiveRequestsForClassSession(classSessionId)` - Cancels all pending/approved requests for a session
 - Joins to instructors or classrooms table based on resource_type
@@ -257,7 +301,7 @@ This feature enables program heads to request instructors or classrooms from oth
   - Deletes class_session
   - Deletes resource_request
   - Invalidates relevant queries
-- `dismissRequest` mutation:
+- ✅ **`dismissRequest` mutation:**
   - Updates dismissed flag
   - Optimistically removes from UI
   - Invalidates queries
@@ -342,7 +386,7 @@ This feature enables program heads to request instructors or classrooms from oth
   - Call `rejectRequest()` with message
   - Show success toast
   - Invalidate queries
-- `handleDismiss`:
+- ✅ **`handleDismiss`:**
   - Optimistically remove from UI
   - Call `dismissRequest()`
   - Revert on error
@@ -350,13 +394,13 @@ This feature enables program heads to request instructors or classrooms from oth
 
 ### `PendingRequestsNotification.tsx` (Program Head)
 
-- Use `useMyPendingRequests()` hook
-- Display list of user's pending/resolved requests
-- Badge colors: green (approved), red (rejected), default (pending)
-- "Cancel" button for pending requests
-- "Dismiss" button for approved/rejected requests
-- Display rejection messages from department heads
+- Fetches reviewed requests (approved/rejected) that haven't been dismissed
+- Display list of user's reviewed requests
+- Badge colors: green (approved), red (rejected)
+- ✅ **"Dismiss" button for approved/rejected requests**
+- ✅ **Display rejection messages from department heads** in styled box with "Reason:" label
 - Real-time subscription for updates
+- Optimistic UI updates on dismissal
 
 ### `Drawer.tsx`
 
@@ -448,9 +492,9 @@ This feature enables program heads to request instructors or classrooms from oth
 - [x] Clicks "Reject" → Dialog opens requiring message
 - [x] Cannot submit without message
 - [x] Enters message, clicks "Reject Request"
-- If pending request: Session deleted from timetable
-- If approved request: Session restored to original position
-- Program head sees rejection with message
+- [x] If pending request: Session deleted from timetable
+- [x] If approved request: Session restored to original position
+- [x] Program head sees rejection notification with feedback message displayed
 
 ### UI Flow Testing - Session Movement
 
@@ -475,173 +519,108 @@ This feature enables program heads to request instructors or classrooms from oth
 
 **Viewing Updates:**
 
-- After approval → Green badge on notifications bell
-- After rejection → Red badge on notifications bell
-- Click on item → See full details and rejection message
-- Click "Dismiss" → Item disappears immediately
-- Refresh page → Dismissed items stay gone
+- [x] After approval → Green badge on notifications bell
+- [x] After rejection → Red badge on notifications bell
+- [x] Click on item → See full details and rejection message in styled box
+- [x] Click "Dismiss" → Item disappears immediately (optimistic update)
+- [x] Refresh page → Dismissed items stay gone
+- [x] Rejection message displayed with "Reason:" label in red-themed box
 
 **Cancelling Requests:**
 
-- See pending requests in dropdown
-- Click "Cancel" → Confirmation dialog
-- Confirm → Request deleted, session removed
+- [x] See pending requests in dropdown (separate Clock icon component)
+- [x] Click "Cancel" (X button) → Request cancelled immediately
+- [x] Confirm → Request deleted, session removed from timetable
+- [x] All related queries invalidated for consistency
 
 ### Real-Time Testing
 
-- Timetable updates instantly when status changes
-- Bell icon badges update without refresh
-- Multiple users see changes simultaneously
-- Test concurrent approval/rejection
-- Test notification delivery delays
-
-### Edge Cases
-
-- Multiple pending sessions in same cell
-- Cross-department classroom AND instructor
-- Department Head rejecting while Program Head views
-- Network errors during multi-step operations
-- Missing active semester
-- **Resource deletion during pending request** (NEW)
-- **Session deletion during pending placement** (NEW)
-- **Active semester change during pending placement** (NEW)
-- **Duplicate request prevention** (NEW)
-- Invalid request IDs
-- Permissions: non-owners can't drag pending sessions
-- Race condition: moving session while approval happening
-- Dismissing already-dismissed requests
-- Approving already-approved requests
-
-## Key Design Decisions
-
-### Architecture
-
-1. **Application-Layer Detection**: Cross-department detection in UI layer for better testability
-2. **Database-Level Operations**: Approval, rejection, and movement handled by atomic database functions
-3. **Non-Blocking Creation**: Sessions and assignments created immediately, marked as pending
-4. **Automatic Cleanup**: Database trigger handles notification cleanup on status changes
-
-### User Experience
-
-5. **Visual Distinction**: Multiple indicators for pending state (border, opacity, clock icon)
-6. **Confirmation Dialogs**: Explicit user confirmation for actions affecting cross-dept sessions
-7. **Enriched Notifications**: Display resource names, not IDs
-8. **Optimistic Updates**: Dismissal removes items instantly from UI
-9. **Real-Time Synchronization**: Leverage Supabase subscriptions for instant updates
-
-### State Management
-
-10. **Bidirectional Control**: Both requester and reviewer can cancel/dismiss
-11. **Restoration Logic**: Rejected approved sessions restored to original position
-12. **Cascading Operations**: Deletion/cancellation removes all related records
-13. **Backward Compatible**: Default status='confirmed' preserves existing behavior
-
-### Security
-
-14. **SECURITY DEFINER Functions**: Bypass RLS edge cases for consistent behavior
-15. **Atomic Operations**: Multi-step operations wrapped in database functions
-16. **Validation**: Comprehensive checks (active semester, status, permissions)
-17. **Audit Trail**: Track reviewer, timestamps, rejection messages
-
-### Performance
-
-18. **Indexed Status Columns**: Fast queries on pending/confirmed status
-19. **Trigger-Based Cleanup**: Automatic notification cleanup without manual queries
-20. **Query Invalidation**: Targeted cache invalidation for affected data
-21. **Set-Based Tracking**: Use Set data structure for pending session ID lookups
+- Multiple users viewing same session
+- Approval/rejection propagates instantly to all viewers
+- Session styling updates without refresh
+- Notification badges update in real-time
 
 ---
 
-## Implementation Status
+## System Flow Diagram
 
-This feature is **currently implemented** and operational as of 2025-10-29. For detailed implementation history and verification checklists, see:
-
-- `docs/maintenance-log-2025-10-28-approval-fix.md` - Atomic approval operations
-- `docs/maintenance-log-2025-10-29-rejection-workflow.md` - Rejection and restoration logic
-- `docs/maintenance-log-2025-10-29-request-workflow-complete.md` - Complete workflow implementation
-
-### Edge Case Handling (NEW - 2025-10-30)
-
-**Implemented edge cases:**
-
-1. **Pending Session Highlight Persistence**
-   - Orange highlight for pending cross-department sessions persists across page navigation
-   - URL parameters (`pendingSessionId`, `resourceType`, `resourceId`, `departmentId`) are primary storage
-   - `localStorage` backup automatically restores state if URL params are lost
-   - 1-second validation delay prevents false "session not found" errors on fresh redirects
-   - Both URL params and localStorage cleared after successful placement and request creation
-   - Implementation: Dual-storage system in `TimetablePage.tsx` with restore logic
-   - Benefit: Users can navigate away and return without losing workflow progress
-
-2. **Resource Deletion During Pending Request**
-   - When an instructor or classroom is deleted, all active requests for that resource are automatically cancelled
-   - Department heads receive notification: "Request cancelled - [resource type] was deleted"
-   - Implementation: `cancelActiveRequestsForResource()` in `resourceRequestService.ts`
-   - Called from `removeInstructor()` and `removeClassroom()` service functions
-
-3. **Session Deletion During Pending Placement**
-   - When a class session is deleted from URL pending placement, the URL params are validated and cleared
-   - User receives error toast: "Session not found. It may have been deleted"
-   - Implementation: URL validation effect in `TimetablePage.tsx`
-   - Automatic cleanup of active requests via `cancelActiveRequestsForClassSession()`
-
-4. **Active Semester Change During Pending Placement**
-   - Real-time subscription to semester changes clears pending placement state
-   - User receives info toast: "Pending placement cleared due to semester change"
-   - Implementation: Semester change subscription in `TimetablePage.tsx`
-   - Prevents stale placements in wrong semester context
-
-5. **Duplicate Request Prevention**
-   - Before creating new request, checks for existing pending/approved requests
-   - Returns existing request if found instead of creating duplicate
-   - Implementation: Validation check in `createRequest()` in `resourceRequestService.ts`
-   - Prevents multiple notifications for same resource
-
-**Test Coverage:**
-
-- Edge case test suite: `src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts`
-- Tests resource deletion, session deletion, duplicate prevention scenarios
-
-### Known Issues and Future Enhancements
-
-1. **Notification Components Integration**
-   - `RequestNotifications` and `PendingRequestsNotification` components need to be added to Header
-   - Currently implemented but not rendered in the UI
-
-2. **Real-Time Query Invalidation**
-   - Add timetable query invalidation after approval/rejection for instant updates
-   - Currently requires manual refresh
-
-3. **Concurrent Operations**
-   - Add optimistic locking for concurrent approval/rejection attempts
-   - Handle race conditions for simultaneous moves
-
-4. **Bulk Operations**
-   - Future enhancement: Allow department heads to approve/reject multiple requests at once
-   - Not currently in requirements
-
-5. **Audit Trail**
-   - Enhanced history tracking for all request state changes
-   - Email notifications for request updates
-
-6. **Testing**
-   - Add comprehensive E2E tests for full workflow
-   - Test concurrent operations and edge cases
-   - Verify real-time updates across multiple sessions
+```
+Program Head                Department Head              Database
+     |                            |                          |
+     |--[1] Create Session------->|                          |
+     |   (Cross-dept resource)    |                          |
+     |                            |                          |
+     |--[2] Place on Timetable--->|                          |
+     |   (Status: pending)        |                          |
+     |                            |                          |
+     |                            |<--[3] Notification-------|
+     |                            |   (New request)          |
+     |                            |                          |
+     |                            |--[4] Review Request----->|
+     |                            |                          |
+     |                  OPTION A: APPROVE                    |
+     |                            |--[5] Approve------------>|
+     |<--[6] Notification---------|   (Status: confirmed)    |
+     |   (Green badge)            |                          |
+     |                            |                          |
+     |                  OPTION B: REJECT                     |
+     |                            |--[5] Reject + Message--->|
+     |<--[6] Notification---------|   (Delete or Restore)    |
+     |   (Red badge + Message)    |                          |
+     |                            |                          |
+     |                  OPTION C: DISMISS                    |
+     |                            |--[5] Dismiss------------>|
+     |                            |   (Mark as dismissed)    |
+     |                            |                          |
+     |--[7] Dismiss Notification->|                          |
+     |   (Optimistic update)      |                          |
+```
 
 ---
 
-## C4 Component Diagram
+## Known Edge Cases
 
-For a detailed component diagram specific to this feature, see:
-`docs/c4-diagrams/c3-cross-dept-request-approval.puml`
+### Handled Edge Cases
 
-This diagram shows:
+1. **Duplicate Request Prevention**: Service layer checks for existing pending/approved requests before creating new ones
+2. **Concurrent Approvals**: Database function validates request status before approval
+3. **Resource Deletion**: System handles cleanup when instructors/classrooms are deleted
+4. **Session Movement**: Re-approval required with original position stored for restoration
+5. **Dismissal Persistence**: Uses database `dismissed` flag to persist across sessions
+6. **Notification Cleanup**: Automatic trigger removes stale notifications
 
-- All UI, hook, service, and database components involved
-- Data flow through each layer
-- Five key workflows with detailed annotations
-- Real-time subscription relationships
-- Integration with Supabase database and realtime systems
+### Potential Edge Cases
+
+1. **Multi-Program Coordination**: If multiple programs request same resource simultaneously
+2. **Semester Transitions**: Behavior when active semester changes mid-workflow
+3. **Permission Changes**: User role changes during pending request lifecycle
 
 ---
+
+## Performance Considerations
+
+- Real-time subscriptions limited to user-relevant data
+- Optimistic UI updates for instant feedback
+- Query invalidation scoped to affected data only
+- Enriched request details fetched on-demand (not preloaded)
+- Database indexes on `status`, `target_department_id`, `requester_id`
+
+---
+
+## Security Considerations
+
+- All database functions use `SECURITY DEFINER` with `SET search_path = public`
+- RLS policies enforce department and program boundaries
+- Request validation ensures users can only act on their resources
+- Atomic operations prevent partial state updates
+- Dismissal restricted to request owner and target department
+
+---
+
+## Future Enhancements
+
+- Bulk approval/rejection for multiple requests
+- Email notifications in addition to in-app notifications
+- Request history/audit log
+- Analytics dashboard for cross-department resource usage
+- Automatic approval rules based on department policies
