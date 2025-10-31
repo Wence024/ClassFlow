@@ -3,7 +3,6 @@ import { useAuth } from '../features/auth/hooks/useAuth';
 import { Popover, PopoverTrigger, PopoverContent } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { useEffect } from 'react';
 
 /**
  * Notification dropdown for Program Heads to view the status of their reviewed resource requests.
@@ -92,7 +91,7 @@ export default function RequestStatusNotification() {
       
       if (error) throw error;
       
-      // Refetch to ensure consistency
+      // Refetch to ensure consistency (RealtimeProvider handles real-time updates)
       await queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
       await queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'] });
     } catch (error) {
@@ -101,35 +100,6 @@ export default function RequestStatusNotification() {
       await queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id] });
     }
   };
-
-  // Real-time subscription for reviewed request updates
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channel = supabase
-      .channel('my-reviewed-requests-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'resource_requests',
-          filter: `requester_id=eq.${user.id}`,
-        },
-        (payload) => {
-          // Only update if status changed to approved or rejected
-          if (payload.new.status === 'approved' || payload.new.status === 'rejected') {
-            queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user.id] });
-            queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'] });
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, queryClient]);
 
   // Calculate badge color based on statuses
   const approvedCount = reviewedRequests.filter(r => r.status === 'approved').length;

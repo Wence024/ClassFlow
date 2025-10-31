@@ -27,6 +27,7 @@ Container_Boundary(web_app, "ClassFlow Web Application") {
   Component(use_resource_requests, "useResourceRequests Hook", "React Hook", "Manages request lifecycle, dismissal, cancellation")
   Component(use_timetable, "useTimetable Hook", "React Hook", "Tracks pending sessions, detects cross-dept moves")
   Component(use_timetable_dnd, "useTimetableDnd Hook", "React Hook", "Handles drag-and-drop with confirmation callbacks")
+  Component(realtime_provider, "RealtimeProvider", "React Context", "Centralized real-time subscriptions for all tables, prevents duplicate subscriptions")
   
   ' Service Layer Components
   Component(class_session_service, "Class Session Service", "TypeScript Module", "isCrossDepartmentInstructor/Classroom, getResourceDepartmentId")
@@ -36,6 +37,10 @@ Container_Boundary(web_app, "ClassFlow Web Application") {
   ' Database Function Layer
   Component(db_functions, "Database Functions", "PostgreSQL Functions", "approve_resource_request, reject_resource_request, handle_cross_dept_session_move, is_cross_department_resource, cleanup_request_notifications (trigger)")
 }
+
+' RealtimeProvider Relationships
+Rel(realtime_provider, supabase_realtime, "Subscribes", "Single global subscriptions to resource_requests, request_notifications, timetable_assignments, class_sessions")
+Rel(supabase_realtime, realtime_provider, "Pushes", "Database change events")
 
 ' UI Layer Relationships
 Rel(class_session_form, use_class_sessions, "Uses", "checkCrossDepartmentResources()")
@@ -68,10 +73,6 @@ Rel(resource_request_service, supabase_db, "CRUD", "resource_requests, request_n
 ' Database to External System
 Rel(db_functions, supabase_db, "Queries/Updates", "Atomic operations with SECURITY DEFINER")
 Rel(supabase_db, supabase_realtime, "Publishes", "Change events")
-
-' Real-time Subscriptions (bidirectional)
-Rel(supabase_realtime, use_resource_requests, "Pushes", "Request status changes")
-Rel(supabase_realtime, use_timetable, "Pushes", "Assignment status changes")
 
 ' Key Workflows Annotation
 note right of class_session_form

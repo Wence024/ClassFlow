@@ -176,19 +176,31 @@ This feature enables program heads to request instructors or classrooms from oth
 
 ### 5. Real-Time Updates
 
-**5.1 Timetable Synchronization**
+**5.1 Centralized Real-Time Subscriptions**
+
+- All real-time updates managed by `RealtimeProvider.tsx`
+- Single global subscription per table to avoid conflicts
+- Subscribed tables:
+  - `resource_requests` - invalidates all request-related queries
+  - `request_notifications` - invalidates notification queries
+  - `timetable_assignments` - invalidates timetable queries
+  - `class_sessions` - invalidates session queries
+- Prevents "disconnected port" errors from duplicate subscriptions
+
+**5.2 Timetable Synchronization**
 
 - Sessions update visual styling when status changes
 - Changes propagate instantly across all users viewing the timetable
-- Leverages Supabase real-time subscriptions
+- Leverages centralized Supabase real-time subscriptions
 
-**5.2 Notification Badge Updates**
+**5.3 Notification Badge Updates**
 
 - Badge counts update immediately when:
   - New requests created
   - Requests approved/rejected
   - Requests dismissed
 - No page refresh required
+- All updates flow through centralized RealtimeProvider
 
 ---
 

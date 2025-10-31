@@ -3,9 +3,8 @@ import { useAuth } from '../features/auth/hooks/useAuth';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RejectionDialog from './dialogs/RejectionDialog';
 import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
@@ -121,7 +120,7 @@ export default function RequestNotifications() {
     try {
       await dismissRequest(requestId);
       
-      // Refetch to ensure consistency (trigger will have cleaned up notifications)
+      // Refetch to ensure consistency (RealtimeProvider handles real-time updates)
       await queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept', departmentId] });
       await queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
       
@@ -146,33 +145,6 @@ export default function RequestNotifications() {
       toast.error('Timetable position not available');
     }
   };
-
-  // Real-time subscription for notification updates
-  useEffect(() => {
-    if (!departmentId) return;
-
-    const channel = supabase
-      .channel('request-notifications-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'request_notifications',
-          filter: `target_department_id=eq.${departmentId}`,
-        },
-        () => {
-          // Invalidate queries when notifications change
-          queryClient.invalidateQueries({ queryKey: ['resource_requests', 'dept', departmentId] });
-          queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [departmentId, queryClient]);
 
   return (
     <Popover>
