@@ -497,15 +497,28 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       try {
         // If re-approval is needed, call the DB function to store original position FIRST
         if (requiresApproval) {
-          await supabase.rpc('handle_cross_dept_session_move' as any, {
+          const { data, error } = await supabase.rpc('handle_cross_dept_session_move' as any, {
             _class_session_id: classSession.id,
             _old_period_index: from.period_index,
             _old_class_group_id: from.class_group_id,
             _new_period_index: to.period_index,
             _new_class_group_id: to.class_group_id,
             _semester_id: activeSemester.id,
-            _requester_id: user?.id || '',
           });
+          
+          if (error) {
+            console.error('Failed to move cross-department session (RPC error):', error);
+            throw new Error(`Failed to create move approval request: ${error.message}`);
+          }
+          
+          const result = data as any;
+          if (!result || !result.success) {
+            const errorMsg = result?.error || 'Unknown error during move approval';
+            console.error('Move approval function returned failure:', errorMsg);
+            throw new Error(errorMsg);
+          }
+          
+          console.log('Cross-department move request created:', result);
           toast.success('Session moved - requires department head approval');
         } else {
           // Normal move without re-approval
