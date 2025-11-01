@@ -4,7 +4,8 @@ This document outlines the testing strategy, tools, and current implementation s
 
 ## Current Status
 
-✅ **175 tests passing** across unit, integration, and component testing (includes new authentication/invite flow and program/department management)
+✅ **175+ tests passing** across unit, integration, and component testing
+✅ **NEW: Cross-department request approval workflow fully tested** (database functions, services, workflows, UI components)
 ✅ **Comprehensive coverage** of critical user flows and business logic
 ✅ **Automated testing** integrated into development workflow
 
@@ -57,13 +58,28 @@ This document outlines the testing strategy, tools, and current implementation s
   - **`timetableLogic.ts`:** Test `buildTimetableGrid` to ensure it correctly transforms a flat array of assignments into the `Map` structure.
   - **`timeLogic.ts`:** Test `generateTimetableHeaders` to ensure it produces the correct number of day and time headers.
 
-### **Timetabling (Hooks & UI)**
+### **Timetabling (Hooks & UI)** - ✅ COMPLETED
 
 - **Type:** Integration Tests
-- **Action:**
-  - **`useTimetable` Hook:** Mock all dependencies. Test that it fetches data based on `semester_id`. Test that mutations like `assignClassSession` include the `semester_id`.
-  - **`TimetablePage.tsx`:** Mock `useTimetable` and `useTimetableDnd`. Test that the page correctly renders owned vs. non-owned groups in the right order and that the `Drawer` is populated correctly.
-  - **`SessionCell.tsx`:** Test that non-owned sessions are rendered with a "washed out" style and that their `draggable` attribute is set to `false`.
+- **Status:** ✅ Implemented and passing
+- **Coverage:**
+  - **`useTimetable` Hook:** Pending session tracking, cross-dept detection
+  - **`useTimetableDnd` Hook:** Confirmation dialogs, request creation on placement
+  - **`TimetablePage.tsx`:** Owned vs. non-owned rendering, drawer population
+  - **`SessionCell.tsx`:** Pending state indicators (dashed border, clock icon, non-draggable)
+
+### **Cross-Department Request Workflows** - ✅ COMPLETED
+
+- **Type:** Integration Tests (E2E-style)
+- **Status:** ✅ Implemented and passing
+- **Coverage:**
+  - **Database Functions:** RPC tests for approve, reject, move, and detection functions
+  - **Request Creation:** Detection → confirmation → placement → request creation
+  - **Approval Workflow:** Atomic approval, status updates, notification cleanup
+  - **Rejection Workflow:** Pending deletion, approved restoration, rejection messages
+  - **Move Confirmed:** Re-approval requirement, original position tracking
+  - **Remove to Drawer:** Request cancellation, department head notifications
+  - **Permissions & Security:** RLS enforcement, role-based access control
 
 ## 4. How to Run Tests
 
