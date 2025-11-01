@@ -56,7 +56,43 @@ export async function getInstructorScheduleData(
     throw new Error('No schedule configuration found for this semester. Please configure the schedule first.');
   }
 
-  // Fetch timetable assignments with all related data
+  // Step 1: Get all class session IDs for the instructor
+  const { data: instructorSessions, error: sessionsError } = await supabase
+    .from('class_sessions')
+    .select('id')
+    .eq('instructor_id', instructorId);
+
+  if (sessionsError) {
+    throw new Error('Failed to fetch instructor sessions');
+  }
+
+  const sessionIds = instructorSessions?.map(s => s.id) || [];
+
+  // If no sessions found, return early with empty data
+  if (sessionIds.length === 0) {
+    return {
+      instructor: {
+        ...instructor,
+        department_name: Array.isArray(instructor.department) ? instructor.department[0]?.name : (instructor.department as any)?.name,
+      },
+      semester,
+      schedules: {
+        mondayWednesday: [],
+        tuesdayThursday: [],
+        friday: [],
+        saturday: [],
+      },
+      totals: {
+        lecHours: 0,
+        labHours: 0,
+        totalUnits: 0,
+        totalLoad: 0,
+      },
+      loadStatus: 'UNDERLOADED',
+    };
+  }
+
+  // Step 2: Fetch timetable assignments for those sessions
   const { data: assignments, error: assignmentsError } = await supabase
     .from('timetable_assignments')
     .select(`
@@ -69,8 +105,8 @@ export async function getInstructorScheduleData(
         program:programs(*, department:departments(name))
       )
     `)
+    .in('class_session_id', sessionIds)
     .eq('semester_id', semesterId)
-    .eq('class_session.instructor_id', instructorId)
     .eq('status', 'confirmed');
 
   if (assignmentsError) {

@@ -359,55 +359,162 @@ interface InstructorReport {
 - High contrast mode support
 - Printable without JavaScript
 
-## Testing Requirements
+## Implementation Status
 
-### Unit Tests
+### ✅ Completed (As of 2025-11-01)
+
+**Phase 1: Database Schema**
+- ✅ `courses` table extended with `units`, `lecture_hours`, `lab_hours` columns
+- ✅ `teaching_load_config` table created with semester/department-specific rules
+- ✅ Default configuration inserted for active semesters
+
+**Phase 2: Service Layer**
+- ✅ `loadCalculationService.ts` - Load calculation with configurable rules
+- ✅ `instructorReportService.ts` - Report data fetching (fixed query structure)
+- ✅ Two-step query approach for instructor assignments (avoids nested filter issues)
+
+**Phase 3: Frontend Components**
+- ✅ `InstructorReportsPage.tsx` - Main page with role-based filtering
+- ✅ `InstructorSchedulePreview.tsx` - Report preview component
+- ✅ `DayGroupTable.tsx` - Day-grouped schedule display
+- ✅ `LoadSummaryWidget.tsx` - Load calculation summary
+
+**Phase 4: Export Functionality**
+- ✅ `pdfExportService.ts` - PDF generation with jsPDF
+- ✅ `excelExportService.ts` - Excel export with xlsx
+- ✅ File download handling
+
+**Phase 5: Hooks**
+- ✅ `useInstructorReport.ts` - Data fetching and caching
+- ✅ `useReportExport.ts` - Export state management
+
+**Phase 6: Types**
+- ✅ `instructorReport.ts` - Complete type definitions
+- ✅ Load calculation types
+
+### 🔧 Critical Fixes Applied
+
+**Issue 1: Invalid Supabase Query Syntax (FIXED)**
+- **Problem:** `.eq('class_session.instructor_id', instructorId)` doesn't work with PostgREST
+- **Solution:** Implemented two-step query:
+  1. First fetch all `class_sessions` where `instructor_id` matches
+  2. Then fetch `timetable_assignments` using `IN (session_ids)`
+- **File:** `src/features/reports/services/instructorReportService.ts`
+
+**Issue 2: Empty Assignments Handling (FIXED)**
+- **Problem:** No early return when instructor has no sessions
+- **Solution:** Added empty state return after step 1 if no sessions found
+- **Benefit:** Avoids unnecessary query and provides proper empty report structure
+
+### 📋 Access Control Implementation
+
+**Role-Based Filtering:**
+- ✅ Admins see ALL instructors
+- ✅ Department Heads see THEIR department's instructors
+- ✅ Program Heads see their department's instructors (via program.department_id)
+- ✅ Info banners display for non-admins
+- ✅ `useDepartmentId` hook properly infers department from program
+
+### 🧪 Testing Requirements
+
+#### Unit Tests
 - [ ] Load calculation formulas
 - [ ] Time slot formatting
 - [ ] Day grouping logic
 - [ ] Total calculations
 - [ ] Export filename generation
+- [ ] Two-step query logic
 
-### Integration Tests
+#### Integration Tests
 - [ ] Report data fetching with real database
 - [ ] Export to PDF with sample data
 - [ ] Export to Excel with sample data
-- [ ] Batch export for multiple instructors
+- [ ] Empty instructor report handling
+- [ ] Role-based instructor filtering
 
-### E2E Tests
+#### E2E Tests
 - [ ] Complete report generation flow
 - [ ] Export and verify file download
 - [ ] Preview report accuracy
 - [ ] Load calculation display
+- [ ] Empty state rendering
 
-## Migration Strategy
+## Verification Steps
 
-### Step 1: Add Course Metadata (Week 1)
-- Run migration to add columns
-- Backfill existing courses with default values
-- Update course forms to include new fields
+After implementing the fixes, verify the following:
 
-### Step 2: Implement Load Calculation (Week 2)
-- Create service layer
-- Add unit tests
-- Create load configuration UI for admins
+### 1. Query Fix Verification
+```sql
+-- Verify instructor has sessions
+SELECT COUNT(*) FROM class_sessions WHERE instructor_id = '<instructor_uuid>';
 
-### Step 3: Build Report UI (Week 3)
-- Create report preview components
-- Add instructor selection
-- Implement load summary display
+-- Verify timetable assignments exist for those sessions
+SELECT ta.*, cs.instructor_id 
+FROM timetable_assignments ta
+JOIN class_sessions cs ON cs.id = ta.class_session_id
+WHERE cs.instructor_id = '<instructor_uuid>' 
+  AND ta.semester_id = '<semester_uuid>'
+  AND ta.status = 'confirmed';
+```
 
-### Step 4: Add Export Functionality (Week 4)
-- Implement PDF export
-- Implement Excel export
-- Add download functionality
-- Test with real data
+### 2. Frontend Verification
+- [ ] Select an instructor with assignments → Report displays correctly
+- [ ] Select an instructor with NO assignments → Shows empty state with 0 totals
+- [ ] Course codes, names, units display from database (not hardcoded)
+- [ ] Lecture/lab hours display correctly from `courses` table
+- [ ] Load calculation shows correct value (total_units / 3)
+- [ ] Load status color coding works (green/yellow/red)
+- [ ] Department names display correctly
+- [ ] Classroom codes/names display correctly
+- [ ] Time slots calculate correctly from `period_index` and `schedule_configuration`
 
-### Step 5: Polish and Deploy (Week 5)
-- Responsive design adjustments
-- Print styling
-- Performance optimization
-- User acceptance testing
+### 3. Role-Based Access
+- [ ] Admin sees ALL instructors in dropdown
+- [ ] Department Head sees only THEIR department's instructors
+- [ ] Program Head sees only their department's instructors (via program)
+- [ ] Info banner displays for non-admins
+- [ ] No unauthorized access errors in console
+
+### 4. Export Verification
+- [ ] PDF export downloads successfully
+- [ ] PDF contains all schedule data
+- [ ] Excel export downloads successfully
+- [ ] Excel contains formulas and is editable
+- [ ] Filename format: `{instructor_code}_{semester}_Schedule.{ext}`
+
+### 5. Load Configuration
+- [ ] `teaching_load_config` table has entries for active semester
+- [ ] Default values: `units_per_load = 3.0`, `standard_load = 7.0`
+- [ ] Load calculation uses config from database (not hardcoded)
+
+## Migration Strategy (COMPLETED)
+
+### ✅ Step 1: Add Course Metadata (COMPLETED)
+- ✅ Ran migration to add `units`, `lecture_hours`, `lab_hours` columns
+- ✅ Backfilled existing courses with default values
+- ✅ Updated course forms to include new fields
+
+### ✅ Step 2: Implement Load Calculation (COMPLETED)
+- ✅ Created `loadCalculationService.ts`
+- ✅ Created `teaching_load_config` table with RLS policies
+- ⚠️ Unit tests needed
+
+### ✅ Step 3: Build Report UI (COMPLETED)
+- ✅ Created report preview components
+- ✅ Added instructor selection with role-based filtering
+- ✅ Implemented load summary display with color coding
+
+### ✅ Step 4: Add Export Functionality (COMPLETED)
+- ✅ Implemented PDF export with jsPDF
+- ✅ Implemented Excel export with xlsx
+- ✅ Added download functionality
+- ⚠️ Needs testing with various edge cases
+
+### 🔄 Step 5: Polish and Testing (IN PROGRESS)
+- ✅ Responsive design implemented
+- ✅ Print styling (@media print rules)
+- ⚠️ Performance optimization needed (query caching)
+- ⚠️ Comprehensive testing needed
 
 ## Future Enhancements
 
