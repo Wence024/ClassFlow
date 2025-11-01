@@ -7,8 +7,23 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTimetable } from '../useTimetable';
 import type { ReactNode } from 'react';
+import { getTimetableAssignments } from '../../services/timetableService';
+import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
+import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
+import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
+import * as useAuthHook from '../../../auth/hooks/useAuth';
 
-vi.mock('../../../../lib/supabase');
+vi.mock('../../services/timetableService', () => ({
+  getTimetableAssignments: vi.fn(),
+}));
+
+vi.mock('../../../../lib/supabase', () => ({
+  supabase: {
+    channel: vi.fn(() => ({ on: vi.fn().mockReturnThis(), subscribe: vi.fn(), unsubscribe: vi.fn() })),
+    removeChannel: vi.fn(),
+    from: vi.fn(() => ({ select: vi.fn().mockResolvedValue({ data: [], error: null }) })),
+  },
+}));
 vi.mock('../../../auth/hooks/useAuth');
 vi.mock('../../../scheduleConfig/hooks/useActiveSemester');
 vi.mock('../../../classSessionComponents/hooks/useClassGroups');
@@ -20,7 +35,6 @@ const createWrapper = () => {
       mutations: { retry: false },
     },
   });
-
   return ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
@@ -29,26 +43,29 @@ const createWrapper = () => {
 describe('useTimetable - Pending Session Tracking', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    const mockClassGroups = [{ id: 'group-1', name: 'Group 1' }];
+    vi.spyOn(classGroupsService, 'getAllClassGroups').mockResolvedValue(mockClassGroups);
+    vi.spyOn(useScheduleConfigHook, 'useScheduleConfig').mockReturnValue({
+      settings: { periods_per_day: 8, class_days_per_week: 5 },
+      isLoading: false,
+      isUpdating: false,
+      updateSettings: vi.fn(),
+      error: null,
+    });
+    vi.spyOn(useActiveSemesterHook, 'useActiveSemester').mockReturnValue({
+      data: { id: 'semester-1', is_active: true },
+      isLoading: false,
+      isError: false,
+      error: null,
+      status: 'success',
+    });
+    vi.spyOn(useAuthHook, 'useAuth').mockReturnValue({
+      user: { id: 'user-1', program_id: 'program-cs' },
+      loading: false,
+    });
   });
 
   it('should track pending session IDs from assignments', async () => {
-    const { useAuth } = await import('../../../auth/hooks/useAuth');
-    const { useActiveSemester } = await import('../../../scheduleConfig/hooks/useActiveSemester');
-    const { useClassGroups } = await import('../../../classSessionComponents/hooks/useClassGroups');
-    const { supabase } = await import('../../../../lib/supabase');
-
-    (useAuth as any).mockReturnValue({
-      user: { id: 'user-1', program_id: 'program-cs' },
-    });
-
-    (useActiveSemester as any).mockReturnValue({
-      activeSemester: { id: 'semester-1' },
-    });
-
-    (useClassGroups as any).mockReturnValue({
-      classGroups: [{ id: 'group-1', name: 'Group 1' }],
-    });
-
     const mockAssignments = [
       {
         id: 'assignment-1',
@@ -79,44 +96,19 @@ describe('useTimetable - Pending Session Tracking', () => {
         },
       },
     ];
-
-    (supabase.from as any).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({
-          data: mockAssignments,
-          error: null,
-        }),
-      }),
-    });
+    (getTimetableAssignments as vi.Mock).mockResolvedValue(mockAssignments);
 
     const { result } = renderHook(() => useTimetable(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+      expect(getTimetableAssignments).toHaveBeenCalled();
     });
 
-    expect(result.current.pendingSessionIds).toContain('session-pending');
-    expect(result.current.pendingSessionIds).not.toContain('session-confirmed');
+    expect(result.current.pendingSessionIds.has('session-pending')).toBe(true);
+    expect(result.current.pendingSessionIds.has('session-confirmed')).toBe(false);
   });
 
   it('should return empty pendingSessionIds set when no pending sessions', async () => {
-    const { useAuth } = await import('../../../auth/hooks/useAuth');
-    const { useActiveSemester } = await import('../../../scheduleConfig/hooks/useActiveSemester');
-    const { useClassGroups } = await import('../../../classSessionComponents/hooks/useClassGroups');
-    const { supabase } = await import('../../../../lib/supabase');
-
-    (useAuth as any).mockReturnValue({
-      user: { id: 'user-1', program_id: 'program-cs' },
-    });
-
-    (useActiveSemester as any).mockReturnValue({
-      activeSemester: { id: 'semester-1' },
-    });
-
-    (useClassGroups as any).mockReturnValue({
-      classGroups: [{ id: 'group-1', name: 'Group 1' }],
-    });
-
     const mockAssignments = [
       {
         id: 'assignment-1',
@@ -133,22 +125,11 @@ describe('useTimetable - Pending Session Tracking', () => {
         },
       },
     ];
-
-    (supabase.from as any).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({
-          data: mockAssignments,
-          error: null,
-        }),
-      }),
-    });
-
+    (getTimetableAssignments as vi.Mock).mockResolvedValue(mockAssignments);
     const { result } = renderHook(() => useTimetable(), { wrapper: createWrapper() });
-
     await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
+      expect(getTimetableAssignments).toHaveBeenCalled();
     });
-
     expect(result.current.pendingSessionIds.size).toBe(0);
   });
 
@@ -161,11 +142,9 @@ describe('useTimetable - Pending Session Tracking', () => {
       },
       program_id: 'program-cs',
     };
-
     const userProgramDepartment = 'dept-cs';
     const isConfirmed = true;
     const hasCrossDeptResource = mockSession.instructor.department_id !== userProgramDepartment;
-
     expect(isConfirmed && hasCrossDeptResource).toBe(true);
   });
 });

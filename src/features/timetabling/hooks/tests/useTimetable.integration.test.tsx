@@ -192,13 +192,15 @@ describe('useTimetable - semester scope', () => {
     // Call the mutation function returned by the hook
     await result.current.assignClassSession('g1', 1, mockSession);
 
-    // Assert that the service was called with the correct semester_id
-    expect(assignSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        semester_id: mockSemesterId,
-        class_session_id: mockSession.id,
-      })
-    );
+    // Assert that the service was called and that first argument has correct shape
+    const [[callArg]] = assignSpy.mock.calls;
+    expect(callArg).toMatchObject({
+      semester_id: mockSemesterId,
+      class_session_id: mockSession.id,
+      class_group_id: 'g1',
+      period_index: 1,
+      user_id: 'u1',
+    });
   });
 
   // You can add a similar test for `moveClassSession` here
@@ -231,16 +233,18 @@ describe('useTimetable - semester scope', () => {
       mockSession
     );
 
-    // The `move` service function takes from, to, and assignment as parameters
-    expect(moveSpy).toHaveBeenCalledWith(
-      { class_group_id: 'g1', period_index: 0 }, // from
-      { class_group_id: 'g1', period_index: 1 }, // to
-      expect.objectContaining({
-        // new assignment payload
-        semester_id: mockSemesterId,
-        class_session_id: mockSession.id,
-      })
-    );
+    // The move service function takes from, to, and assignment as parameters
+    // Check the third argument of the first call
+    const [[fromArg, toArg, assignArg]] = moveSpy.mock.calls;
+    expect(fromArg).toMatchObject({ class_group_id: 'g1', period_index: 0 });
+    expect(toArg).toMatchObject({ class_group_id: 'g1', period_index: 1 });
+    expect(assignArg).toMatchObject({
+      semester_id: mockSemesterId,
+      class_session_id: mockSession.id,
+      class_group_id: 'g1',
+      period_index: 1,
+      user_id: 'u1',
+    });
   });
 
   it('should build timetable grid for classroom view mode', async () => {
