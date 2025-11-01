@@ -5,9 +5,15 @@ LAYOUT_WITH_LEGEND()
 
 title ClassFlow - Instructor Schedule Reports System (C4 Context)
 
-Person(instructor, "Instructor", "Faculty member who teaches courses")
+Person(progHead, "Program Head", "Generates reports for department instructors")
 Person(admin, "Administrator", "Manages system and generates reports for all instructors")
 Person(deptHead, "Department Head", "Reviews and generates reports for department instructors")
+
+note right of progHead
+    No "Instructor" role exists in system.
+    Only Program Heads and above can
+    generate instructor schedule reports.
+end note
 
 System(classflow, "ClassFlow System", "Timetable management and reporting system")
 
@@ -15,7 +21,7 @@ System_Ext(printer, "Printer/PDF Viewer", "Views and prints generated reports")
 System_Ext(excel, "Excel/Spreadsheet", "Opens and edits exported Excel files")
 System_Ext(email, "Email System", "Sends reports to instructors (future)")
 
-Rel(instructor, classflow, "Views own schedule report", "HTTPS")
+Rel(progHead, classflow, "Generates reports for department instructors", "HTTPS")
 Rel(admin, classflow, "Generates reports for all instructors", "HTTPS")
 Rel(deptHead, classflow, "Generates reports for department", "HTTPS")
 
@@ -32,7 +38,7 @@ LAYOUT_WITH_LEGEND()
 
 title ClassFlow - Instructor Schedule Reports System (C4 Container)
 
-Person(user, "User", "Instructor, Admin, or Department Head")
+Person(user, "User", "Program Head, Admin, or Department Head")
 
 System_Boundary(classflow, "ClassFlow System") {
     Container(webapp, "Web Application", "React, TypeScript", "Provides UI for report generation and export")
@@ -150,8 +156,9 @@ deactivate DB
 API --> LoadCalc: Course metadata
 deactivate API
 
-LoadCalc -> LoadCalc: Calculate load for each course\nusing formula:\nLoad = (Lec Hrs × 1.0) + (Lab Hrs × 0.75)
-LoadCalc --> Service: Total load and breakdown
+LoadCalc -> LoadCalc: Calculate load for each course\nusing formula:\nLoad = Total Units / units_per_load (default: 3)\nExample: 21 units / 3 = 7 load
+LoadCalc -> LoadCalc: Determine status:\nUnderloaded: < 6.3\nAt Standard: 6.3-7.7\nOverloaded: > 7.7
+LoadCalc --> Service: Total load, units, and status
 deactivate LoadCalc
 
 Service -> Service: formatScheduleForExport(scheduleData)
@@ -208,45 +215,56 @@ start
 
 :Fetch schedule configuration\n(period_duration, periods_per_day, class_days_per_week);
 
-:Fetch teaching load config\n(lecture_load_factor, lab_load_factor);
+:Fetch teaching load config\n(units_per_load = 3.0, standard_load = 7.0);
 
-:Initialize totals\n(totalLecHours = 0, totalLabHours = 0, totalLoad = 0);
+:Initialize totals\n(totalUnits = 0, totalLoad = 0);
 
 partition "For Each Course Assignment" {
-    :Get course details;
+    :Get course details (units);
     
     :Calculate contact hours per week;
     note right
         contactHoursPerWeek = 
         (period_count × period_duration_mins) / 60
+        
+        **For display purposes only**
+        Not used in load calculation
     end note
-    
-    if (course_type includes 'lecture') then (yes)
-        :Add to lecture hours\nlecHours += contactHoursPerWeek;
-    endif
-    
-    if (course_type includes 'lab') then (yes)
-        :Add to lab hours\nlabHours += contactHoursPerWeek;
-    endif
-    
-    :Calculate course load\ncourseLoad = (lecHours × lecture_load_factor) + (labHours × lab_load_factor);
-    
-    :Add to total load\ntotalLoad += courseLoad;
     
     :Add units to total\ntotalUnits += course.units;
 }
 
+:Calculate total load;
+note right
+    totalLoad = totalUnits / units_per_load
+    
+    Example:
+    - totalUnits = 21
+    - units_per_load = 3
+    - totalLoad = 21 / 3 = 7
+end note
+
 :Calculate load status;
 
-if (totalLoad > max_load_per_semester) then (yes)
-    :Set status to "OVERLOADED"\nShow warning;
-elseif (totalLoad >= max_load_per_semester * 0.9) then (yes)
-    :Set status to "AT_CAPACITY";
+if (totalLoad > standard_load * 1.1) then (yes)
+    :Set status to "OVERLOADED" (Red)\nShow warning: "Above standard load";
+elseif (totalLoad < standard_load * 0.9) then (yes)
+    :Set status to "UNDERLOADED" (Yellow)\nShow warning: "Below standard load";
 else (no)
-    :Set status to "UNDER_CAPACITY";
+    :Set status to "AT_STANDARD" (Green)\nShow success: "At standard load";
 endif
 
-:Return load calculation result\n{totalLecHours, totalLabHours, totalUnits, totalLoad, status};
+note right
+    Standard Load = 7
+    Tolerance = ±10%
+    
+    Ranges:
+    - Underloaded: < 6.3
+    - At Standard: 6.3 - 7.7
+    - Overloaded: > 7.7
+end note
+
+:Return load calculation result\n{totalUnits, totalLoad, status, standardLoad};
 
 stop
 
@@ -408,11 +426,13 @@ LoadConfig }o--|| Semesters : references
 ScheduleConfig }o--|| Semesters : references
 
 note right of Courses
-    **New fields for load calculation:**
-    - units: Course credit units
-    - lecture_hours: Default lecture hours per week
-    - lab_hours: Default lab hours per week
-    - course_type: 'lecture' | 'lab' | 'lecture_lab'
+    **New fields for reports:**
+    - units: Course credit units (used for load calculation)
+    - lecture_hours: Display lecture hours per week (optional)
+    - lab_hours: Display lab hours per week (optional)
+    
+    Load calculation uses units only: Load = Total Units / 3
+    Contact hours displayed for informational purposes.
 end note
 
 note right of LoadConfig

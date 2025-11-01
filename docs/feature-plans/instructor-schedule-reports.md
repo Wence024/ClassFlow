@@ -49,10 +49,16 @@ This feature enables generating comprehensive schedule reports for instructors, 
 ```sql
 -- Add units and contact hours to courses table
 ALTER TABLE courses ADD COLUMN units DECIMAL(3,1);
-ALTER TABLE courses ADD COLUMN lecture_hours DECIMAL(3,1);
-ALTER TABLE courses ADD COLUMN lab_hours DECIMAL(3,1);
-ALTER TABLE courses ADD COLUMN course_type TEXT CHECK (course_type IN ('lecture', 'lab', 'lecture_lab'));
+ALTER TABLE courses ADD COLUMN lecture_hours DECIMAL(3,1); -- For display only
+ALTER TABLE courses ADD COLUMN lab_hours DECIMAL(3,1);     -- For display only
+
+-- Backfill with default values to avoid null issues
+UPDATE courses SET units = 3.0 WHERE units IS NULL;
+UPDATE courses SET lecture_hours = 3.0 WHERE lecture_hours IS NULL;
+UPDATE courses SET lab_hours = 0.0 WHERE lab_hours IS NULL;
 ```
+
+**Note**: The `lecture_hours` and `lab_hours` fields are for display/informational purposes only. Load calculation uses only the `units` field with the formula: **Load = Total Units / 3**.
 
 #### 1.2 Add Load Calculation Configuration
 ```sql
@@ -60,12 +66,19 @@ ALTER TABLE courses ADD COLUMN course_type TEXT CHECK (course_type IN ('lecture'
 CREATE TABLE teaching_load_config (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   semester_id UUID REFERENCES semesters(id),
-  lecture_load_factor DECIMAL(3,2) DEFAULT 1.0,
-  lab_load_factor DECIMAL(3,2) DEFAULT 0.75,
-  max_load_per_semester DECIMAL(4,1) DEFAULT 24.0,
-  created_at TIMESTAMPTZ DEFAULT now()
+  department_id UUID REFERENCES departments(id),
+  units_per_load DECIMAL(3,1) DEFAULT 3.0, -- 3 units = 1 load
+  standard_load DECIMAL(3,1) DEFAULT 7.0,   -- Standard teaching load
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(semester_id, department_id)
 );
+
+-- Insert default configuration
+INSERT INTO teaching_load_config (semester_id, department_id, units_per_load, standard_load)
+SELECT id, NULL, 3.0, 7.0 FROM semesters WHERE is_active = true;
 ```
+
+**Note on Customization**: The `units_per_load` and `standard_load` can be configured per semester and optionally per department. This provides flexibility for different institutional policies without added complexity. Simply update the config row for specific departments that need different rules.
 
 ### Phase 2: Service Layer - Load Calculation
 
@@ -73,19 +86,28 @@ CREATE TABLE teaching_load_config (
 **File:** `src/features/reports/services/loadCalculationService.ts`
 
 **Functions:**
-- `calculateCourseLoad(course, scheduleConfig)` - Calculate load for a single course
-- `calculateInstructorTotalLoad(instructorId, semesterId)` - Calculate total load for instructor
+- `calculateCourseLoad(course, loadConfig)` - Calculate load for a single course
+- `calculateInstructorTotalLoad(instructorId, semesterId, departmentId?)` - Calculate total load for instructor
 - `getContactHoursPerWeek(course, periodCount, classDays)` - Calculate weekly contact hours
-- `calculateTeachingUnits(course)` - Calculate teaching units
+- `getLoadStatus(totalLoad, standardLoad)` - Determine if overloaded/underloaded
 
 **Load Calculation Formula:**
 ```
-Load = (Lecture Hours × Lecture Factor) + (Lab Hours × Lab Factor)
+Load = Total Units / Units Per Load
 
-Where:
-- Lecture Factor = 1.0 (standard)
-- Lab Factor = 0.75 (typically lower)
-- Hours = (Period Count × Period Duration) / 60 × Class Days Per Week
+Default Formula:
+- Units Per Load = 3.0 (configurable per department/semester)
+- Load = Total Units / 3
+
+Example:
+- Instructor teaches 21 units → 21 / 3 = 7 load
+- Standard Load = 7
+- Status = "AT_STANDARD"
+
+Load Status Rules:
+- totalLoad < standardLoad × 0.9 → "UNDERLOADED" (Yellow warning)
+- standardLoad × 0.9 ≤ totalLoad ≤ standardLoad × 1.1 → "AT_STANDARD" (Green)
+- totalLoad > standardLoad × 1.1 → "OVERLOADED" (Red warning)
 ```
 
 #### 2.2 Create Report Data Service
@@ -219,14 +241,18 @@ interface InstructorReport {
 
 ## User Flows
 
-### Flow 1: Generate Report for Current User (Instructor Role)
-1. Instructor navigates to "My Schedule Report"
-2. Selects semester (defaults to active semester)
-3. Clicks "Preview Report"
-4. System generates report preview
-5. Instructor reviews load calculations
-6. Clicks "Export to PDF" or "Export to Excel"
-7. System downloads report file
+**Note**: Instructor users do not exist as a role in the system. Only Program Heads, Department Heads, and Admins can generate instructor reports.
+
+### Flow 1: Program Head Generates Report for Department Instructor
+1. Program Head navigates to "Instructor Reports"
+2. System auto-filters to their department's instructors
+3. Selects instructor from dropdown
+4. Selects semester (defaults to active semester)
+5. Clicks "Generate Report"
+6. System shows preview with load summary
+7. Reviews load calculations (units, load, status)
+8. Clicks "Export to PDF" or "Export to Excel"
+9. System downloads report file
 
 ### Flow 2: Admin/Department Head Generates Report for Any Instructor
 1. Admin navigates to "Instructor Reports"
@@ -258,11 +284,12 @@ interface InstructorReport {
 
 ### Load Calculation Display
 - Use color coding:
-  - Green: Under recommended load
-  - Yellow: At recommended load
-  - Red: Over recommended load
-- Show visual progress bar for load percentage
-- Display warning if over maximum load
+  - Green: At standard load (within 10% of 7)
+  - Yellow: Underloaded (below 6.3)
+  - Red: Overloaded (above 7.7)
+- Show visual progress bar: current load / standard load
+- Display formula: "Total Units / 3 = Load"
+- Show standard load reference: "Standard: 7"
 
 ### Export Options
 - PDF: High-quality, print-ready format
@@ -362,9 +389,9 @@ interface InstructorReport {
 ```
 
 ### Updated Database Schema
-- courses: +3 columns (units, lecture_hours, lab_hours, course_type)
-- teaching_load_config: new table
-- Updated RLS policies for reports access
+- courses: +3 columns (units, lecture_hours, lab_hours) - for display purposes
+- teaching_load_config: new table with units_per_load, standard_load, and optional department_id
+- Updated RLS policies for reports access (program_head and above only)
 
 ## Success Metrics
 
