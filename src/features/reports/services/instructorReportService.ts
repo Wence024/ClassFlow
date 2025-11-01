@@ -49,10 +49,11 @@ export async function getInstructorScheduleData(
     .from('schedule_configuration')
     .select('*')
     .eq('semester_id', semesterId)
-    .single();
+    .maybeSingle();
 
-  if (configError || !scheduleConfig) {
-    throw new Error('Schedule configuration not found');
+  if (configError) throw configError;
+  if (!scheduleConfig) {
+    throw new Error('No schedule configuration found for this semester. Please configure the schedule first.');
   }
 
   // Fetch timetable assignments with all related data

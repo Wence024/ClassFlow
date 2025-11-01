@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,6 +11,8 @@ import { useReportExport } from '../hooks/useReportExport';
 import { InstructorSchedulePreview } from '../components/InstructorSchedulePreview';
 import { LoadSummaryWidget } from '../components/LoadSummaryWidget';
 import LoadingSpinner from '@/components/ui/custom/loading-spinner';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useDepartmentId } from '@/features/auth/hooks/useDepartmentId';
 
 /**
  * Page for generating and exporting instructor schedule reports.
@@ -19,7 +21,24 @@ export default function InstructorReportsPage() {
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(null);
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(null);
 
-  const { instructors, isLoading: isLoadingInstructors } = useAllInstructors();
+  const { user } = useAuth();
+  const departmentId = useDepartmentId();
+  const { instructors: allInstructors, isLoading: isLoadingInstructors } = useAllInstructors();
+  
+  // Filter instructors based on role
+  const instructors = useMemo(() => {
+    if (!user || !allInstructors) return [];
+    
+    // Admin sees all instructors
+    if (user.role === 'admin') return allInstructors;
+    
+    // Department Head and Program Head see only their department's instructors
+    if (departmentId) {
+      return allInstructors.filter(i => i.department_id === departmentId);
+    }
+    
+    return [];
+  }, [allInstructors, user, departmentId]);
   
   const { data: semesters = [], isLoading: isLoadingSemesters } = useQuery({
     queryKey: ['semesters'],
@@ -52,6 +71,16 @@ export default function InstructorReportsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Instructor Schedule Reports</h1>
       </div>
+
+      {/* Access Control Info Banner */}
+      {user?.role !== 'admin' && departmentId && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            📋 Viewing instructors from your department only. 
+            {user?.role === 'program_head' && ' You can generate reports for instructors teaching in your program.'}
+          </p>
+        </div>
+      )}
 
       {/* Controls */}
       <Card className="p-6">

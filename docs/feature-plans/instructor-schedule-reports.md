@@ -239,38 +239,81 @@ interface InstructorReport {
 }
 ```
 
-## User Flows
+## Access Control Model
+
+**Role-Based Report Access:**
+
+| Role | Can Generate Reports For | Rationale |
+|------|--------------------------|-----------|
+| **Admin** | ALL instructors (any department) | Full system visibility for administrative purposes |
+| **Department Head** | Instructors in THEIR department only | Direct management responsibility for departmental instructors |
+| **Program Head** | Instructors teaching in THEIR program (filtered by department) | Need visibility into instructors teaching their courses, but limited to department scope via program relationship |
+
+**Key Principles:**
+- **Instructor Management** is a Department Head responsibility (create/edit/delete)
+- **Report Generation** is available to Program Heads for coordination and planning
+- **Program Heads** can only see instructors from their department (via program's department_id)
+- Reports are READ-ONLY - no management actions available to Program Heads
+- Cross-department resource usage is visible but filtered appropriately by role
 
 **Note**: Instructor users do not exist as a role in the system. Only Program Heads, Department Heads, and Admins can generate instructor reports.
 
+## User Flows
+
 ### Flow 1: Program Head Generates Report for Department Instructor
 1. Program Head navigates to "Instructor Reports"
-2. System auto-filters to their department's instructors
-3. Selects instructor from dropdown
-4. Selects semester (defaults to active semester)
-5. Clicks "Generate Report"
-6. System shows preview with load summary
-7. Reviews load calculations (units, load, status)
-8. Clicks "Export to PDF" or "Export to Excel"
-9. System downloads report file
+2. System auto-filters to their department's instructors (via program.department_id)
+3. System displays info banner: "Viewing instructors from your department only"
+4. Selects instructor from filtered dropdown
+5. Selects semester (defaults to active semester)
+6. Clicks "Generate Report"
+7. System validates schedule configuration exists for semester
+8. System shows preview with load summary
+9. Reviews load calculations (units, load, status)
+10. Clicks "Export to PDF" or "Export to Excel"
+11. System downloads report file
 
-### Flow 2: Admin/Department Head Generates Report for Any Instructor
+### Flow 2: Department Head Generates Report
+1. Department Head navigates to "Instructor Reports"
+2. System auto-filters to their department's instructors
+3. System displays info banner: "Viewing instructors from your department only"
+4. Selects instructor from dropdown
+5. Selects semester
+6. Clicks "Generate Report"
+7. System shows preview with load summary
+8. Department Head exports report in desired format
+
+### Flow 3: Admin Generates Report for Any Instructor
 1. Admin navigates to "Instructor Reports"
-2. Selects department (filters instructor list)
-3. Selects instructor from dropdown
+2. System shows ALL instructors (no filtering)
+3. Selects instructor from complete dropdown
 4. Selects semester
 5. Clicks "Generate Report"
 6. System shows preview with load summary
 7. Admin exports report in desired format
 
-### Flow 3: Batch Export for All Instructors
-1. Admin navigates to "Batch Reports"
-2. Selects department
+### Flow 4: Batch Export for All Instructors (Future Enhancement)
+1. Admin/Department Head navigates to "Batch Reports"
+2. Selects department (Admin only - Department Heads see their department by default)
 3. Selects semester
 4. Clicks "Generate All Reports"
 5. System generates reports for all instructors in department
 6. System creates ZIP file with all PDFs
-7. Admin downloads batch export
+7. User downloads batch export
+
+### Error Handling Flows
+
+#### Missing Schedule Configuration
+1. User selects semester without schedule configuration
+2. System shows error: "No schedule configuration found for this semester"
+3. System prompts Admin to configure schedule first
+4. Provides link to Schedule Configuration page
+
+#### No Instructor Assignments
+1. User selects instructor with no class assignments in semester
+2. System shows warning: "No class assignments found for this instructor"
+3. Report displays empty schedule tables
+4. Load calculation shows 0 units, 0 load
 
 ## UI/UX Requirements
 

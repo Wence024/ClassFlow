@@ -5,14 +5,20 @@ LAYOUT_WITH_LEGEND()
 
 title ClassFlow - Instructor Schedule Reports System (C4 Context)
 
-Person(progHead, "Program Head", "Generates reports for department instructors")
-Person(admin, "Administrator", "Manages system and generates reports for all instructors")
-Person(deptHead, "Department Head", "Reviews and generates reports for department instructors")
+Person(progHead, "Program Head", "Generates reports for instructors in their department (via program)")
+Person(admin, "Administrator", "Generates reports for ALL instructors")
+Person(deptHead, "Department Head", "Generates reports for instructors in their department")
 
 note right of progHead
-    No "Instructor" role exists in system.
-    Only Program Heads and above can
-    generate instructor schedule reports.
+    **Access Control:**
+    - Program Heads: See only department instructors
+    - Department Heads: See only department instructors
+    - Admins: See ALL instructors
+    
+    **Filtering:**
+    Program Heads filtered by program.department_id
+    Department Heads filtered by user.department_id
+    Admins see all (no filter)
 end note
 
 System(classflow, "ClassFlow System", "Timetable management and reporting system")
@@ -21,9 +27,9 @@ System_Ext(printer, "Printer/PDF Viewer", "Views and prints generated reports")
 System_Ext(excel, "Excel/Spreadsheet", "Opens and edits exported Excel files")
 System_Ext(email, "Email System", "Sends reports to instructors (future)")
 
-Rel(progHead, classflow, "Generates reports for department instructors", "HTTPS")
-Rel(admin, classflow, "Generates reports for all instructors", "HTTPS")
-Rel(deptHead, classflow, "Generates reports for department", "HTTPS")
+Rel(progHead, classflow, "Generates reports (dept-filtered)", "HTTPS")
+Rel(admin, classflow, "Generates reports (all instructors)", "HTTPS")
+Rel(deptHead, classflow, "Generates reports (dept-filtered)", "HTTPS")
 
 Rel(classflow, printer, "Exports report as PDF", "File download")
 Rel(classflow, excel, "Exports report as Excel", "File download")
