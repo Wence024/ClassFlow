@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import RequestNotifications from '../RequestNotifications';
 import { AuthContext } from '../../features/auth/contexts/AuthContext';
@@ -30,7 +31,8 @@ const queryClient = new QueryClient();
 
 const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContextType['user'] }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider
+    <MemoryRouter>
+      <AuthContext.Provider
       value={{
         user,
         role: user?.role || null,
@@ -52,9 +54,10 @@ const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContex
         canManageCourses: () => false,
         canManageAssignmentsForProgram: () => false,
       } as AuthContextType}
-    >
-      {children}
-    </AuthContext.Provider>
+      >
+        {children}
+      </AuthContext.Provider>
+    </MemoryRouter>
   </QueryClientProvider>
 );
 
@@ -122,7 +125,7 @@ describe('RequestNotifications', () => {
       program_id: null,
     };
     const mockRequests: ResourceRequest[] = [
-      { id: 'req1', resource_id: 'res1', resource_type: 'instructor', status: 'pending', requested_at: new Date().toISOString() },
+      { id: 'req1', resource_id: 'res1', resource_type: 'instructor', status: 'pending', requested_at: new Date().toISOString(), target_department_id: 'dept1' } as ResourceRequest,
     ];
 
     mockedUseDepartmentId.useDepartmentId.mockReturnValue('dept1');
@@ -131,13 +134,24 @@ describe('RequestNotifications', () => {
       updateRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
 
+    // Mock enrichment to return displayable item
+    mockedResourceRequestService.getRequestWithDetails = vi.fn().mockResolvedValue({
+      id: 'req1',
+      resource_type: 'instructor',
+      resource_name: 'Dr. Test',
+      requester_name: 'PH User',
+      program_name: 'CS',
+      requested_at: new Date().toISOString(),
+      class_session_id: 'session1',
+    } as any);
+
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 
     await user.click(screen.getByRole('button'));
 
     await waitFor(() => {
-      expect(screen.getByText('instructor Request')).toBeInTheDocument();
-      expect(screen.getByText(/Resource ID: res1/)).toBeInTheDocument();
+      expect(screen.getByText(/Instructor Request/i)).toBeInTheDocument();
+      expect(screen.getByText('Dr. Test')).toBeInTheDocument();
     });
   });
 
@@ -159,6 +173,7 @@ describe('RequestNotifications', () => {
         status: 'pending', 
         requested_at: new Date().toISOString(),
         class_session_id: 'session1',
+        target_department_id: 'dept1',
       } as ResourceRequest,
     ];
 
@@ -176,6 +191,16 @@ describe('RequestNotifications', () => {
       resource_type: 'instructor',
     } as ResourceRequest);
 
+    mockedResourceRequestService.getRequestWithDetails = vi.fn().mockResolvedValue({
+      id: 'req1',
+      resource_type: 'instructor',
+      resource_name: 'Dr. Test',
+      requester_name: 'PH User',
+      program_name: 'CS',
+      requested_at: new Date().toISOString(),
+      class_session_id: 'session1',
+    } as any);
+
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 
     await user.click(screen.getByRole('button'));
@@ -187,9 +212,9 @@ describe('RequestNotifications', () => {
     });
   });
 
-  it('should call updateRequest with rejected status on reject click', async () => {
+  it('should call rejectRequest with message on reject click', async () => {
     const user = userEvent.setup();
-    const updateRequest = vi.fn();
+    const rejectRequest = vi.fn().mockResolvedValue({ id: 'req1', status: 'rejected' });
     const deptHeadUser = {
       id: 'user-dh',
       name: 'Department Head',
@@ -205,15 +230,33 @@ describe('RequestNotifications', () => {
     mockedUseDepartmentId.useDepartmentId.mockReturnValue('dept1');
     mockedUseDepartmentRequests.useDepartmentRequests.mockReturnValue({
       requests: mockRequests,
-      updateRequest,
+      updateRequest: vi.fn(),
+      dismissRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
+
+    mockedResourceRequestService.rejectRequest = rejectRequest as any;
+    mockedResourceRequestService.getRequestWithDetails = vi.fn().mockResolvedValue({
+      id: 'req1',
+      resource_type: 'instructor',
+      resource_name: 'Dr. Test',
+      requester_name: 'PH User',
+      program_name: 'CS',
+      requested_at: new Date().toISOString(),
+      class_session_id: 'session1',
+    } as any);
 
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 
     await user.click(screen.getByRole('button'));
     await user.click(await screen.findByRole('button', { name: /Reject/i }));
+    // Fill rejection dialog message and confirm
+    const input = await screen.findByLabelText(/Rejection Reason \*/i);
+    await user.type(input, 'Not available');
+    await user.click(screen.getByRole('button', { name: /Reject Request/i }));
 
-    expect(updateRequest).toHaveBeenCalledWith({ id: 'req1', update: { status: 'rejected' } });
+    await waitFor(() => {
+      expect(rejectRequest).toHaveBeenCalledWith('req1', 'user-dh', 'Not available');
+    });
   });
 
   it('should show empty state when there are no pending requests', async () => {

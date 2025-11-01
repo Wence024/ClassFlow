@@ -119,9 +119,11 @@ describe('Resource Request Permissions and Security', () => {
     // Simulate RLS policy blocking access
     (supabase.from as any).mockReturnValue({
       select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({
-          data: [], // RLS filters out unauthorized data
-          error: null,
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({
+            data: [], // RLS filters out unauthorized data
+            error: null,
+          }),
         }),
       }),
     });

@@ -97,7 +97,7 @@ describe('RejectionDialog', () => {
     const { rerender } = render(<RejectionDialog {...defaultProps} open={true} />);
     
     await waitFor(() => {
-      const inputAfterReopen = screen.getByPlaceholderText(/Enter reason for rejection/i);
+      const inputAfterReopen = screen.getByLabelText(/Rejection Reason \*/i);
       expect(inputAfterReopen).toHaveValue('');
     });
   });
@@ -117,6 +117,6 @@ describe('RejectionDialog', () => {
   it('should show loading text on submit button during loading', () => {
     render(<RejectionDialog {...defaultProps} isLoading={true} />);
 
-    expect(screen.getByText(/Rejecting.../i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Rejecting.../i })).toBeInTheDocument();
   });
 });

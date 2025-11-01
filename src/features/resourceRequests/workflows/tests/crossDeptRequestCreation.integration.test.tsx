@@ -142,9 +142,9 @@ describe('Cross-Department Request Creation Workflow', () => {
   });
 
   it('should set assignment status to pending', async () => {
-    const { assignClassSession } = await import('../../../timetabling/services/timetableService');
-    
-    (assignClassSession as any).mockResolvedValue({
+    const { assignClassSessionToTimetable } = await import('../../../timetabling/services/timetableService');
+
+    (assignClassSessionToTimetable as any).mockResolvedValue({
       id: 'assignment-1',
       class_session_id: 'session-1',
       class_group_id: 'group-1',
@@ -153,13 +153,12 @@ describe('Cross-Department Request Creation Workflow', () => {
       status: 'pending',
     });
 
-    const result = await assignClassSession({
+    const result = await assignClassSessionToTimetable({
       class_session_id: 'session-1',
       class_group_id: 'group-1',
       period_index: 5,
-      semester_id: 'semester-1',
-      status: 'pending',
-    });
+      semester_id: 'semester-1'
+    }, 'pending');
 
     expect(result.status).toBe('pending');
   });

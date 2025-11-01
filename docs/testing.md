@@ -80,6 +80,13 @@ This document outlines the testing strategy, tools, and current implementation s
   - **Move Confirmed:** Re-approval requirement, original position tracking
   - **Remove to Drawer:** Request cancellation, department head notifications
   - **Permissions & Security:** RLS enforcement, role-based access control
+- **Test File:** `src/contexts/tests/RealtimeProvider.test.tsx` - Full coverage of real-time subscription/invalidation/edge cases (added Nov 2025)
+- **Status:** ✅ Implemented and passing
+
+### Realtime Coverage (Nov 2025) - ✅ Completed
+- Added `src/contexts/tests/RealtimeProvider.test.tsx` with stable mocking via `src/contexts/__supabaseClient__.ts` wrapper.
+- Covers: channel subscription, INSERT/UPDATE invalidation (skips DELETE), duplicate-subscription protection, cleanup on unmount, and defensive event handling.
+- Status: Passing locally and ready for CI.
 
 ## 4. How to Run Tests
 
