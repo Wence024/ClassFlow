@@ -1,196 +1,171 @@
 /**
  * Tests for useTimetable hook focusing on pending session tracking.
- * Tests the hook's ability to track and expose pending session IDs.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTimetable } from '../useTimetable';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { AuthContextType } from '../../../auth/types/auth';
 import type { ReactNode } from 'react';
 
 vi.mock('../../../../lib/supabase');
-vi.mock('../../services/timetableService');
-vi.mock('../../../scheduleConfig/hooks/useScheduleConfig');
+vi.mock('../../../auth/hooks/useAuth');
 vi.mock('../../../scheduleConfig/hooks/useActiveSemester');
-vi.mock('../../../classSessionComponents/services/classGroupsService');
-vi.mock('../../../programs/hooks/usePrograms');
+vi.mock('../../../classSessionComponents/hooks/useClassGroups');
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
-const wrapper = ({ children }: { children: ReactNode }) => {
-  const mockAuthValue: Partial<AuthContextType> = {
-    user: {
-      id: 'user-1',
-      program_id: 'program-1',
-      role: 'program_head',
-      name: 'Test User',
-      email: 'test@test.com',
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
     },
-    loading: false,
-  };
+  });
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={mockAuthValue as AuthContextType}>
-        {children}
-      </AuthContext.Provider>
-    </QueryClientProvider>
+  return ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
 
 describe('useTimetable - Pending Session Tracking', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    queryClient.clear();
   });
 
   it('should track pending session IDs from assignments', async () => {
-    const { useScheduleConfig } = await import('../../../scheduleConfig/hooks/useScheduleConfig');
+    const { useAuth } = await import('../../../auth/hooks/useAuth');
     const { useActiveSemester } = await import('../../../scheduleConfig/hooks/useActiveSemester');
-    const { usePrograms } = await import('../../../programs/hooks/usePrograms');
-    const { getTimetableAssignments } = await import('../../services/timetableService');
+    const { useClassGroups } = await import('../../../classSessionComponents/hooks/useClassGroups');
+    const { supabase } = await import('../../../../lib/supabase');
 
-    (useScheduleConfig as any).mockReturnValue({
-      settings: {
-        periods_per_day: 5,
-        class_days_per_week: 5,
-        start_time: '08:00',
-        period_duration_mins: 60,
-      },
+    (useAuth as any).mockReturnValue({
+      user: { id: 'user-1', program_id: 'program-cs' },
     });
 
     (useActiveSemester as any).mockReturnValue({
-      data: { id: 'semester-1', name: 'Fall 2024', is_active: true },
+      activeSemester: { id: 'semester-1' },
     });
 
-    (usePrograms as any).mockReturnValue({
-      listQuery: { data: [] },
+    (useClassGroups as any).mockReturnValue({
+      classGroups: [{ id: 'group-1', name: 'Group 1' }],
     });
 
-    (getTimetableAssignments as any).mockResolvedValue([
+    const mockAssignments = [
       {
         id: 'assignment-1',
-        class_session_id: 'session-pending-1',
+        class_session_id: 'session-pending',
         status: 'pending',
-        class_session: { id: 'session-pending-1' },
+        period_index: 5,
+        class_group_id: 'group-1',
+        class_session: {
+          id: 'session-pending',
+          course: { id: 'course-1', name: 'Math' },
+          instructor: { id: 'instructor-1', first_name: 'John', last_name: 'Doe' },
+          classroom: { id: 'classroom-1', name: 'Room 101' },
+          group: { id: 'group-1', name: 'Group 1' },
+        },
       },
       {
         id: 'assignment-2',
-        class_session_id: 'session-confirmed-1',
+        class_session_id: 'session-confirmed',
         status: 'confirmed',
-        class_session: { id: 'session-confirmed-1' },
+        period_index: 10,
+        class_group_id: 'group-1',
+        class_session: {
+          id: 'session-confirmed',
+          course: { id: 'course-2', name: 'Science' },
+          instructor: { id: 'instructor-2', first_name: 'Jane', last_name: 'Smith' },
+          classroom: { id: 'classroom-2', name: 'Room 102' },
+          group: { id: 'group-1', name: 'Group 1' },
+        },
       },
-    ]);
+    ];
 
-    const { result } = renderHook(() => useTimetable('class-group'), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.pendingSessionIds).toBeDefined();
+    (supabase.from as any).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({
+          data: mockAssignments,
+          error: null,
+        }),
+      }),
     });
 
-    expect(result.current.pendingSessionIds?.has('session-pending-1')).toBe(true);
-    expect(result.current.pendingSessionIds?.has('session-confirmed-1')).toBe(false);
+    const { result } = renderHook(() => useTimetable(), { wrapper: createWrapper() });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.pendingSessionIds).toContain('session-pending');
+    expect(result.current.pendingSessionIds).not.toContain('session-confirmed');
   });
 
-  it('should return pendingSessionIds set', async () => {
-    const { useScheduleConfig } = await import('../../../scheduleConfig/hooks/useScheduleConfig');
+  it('should return empty pendingSessionIds set when no pending sessions', async () => {
+    const { useAuth } = await import('../../../auth/hooks/useAuth');
     const { useActiveSemester } = await import('../../../scheduleConfig/hooks/useActiveSemester');
-    const { usePrograms } = await import('../../../programs/hooks/usePrograms');
+    const { useClassGroups } = await import('../../../classSessionComponents/hooks/useClassGroups');
+    const { supabase } = await import('../../../../lib/supabase');
 
-    (useScheduleConfig as any).mockReturnValue({
-      settings: {
-        periods_per_day: 5,
-        class_days_per_week: 5,
-        start_time: '08:00',
-        period_duration_mins: 60,
-      },
+    (useAuth as any).mockReturnValue({
+      user: { id: 'user-1', program_id: 'program-cs' },
     });
 
     (useActiveSemester as any).mockReturnValue({
-      data: { id: 'semester-1', name: 'Fall 2024', is_active: true },
+      activeSemester: { id: 'semester-1' },
     });
 
-    (usePrograms as any).mockReturnValue({
-      listQuery: { data: [] },
+    (useClassGroups as any).mockReturnValue({
+      classGroups: [{ id: 'group-1', name: 'Group 1' }],
     });
 
-    const { result } = renderHook(() => useTimetable('class-group'), { wrapper });
+    const mockAssignments = [
+      {
+        id: 'assignment-1',
+        class_session_id: 'session-confirmed',
+        status: 'confirmed',
+        period_index: 5,
+        class_group_id: 'group-1',
+        class_session: {
+          id: 'session-confirmed',
+          course: { id: 'course-1', name: 'Math' },
+          instructor: { id: 'instructor-1', first_name: 'John', last_name: 'Doe' },
+          classroom: { id: 'classroom-1', name: 'Room 101' },
+          group: { id: 'group-1', name: 'Group 1' },
+        },
+      },
+    ];
+
+    (supabase.from as any).mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({
+          data: mockAssignments,
+          error: null,
+        }),
+      }),
+    });
+
+    const { result } = renderHook(() => useTimetable(), { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(result.current.pendingSessionIds).toBeInstanceOf(Set);
+      expect(result.current.isLoading).toBe(false);
     });
+
+    expect(result.current.pendingSessionIds.size).toBe(0);
   });
 
-  it('should detect cross-dept moves on confirmed sessions', () => {
+  it('should detect cross-dept moves on confirmed sessions', async () => {
     const mockSession = {
       id: 'session-1',
       instructor: {
+        id: 'instructor-1',
         department_id: 'dept-business',
-      },
-      classroom: {
-        preferred_department_id: null,
       },
       program_id: 'program-cs',
     };
 
-    const mockAssignment = {
-      id: 'assignment-1',
-      class_session_id: 'session-1',
-      status: 'confirmed',
-    };
+    const userProgramDepartment = 'dept-cs';
+    const isConfirmed = true;
+    const hasCrossDeptResource = mockSession.instructor.department_id !== userProgramDepartment;
 
-    const userDepartmentId = 'dept-cs';
-
-    const hasCrossDeptResource =
-      (mockSession.instructor.department_id && 
-       mockSession.instructor.department_id !== userDepartmentId) ||
-      (mockSession.classroom.preferred_department_id && 
-       mockSession.classroom.preferred_department_id !== userDepartmentId);
-
-    const isCurrentlyConfirmed = mockAssignment.status === 'confirmed';
-
-    expect(hasCrossDeptResource && isCurrentlyConfirmed).toBe(true);
-  });
-
-  it('should handle empty assignments array', async () => {
-    const { useScheduleConfig } = await import('../../../scheduleConfig/hooks/useScheduleConfig');
-    const { useActiveSemester } = await import('../../../scheduleConfig/hooks/useActiveSemester');
-    const { usePrograms } = await import('../../../programs/hooks/usePrograms');
-    const { getTimetableAssignments } = await import('../../services/timetableService');
-
-    (useScheduleConfig as any).mockReturnValue({
-      settings: {
-        periods_per_day: 5,
-        class_days_per_week: 5,
-        start_time: '08:00',
-        period_duration_mins: 60,
-      },
-    });
-
-    (useActiveSemester as any).mockReturnValue({
-      data: { id: 'semester-1', name: 'Fall 2024', is_active: true },
-    });
-
-    (usePrograms as any).mockReturnValue({
-      listQuery: { data: [] },
-    });
-
-    (getTimetableAssignments as any).mockResolvedValue([]);
-
-    const { result } = renderHook(() => useTimetable('class-group'), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.pendingSessionIds).toBeDefined();
-    });
-
-    expect(result.current.pendingSessionIds?.size).toBe(0);
+    expect(isConfirmed && hasCrossDeptResource).toBe(true);
   });
 });

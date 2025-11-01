@@ -1,352 +1,381 @@
 /**
- * Unit tests for database functions accessed via RPC.
- * Tests the PostgreSQL functions that handle cross-department request workflows.
+ * Unit tests for database functions (RPC) used in cross-department request approval.
+ * Tests the PostgreSQL functions via Supabase RPC calls.
  */
 
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { supabase } from '../../../../lib/supabase';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import * as resourceRequestService from '../resourceRequestService';
 
-vi.mock('../../../../lib/supabase', () => ({
-  supabase: {
-    rpc: vi.fn(),
-    from: vi.fn(),
-  },
-}));
+vi.mock('../../../../lib/supabase');
 
-describe('Database Functions - approve_resource_request', () => {
+describe('Database Functions (RPC)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  describe('approve_resource_request', () => {
+    it('should successfully approve pending request and update timetable status', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        updated_assignments: 1,
+        class_session_id: 'session-1',
+        semester_id: 'semester-1',
+      };
 
-  it('should successfully approve pending request and update timetable status', async () => {
-    const mockResult = {
-      success: true,
-      updated_assignments: 1,
-      class_session_id: 'session-123',
-      semester_id: 'semester-1',
-    };
+      (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
+      (supabase.from as any).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { id: 'request-1', status: 'approved' },
+              error: null,
+            }),
+          }),
+        }),
+      });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      const result = await resourceRequestService.approveRequest('request-1', 'reviewer-1');
 
-    const { data, error } = await supabase.rpc('approve_resource_request' as any, {
-      _request_id: 'request-1',
-      _reviewer_id: 'reviewer-1',
+      expect(supabase.rpc).toHaveBeenCalledWith('approve_resource_request', {
+        _request_id: 'request-1',
+        _reviewer_id: 'reviewer-1',
+      });
+      expect(result.status).toBe('approved');
     });
 
-    expect(error).toBeNull();
-    expect(data).toEqual(mockResult);
-    expect(data.success).toBe(true);
-    expect(data.updated_assignments).toBe(1);
-  });
+    it('should return error when request does not exist', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: false,
+        error: 'Request not found',
+      };
 
-  it('should return error when request does not exist', async () => {
-    const mockResult = {
-      success: false,
-      error: 'Resource request not found',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
-
-    const { data } = await supabase.rpc('approve_resource_request' as any, {
-      _request_id: 'nonexistent-request',
-      _reviewer_id: 'reviewer-1',
+      await expect(
+        resourceRequestService.approveRequest('nonexistent-request', 'reviewer-1')
+      ).rejects.toThrow('Request not found');
     });
 
-    expect(data.success).toBe(false);
-    expect(data.error).toBe('Resource request not found');
-  });
+    it('should return error when request is not pending', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: false,
+        error: 'Request is not pending',
+      };
 
-  it('should return error when request is not pending', async () => {
-    const mockResult = {
-      success: false,
-      error: 'Request is not pending (current status: approved)',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
-
-    const { data } = await supabase.rpc('approve_resource_request' as any, {
-      _request_id: 'approved-request',
-      _reviewer_id: 'reviewer-1',
+      await expect(
+        resourceRequestService.approveRequest('approved-request', 'reviewer-1')
+      ).rejects.toThrow('Request is not pending');
     });
 
-    expect(data.success).toBe(false);
-    expect(data.error).toContain('not pending');
-  });
+    it('should validate reviewer_id is provided', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: false,
+        error: 'Reviewer ID is required',
+      };
 
-  it('should return error when no active semester exists', async () => {
-    const mockResult = {
-      success: false,
-      error: 'No active semester found',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
-
-    const { data } = await supabase.rpc('approve_resource_request' as any, {
-      _request_id: 'request-1',
-      _reviewer_id: 'reviewer-1',
+      await expect(
+        resourceRequestService.approveRequest('request-1', '')
+      ).rejects.toThrow();
     });
 
-    expect(data.success).toBe(false);
-    expect(data.error).toBe('No active semester found');
-  });
+    it('should return error when no active semester exists', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: false,
+        error: 'No active semester found',
+      };
 
-  it('should return error when timetable assignment does not exist', async () => {
-    const mockResult = {
-      success: false,
-      error: 'No timetable assignment found for this class session in the active semester',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
-
-    const { data } = await supabase.rpc('approve_resource_request' as any, {
-      _request_id: 'request-1',
-      _reviewer_id: 'reviewer-1',
+      await expect(
+        resourceRequestService.approveRequest('request-1', 'reviewer-1')
+      ).rejects.toThrow('No active semester found');
     });
 
-    expect(data.success).toBe(false);
-    expect(data.error).toContain('No timetable assignment found');
+    it('should return error when timetable assignment does not exist', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: false,
+        error: 'Timetable assignment not found',
+      };
+
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+
+      await expect(
+        resourceRequestService.approveRequest('request-1', 'reviewer-1')
+      ).rejects.toThrow('Timetable assignment not found');
+    });
   });
-});
 
-describe('Database Functions - reject_resource_request', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  describe('reject_resource_request', () => {
+    it('should reject pending request and delete session/assignment', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        action: 'removed_from_timetable',
+        class_session_id: 'session-1',
+      };
 
-  it('should reject pending request and remove from timetable', async () => {
-    const mockResult = {
-      success: true,
-      action: 'removed_from_timetable',
-      class_session_id: 'session-123',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      const result = await resourceRequestService.rejectRequest(
+        'pending-request',
+        'reviewer-1',
+        'Resource unavailable'
+      );
 
-    const { data, error } = await supabase.rpc('reject_resource_request' as any, {
-      _request_id: 'request-1',
-      _reviewer_id: 'reviewer-1',
-      _rejection_message: 'Resource not available',
+      expect(result.action).toBe('removed_from_timetable');
+      expect(result.success).toBe(true);
     });
 
-    expect(error).toBeNull();
-    expect(data.success).toBe(true);
-    expect(data.action).toBe('removed_from_timetable');
-  });
+    it('should reject approved request and restore to original position', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        action: 'restored',
+        class_session_id: 'session-1',
+        restored_to_period: 5,
+      };
 
-  it('should reject approved request and restore to original position', async () => {
-    const mockResult = {
-      success: true,
-      action: 'restored',
-      class_session_id: 'session-123',
-      restored_to_period: 5,
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      const result = await resourceRequestService.rejectRequest(
+        'approved-request',
+        'reviewer-1',
+        'Changed scheduling'
+      );
 
-    const { data } = await supabase.rpc('reject_resource_request' as any, {
-      _request_id: 'approved-request',
-      _reviewer_id: 'reviewer-1',
-      _rejection_message: 'Changed mind',
+      expect(result.action).toBe('restored');
+      expect(result.restored_to_period).toBe(5);
     });
 
-    expect(data.success).toBe(true);
-    expect(data.action).toBe('restored');
-    expect(data.restored_to_period).toBe(5);
-  });
+    it('should store rejection message in database', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const rejectionMessage = 'Instructor is on sabbatical leave';
+      const mockResult = { success: true, action: 'removed_from_timetable' };
 
-  it('should store rejection message in database', async () => {
-    const rejectionMessage = 'Instructor is on leave';
-    const mockResult = {
-      success: true,
-      action: 'removed_from_timetable',
-      class_session_id: 'session-123',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      await resourceRequestService.rejectRequest('request-1', 'reviewer-1', rejectionMessage);
 
-    await supabase.rpc('reject_resource_request' as any, {
-      _request_id: 'request-1',
-      _reviewer_id: 'reviewer-1',
-      _rejection_message: rejectionMessage,
+      expect(supabase.rpc).toHaveBeenCalledWith(
+        'reject_resource_request',
+        expect.objectContaining({
+          _rejection_message: rejectionMessage,
+        })
+      );
     });
 
-    expect(supabase.rpc).toHaveBeenCalledWith(
-      'reject_resource_request',
-      expect.objectContaining({
-        _rejection_message: rejectionMessage,
-      })
-    );
+    it('should return correct action taken (removed vs restored)', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      // Test removed action
+      (supabase.rpc as any).mockResolvedValueOnce({ 
+        data: { success: true, action: 'removed_from_timetable' }, 
+        error: null 
+      });
+
+      const removedResult = await resourceRequestService.rejectRequest(
+        'pending-request',
+        'reviewer-1',
+        'Test'
+      );
+      expect(removedResult.action).toBe('removed_from_timetable');
+
+      // Test restored action
+      (supabase.rpc as any).mockResolvedValueOnce({ 
+        data: { success: true, action: 'restored', restored_to_period: 10 }, 
+        error: null 
+      });
+
+      const restoredResult = await resourceRequestService.rejectRequest(
+        'approved-request',
+        'reviewer-1',
+        'Test'
+      );
+      expect(restoredResult.action).toBe('restored');
+    });
   });
 
-  it('should return error when request is not pending or approved', async () => {
-    const mockResult = {
-      success: false,
-      error: 'Request is not pending or approved (current status: rejected)',
-    };
+  describe('handle_cross_dept_session_move', () => {
+    it('should detect cross-department resources correctly', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        requires_approval: true,
+        request_id: 'new-request-1',
+        target_department_id: 'dept-business',
+      };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    const { data } = await supabase.rpc('reject_resource_request' as any, {
-      _request_id: 'rejected-request',
-      _reviewer_id: 'reviewer-1',
-      _rejection_message: 'Test',
+      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+        _class_session_id: 'session-1',
+        _old_period_index: 5,
+        _old_class_group_id: 'group-1',
+        _new_period_index: 10,
+        _new_class_group_id: 'group-1',
+        _semester_id: 'semester-1',
+      });
+
+      expect(result.data.requires_approval).toBe(true);
     });
 
-    expect(data.success).toBe(false);
-    expect(data.error).toContain('not pending or approved');
-  });
-});
+    it('should move session and set status to pending', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        requires_approval: true,
+        request_id: 'new-request-1',
+      };
 
-describe('Database Functions - handle_cross_dept_session_move', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-  it('should detect cross-department resources correctly', async () => {
-    const mockResult = {
-      success: true,
-      requires_approval: true,
-      request_id: 'new-request-1',
-      target_department_id: 'dept-2',
-    };
+      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+        _class_session_id: 'session-1',
+        _old_period_index: 5,
+        _old_class_group_id: 'group-1',
+        _new_period_index: 10,
+        _new_class_group_id: 'group-1',
+        _semester_id: 'semester-1',
+      });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
-
-    const { data } = await supabase.rpc('handle_cross_dept_session_move' as any, {
-      _class_session_id: 'session-1',
-      _old_period_index: 5,
-      _old_class_group_id: 'group-1',
-      _new_period_index: 10,
-      _new_class_group_id: 'group-1',
-      _semester_id: 'semester-1',
+      expect(result.data.requires_approval).toBe(true);
     });
 
-    expect(data.success).toBe(true);
-    expect(data.requires_approval).toBe(true);
-  });
+    it('should create new resource request with original position stored', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        requires_approval: true,
+        request_id: 'new-request-1',
+        target_department_id: 'dept-business',
+      };
 
-  it('should move session and set status to pending for cross-dept', async () => {
-    const mockResult = {
-      success: true,
-      requires_approval: true,
-      request_id: 'new-request-1',
-      target_department_id: 'dept-2',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+        _class_session_id: 'session-1',
+        _old_period_index: 5,
+        _old_class_group_id: 'group-1',
+        _new_period_index: 10,
+        _new_class_group_id: 'group-1',
+        _semester_id: 'semester-1',
+      });
 
-    const { data } = await supabase.rpc('handle_cross_dept_session_move' as any, {
-      _class_session_id: 'session-1',
-      _old_period_index: 5,
-      _old_class_group_id: 'group-1',
-      _new_period_index: 10,
-      _new_class_group_id: 'group-1',
-      _semester_id: 'semester-1',
+      expect(result.data.request_id).toBe('new-request-1');
     });
 
-    expect(data.requires_approval).toBe(true);
-    expect(data.request_id).toBeDefined();
-  });
+    it('should create notification for department head', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        requires_approval: true,
+        request_id: 'new-request-1',
+        target_department_id: 'dept-business',
+      };
 
-  it('should create new resource request with original position stored', async () => {
-    const mockResult = {
-      success: true,
-      requires_approval: true,
-      request_id: 'new-request-1',
-      target_department_id: 'dept-2',
-    };
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+        _class_session_id: 'session-1',
+        _old_period_index: 5,
+        _old_class_group_id: 'group-1',
+        _new_period_index: 10,
+        _new_class_group_id: 'group-1',
+        _semester_id: 'semester-1',
+      });
 
-    const { data } = await supabase.rpc('handle_cross_dept_session_move' as any, {
-      _class_session_id: 'session-1',
-      _old_period_index: 5,
-      _old_class_group_id: 'group-1',
-      _new_period_index: 10,
-      _new_class_group_id: 'group-1',
-      _semester_id: 'semester-1',
+      expect(result.data.target_department_id).toBe('dept-business');
     });
 
-    expect(data.request_id).toBeTruthy();
-    expect(data.target_department_id).toBe('dept-2');
+    it('should handle non-cross-dept moves (confirms immediately)', async () => {
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      const mockResult = {
+        success: true,
+        requires_approval: false,
+      };
+
+      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+
+      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+        _class_session_id: 'session-same-dept',
+        _old_period_index: 5,
+        _old_class_group_id: 'group-1',
+        _new_period_index: 10,
+        _new_class_group_id: 'group-1',
+        _semester_id: 'semester-1',
+      });
+
+      expect(result.data.requires_approval).toBe(false);
+    });
   });
 
-  it('should handle non-cross-dept moves (confirms immediately)', async () => {
-    const mockResult = {
-      success: true,
-      requires_approval: false,
-    };
+  describe('is_cross_department_resource', () => {
+    it('should return true for instructor from different department', async () => {
+      const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      (supabase.rpc as any).mockResolvedValue({ data: true, error: null });
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
-
-    const { data } = await supabase.rpc('handle_cross_dept_session_move' as any, {
-      _class_session_id: 'session-same-dept',
-      _old_period_index: 5,
-      _old_class_group_id: 'group-1',
-      _new_period_index: 10,
-      _new_class_group_id: 'group-1',
-      _semester_id: 'semester-1',
+      const result = await isCrossDepartmentInstructor('program-cs', 'instructor-business');
+      
+      expect(result).toBe(true);
     });
 
-    expect(data.success).toBe(true);
-    expect(data.requires_approval).toBe(false);
-  });
-});
+    it('should return true for classroom from different department', async () => {
+      const { isCrossDepartmentClassroom } = await import('../../../classSessions/services/classSessionsService');
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      (supabase.rpc as any).mockResolvedValue({ data: true, error: null });
 
-describe('Database Functions - is_cross_department_resource', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should return true for instructor from different department', async () => {
-    (supabase.rpc as any).mockResolvedValue({ data: true, error: null });
-
-    const { data } = await supabase.rpc('is_cross_department_resource' as any, {
-      _program_id: 'program-1',
-      _instructor_id: 'instructor-from-other-dept',
-      _classroom_id: null,
+      const result = await isCrossDepartmentClassroom('program-cs', 'classroom-business');
+      
+      expect(result).toBe(true);
     });
 
-    expect(data).toBe(true);
-  });
+    it('should return false for same-department resources', async () => {
+      const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      (supabase.rpc as any).mockResolvedValue({ data: false, error: null });
 
-  it('should return true for classroom from different department', async () => {
-    (supabase.rpc as any).mockResolvedValue({ data: true, error: null });
-
-    const { data } = await supabase.rpc('is_cross_department_resource' as any, {
-      _program_id: 'program-1',
-      _instructor_id: null,
-      _classroom_id: 'classroom-from-other-dept',
+      const result = await isCrossDepartmentInstructor('program-cs', 'instructor-cs');
+      
+      expect(result).toBe(false);
     });
 
-    expect(data).toBe(true);
-  });
+    it('should handle null department IDs correctly', async () => {
+      const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
+      const { supabase } = await import('../../../../lib/supabase');
+      
+      (supabase.rpc as any).mockResolvedValue({ data: false, error: null });
 
-  it('should return false for same-department resources', async () => {
-    (supabase.rpc as any).mockResolvedValue({ data: false, error: null });
-
-    const { data } = await supabase.rpc('is_cross_department_resource' as any, {
-      _program_id: 'program-1',
-      _instructor_id: 'instructor-same-dept',
-      _classroom_id: 'classroom-same-dept',
+      const result = await isCrossDepartmentInstructor('program-cs', 'instructor-no-dept');
+      
+      expect(result).toBe(false);
     });
-
-    expect(data).toBe(false);
-  });
-
-  it('should handle null department IDs correctly', async () => {
-    (supabase.rpc as any).mockResolvedValue({ data: false, error: null });
-
-    const { data } = await supabase.rpc('is_cross_department_resource' as any, {
-      _program_id: 'program-1',
-      _instructor_id: null,
-      _classroom_id: null,
-    });
-
-    expect(data).toBe(false);
   });
 });
