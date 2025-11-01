@@ -7,7 +7,6 @@
     "backup": "npm run backup:data && npm run backup:schema",
     "backup:data": "npx supabase db dump --db-url \"postgresql://postgres.rjdznnrzeiqajuaqathd:8Hrsofsleepsleep!@aws-0-us-east-2.pooler.supabase.com:6543/postgres\" -f supabase/migrations/data_backups/data.sql --data-only",
     "backup:schema": "npx supabase db dump --db-url \"postgresql://postgres.rjdznnrzeiqajuaqathd:8Hrsofsleepsleep!@aws-0-us-east-2.pooler.supabase.com:6543/postgres\" -f supabase/migrations/data_backups/schema.sql",
-
     "build": "tsc -b && vite build",
     "build:dev": "vite build --mode development",
     "check": "npm run lint && npm run format:check",
@@ -43,6 +42,8 @@
     "@testing-library/dom": "^10.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "lucide-react": "^0.536.0",
     "react": "^19.1.0",
     "react-dnd": "^16.0.1",
@@ -55,6 +56,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
     "vite": "^6.3.5",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.5"
   },
   "devDependencies": {

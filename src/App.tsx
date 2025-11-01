@@ -18,6 +18,7 @@ import ProgramHeadInstructors from './features/classSessionComponents/pages/Prog
 import ProgramHeadRequestPage from './features/resourceRequests/pages/ProgramHeadRequestPage';
 import ProgramManagementPage from './features/programs/pages/ProgramManagementPage';
 import UserManagementPage from './features/users/pages/UserManagementPage';
+import InstructorReportsPage from './features/reports/pages/InstructorReportsPage';
 
 /**
  * The root component of the application.
@@ -53,6 +54,7 @@ function App() {
                   <Route path="/department-head" element={<DepartmentHeadDashboard />} />
                   <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
                   <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
+                  <Route path="/reports/instructors" element={<InstructorReportsPage />} />
                   <Route path="/profile" element={<UserProfilePage />} />
                 </Route>
               </Route>
