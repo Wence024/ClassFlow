@@ -355,7 +355,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return errorMsg;
       }
     },
-    [settings, timetable, programs, assignClassSessionMutation, viewMode, usesCrossDepartmentResource]
+    [settings, timetable, programs, assignClassSessionMutation, viewMode, usesCrossDepartmentResource, createResourceRequestForSession]
   );
 
   /**
@@ -543,7 +543,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return errorMsg;
       }
     },
-    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, assignments, activeSemester, user]
+    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, assignments, activeSemester]
   );
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */

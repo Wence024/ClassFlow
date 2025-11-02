@@ -407,7 +407,7 @@ export const useTimetableDnd = (
         cleanupDragState();
       }
     },
-    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation, pendingPlacementInfo]
+    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation, pendingPlacementInfo, assignments]
   );
 
   /**
