@@ -428,7 +428,8 @@ interface InstructorReport {
 **Issue 6: PDF/Excel Design Enhancement (COMPLETED)**
 - **Enhancement:** Redesigned PDF with professional color scheme, elegant header/footer, improved spacing
 - **Enhancement:** Beautified Excel with styled headers, cell borders, background colors, merged title cells, alternating row colors, and number formatting
-- **Benefit:** More professional, print-ready reports suitable for official documentation
+- **Library:** Migrated from `xlsx` to `xlsx-js-style` for full styling support (fonts, colors, borders, fills)
+- **Benefit:** More professional, print-ready reports suitable for official documentation with complete visual formatting
 - **Files:** `src/features/reports/services/pdfExportService.ts`, `excelExportService.ts`
 
 **Issue 7: Schedule Configuration Upsert Capability (COMPLETED)**

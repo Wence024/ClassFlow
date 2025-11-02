@@ -347,6 +347,7 @@ note right of Excel
     - Full course names with codes
     - Department short codes
     - Teaching load summary section
+    Library: xlsx-js-style (supports full styling)
 end note
 
 @enduml
