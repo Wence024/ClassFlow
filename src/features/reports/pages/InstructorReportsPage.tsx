@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -20,6 +20,7 @@ import { useDepartmentId } from '@/features/auth/hooks/useDepartmentId';
 export default function InstructorReportsPage() {
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(null);
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(null);
+  const instructorSelectRef = React.useRef<HTMLButtonElement>(null);
 
   const { user } = useAuth();
   const departmentId = useDepartmentId();
@@ -66,6 +67,19 @@ export default function InstructorReportsPage() {
 
   const activeSemester = semesters.find(s => s.is_active);
 
+  // Set active semester as default and focus on instructor select
+  React.useEffect(() => {
+    if (activeSemester && !selectedSemesterId) {
+      setSelectedSemesterId(activeSemester.id);
+    }
+  }, [activeSemester, selectedSemesterId]);
+
+  React.useEffect(() => {
+    if (instructorSelectRef.current && !selectedInstructorId) {
+      instructorSelectRef.current.focus();
+    }
+  }, [selectedInstructorId]);
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -88,7 +102,7 @@ export default function InstructorReportsPage() {
           <div>
             <label className="text-sm font-medium mb-2 block">Select Instructor</label>
             <Select value={selectedInstructorId || ''} onValueChange={setSelectedInstructorId}>
-              <SelectTrigger>
+              <SelectTrigger ref={instructorSelectRef}>
                 <SelectValue placeholder="Choose an instructor..." />
               </SelectTrigger>
               <SelectContent>

@@ -13,6 +13,7 @@ export interface InstructorScheduleEntry {
   timeSlot: string;
   courses: CourseScheduleInfo[];
   department: string;
+  departmentCode: string;
   classroom: string;
   lecHours: number;
   labHours: number;

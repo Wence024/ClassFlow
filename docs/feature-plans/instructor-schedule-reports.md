@@ -441,45 +441,43 @@ interface InstructorReport {
 
 ## Verification Steps
 
-After implementing the fixes, verify the following:
+1. **Test Course Management:**
+   - Create new course with lecture and lab hours
+   - Verify units auto-calculate correctly
+   - Override units and verify custom value persists
+   - Edit existing course and verify all fields populate
 
-### 1. Query Fix Verification
-```sql
--- Verify instructor has sessions
-SELECT COUNT(*) FROM class_sessions WHERE instructor_id = '<instructor_uuid>';
+2. **Test Report Generation:**
+   - Select an instructor with confirmed timetable assignments
+   - Verify active semester is pre-selected
+   - Verify focus is on instructor select
+   - Verify all course details display in `Name (CODE)` format
+   - Verify department shows short code (e.g., "CS", "IT")
+   - Check "Contact hr/wk" merged header spans Lec/Lab columns
+   - Check load calculations match manual calculations
 
--- Verify timetable assignments exist for those sessions
-SELECT ta.*, cs.instructor_id 
-FROM timetable_assignments ta
-JOIN class_sessions cs ON cs.id = ta.class_session_id
-WHERE cs.instructor_id = '<instructor_uuid>' 
-  AND ta.semester_id = '<semester_uuid>'
-  AND ta.status = 'confirmed';
-```
+3. **Test Empty States:**
+   - Select instructor with no assignments
+   - Verify graceful empty state handling
 
-### 2. Frontend Verification
-- [ ] Select an instructor with assignments → Report displays correctly
-- [ ] Select an instructor with NO assignments → Shows empty state with 0 totals
-- [ ] Course codes, names, units display from database (not hardcoded)
-- [ ] Lecture/lab hours display correctly from `courses` table
-- [ ] Load calculation shows correct value (total_units / 3)
-- [ ] Load status color coding works (green/yellow/red)
-- [ ] Department names display correctly
-- [ ] Classroom codes/names display correctly
-- [ ] Time slots calculate correctly from `period_index` and `schedule_configuration`
+4. **Test Exports:**
+   - Generate PDF and verify formatting
+   - Verify merged header cells render correctly in PDF
+   - Generate Excel and verify data structure
+   - Test print functionality
 
-### 3. Role-Based Access
-- [ ] Admin sees ALL instructors in dropdown
-- [ ] Department Head sees only THEIR department's instructors
-- [ ] Program Head sees only their department's instructors (via program)
-- [ ] Info banner displays for non-admins
-- [ ] No unauthorized access errors in console
+5. **Test Role-Based Access:**
+   - Admin: Can view all instructors
+   - Department Head: Can view department instructors only
+   - Program Head: Can view department instructors only
 
-### 4. Export Verification
-- [ ] PDF export downloads successfully
-- [ ] PDF contains all schedule data
-- [ ] Excel export downloads successfully
-- [ ] Excel contains formulas and is editable
+6. **Verify Data Accuracy:**
+   - Course names and codes display correctly in reports
+   - Department codes match database values
+   - Lecture/lab hours match course definitions
+   - Units match course configuration (auto or custom)
+   - Teaching load calculations are accurate
+   - Class sizes reflect actual enrollment
 - [ ] Filename format: `{instructor_code}_{semester}_Schedule.{ext}`
 
 ### 5. Load Configuration

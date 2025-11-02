@@ -178,8 +178,11 @@ export type Database = {
           created_at: string | null
           created_by: string
           id: string
+          lab_hours: number | null
+          lecture_hours: number | null
           name: string
           program_id: string
+          units: number | null
         }
         Insert: {
           code: string
@@ -187,8 +190,11 @@ export type Database = {
           created_at?: string | null
           created_by: string
           id?: string
+          lab_hours?: number | null
+          lecture_hours?: number | null
           name: string
           program_id: string
+          units?: number | null
         }
         Update: {
           code?: string
@@ -196,8 +202,11 @@ export type Database = {
           created_at?: string | null
           created_by?: string
           id?: string
+          lab_hours?: number | null
+          lecture_hours?: number | null
           name?: string
           program_id?: string
+          units?: number | null
         }
         Relationships: [
           {
@@ -542,6 +551,48 @@ export type Database = {
           start_date?: string
         }
         Relationships: []
+      }
+      teaching_load_config: {
+        Row: {
+          created_at: string | null
+          department_id: string | null
+          id: string
+          semester_id: string | null
+          standard_load: number
+          units_per_load: number
+        }
+        Insert: {
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          semester_id?: string | null
+          standard_load?: number
+          units_per_load?: number
+        }
+        Update: {
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          semester_id?: string | null
+          standard_load?: number
+          units_per_load?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_load_config_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_load_config_semester_id_fkey"
+            columns: ["semester_id"]
+            isOneToOne: false
+            referencedRelation: "semesters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       timetable_assignments: {
         Row: {

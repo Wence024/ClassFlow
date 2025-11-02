@@ -19,6 +19,9 @@ export const courseSchema = z.object({
   code: z.string().min(1, 'Course code is required'),
   color: hexColorSchema,
   program_id: z.string().uuid('Program is required'),
+  lecture_hours: z.number().min(0, 'Cannot be negative').nullable().optional(),
+  lab_hours: z.number().min(0, 'Cannot be negative').nullable().optional(),
+  units: z.number().min(0, 'Cannot be negative').nullable().optional(),
 });
 
 export const classGroupSchema = z.object({

@@ -102,7 +102,7 @@ export async function getInstructorScheduleData(
         course:courses(*),
         classroom:classrooms(*),
         class_group:class_groups(*),
-        program:programs(*, department:departments(name))
+        program:programs(*, department:departments(name, code))
       )
     `)
     .in('class_session_id', sessionIds)
@@ -147,6 +147,7 @@ export async function getInstructorScheduleData(
         labHours: Number(course.lab_hours || 0),
       }],
       department: program?.department?.name || 'N/A',
+      departmentCode: program?.department?.code || 'N/A',
       classroom: classroom?.code || classroom?.name || 'TBA',
       lecHours,
       labHours,

@@ -19,15 +19,18 @@ export function DayGroupTable({ dayLabel, entries }: DayGroupTableProps) {
         <table className="w-full border-collapse border border-border">
           <thead>
             <tr className="bg-muted">
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold">Time</th>
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold">Subject(s)</th>
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold">Dept</th>
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold">Room</th>
+              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Time</th>
+              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Subject(s)</th>
+              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Dept</th>
+              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Room</th>
+              <th className="border border-border px-3 py-2 text-center text-sm font-semibold" colSpan={2}>Contact hr/wk</th>
+              <th className="border border-border px-3 py-2 text-right text-sm font-semibold" rowSpan={2}>Units</th>
+              <th className="border border-border px-3 py-2 text-right text-sm font-semibold" rowSpan={2}>Load</th>
+              <th className="border border-border px-3 py-2 text-right text-sm font-semibold" rowSpan={2}>Class Size</th>
+            </tr>
+            <tr className="bg-muted">
               <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Lec Hrs</th>
               <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Lab Hrs</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Units</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Load</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Class Size</th>
             </tr>
           </thead>
           <tbody>
@@ -35,9 +38,9 @@ export function DayGroupTable({ dayLabel, entries }: DayGroupTableProps) {
               <tr key={index} className="hover:bg-muted/50">
                 <td className="border border-border px-3 py-2 text-sm">{entry.timeSlot}</td>
                 <td className="border border-border px-3 py-2 text-sm">
-                  {entry.courses.map((c) => c.code).join(', ')}
+                  {entry.courses.map((c) => `${c.name} (${c.code})`).join(', ')}
                 </td>
-                <td className="border border-border px-3 py-2 text-sm">{entry.department}</td>
+                <td className="border border-border px-3 py-2 text-sm">{entry.departmentCode}</td>
                 <td className="border border-border px-3 py-2 text-sm">{entry.classroom}</td>
                 <td className="border border-border px-3 py-2 text-sm text-right">
                   {entry.lecHours.toFixed(1)}
