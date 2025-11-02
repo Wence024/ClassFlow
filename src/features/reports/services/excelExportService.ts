@@ -210,10 +210,27 @@ export function generateInstructorReportExcel(report: InstructorReport): void {
     }
   }
 
-  // Merge title cell across all columns
+  // Find the row index for "TEACHING LOAD SUMMARY"
+  let summaryRowIndex = -1;
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    const cellAddress = XLSX.utils.encode_cell({ r: R, c: 0 });
+    const cell = worksheet[cellAddress];
+    if (cell && cell.v === 'TEACHING LOAD SUMMARY') {
+      summaryRowIndex = R;
+      break;
+    }
+  }
+
+  // Merge title cell and summary cell across all columns
   worksheet['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } } // Title row
   ];
+  
+  if (summaryRowIndex !== -1) {
+    worksheet['!merges'].push(
+      { s: { r: summaryRowIndex, c: 0 }, e: { r: summaryRowIndex, c: 8 } } // Summary row
+    );
+  }
 
   // Set row heights for better appearance
   worksheet['!rows'] = [];
