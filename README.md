@@ -16,6 +16,8 @@ Built with a focus on maintainability and developer experience, the project uses
 - ↔️ **Interactive Timetabling**: Drag-and-drop grid interface with real-time validation
 - ✅ **Conflict Detection**: Instant visual feedback prevents scheduling conflicts during drag operations
 - 🎛️ **Collapsible Sidebar**: Modern navigation with toggle functionality and tooltips
+- 📊 **Instructor Reports**: Generate detailed schedule reports with teaching load calculations, exportable to PDF and Excel
+- ⚙️ **Flexible Schedule Configuration**: Upsert-based configuration system for easy initial setup and updates
 - ⚡ **Real-time Collaboration**: Live updates across all connected clients via Supabase subscriptions
 - 🛡️ **Type-Safe & Scalable**: Built with TypeScript and modular feature architecture
 - 🧪 **Comprehensive Testing:** All critical workflows and roles are covered by fast, layered unit, integration, workflow, real-time, and permission/security (RLS) tests. Continuous improvement rooted in engineering best practices.

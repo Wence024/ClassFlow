@@ -3,7 +3,8 @@ import type { InstructorReport } from '../types/instructorReport';
 import { formatDayGroupLabel } from './instructorReportService';
 
 /**
- * Generates an Excel workbook for an instructor's schedule with improved formatting.
+ * Generates a beautifully formatted Excel workbook for an instructor's schedule.
+ * Includes styled headers, borders, colors, and proper number formatting.
  */
 export function generateInstructorReportExcel(report: InstructorReport): void {
   const workbook = XLSX.utils.book_new();
@@ -97,6 +98,126 @@ export function generateInstructorReportExcel(report: InstructorReport): void {
     { wch: 10 },  // Load
     { wch: 12 },  // Class Size
   ];
+
+  // Apply styling to make it beautiful
+  const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+  
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+      if (!worksheet[cellAddress]) continue;
+      
+      const cell = worksheet[cellAddress];
+      
+      // Initialize cell style
+      if (!cell.s) cell.s = {};
+      
+      // Title row (row 0)
+      if (R === 0) {
+        cell.s = {
+          font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "2563EB" } },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+      }
+      // Header info rows (2-5)
+      else if (R >= 2 && R <= 5 && C === 0) {
+        cell.s = {
+          font: { bold: true, sz: 11 },
+          alignment: { horizontal: "left" }
+        };
+      }
+      // Day group headers (e.g., "Monday & Wednesday")
+      else if (typeof cell.v === 'string' && 
+               (cell.v.includes('Monday') || cell.v.includes('Tuesday') || 
+                cell.v.includes('Friday') || cell.v.includes('Saturday') ||
+                cell.v === 'TEACHING LOAD SUMMARY')) {
+        cell.s = {
+          font: { bold: true, sz: 13, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "1E40AF" } },
+          alignment: { horizontal: "left", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+      }
+      // Table headers (Time, Subject(s), etc.)
+      else if (typeof cell.v === 'string' && 
+               ['Time', 'Subject(s)', 'Dept', 'Room', 'Lec Hrs', 'Lab Hrs', 
+                'Units', 'Load', 'Class Size'].includes(cell.v)) {
+        cell.s = {
+          font: { bold: true, sz: 11, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "3B82F6" } },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+          }
+        };
+      }
+      // Data rows with alternating colors
+      else if (typeof cell.v === 'string' && /^\d{1,2}:\d{2}/.test(cell.v)) {
+        // This is a time slot row - apply alternating row color
+        const isEvenRow = R % 2 === 0;
+        cell.s = {
+          fill: { fgColor: { rgb: isEvenRow ? "F3F4F6" : "FFFFFF" } },
+          alignment: { horizontal: "left", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "D1D5DB" } },
+            bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+            left: { style: "thin", color: { rgb: "D1D5DB" } },
+            right: { style: "thin", color: { rgb: "D1D5DB" } }
+          }
+        };
+      }
+      // Totals section
+      else if (typeof cell.v === 'string' && 
+               (cell.v.includes('Total') || cell.v === 'Load Status:')) {
+        cell.s = {
+          font: { bold: true, sz: 11 },
+          alignment: { horizontal: "left" }
+        };
+      }
+      // Number cells - format with proper decimals
+      else if (typeof cell.v === 'number') {
+        const isEvenRow = R % 2 === 0;
+        cell.s = {
+          fill: { fgColor: { rgb: isEvenRow ? "F3F4F6" : "FFFFFF" } },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: {
+            top: { style: "thin", color: { rgb: "D1D5DB" } },
+            bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+            left: { style: "thin", color: { rgb: "D1D5DB" } },
+            right: { style: "thin", color: { rgb: "D1D5DB" } }
+          }
+        };
+        // Apply number format
+        if (C >= 4 && C <= 7) { // Lec Hrs, Lab Hrs, Units, Load columns
+          cell.z = '0.0';
+        }
+      }
+    }
+  }
+
+  // Merge title cell across all columns
+  worksheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }
+  ];
+
+  // Set row heights for better appearance
+  worksheet['!rows'] = [];
+  worksheet['!rows'][0] = { hpt: 25 }; // Title row
 
   // Add worksheet to workbook
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Schedule');

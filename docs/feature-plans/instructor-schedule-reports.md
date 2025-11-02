@@ -427,9 +427,16 @@ interface InstructorReport {
 
 **Issue 6: PDF/Excel Design Enhancement (COMPLETED)**
 - **Enhancement:** Redesigned PDF with professional color scheme, elegant header/footer, improved spacing
-- **Enhancement:** Improved Excel with better column widths, clearer structure, formatted headers
+- **Enhancement:** Beautified Excel with styled headers, cell borders, background colors, merged title cells, alternating row colors, and number formatting
 - **Benefit:** More professional, print-ready reports suitable for official documentation
 - **Files:** `src/features/reports/services/pdfExportService.ts`, `excelExportService.ts`
+
+**Issue 7: Schedule Configuration Upsert Capability (COMPLETED)**
+- **Problem:** Schedule configuration only supported updates, causing 406 errors when table was empty
+- **Solution:** Implemented upsert strategy - creates default config if none exists, updates if present
+- **Benefit:** Graceful handling of initial setup and existing configurations
+- **Files:** `src/features/scheduleConfig/services/scheduleConfigService.ts`, `useScheduleConfig.tsx`
+- **Database:** Added INSERT RLS policy for admins with default configuration row
 
 ### 📋 Access Control Implementation
 

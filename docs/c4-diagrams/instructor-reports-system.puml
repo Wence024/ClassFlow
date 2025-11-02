@@ -337,10 +337,13 @@ note right of PDF
 end note
 
 note right of Excel
-    **Improved Excel Format:**
-    - Structured headers with metadata
-    - Contact hr/wk merged cell
-    - Proper column widths
+    **Beautified Excel Format:**
+    - Styled headers with blue background and white text
+    - Cell borders for all data cells
+    - Merged title cell with bold formatting
+    - Alternating row colors (gray/white)
+    - Number formatting with proper decimals
+    - Proper column widths for readability
     - Full course names with codes
     - Department short codes
     - Teaching load summary section

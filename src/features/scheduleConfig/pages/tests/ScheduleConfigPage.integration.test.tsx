@@ -68,6 +68,25 @@ describe('ScheduleConfigPage - Admin Access', () => {
     });
   });
 
+  it('should handle null settings gracefully for initial setup', async () => {
+    vi.spyOn(useScheduleConfigHook, 'useScheduleConfig').mockReturnValue({
+      settings: null,
+      updateSettings: mockUpdateSettings,
+      isLoading: false,
+      isUpdating: false,
+      error: null,
+    });
+
+    renderPage({ id: 'u1', role: 'admin', program_id: 'p1', name: 'test', email: 'test@test.com' });
+
+    // Should render with default values when settings is null
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Periods Per Day/i)).toBeEnabled();
+      expect(screen.getByLabelText(/Class Days Per Week/i)).toBeEnabled();
+      expect(screen.getByRole('button', { name: /Save Settings/i })).toBeInTheDocument();
+    });
+  });
+
   it('should display fields as disabled for non-admin users', async () => {
     renderPage({
       id: 'u1',
