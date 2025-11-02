@@ -288,6 +288,53 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
   }, [user, programs]);
 
   /**
+   * Creates a resource request for a class session that uses cross-department resources.
+   */
+  const createResourceRequestForSession = useCallback(async (classSession: ClassSession) => {
+    if (!user?.program_id || !activeSemester) return;
+    
+    const userProgram = programs.find(p => p.id === user.program_id);
+    if (!userProgram?.department_id) return;
+    
+    const instructorDeptId = classSession.instructor.department_id;
+    const classroomDeptId = classSession.classroom.preferred_department_id;
+    
+    const crossDeptInstructor = instructorDeptId && instructorDeptId !== userProgram.department_id;
+    const crossDeptClassroom = classroomDeptId && classroomDeptId !== userProgram.department_id;
+    
+    if (!crossDeptInstructor && !crossDeptClassroom) return;
+    
+    // Import the resource request service dynamically
+    const { createRequest } = await import('../../resourceRequests/services/resourceRequestService');
+    
+    // Create request for cross-department instructor
+    if (crossDeptInstructor) {
+      await createRequest({
+        resource_type: 'instructor',
+        resource_id: classSession.instructor.id,
+        requesting_program_id: user.program_id,
+        target_department_id: instructorDeptId,
+        requester_id: user.id,
+        class_session_id: classSession.id,
+        notes: `Request to use instructor ${classSession.instructor.first_name} ${classSession.instructor.last_name}`,
+      });
+    }
+    
+    // Create request for cross-department classroom
+    if (crossDeptClassroom) {
+      await createRequest({
+        resource_type: 'classroom',
+        resource_id: classSession.classroom.id,
+        requesting_program_id: user.program_id,
+        target_department_id: classroomDeptId,
+        requester_id: user.id,
+        class_session_id: classSession.id,
+        notes: `Request to use classroom ${classSession.classroom.name}`,
+      });
+    }
+  }, [user, programs, activeSemester]);
+
+  /**
    * Assigns a class session after performing a conflict check. Returns an error message string on failure.
    *
    * @param class_group_id - The ID of the class group (DB column value).
@@ -371,53 +418,6 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     },
     [removeClassSessionMutation]
   );
-
-  /**
-   * Creates a resource request for a class session that uses cross-department resources.
-   */
-  const createResourceRequestForSession = useCallback(async (classSession: ClassSession) => {
-    if (!user?.program_id || !activeSemester) return;
-    
-    const userProgram = programs.find(p => p.id === user.program_id);
-    if (!userProgram?.department_id) return;
-    
-    const instructorDeptId = classSession.instructor.department_id;
-    const classroomDeptId = classSession.classroom.preferred_department_id;
-    
-    const crossDeptInstructor = instructorDeptId && instructorDeptId !== userProgram.department_id;
-    const crossDeptClassroom = classroomDeptId && classroomDeptId !== userProgram.department_id;
-    
-    if (!crossDeptInstructor && !crossDeptClassroom) return;
-    
-    // Import the resource request service dynamically
-    const { createRequest } = await import('../../resourceRequests/services/resourceRequestService');
-    
-    // Create request for cross-department instructor
-    if (crossDeptInstructor) {
-      await createRequest({
-        resource_type: 'instructor',
-        resource_id: classSession.instructor.id,
-        requesting_program_id: user.program_id,
-        target_department_id: instructorDeptId,
-        requester_id: user.id,
-        class_session_id: classSession.id,
-        notes: `Request to use instructor ${classSession.instructor.first_name} ${classSession.instructor.last_name}`,
-      });
-    }
-    
-    // Create request for cross-department classroom
-    if (crossDeptClassroom) {
-      await createRequest({
-        resource_type: 'classroom',
-        resource_id: classSession.classroom.id,
-        requesting_program_id: user.program_id,
-        target_department_id: classroomDeptId,
-        requester_id: user.id,
-        class_session_id: classSession.id,
-        notes: `Request to use classroom ${classSession.classroom.name}`,
-      });
-    }
-  }, [user, programs, activeSemester]);
 
   /**
    * Moves a class session after performing a conflict check. Returns an error message string on failure.
