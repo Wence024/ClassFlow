@@ -44,9 +44,10 @@ export async function getTimetableAssignments(
   }
 
   // Map the data to include the status field explicitly
+  // Default to 'confirmed' if status is not present
   return (data || []).map(assignment => ({
     ...assignment,
-    status: (assignment as any).status as 'pending' | 'confirmed',
+    status: (assignment.status as 'pending' | 'confirmed' | undefined) || 'confirmed',
   })) as HydratedTimetableAssignment[];
 }
 

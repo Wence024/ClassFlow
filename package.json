@@ -22,7 +22,7 @@
     "premerge": "npm run lint && npm run type-check && npm run test && npm run format",
     "preview": "vite preview",
     "rcm": "powershell -ExecutionPolicy Bypass -File ./scripts/rename-commit-msg.ps1 && exit",
-    "test": "vitest",
+    "test": "vitest run",
     "test:unit": "vitest run -c vitest.unit.config.ts",
     "test:integration": "vitest run -c vitest.integration.config.ts",
     "type-check": "npx tsc --noEmit --project tsconfig.app.json",

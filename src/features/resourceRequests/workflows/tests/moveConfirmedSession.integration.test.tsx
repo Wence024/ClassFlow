@@ -60,9 +60,9 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
       target_department_id: 'dept-business',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+    const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
       _class_session_id: 'session-1',
       _old_period_index: 5,
       _old_class_group_id: 'group-1',
@@ -84,9 +84,9 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
       request_id: 'new-request-1',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    await supabase.rpc('handle_cross_dept_session_move' as any, {
+    await supabase.rpc('handle_cross_dept_session_move' as never, {
       _class_session_id: 'session-1',
       _old_period_index: 5,
       _old_class_group_id: 'group-1',
@@ -114,9 +114,9 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
       request_id: 'new-request-1',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+    const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
       _class_session_id: 'session-1',
       _old_period_index: 5,
       _old_class_group_id: 'group-1',
@@ -139,9 +139,9 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
       target_department_id: 'dept-business',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+    const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
       _class_session_id: 'session-1',
       _old_period_index: 5,
       _old_class_group_id: 'group-1',
@@ -164,9 +164,9 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
       target_department_id: 'dept-business',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+    const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
       _class_session_id: 'session-1',
       _old_period_index: 5,
       _old_class_group_id: 'group-1',

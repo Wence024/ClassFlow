@@ -125,7 +125,7 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
  * 
  * **Edge Case Handling:**
  * - Cancels all active resource requests for this classroom before deletion
- * - Notifies department heads if requests are cancelled
+ * - Notifies department heads if requests are cancelled.
  *
  * @param id - The unique identifier of the classroom to remove.
  * @param _user_id - The user ID, kept for API consistency but unused due to RLS.

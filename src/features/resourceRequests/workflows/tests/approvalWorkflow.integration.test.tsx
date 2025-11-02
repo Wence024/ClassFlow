@@ -23,8 +23,8 @@ describe('Approval Workflow', () => {
       semester_id: 'semester-1',
     };
 
-    (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -49,8 +49,8 @@ describe('Approval Workflow', () => {
     
     const mockResult = { success: true, updated_assignments: 1 };
 
-    (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -83,9 +83,9 @@ describe('Approval Workflow', () => {
       semester_id: 'semester-1',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    const { data } = await supabase.rpc('approve_resource_request' as any, {
+    const { data } = await supabase.rpc('approve_resource_request' as never, {
       _request_id: 'request-1',
       _reviewer_id: 'reviewer-1',
     });
@@ -101,8 +101,8 @@ describe('Approval Workflow', () => {
     
     const mockResult = { success: true, updated_assignments: 1 };
 
-    (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -126,8 +126,8 @@ describe('Approval Workflow', () => {
     
     const mockResult = { success: true, updated_assignments: 1 };
 
-    (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -155,9 +155,9 @@ describe('Approval Workflow', () => {
     
     const mockResult = { success: true, updated_assignments: 1 };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    const { data } = await supabase.rpc('approve_resource_request' as any, {
+    const { data } = await supabase.rpc('approve_resource_request' as never, {
       _request_id: 'request-1',
       _reviewer_id: 'reviewer-1',
     });

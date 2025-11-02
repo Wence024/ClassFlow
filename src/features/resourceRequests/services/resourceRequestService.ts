@@ -53,7 +53,7 @@ export async function getRequestsForDepartment(departmentId: string): Promise<Re
  * 
  * **Edge Case Handling:**
  * - Checks for existing pending/approved requests to prevent duplicates
- * - Returns existing request if one already exists for this session
+ * - Returns existing request if one already exists for this session.
  *
  * @param payload - The data for the new resource request.
  * @returns A promise resolving to the created resource request.
@@ -101,7 +101,7 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
 export async function approveRequest(id: string, reviewerId: string): Promise<ResourceRequest> {
   // Call the database function to atomically approve the request and update assignments
   // Note: Using type assertion as the types are auto-generated and may not include new functions yet
-  const { data, error } = await supabase.rpc('approve_resource_request' as any, {
+  const { data, error } = await supabase.rpc('approve_resource_request' as never, {
     _request_id: id,
     _reviewer_id: reviewerId,
   });
@@ -112,7 +112,7 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
   }
 
   // Parse the response as JSON
-  const result = data as any;
+  const result = data as { success: boolean; error?: string; updated_assignments?: number; class_session_id?: string; semester_id?: string } | null;
   
   // Check if the function returned a success response
   if (!result || !result.success) {
@@ -148,8 +148,8 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
  * @param message - The rejection message from the department head.
  * @returns A promise resolving to the result of the rejection.
  */
-export async function rejectRequest(id: string, reviewerId: string, message: string): Promise<any> {
-  const { data, error } = await supabase.rpc('reject_resource_request' as any, {
+export async function rejectRequest(id: string, reviewerId: string, message: string): Promise<{ success: boolean; action: 'removed_from_timetable' | 'restored'; class_session_id?: string; restored_to_period?: number }> {
+  const { data, error } = await supabase.rpc('reject_resource_request' as never, {
     _request_id: id,
     _reviewer_id: reviewerId,
     _rejection_message: message,
@@ -160,7 +160,7 @@ export async function rejectRequest(id: string, reviewerId: string, message: str
     throw new Error(`Failed to reject request: ${error.message}`);
   }
 
-  const result = data as any;
+  const result = data as { success: boolean; action: 'removed_from_timetable' | 'restored'; class_session_id?: string; restored_to_period?: number; error?: string } | null;
   
   if (!result || !result.success) {
     const errorMsg = result?.error || 'Unknown error during rejection';
@@ -183,7 +183,7 @@ export async function rejectRequest(id: string, reviewerId: string, message: str
 export async function dismissRequest(id: string): Promise<void> {
   const { error } = await supabase
     .from(TABLE)
-    .update({ dismissed: true } as any)
+    .update({ dismissed: true } as ResourceRequestUpdate)
     .eq('id', id);
     
   if (error) {

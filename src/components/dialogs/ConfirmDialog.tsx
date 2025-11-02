@@ -17,6 +17,15 @@ interface ConfirmDialogProps {
  * A generic confirmation dialog component.
  *
  * @param props - The component props.
+ * @param props.open
+ * @param props.onOpenChange
+ * @param props.onConfirm
+ * @param props.title
+ * @param props.description
+ * @param props.confirmText
+ * @param props.cancelText
+ * @param props.isLoading
+ * @param props.variant
  * @returns The ConfirmDialog component.
  */
 export default function ConfirmDialog({

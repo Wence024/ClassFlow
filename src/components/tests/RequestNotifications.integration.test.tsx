@@ -11,6 +11,7 @@ import * as resourceRequestService from '../../features/resourceRequests/service
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../features/auth/types/auth';
 import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
+import type { EnrichedRequest } from '../RequestNotifications';
 
 // Mocks
 vi.mock('../../features/auth/hooks/useDepartmentId');
@@ -143,7 +144,7 @@ describe('RequestNotifications', () => {
       program_name: 'CS',
       requested_at: new Date().toISOString(),
       class_session_id: 'session1',
-    } as any);
+    } as EnrichedRequest);
 
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 
@@ -199,7 +200,7 @@ describe('RequestNotifications', () => {
       program_name: 'CS',
       requested_at: new Date().toISOString(),
       class_session_id: 'session1',
-    } as any);
+    } as EnrichedRequest);
 
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 
@@ -234,7 +235,7 @@ describe('RequestNotifications', () => {
       dismissRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
 
-    mockedResourceRequestService.rejectRequest = rejectRequest as any;
+    mockedResourceRequestService.rejectRequest = rejectRequest as unknown as typeof resourceRequestService.rejectRequest;
     mockedResourceRequestService.getRequestWithDetails = vi.fn().mockResolvedValue({
       id: 'req1',
       resource_type: 'instructor',
@@ -243,7 +244,7 @@ describe('RequestNotifications', () => {
       program_name: 'CS',
       requested_at: new Date().toISOString(),
       class_session_id: 'session1',
-    } as any);
+    } as EnrichedRequest);
 
     render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
 

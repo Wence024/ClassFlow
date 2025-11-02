@@ -5,7 +5,7 @@
  * - Resource deletion while requests are pending
  * - Session deletion during pending placement
  * - Duplicate request prevention
- * - Active semester changes
+ * - Active semester changes.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -47,7 +47,7 @@ describe('resourceRequestService - Edge Cases', () => {
         }),
       });
 
-      (supabase.from as any).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom);
 
       const payload: ResourceRequestInsert = {
         requester_id: 'user-1',
@@ -99,7 +99,7 @@ describe('resourceRequestService - Edge Cases', () => {
           }),
         });
 
-      (supabase.from as any).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom);
 
       const payload: ResourceRequestInsert = {
         requester_id: 'user-1',
@@ -157,7 +157,7 @@ describe('resourceRequestService - Edge Cases', () => {
           }),
         });
 
-      (supabase.from as any).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom);
 
       await resourceRequestService.cancelActiveRequestsForResource('instructor', 'instructor-1');
 
@@ -179,7 +179,7 @@ describe('resourceRequestService - Edge Cases', () => {
         }),
       });
 
-      (supabase.from as any).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom);
 
       await expect(
         resourceRequestService.cancelActiveRequestsForResource('classroom', 'classroom-1')
@@ -218,7 +218,7 @@ describe('resourceRequestService - Edge Cases', () => {
           }),
         });
 
-      (supabase.from as any).mockImplementation(mockFrom);
+      vi.mocked(supabase.from).mockImplementation(mockFrom);
 
       await resourceRequestService.cancelActiveRequestsForClassSession('session-123');
 

@@ -402,7 +402,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         requester_id: user.id,
         class_session_id: classSession.id,
         notes: `Request to use instructor ${classSession.instructor.first_name} ${classSession.instructor.last_name}`,
-      } as any);
+      });
     }
     
     // Create request for cross-department classroom
@@ -415,7 +415,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         requester_id: user.id,
         class_session_id: classSession.id,
         notes: `Request to use classroom ${classSession.classroom.name}`,
-      } as any);
+      });
     }
   }, [user, programs, activeSemester]);
 
@@ -497,7 +497,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       try {
         // If re-approval is needed, call the DB function to store original position FIRST
         if (requiresApproval) {
-          const { data, error } = await supabase.rpc('handle_cross_dept_session_move' as any, {
+          const { data, error } = await supabase.rpc('handle_cross_dept_session_move' as never, {
             _class_session_id: classSession.id,
             _old_period_index: from.period_index,
             _old_class_group_id: from.class_group_id,
@@ -511,7 +511,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
             throw new Error(`Failed to create move approval request: ${error.message}`);
           }
           
-          const result = data as any;
+          const result = data as { success: boolean; error?: string } | null;
           if (!result || !result.success) {
             const errorMsg = result?.error || 'Unknown error during move approval';
             console.error('Move approval function returned failure:', errorMsg);

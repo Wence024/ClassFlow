@@ -4,10 +4,10 @@
  */
 
 // ALL MOCKS AT TOP - use 'var' instead of 'const' due to Vitest hoist
-var mockSubscribe = vi.fn();
-var mockRemoveChannel = vi.fn();
-var mockOn = vi.fn().mockReturnThis();
-var mockChannel = vi.fn(() => ({ on: mockOn, subscribe: mockSubscribe }));
+const mockSubscribe = vi.fn();
+const mockRemoveChannel = vi.fn();
+const mockOn = vi.fn().mockReturnThis();
+const mockChannel = vi.fn(() => ({ on: mockOn, subscribe: mockSubscribe }));
 
 vi.mock('../__supabaseClient__', () => ({
   supabase: {
@@ -16,16 +16,22 @@ vi.mock('../__supabaseClient__', () => ({
   },
 }));
 
-import { render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect } from 'react';
 import { AuthContext } from '../../features/auth/contexts/AuthContext';
+import type { User } from '../../features/auth/types/auth';
 
 // Minimal mock user to satisfy useAuth in RealtimeProvider
-const mockUser = {
+const mockUser: User = {
   id: 'test-user',
+  name: 'Test User',
+  email: 'test@example.com',
   role: 'admin',
+  program_id: null,
+  department_id: null,
 };
 
 // Minimal context: just pass the required structure for useAuth

@@ -2,16 +2,20 @@
  * Tests for useTimetable hook focusing on pending session tracking.
  */
 
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTimetable } from '../useTimetable';
-import type { ReactNode } from 'react';
 import { getTimetableAssignments } from '../../services/timetableService';
 import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
 import * as useAuthHook from '../../../auth/hooks/useAuth';
+import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
+import type { ScheduleConfig } from '../../../scheduleConfig/types/scheduleConfig';
+import type { Semester } from '../../../scheduleConfig/types/semesters';
+import type { User } from '../../../auth/types/auth';
 
 vi.mock('../../services/timetableService', () => ({
   getTimetableAssignments: vi.fn(),
@@ -35,7 +39,7 @@ const createWrapper = () => {
       mutations: { retry: false },
     },
   });
-  return ({ children }: { children: ReactNode }) => (
+  return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 };
@@ -43,25 +47,66 @@ const createWrapper = () => {
 describe('useTimetable - Pending Session Tracking', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    const mockClassGroups = [{ id: 'group-1', name: 'Group 1' }];
+    const mockClassGroups: ClassGroup[] = [
+      {
+        id: 'group-1',
+        name: 'Group 1',
+        program_id: 'p1',
+        code: null,
+        color: null,
+        created_at: '2025-01-01T00:00:00Z',
+        student_count: 30,
+        user_id: 'u1',
+      },
+    ];
     vi.spyOn(classGroupsService, 'getAllClassGroups').mockResolvedValue(mockClassGroups);
+    const mockSettings: ScheduleConfig = {
+      periods_per_day: 8,
+      class_days_per_week: 5,
+      id: 'config-1',
+      semester_id: null,
+      start_time: '08:00',
+      period_duration_mins: 45,
+      created_at: '2025-01-01T00:00:00Z',
+    };
     vi.spyOn(useScheduleConfigHook, 'useScheduleConfig').mockReturnValue({
-      settings: { periods_per_day: 8, class_days_per_week: 5 },
+      settings: mockSettings,
       isLoading: false,
       isUpdating: false,
       updateSettings: vi.fn(),
       error: null,
     });
+    const mockSemester: Semester = {
+      id: 'semester-1',
+      name: 'Fall 2025',
+      is_active: true,
+      created_at: '2025-01-01T00:00:00Z',
+      start_date: '2025-09-01',
+      end_date: '2025-12-31',
+    };
     vi.spyOn(useActiveSemesterHook, 'useActiveSemester').mockReturnValue({
-      data: { id: 'semester-1', is_active: true },
+      data: mockSemester,
       isLoading: false,
       isError: false,
       error: null,
       status: 'success',
-    });
+    } as ReturnType<typeof useActiveSemesterHook.useActiveSemester>);
+    const mockUser: User = {
+      id: 'user-1',
+      name: 'Test User',
+      email: 'test@example.com',
+      role: 'program_head',
+      program_id: 'program-cs',
+      department_id: null,
+    };
     vi.spyOn(useAuthHook, 'useAuth').mockReturnValue({
-      user: { id: 'user-1', program_id: 'program-cs' },
+      user: mockUser,
       loading: false,
+      error: null,
+      role: 'program_head',
+      login: vi.fn(),
+      logout: vi.fn(),
+      clearError: vi.fn(),
     });
   });
 
@@ -96,7 +141,7 @@ describe('useTimetable - Pending Session Tracking', () => {
         },
       },
     ];
-    (getTimetableAssignments as vi.Mock).mockResolvedValue(mockAssignments);
+    vi.mocked(getTimetableAssignments).mockResolvedValue(mockAssignments);
 
     const { result } = renderHook(() => useTimetable(), { wrapper: createWrapper() });
 
@@ -125,7 +170,7 @@ describe('useTimetable - Pending Session Tracking', () => {
         },
       },
     ];
-    (getTimetableAssignments as vi.Mock).mockResolvedValue(mockAssignments);
+    vi.mocked(getTimetableAssignments).mockResolvedValue(mockAssignments);
     const { result } = renderHook(() => useTimetable(), { wrapper: createWrapper() });
     await waitFor(() => {
       expect(getTimetableAssignments).toHaveBeenCalled();

@@ -21,8 +21,8 @@ describe('Resource Request Permissions and Security', () => {
       updated_assignments: 1,
     };
 
-    (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           single: vi.fn().mockResolvedValue({
@@ -54,7 +54,7 @@ describe('Resource Request Permissions and Security', () => {
       message: 'Permission denied',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: null, error: mockError });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: mockError });
 
     await expect(
       resourceRequestService.approveRequest('request-other-dept', 'dept-head-business')
@@ -64,7 +64,7 @@ describe('Resource Request Permissions and Security', () => {
   it('should allow program heads to dismiss their own reviewed requests', async () => {
     const { supabase } = await import('../../../lib/supabase');
     
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null }),
       }),
@@ -83,7 +83,7 @@ describe('Resource Request Permissions and Security', () => {
       message: 'Permission denied',
     };
 
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: mockError }),
       }),
@@ -102,7 +102,7 @@ describe('Resource Request Permissions and Security', () => {
       message: 'Cannot dismiss a pending request',
     };
 
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: mockError }),
       }),
@@ -117,7 +117,7 @@ describe('Resource Request Permissions and Security', () => {
     const { supabase } = await import('../../../lib/supabase');
     
     // Simulate RLS policy blocking access
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           order: vi.fn().mockResolvedValue({
@@ -141,7 +141,7 @@ describe('Resource Request Permissions and Security', () => {
       { id: 'request-2', target_department_id: 'dept-business' },
     ];
 
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         order: vi.fn().mockResolvedValue({
           data: mockRequests,
@@ -164,7 +164,7 @@ describe('Resource Request Permissions and Security', () => {
       error: 'Reviewer ID is required',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
     await expect(
       resourceRequestService.approveRequest('request-1', '')
@@ -179,7 +179,7 @@ describe('Resource Request Permissions and Security', () => {
       message: 'RLS policy violation',
     };
 
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           select: vi.fn().mockReturnValue({

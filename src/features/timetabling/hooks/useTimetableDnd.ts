@@ -20,6 +20,11 @@ const DRAG_DATA_KEY = 'application/json';
  * @param viewMode - The current timetable view mode for view-specific validation.
  * @param assignments - Current timetable assignments for checking confirmation status.
  * @param pendingPlacementInfo - Optional info about a session awaiting cross-dept placement.
+ * @param pendingPlacementInfo.pendingSessionId
+ * @param pendingPlacementInfo.resourceType
+ * @param pendingPlacementInfo.resourceId
+ * @param pendingPlacementInfo.departmentId
+ * @param pendingPlacementInfo.onClearPending
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
 export const useTimetableDnd = (

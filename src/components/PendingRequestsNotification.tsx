@@ -5,6 +5,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import { Tables, TablesUpdate } from '../lib/supabase.types';
+
+type ResourceRequest = Tables<'resource_requests'>;
+
+interface EnrichedRequest extends ResourceRequest {
+  resource_name: string;
+  rejection_message: string | null;
+}
 
 /**
  * Notification dropdown for Program Heads to view the status of their reviewed resource requests.
@@ -24,13 +32,8 @@ export default function RequestStatusNotification() {
     };
   }, [user?.id, queryClient]);
 
-  // Only show for program heads
-  if (!isProgramHead()) {
-    return null;
-  }
-
   // Fetch reviewed requests (approved or rejected) that haven't been dismissed
-  const { data: reviewedRequests = [] } = useQuery({
+  const { data: reviewedRequests = [] } = useQuery<ResourceRequest[]>({ // Use ResourceRequest[]
     queryKey: ['my_reviewed_requests', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
@@ -46,18 +49,18 @@ export default function RequestStatusNotification() {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && isProgramHead(),
     staleTime: 10000, // Consider data fresh for 10 seconds to prevent race conditions
   });
 
   const hasNotifications = reviewedRequests.length > 0;
 
   // Fetch enriched details for each reviewed request
-  const { data: enrichedRequests = [] } = useQuery({
+  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({ // Use EnrichedRequest[]
     queryKey: ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
-        reviewedRequests.map(async (req: any) => {
+        reviewedRequests.map(async (req: ResourceRequest) => {
           let resourceName = 'Unknown';
           if (req.resource_type === 'instructor') {
             const { data } = await supabase
@@ -83,27 +86,32 @@ export default function RequestStatusNotification() {
       );
       return enriched;
     },
-    enabled: reviewedRequests.length > 0,
+    enabled: reviewedRequests.length > 0 && isProgramHead(),
     staleTime: 10000, // Match base query staleTime to prevent premature refetches
   });
+
+  // Only show for program heads
+  if (!isProgramHead()) {
+    return null;
+  }
 
   const handleDismiss = async (requestId: string) => {
     // Optimistically remove from BOTH queries
     queryClient.setQueryData(
       ['my_reviewed_requests', user?.id],
-      (old: any[]) => old?.filter((req) => req.id !== requestId) || []
+      (old: ResourceRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || [] // Use ResourceRequest[]
     );
 
     queryClient.setQueryData(
       ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
-      (old: any[]) => old?.filter((req) => req.id !== requestId) || []
+      (old: EnrichedRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || [] // Use EnrichedRequest[]
     );
 
     try {
       // Mark as dismissed in the database
       const { error } = await supabase
         .from('resource_requests')
-        .update({ dismissed: true } as any)
+        .update({ dismissed: true } as TablesUpdate<'resource_requests'>) // Use TablesUpdate
         .eq('id', requestId);
 
       if (error) throw error;

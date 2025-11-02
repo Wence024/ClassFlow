@@ -7,6 +7,9 @@ import { useAuth } from '../features/auth/hooks/useAuth';
  * Centralized real-time subscription provider.
  * Subscribes to all critical database changes and invalidates React Query cache.
  * This ensures immediate UI updates across the application without scattered subscriptions.
+ *
+ * @param root0
+ * @param root0.children
  */
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

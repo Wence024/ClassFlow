@@ -41,7 +41,7 @@ export default function ProgramHeadRequestPage() {
       requesting_program_id: user.program_id,
       target_department_id: targetDepartmentId,
       status: 'pending',
-    } as any;
+    };
     await createRequest(payload);
   };
 

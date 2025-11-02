@@ -46,7 +46,7 @@ describe('Remove to Drawer Workflow', () => {
   it('should remove session on confirm', async () => {
     const { supabase } = await import('../../../../lib/supabase');
     
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({
@@ -71,7 +71,7 @@ describe('Remove to Drawer Workflow', () => {
   it('should call cancelActiveRequestsForClassSession', async () => {
     const { supabase } = await import('../../../../lib/supabase');
     
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({
@@ -112,7 +112,7 @@ describe('Remove to Drawer Workflow', () => {
       },
     ];
 
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({
@@ -131,8 +131,8 @@ describe('Remove to Drawer Workflow', () => {
 
     await resourceRequestService.cancelActiveRequestsForClassSession('session-1');
 
-    const insertCalls = (supabase.from as any).mock.results.filter(
-      (result: any) => result.value?.insert
+    const insertCalls = vi.mocked(supabase.from).mock.results.filter(
+      (result: unknown) => (result as { value?: { insert?: unknown } })?.value?.insert
     );
     
     expect(insertCalls.length).toBeGreaterThan(0);
@@ -148,7 +148,7 @@ describe('Remove to Drawer Workflow', () => {
       },
     ];
 
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({
@@ -174,7 +174,7 @@ describe('Remove to Drawer Workflow', () => {
   it('should delete the resource request after notification', async () => {
     const { supabase } = await import('../../../../lib/supabase');
     
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({
@@ -194,14 +194,14 @@ describe('Remove to Drawer Workflow', () => {
     await resourceRequestService.cancelActiveRequestsForClassSession('session-1');
 
     // Verify delete was called
-    const fromCalls = (supabase.from as any).mock.calls;
+    const fromCalls = vi.mocked(supabase.from).mock.calls;
     expect(fromCalls).toContainEqual(['resource_requests']);
   });
 
   it('should handle no active requests gracefully', async () => {
     const { supabase } = await import('../../../../lib/supabase');
     
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
           in: vi.fn().mockResolvedValue({

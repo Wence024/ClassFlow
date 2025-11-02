@@ -3,46 +3,21 @@
  * Tests the complete flow from detection to placement on the timetable.
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { AuthContextType } from '../../../auth/types/auth';
 
 // Mock services
 vi.mock('../../../classSessions/services/classSessionsService');
 vi.mock('../../services/resourceRequestService');
 vi.mock('../../../timetabling/services/timetableService');
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: false },
-    mutations: { retry: false },
-  },
-});
-
 describe('Cross-Department Request Creation Workflow', () => {
-  const mockUser = {
-    id: 'user-1',
-    program_id: 'program-cs',
-    role: 'program_head' as const,
-    name: 'CS Program Head',
-    email: 'cs@test.com',
-  };
-
-  const authContextValue: Partial<AuthContextType> = {
-    user: mockUser,
-    loading: false,
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should detect cross-dept resource in ClassSessionForm', async () => {
     const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
-    (isCrossDepartmentInstructor as any).mockResolvedValue(true);
+    vi.mocked(isCrossDepartmentInstructor).mockResolvedValue(true);
 
     // Component would render and call the service
     const result = await isCrossDepartmentInstructor('program-cs', 'instructor-from-business');
@@ -70,7 +45,7 @@ describe('Cross-Department Request Creation Workflow', () => {
       user_id: 'user-1',
     };
 
-    (addClassSession as any).mockResolvedValue(mockSession);
+    vi.mocked(addClassSession).mockResolvedValue(mockSession);
 
     const result = await addClassSession(mockSession);
     
@@ -120,7 +95,7 @@ describe('Cross-Department Request Creation Workflow', () => {
       status: 'pending' as const,
     };
 
-    (createRequest as any).mockResolvedValue(mockRequest);
+    vi.mocked(createRequest).mockResolvedValue(mockRequest);
 
     const result = await createRequest({
       requester_id: 'user-1',
@@ -144,7 +119,7 @@ describe('Cross-Department Request Creation Workflow', () => {
   it('should set assignment status to pending', async () => {
     const { assignClassSessionToTimetable } = await import('../../../timetabling/services/timetableService');
 
-    (assignClassSessionToTimetable as any).mockResolvedValue({
+    vi.mocked(assignClassSessionToTimetable).mockResolvedValue({
       id: 'assignment-1',
       class_session_id: 'session-1',
       class_group_id: 'group-1',

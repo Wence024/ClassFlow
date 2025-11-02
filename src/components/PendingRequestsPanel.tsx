@@ -18,11 +18,6 @@ export default function PendingRequestsPanel() {
   const { pendingRequests, cancelRequest, isCancelling } = useMyPendingRequests();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
-  // Only show for program heads
-  if (!isProgramHead()) {
-    return null;
-  }
-
   const hasPendingRequests = pendingRequests.length > 0;
 
   // Fetch enriched details for each pending request
@@ -52,7 +47,7 @@ export default function PendingRequestsPanel() {
       );
       return enriched;
     },
-    enabled: pendingRequests.length > 0,
+    enabled: pendingRequests.length > 0 && isProgramHead(),
   });
 
   const handleCancel = async (requestId: string) => {

@@ -3,8 +3,9 @@
  * Tests dialog behavior, validation, and user interactions.
  */
 
+import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import RejectionDialog from '../RejectionDialog';
 
 describe('RejectionDialog', () => {
@@ -94,7 +95,7 @@ describe('RejectionDialog', () => {
     });
 
     // Reopen dialog
-    const { rerender } = render(<RejectionDialog {...defaultProps} open={true} />);
+    render(<RejectionDialog {...defaultProps} open={true} />);
     
     await waitFor(() => {
       const inputAfterReopen = screen.getByLabelText(/Rejection Reason \*/i);

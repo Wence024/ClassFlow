@@ -8,6 +8,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RejectionDialog from './dialogs/RejectionDialog';
 import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
+import { Tables } from '../lib/supabase.types';
+
+type ResourceRequest = Tables<'resource_requests'>;
+
+interface EnrichedRequest extends ResourceRequest {
+  resource_name: string;
+  requester_name: string;
+  program_name: string;
+}
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -30,16 +39,11 @@ export default function RequestNotifications() {
     resourceName: string;
   } | null>(null);
 
-  // Only show for department heads and admins
-  if (!isDepartmentHead() && !isAdmin()) {
-    return null;
-  }
-
   const pendingRequests = requests.filter((r) => r.status === 'pending' && !r.dismissed);
   const hasNotifications = pendingRequests.length > 0;
 
   // Fetch enriched details for each pending request
-  const { data: enrichedRequests = [] } = useQuery({
+  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({ // Use EnrichedRequest[]
     queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
@@ -47,7 +51,7 @@ export default function RequestNotifications() {
       );
       return enriched;
     },
-    enabled: pendingRequests.length > 0,
+    enabled: pendingRequests.length > 0 && (isDepartmentHead() || isAdmin()),
   });
 
   const handleApprove = async (requestId: string) => {
@@ -114,7 +118,7 @@ export default function RequestNotifications() {
 
     queryClient.setQueryData(
       currentQueryKey,
-      (old: any[]) => old?.filter((req) => req.id !== requestId) || []
+      (old: EnrichedRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || []
     );
 
     try {

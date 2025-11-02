@@ -110,7 +110,7 @@ export async function updateClassSession(
  * 
  * **Edge Case Handling:**
  * - Cancels all active resource requests for this session before deletion
- * - Notifies department heads if requests are cancelled
+ * - Notifies department heads if requests are cancelled.
  *
  * @param id - The unique identifier of the class session to remove.
  * @param user_id - The ID of the user, to ensure they own the record being deleted.
@@ -141,7 +141,7 @@ export async function isCrossDepartmentInstructor(
   programId: string,
   instructorId: string
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc('is_cross_department_resource' as any, {
+  const { data, error } = await supabase.rpc('is_cross_department_resource' as never, {
     _program_id: programId,
     _instructor_id: instructorId,
     _classroom_id: null,
@@ -161,7 +161,7 @@ export async function isCrossDepartmentClassroom(
   programId: string,
   classroomId: string
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc('is_cross_department_resource' as any, {
+  const { data, error } = await supabase.rpc('is_cross_department_resource' as never, {
     _program_id: programId,
     _instructor_id: null,
     _classroom_id: classroomId,

@@ -150,7 +150,7 @@ export async function updateInstructor(
  * 
  * **Edge Case Handling:**
  * - Cancels all active resource requests for this instructor before deletion
- * - Notifies department heads if requests are cancelled
+ * - Notifies department heads if requests are cancelled.
  *
  * @param id - The unique identifier of the instructor to remove.
  * @param _user_id - The user ID, kept for API consistency but unused due to RLS.

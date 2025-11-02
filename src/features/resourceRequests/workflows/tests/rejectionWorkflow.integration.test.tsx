@@ -20,7 +20,7 @@ describe('Rejection Workflow', () => {
     // This test verifies the service receives the message
     const mockResult = { success: true, action: 'removed_from_timetable' };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
     await resourceRequestService.rejectRequest('request-1', 'reviewer-1', 'Valid reason');
 
@@ -41,7 +41,7 @@ describe('Rejection Workflow', () => {
       class_session_id: 'session-1',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
     const result = await resourceRequestService.rejectRequest(
       'pending-request',
@@ -63,7 +63,7 @@ describe('Rejection Workflow', () => {
       restored_to_period: 5,
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
     const result = await resourceRequestService.rejectRequest(
       'approved-request',
@@ -81,7 +81,7 @@ describe('Rejection Workflow', () => {
     const rejectionMessage = 'Instructor is on sabbatical leave';
     const mockResult = { success: true, action: 'removed_from_timetable' };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
     await resourceRequestService.rejectRequest('request-1', 'reviewer-1', rejectionMessage);
 
@@ -110,7 +110,7 @@ describe('Rejection Workflow', () => {
   it('should allow program head to dismiss notification', async () => {
     const { supabase } = await import('../../../../lib/supabase');
     
-    (supabase.from as any).mockReturnValue({
+    vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null }),
       }),
@@ -129,7 +129,7 @@ describe('Rejection Workflow', () => {
       error: 'Request is not pending or approved (current status: cancelled)',
     };
 
-    (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+    vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
     await expect(
       resourceRequestService.rejectRequest('invalid-request', 'reviewer-1', 'Test')

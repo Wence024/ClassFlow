@@ -24,8 +24,8 @@ describe('Database Functions (RPC)', () => {
         semester_id: 'semester-1',
       };
 
-      (supabase.rpc as any).mockResolvedValueOnce({ data: mockResult, error: null });
-      (supabase.from as any).mockReturnValue({
+      vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
+      vi.mocked(supabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
             single: vi.fn().mockResolvedValue({
@@ -53,7 +53,7 @@ describe('Database Functions (RPC)', () => {
         error: 'Request not found',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       await expect(
         resourceRequestService.approveRequest('nonexistent-request', 'reviewer-1')
@@ -68,7 +68,7 @@ describe('Database Functions (RPC)', () => {
         error: 'Request is not pending',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       await expect(
         resourceRequestService.approveRequest('approved-request', 'reviewer-1')
@@ -83,7 +83,7 @@ describe('Database Functions (RPC)', () => {
         error: 'Reviewer ID is required',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       await expect(
         resourceRequestService.approveRequest('request-1', '')
@@ -98,7 +98,7 @@ describe('Database Functions (RPC)', () => {
         error: 'No active semester found',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       await expect(
         resourceRequestService.approveRequest('request-1', 'reviewer-1')
@@ -113,7 +113,7 @@ describe('Database Functions (RPC)', () => {
         error: 'Timetable assignment not found',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       await expect(
         resourceRequestService.approveRequest('request-1', 'reviewer-1')
@@ -131,7 +131,7 @@ describe('Database Functions (RPC)', () => {
         class_session_id: 'session-1',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       const result = await resourceRequestService.rejectRequest(
         'pending-request',
@@ -153,7 +153,7 @@ describe('Database Functions (RPC)', () => {
         restored_to_period: 5,
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       const result = await resourceRequestService.rejectRequest(
         'approved-request',
@@ -171,7 +171,7 @@ describe('Database Functions (RPC)', () => {
       const rejectionMessage = 'Instructor is on sabbatical leave';
       const mockResult = { success: true, action: 'removed_from_timetable' };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
       await resourceRequestService.rejectRequest('request-1', 'reviewer-1', rejectionMessage);
 
@@ -187,7 +187,7 @@ describe('Database Functions (RPC)', () => {
       const { supabase } = await import('../../../../lib/supabase');
       
       // Test removed action
-      (supabase.rpc as any).mockResolvedValueOnce({ 
+      vi.mocked(supabase.rpc).mockResolvedValueOnce({ 
         data: { success: true, action: 'removed_from_timetable' }, 
         error: null 
       });
@@ -200,7 +200,7 @@ describe('Database Functions (RPC)', () => {
       expect(removedResult.action).toBe('removed_from_timetable');
 
       // Test restored action
-      (supabase.rpc as any).mockResolvedValueOnce({ 
+      vi.mocked(supabase.rpc).mockResolvedValueOnce({ 
         data: { success: true, action: 'restored', restored_to_period: 10 }, 
         error: null 
       });
@@ -225,9 +225,9 @@ describe('Database Functions (RPC)', () => {
         target_department_id: 'dept-business',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+      const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
         _class_session_id: 'session-1',
         _old_period_index: 5,
         _old_class_group_id: 'group-1',
@@ -248,9 +248,9 @@ describe('Database Functions (RPC)', () => {
         request_id: 'new-request-1',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+      const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
         _class_session_id: 'session-1',
         _old_period_index: 5,
         _old_class_group_id: 'group-1',
@@ -272,9 +272,9 @@ describe('Database Functions (RPC)', () => {
         target_department_id: 'dept-business',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+      const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
         _class_session_id: 'session-1',
         _old_period_index: 5,
         _old_class_group_id: 'group-1',
@@ -296,9 +296,9 @@ describe('Database Functions (RPC)', () => {
         target_department_id: 'dept-business',
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+      const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
         _class_session_id: 'session-1',
         _old_period_index: 5,
         _old_class_group_id: 'group-1',
@@ -318,9 +318,9 @@ describe('Database Functions (RPC)', () => {
         requires_approval: false,
       };
 
-      (supabase.rpc as any).mockResolvedValue({ data: mockResult, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-      const result = await supabase.rpc('handle_cross_dept_session_move' as any, {
+      const result = await supabase.rpc('handle_cross_dept_session_move' as never, {
         _class_session_id: 'session-same-dept',
         _old_period_index: 5,
         _old_class_group_id: 'group-1',
@@ -338,7 +338,7 @@ describe('Database Functions (RPC)', () => {
       const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
       const { supabase } = await import('../../../../lib/supabase');
       
-      (supabase.rpc as any).mockResolvedValue({ data: true, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: true, error: null });
 
       const result = await isCrossDepartmentInstructor('program-cs', 'instructor-business');
       
@@ -349,7 +349,7 @@ describe('Database Functions (RPC)', () => {
       const { isCrossDepartmentClassroom } = await import('../../../classSessions/services/classSessionsService');
       const { supabase } = await import('../../../../lib/supabase');
       
-      (supabase.rpc as any).mockResolvedValue({ data: true, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: true, error: null });
 
       const result = await isCrossDepartmentClassroom('program-cs', 'classroom-business');
       
@@ -360,7 +360,7 @@ describe('Database Functions (RPC)', () => {
       const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
       const { supabase } = await import('../../../../lib/supabase');
       
-      (supabase.rpc as any).mockResolvedValue({ data: false, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: false, error: null });
 
       const result = await isCrossDepartmentInstructor('program-cs', 'instructor-cs');
       
@@ -371,7 +371,7 @@ describe('Database Functions (RPC)', () => {
       const { isCrossDepartmentInstructor } = await import('../../../classSessions/services/classSessionsService');
       const { supabase } = await import('../../../../lib/supabase');
       
-      (supabase.rpc as any).mockResolvedValue({ data: false, error: null });
+      vi.mocked(supabase.rpc).mockResolvedValue({ data: false, error: null });
 
       const result = await isCrossDepartmentInstructor('program-cs', 'instructor-no-dept');
       
