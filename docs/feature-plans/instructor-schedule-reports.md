@@ -380,9 +380,10 @@ interface InstructorReport {
 - ✅ `LoadSummaryWidget.tsx` - Load calculation summary
 
 **Phase 4: Export Functionality**
-- ✅ `pdfExportService.ts` - PDF generation with jsPDF
-- ✅ `excelExportService.ts` - Excel export with xlsx
+- ✅ `pdfExportService.ts` - Elegant PDF generation with professional design
+- ✅ `excelExportService.ts` - Improved Excel export with better formatting
 - ✅ File download handling
+- ✅ Removed confusing print button (PDF serves this purpose)
 
 **Phase 5: Hooks**
 - ✅ `useInstructorReport.ts` - Data fetching and caching
@@ -412,9 +413,47 @@ interface InstructorReport {
 - **Benefit:** Only the "Load" column contains calculations, keeping contact hours clear
 - **File:** `src/features/reports/services/instructorReportService.ts` (lines 135-137)
 
+**Issue 4: Print Button Confusion (FIXED)**
+- **Problem:** Print button used `window.print()` which only printed partial page content, causing confusion
+- **Solution:** Removed print button - PDF export serves the same purpose better with complete content
+- **Benefit:** Clearer UX with single professional export path
+- **File:** `src/features/reports/pages/InstructorReportsPage.tsx`
+
+**Issue 5: Button Overflow on Small Screens (FIXED)**
+- **Problem:** Export buttons overflowed on mobile/small viewports
+- **Solution:** Added `flex-wrap` and `min-w-[140px]` to button container
+- **Benefit:** Buttons wrap gracefully on smaller screens
+- **File:** `src/features/reports/pages/InstructorReportsPage.tsx`
+
+**Issue 6: PDF/Excel Design Enhancement (COMPLETED)**
+- **Enhancement:** Redesigned PDF with professional color scheme, elegant header/footer, improved spacing
+- **Enhancement:** Improved Excel with better column widths, clearer structure, formatted headers
+- **Benefit:** More professional, print-ready reports suitable for official documentation
+- **Files:** `src/features/reports/services/pdfExportService.ts`, `excelExportService.ts`
+
 ### 📋 Access Control Implementation
 
 **Role-Based Filtering:**
+
+**Question: Cross-Department Instructor Reports**
+
+Should Department Heads and Program Heads generate reports for cross-department instructors?
+
+**Current Behavior:**
+- Department Heads see only instructors from their department (`instructor.department_id === user.department_id`)
+- Program Heads see only instructors from their department
+- Admin sees all instructors
+
+**Recommendation:**
+- **Department Heads:** Should ONLY see instructors from their department (current behavior is correct)
+  - Rationale: Department heads manage resources within their department
+- **Program Heads:** Should see instructors teaching in their program, even if from other departments
+  - Rationale: Program heads need to see the full teaching schedule for their program
+  - Implementation: Filter by instructors who teach courses in the program head's program
+  - Status: **NOT YET IMPLEMENTED** - requires query modification to join through class_sessions
+
+**Implementation Note:**
+If this cross-department access for Program Heads is desired, the filtering logic in `InstructorReportsPage.tsx` would need to be enhanced to query instructors who have class_sessions linked to the program head's program, rather than just matching department_id.
 - ✅ Admins see ALL instructors
 - ✅ Department Heads see THEIR department's instructors
 - ✅ Program Heads see their department's instructors (via program.department_id)
@@ -468,12 +507,17 @@ interface InstructorReport {
    - Verify graceful empty state handling
 
 4. **Test Exports:**
-   - Generate PDF and verify formatting
+   - Export to PDF and verify elegant design (colored header, info boxes, totals summary)
    - Verify merged header cells render correctly in PDF
-   - Generate Excel and verify data structure
-   - Test print functionality
+   - Check PDF has proper page breaks for long schedules
+   - Export to Excel and verify improved formatting (column widths, merged cells)
+   - Verify Excel data structure matches expected format
+   
+5. **Test Responsive Design:**
+   - Shrink viewport width and verify export buttons wrap properly
+   - Verify buttons remain accessible on mobile devices
 
-5. **Test Role-Based Access:**
+6. **Test Role-Based Access:**
    - Admin: Can view all instructors
    - Department Head: Can view department instructors only
    - Program Head: Can view department instructors only

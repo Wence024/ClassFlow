@@ -75,11 +75,11 @@ LAYOUT_WITH_LEGEND()
 title ClassFlow - Instructor Schedule Reports (C4 Component)
 
 Container_Boundary(webapp, "Web Application - Reports Module") {
-    Component(reportsPage, "InstructorReportsPage", "React Component", "Main page for report generation")
+    Component(reportsPage, "InstructorReportsPage", "React Component", "Main page with responsive export controls")
     Component(reportPreview, "InstructorSchedulePreview", "React Component", "Displays formatted report preview")
-    Component(dayGroupTable, "DayGroupTable", "React Component", "Renders schedule table for day group")
+    Component(dayGroupTable, "DayGroupTable", "React Component", "Renders schedule table with merged headers")
     Component(loadSummary, "LoadSummaryWidget", "React Component", "Shows load calculations and totals")
-    Component(exportButtons, "ExportControls", "React Component", "PDF and Excel export buttons")
+    Component(exportButtons, "ExportControls", "React Component", "PDF and Excel export buttons (no print)")
     
     Component(useInstructorReport, "useInstructorReport", "React Hook", "Fetches and manages report data")
     Component(useReportExport, "useReportExport", "React Hook", "Handles export operations")
@@ -327,20 +327,23 @@ PDF --> FileAPI : downloads file
 Excel --> FileAPI : downloads file
 
 note right of PDF
-    Generates formatted PDF
-    matching sample layout:
-    - Header section
-    - Day group tables
-    - Totals section
-    - Signature line
+    **Elegant PDF Design:**
+    - Professional color scheme (blue header)
+    - Rounded info boxes
+    - Striped tables with proper spacing
+    - Color-coded load status badge
+    - Signature and date lines
+    - Automatic page breaks
 end note
 
 note right of Excel
-    Generates editable Excel
-    with formulas:
-    - Separate sheets per day
-    - Formula for totals
-    - Conditional formatting
+    **Improved Excel Format:**
+    - Structured headers with metadata
+    - Contact hr/wk merged cell
+    - Proper column widths
+    - Full course names with codes
+    - Department short codes
+    - Teaching load summary section
 end note
 
 @enduml

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileDown, FileSpreadsheet, Printer } from 'lucide-react';
+import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useAllInstructors } from '@/features/classSessionComponents/hooks';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,10 +60,6 @@ export default function InstructorReportsPage() {
   );
 
   const { exportToPDF, exportToExcel, isExportingPDF, isExportingExcel } = useReportExport();
-
-  const handlePrint = () => {
-    window.print();
-  };
 
   const activeSemester = semesters.find(s => s.is_active);
 
@@ -143,11 +139,11 @@ export default function InstructorReportsPage() {
             </Select>
           </div>
 
-          <div className="flex items-end gap-2">
+          <div className="flex flex-wrap items-end gap-2">
             <Button
               onClick={() => report && exportToPDF(report)}
               disabled={!report || isExportingPDF}
-              className="flex-1"
+              className="flex-1 min-w-[140px]"
             >
               <FileDown className="w-4 h-4 mr-2" />
               {isExportingPDF ? 'Exporting...' : 'Export PDF'}
@@ -156,17 +152,10 @@ export default function InstructorReportsPage() {
               onClick={() => report && exportToExcel(report)}
               disabled={!report || isExportingExcel}
               variant="outline"
-              className="flex-1"
+              className="flex-1 min-w-[140px]"
             >
               <FileSpreadsheet className="w-4 h-4 mr-2" />
               {isExportingExcel ? 'Exporting...' : 'Export Excel'}
-            </Button>
-            <Button
-              onClick={handlePrint}
-              disabled={!report}
-              variant="outline"
-            >
-              <Printer className="w-4 h-4" />
             </Button>
           </div>
         </div>
