@@ -132,8 +132,8 @@ export async function getInstructorScheduleData(
 
     const timeSlot = `${startTime.toTimeString().slice(0, 5)} - ${endTime.toTimeString().slice(0, 5)}`;
 
-    const lecHours = Number(course.lecture_hours || 0) * (session.period_count / scheduleConfig.class_days_per_week);
-    const labHours = Number(course.lab_hours || 0) * (session.period_count / scheduleConfig.class_days_per_week);
+    const lecHours = Number(course.lecture_hours || 0);
+    const labHours = Number(course.lab_hours || 0);
     const units = Number(course.units || 0);
 
     return {

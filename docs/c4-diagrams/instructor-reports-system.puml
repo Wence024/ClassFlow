@@ -226,15 +226,16 @@ start
 :Initialize totals\n(totalUnits = 0, totalLoad = 0);
 
 partition "For Each Course Assignment" {
-    :Get course details (units);
+    :Get course details (units, lecture_hours, lab_hours);
     
-    :Calculate contact hours per week;
+    :Display raw contact hours;
     note right
-        contactHoursPerWeek = 
-        (period_count × period_duration_mins) / 60
+        **Display Values (Raw Database):**
+        - Lec Hrs: course.lecture_hours (as-is)
+        - Lab Hrs: course.lab_hours (as-is)
         
-        **For display purposes only**
-        Not used in load calculation
+        **NOT calculated per-week**
+        Shows raw values from courses table
     end note
     
     :Add units to total\ntotalUnits += course.units;
@@ -434,11 +435,17 @@ ScheduleConfig }o--|| Semesters : references
 note right of Courses
     **New fields for reports:**
     - units: Course credit units (used for load calculation)
-    - lecture_hours: Display lecture hours per week (optional)
-    - lab_hours: Display lab hours per week (optional)
+    - lecture_hours: Raw lecture hours from database (display only)
+    - lab_hours: Raw lab hours from database (display only)
     
-    Load calculation uses units only: Load = Total Units / 3
-    Contact hours displayed for informational purposes.
+    **Display Behavior:**
+    Lecture/lab hours show raw database values (no calculations)
+    Only the "Load" column contains calculations
+    Load calculation: Load = Total Units / units_per_load (default 3)
+    
+    **Example:**
+    - Course has lecture_hours=3.0, lab_hours=2.0, units=5.0
+    - Report displays: Lec Hrs=3.0, Lab Hrs=2.0, Load=1.67 (5/3)
 end note
 
 note right of LoadConfig

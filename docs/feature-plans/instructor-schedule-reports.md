@@ -406,6 +406,12 @@ interface InstructorReport {
 - **Solution:** Added empty state return after step 1 if no sessions found
 - **Benefit:** Avoids unnecessary query and provides proper empty report structure
 
+**Issue 3: Hours Display Calculation (FIXED)**
+- **Problem:** Lecture and lab hours were being divided by calculation factors, showing confusing per-week values
+- **Solution:** Display raw database values for lecture_hours and lab_hours
+- **Benefit:** Only the "Load" column contains calculations, keeping contact hours clear
+- **File:** `src/features/reports/services/instructorReportService.ts` (lines 135-137)
+
 ### 📋 Access Control Implementation
 
 **Role-Based Filtering:**
@@ -454,7 +460,8 @@ interface InstructorReport {
    - Verify all course details display in `Name (CODE)` format
    - Verify department shows short code (e.g., "CS", "IT")
    - Check "Contact hr/wk" merged header spans Lec/Lab columns
-   - Check load calculations match manual calculations
+   - **Verify lecture/lab hours show raw database values (not calculated)**
+   - Check load calculations match manual calculations: Load = Units / 3
 
 3. **Test Empty States:**
    - Select instructor with no assignments
