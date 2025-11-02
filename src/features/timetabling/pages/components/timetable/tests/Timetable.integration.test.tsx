@@ -33,18 +33,18 @@ const mockScheduleSettings = {
 /**
  * Renders the Timetable component with required providers.
  *
- * @param props The component props.
- * @param props.viewMode The current view mode of the timetable.
- * @param props.groups The list of class groups.
- * @param props.resources The list of resources to display.
- * @param props.timetable The timetable data.
- * @param props.isLoading Whether the timetable is loading.
+ * @param rwp The component props.
+ * @param rwp.viewMode The current view mode of the timetable.
+ * @param rwp.groups The list of class groups.
+ * @param rwp.resources The list of resources to display.
+ * @param rwp.timetable The timetable data.
+ * @param rwp.isLoading Whether the timetable is loading.
  * @param authValue Auth context value.
  * @param timetableValue Timetable context value.
  * @returns The rendered component.
  */
 function renderWithProviders(
-  props: {
+  rwp: {
     viewMode: TimetableViewMode;
     groups: ClassGroup[];
     resources: (ClassGroup | Classroom | Instructor)[];

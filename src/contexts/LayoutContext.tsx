@@ -7,8 +7,8 @@ import { LayoutContext, LayoutContextType } from './types/layout';
 /**
  * Provider component that manages layout state and provides it to child components.
  *
- * @param root0 - The root component.
- * @param root0.children - The child components that will have access to the layout context.
+ * @param lp - The root component.
+ * @param lp.children - The child components that will have access to the layout context.
  * @returns The provider component.
  */
 export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

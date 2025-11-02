@@ -9,6 +9,7 @@ const FORM_STORAGE_KEY = 'classSessionFormData';
  * @param fp Form methods from react-hook-form.
  * @param fp.formMethods - The form methods object.
  * @param fp.isEditing - Whether the form is in editing mode.
+ * @returns An object with the clearPersistedData function to clear localStorage.
  */
 export const useFormPersistence = <T extends Record<string, unknown>>({
   formMethods,

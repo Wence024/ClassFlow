@@ -121,9 +121,9 @@ export function useClassSessions() {
  * Helper function to check if a class session uses cross-department resources.
  *
  * @param data - The class session form data.
- * @param data.instructor_id
+ * @param data.instructor_id - The ID of the instructor for the session.
+ * @param data.classroom_id - The ID of the classroom for the session.
  * @param programId - The program ID to check against.
- * @param data.classroom_id
  * @returns An object with cross-department detection results.
  */
 export async function checkCrossDepartmentResources(

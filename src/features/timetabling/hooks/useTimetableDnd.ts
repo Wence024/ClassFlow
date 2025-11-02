@@ -17,14 +17,14 @@ const DRAG_DATA_KEY = 'application/json';
  * event handling, and data mutations.
  *
  * @param allClassSessions - All class sessions visible to the user (not just their own).
- * @param viewMode - The current timetable view mode for view-specific validation.
+ * @param viewMode - The current timetable view mode for validation.
  * @param assignments - Current timetable assignments for checking confirmation status.
  * @param pendingPlacementInfo - Optional info about a session awaiting cross-dept placement.
- * @param pendingPlacementInfo.pendingSessionId
- * @param pendingPlacementInfo.resourceType
- * @param pendingPlacementInfo.resourceId
- * @param pendingPlacementInfo.departmentId
- * @param pendingPlacementInfo.onClearPending
+ * @param pendingPlacementInfo.pendingSessionId - Pending session ID for placement.
+ * @param pendingPlacementInfo.resourceType - Resource type for pending placement ('instructor' | 'classroom').
+ * @param pendingPlacementInfo.resourceId - ID of resource that is pending placement.
+ * @param pendingPlacementInfo.departmentId - Target department ID for the resource.
+ * @param pendingPlacementInfo.onClearPending - Callback to clear pending placement state.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
 export const useTimetableDnd = (

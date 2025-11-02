@@ -56,7 +56,7 @@ interface DrawerProps {
  * @param d.drawerClassSessions - An array of unassigned class sessions to be displayed.
  * @param d.onDragStart - The `onDragStart` handler from the `useTimetableDnd` hook.
  * @param d.onDropToDrawer - The handler to call when something is dropped on the drawer.
- * @param d.pendingPlacementSessionId
+ * @param d.pendingPlacementSessionId - Optional ID of a class session currently awaiting cross-department timetable placement (this pill is highlighted).
  * @returns The rendered drawer component.
  */
 const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer, pendingPlacementSessionId }) => {

@@ -386,13 +386,20 @@ const SessionCell: React.FC<SessionCellProps> = ({
   const isPending = pendingSessionIds?.has(primarySession.id) || false;
   const isHighlighted = highlightPeriod === periodIndex && highlightGroup === groupId;
 
-  const cellStyle = isOwnSession
-    ? isPending
-      ? { ...createCellBackground(sessions, isDraggedSession), border: '2px dashed #F59E0B', opacity: 0.7 }
-      : isHighlighted
-      ? { ...createCellBackground(sessions, isDraggedSession), border: '3px solid #10B981', boxShadow: '0 0 12px rgba(16, 185, 129, 0.6)' }
-      : createCellBackground(sessions, isDraggedSession)
-    : { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
+  // Determine cell style based on session ownership, pending status, and highlight state
+  let cellStyle: React.CSSProperties;
+  if (!isOwnSession) {
+    cellStyle = { backgroundColor: '#E5E7EB', border: 'none', opacity: 0.8 };
+  } else {
+    const baseStyle = createCellBackground(sessions, isDraggedSession);
+    if (isPending) {
+      cellStyle = { ...baseStyle, border: '2px dashed #F59E0B', opacity: 0.7 };
+    } else if (isHighlighted) {
+      cellStyle = { ...baseStyle, border: '3px solid #10B981', boxShadow: '0 0 12px rgba(16, 185, 129, 0.6)' };
+    } else {
+      cellStyle = baseStyle;
+    }
+  }
 
   const textStyle: React.CSSProperties = isOwnSession
     ? { color: getSessionCellTextColor(primarySession.instructor.color ?? DEFAULT_FALLBACK_COLOR) }

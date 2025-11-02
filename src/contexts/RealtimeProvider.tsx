@@ -8,8 +8,9 @@ import { useAuth } from '../features/auth/hooks/useAuth';
  * Subscribes to all critical database changes and invalidates React Query cache.
  * This ensures immediate UI updates across the application without scattered subscriptions.
  *
- * @param root0
- * @param root0.children
+ * @param rp - The props object.
+ * @param rp.children - Children to be rendered within the provider.
+ * @returns The provided children, now wrapped with real-time update subscriptions.
  */
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

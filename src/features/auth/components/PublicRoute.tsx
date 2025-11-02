@@ -11,8 +11,8 @@ interface PublicRouteProps {
  * Used for pages like login/signup where authenticated users should not access.
  * Redirects based on user role to their appropriate dashboard.
  *
- * @param props The component props.
- * @param props.children The child elements to render if the user is not authenticated.
+ * @param pr The component props.
+ * @param pr.children The child elements to render if the user is not authenticated.
  * @returns The child components if the user is not authenticated, otherwise a redirect.
  */
 export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {

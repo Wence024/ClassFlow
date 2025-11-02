@@ -9,9 +9,9 @@ type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;
 /**
  * Renders the specific form fields required for a Class Group.
  *
- * @param props - The component's props.
- * @param props.control - The control object from react-hook-form.
- * @param props.errors - The errors object from react-hook-form.
+ * @param cgf - The component's props.
+ * @param cgf.control - The control object from react-hook-form.
+ * @param cgf.errors - The errors object from react-hook-form.
  * @returns The ClassGroupFields component.
  */
 export const ClassGroupFields: React.FC<{

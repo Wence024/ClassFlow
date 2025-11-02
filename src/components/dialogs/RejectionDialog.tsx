@@ -15,12 +15,12 @@ interface RejectionDialogProps {
 /**
  * A dialog for rejecting a resource request with a required message.
  *
- * @param props - The component props.
- * @param props.open - Whether the dialog is open.
- * @param props.onOpenChange - Callback to change the open state.
- * @param props.onConfirm - Callback when the rejection is confirmed with a message.
- * @param props.isLoading - Whether the rejection is in progress.
- * @param props.resourceName - The name of the resource being rejected.
+ * @param rd - The component rd.
+ * @param rd.open - Whether the dialog is open.
+ * @param rd.onOpenChange - Callback to change the open state.
+ * @param rd.onConfirm - Callback when the rejection is confirmed with a message.
+ * @param rd.isLoading - Whether the rejection is in progress.
+ * @param rd.resourceName - The name of the resource being rejected.
  * @returns The RejectionDialog component.
  */
 export default function RejectionDialog({
