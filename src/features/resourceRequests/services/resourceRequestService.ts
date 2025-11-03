@@ -104,7 +104,7 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
   const { data, error } = await supabase.rpc('approve_resource_request' as never, {
     _request_id: id,
     _reviewer_id: reviewerId,
-  });
+  } as never);
 
   if (error) {
     console.error('Failed to approve request (RPC error):', error);
@@ -153,7 +153,7 @@ export async function rejectRequest(id: string, reviewerId: string, message: str
     _request_id: id,
     _reviewer_id: reviewerId,
     _rejection_message: message,
-  });
+  } as never);
 
   if (error) {
     console.error('Failed to reject request (RPC error):', error);

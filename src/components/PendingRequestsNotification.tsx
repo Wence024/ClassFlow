@@ -7,11 +7,13 @@ import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { Tables, TablesUpdate } from '../lib/supabase.types';
 
-type ResourceRequest = Tables<'resource_requests'>;
+type ResourceRequest = Tables<'resource_requests'> & {
+  rejection_message?: string | null;
+  dismissed?: boolean;
+};
 
 interface EnrichedRequest extends ResourceRequest {
   resource_name: string;
-  rejection_message: string | null;
 }
 
 /**
@@ -80,7 +82,7 @@ export default function RequestStatusNotification() {
           return { 
             ...req, 
             resource_name: resourceName,
-            rejection_message: req.rejection_message as string | null
+            rejection_message: req.rejection_message ?? null
           };
         })
       );

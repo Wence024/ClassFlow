@@ -145,7 +145,7 @@ export async function isCrossDepartmentInstructor(
     _program_id: programId,
     _instructor_id: instructorId,
     _classroom_id: null,
-  });
+  } as never);
   if (error) throw error;
   return data as boolean;
 }
@@ -165,7 +165,7 @@ export async function isCrossDepartmentClassroom(
     _program_id: programId,
     _instructor_id: null,
     _classroom_id: classroomId,
-  });
+  } as never);
   if (error) throw error;
   return data as boolean;
 }

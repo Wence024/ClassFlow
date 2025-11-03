@@ -110,11 +110,12 @@ const needsReapproval = (
   );
 
   const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
-  const hasCrossDeptResource =
+  const hasCrossDeptResource = Boolean(
     (classSessionToDrop.instructor.department_id &&
       classSessionToDrop.instructor.department_id !== user?.program_id) ||
     (classSessionToDrop.classroom.preferred_department_id &&
-      classSessionToDrop.classroom.preferred_department_id !== user?.program_id);
+      classSessionToDrop.classroom.preferred_department_id !== user?.program_id)
+  );
 
   return hasCrossDeptResource && isCurrentlyConfirmed;
 };

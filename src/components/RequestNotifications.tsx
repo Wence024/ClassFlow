@@ -10,12 +10,17 @@ import RejectionDialog from './dialogs/RejectionDialog';
 import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
 import { Tables } from '../lib/supabase.types';
 
-type ResourceRequest = Tables<'resource_requests'>;
+type ResourceRequest = Tables<'resource_requests'> & {
+  dismissed?: boolean;
+  rejection_message?: string | null;
+};
 
 interface EnrichedRequest extends ResourceRequest {
-  resource_name: string;
-  requester_name: string;
-  program_name: string;
+  resource_name?: string;
+  requester_name?: string;
+  program_name?: string;
+  period_index?: number;
+  class_group_id?: string;
 }
 
 /**
@@ -26,10 +31,6 @@ interface EnrichedRequest extends ResourceRequest {
  */
 export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId, user } = useAuth();
-  // Only render for department head or admin
-  if (!isDepartmentHead() && !isAdmin()) {
-    return null;
-  }
   const { requests, dismissRequest } = useDepartmentRequests(departmentId || undefined);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -43,11 +44,16 @@ export default function RequestNotifications() {
     resourceName: string;
   } | null>(null);
 
-  const pendingRequests = requests.filter((r) => r.status === 'pending' && !r.dismissed);
-  const hasNotifications = pendingRequests.length > 0;
+  // Always compute role/permission after all hooks.
+  const allowed = isDepartmentHead() || isAdmin();
+  const safeRequests = requests || [];
+  const pendingRequests = allowed
+    ? safeRequests.filter((r) => r.status === 'pending' && !r.dismissed)
+    : [];
+  const hasNotifications = allowed && pendingRequests.length > 0;
 
-  // Fetch enriched details for each pending request
-  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({ // Use EnrichedRequest[]
+  // Declare useQuery after all other hooks, always called.
+  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({
     queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
@@ -55,8 +61,10 @@ export default function RequestNotifications() {
       );
       return enriched;
     },
-    enabled: pendingRequests.length > 0 && (isDepartmentHead() || isAdmin()),
+    enabled: allowed && pendingRequests.length > 0,
   });
+
+  if (!allowed) return null;
 
   const handleApprove = async (requestId: string) => {
     setApprovingId(requestId);
@@ -194,13 +202,13 @@ export default function RequestNotifications() {
                         {request.resource_type} Request
                       </div>
                       <div className="text-xs text-gray-700 font-medium truncate">
-                        {request.resource_name}
+                        {request.resource_name || 'Unknown Resource'}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Requested by: <span className="font-medium text-gray-700">{request.requester_name}</span>
+                        Requested by: <span className="font-medium text-gray-700">{request.requester_name || 'Unknown User'}</span>
                       </div>
                       <div className="text-xs text-gray-500">
-                        Program: <span className="font-medium text-gray-700">{request.program_name}</span>
+                        Program: <span className="font-medium text-gray-700">{request.program_name || 'Unknown Program'}</span>
                       </div>
                       <div className="text-xs text-gray-500">
                         {new Date(request.requested_at || '').toLocaleDateString()}

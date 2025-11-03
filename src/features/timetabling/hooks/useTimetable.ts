@@ -46,7 +46,7 @@ const handleCrossDepartmentMove = async (
     _new_period_index: to.period_index,
     _new_class_group_id: to.class_group_id,
     _semester_id: activeSemester.id,
-  });
+  } as never);
 
   if (error) {
     console.error('Failed to move cross-department session (RPC error):', error);
