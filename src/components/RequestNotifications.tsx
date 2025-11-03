@@ -26,6 +26,10 @@ interface EnrichedRequest extends ResourceRequest {
  */
 export default function RequestNotifications() {
   const { isDepartmentHead, isAdmin, departmentId, user } = useAuth();
+  // Only render for department head or admin
+  if (!isDepartmentHead() && !isAdmin()) {
+    return null;
+  }
   const { requests, dismissRequest } = useDepartmentRequests(departmentId || undefined);
   const queryClient = useQueryClient();
   const navigate = useNavigate();

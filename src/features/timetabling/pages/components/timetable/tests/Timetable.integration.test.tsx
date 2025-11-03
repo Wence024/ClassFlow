@@ -59,7 +59,7 @@ function renderWithProviders(
       <QueryClientProvider client={queryClient}>
         <AuthContext.Provider value={authValue as AuthContextType}>
           <TimetableContext.Provider value={timetableValue as TimetableContextType}>
-            <Timetable {...props} />
+            <Timetable {...rwp} />
           </TimetableContext.Provider>
         </AuthContext.Provider>
       </QueryClientProvider>

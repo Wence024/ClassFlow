@@ -114,6 +114,7 @@ describe('TimetableService', () => {
       const mockHydratedRows: HydratedTimetableAssignment[] = [
         {
           ...mockAssignmentWithId,
+          status: 'confirmed',
           class_session: {
             id: 'session-1',
             course: {},

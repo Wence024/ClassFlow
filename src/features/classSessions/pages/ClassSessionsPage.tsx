@@ -16,6 +16,8 @@ import { ClassSessionCard } from './components/classSession';
 
 // Import the specific type for a class session
 import type { ClassSession } from '../types/classSession';
+import { Instructor } from '../../classSessionComponents/types/instructor';
+import { Classroom } from '../../classSessionComponents/types/classroom';
 // FIXED: Import the schema from its correct, new location
 import { classSessionSchema } from '../types/validation';
 // Import all necessary UI components
@@ -32,6 +34,30 @@ import { useDepartments } from '../../departments/hooks/useDepartments';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
+
+/**
+ * Gets the name of a resource (instructor or classroom) from its ID.
+ *
+ * @param resourceType The type of the resource ('instructor' or 'classroom').
+ * @param resourceId The ID of the resource.
+ * @param instructors An array of instructors.
+ * @param classrooms An array of classrooms.
+ * @returns The name of the resource.
+ */
+const getResourceName = (
+  resourceType: 'instructor' | 'classroom',
+  resourceId: string,
+  instructors: Instructor[],
+  classrooms: Classroom[]
+) => {
+  if (resourceType === 'instructor') {
+    const instructor = instructors.find((i) => i.id === resourceId);
+    return instructor ? `${instructor.first_name} ${instructor.last_name}` : 'Unknown';
+  } else {
+    const classroom = classrooms.find((c) => c.id === resourceId);
+    return classroom ? classroom.name : 'Unknown';
+  }
+};
 
 /**
  * The main page for managing Class Sessions.
@@ -128,6 +154,36 @@ const ClassSessionsPage: React.FC = () => {
     );
   }, [classSessions, searchTerm]);
 
+  const handleCrossDepartmentRequest = (
+    crossDeptCheck: {
+      isCrossDept: boolean;
+      resourceType: 'instructor' | 'classroom' | null;
+      resourceId: string | null;
+      departmentId: string | null;
+    },
+    data: ClassSessionFormData
+  ) => {
+    if (!crossDeptCheck.resourceId || !crossDeptCheck.resourceType || !crossDeptCheck.departmentId) {
+      toast.error('Invalid cross-department resource information');
+      return;
+    }
+
+    const resourceName = getResourceName(
+      crossDeptCheck.resourceType,
+      crossDeptCheck.resourceId,
+      instructors,
+      classrooms
+    );
+
+    setCrossDeptInfo({
+      resourceType: crossDeptCheck.resourceType,
+      resourceId: crossDeptCheck.resourceId,
+      departmentId: crossDeptCheck.departmentId,
+      resourceName,
+    });
+    setPendingFormData(data);
+  };
+
   const handleAdd = async (data: ClassSessionFormData) => {
     if (!user || !user.program_id) {
       toast.error('User is not assigned to a program');
@@ -135,39 +191,13 @@ const ClassSessionsPage: React.FC = () => {
     }
 
     try {
-      // Check for cross-department resources
       const crossDeptCheck = await checkCrossDepartmentResources(data, user.program_id);
 
       if (crossDeptCheck.isCrossDept) {
-        // Validate cross-department data before proceeding
-        if (!crossDeptCheck.resourceId || !crossDeptCheck.resourceType || !crossDeptCheck.departmentId) {
-          toast.error('Invalid cross-department resource information');
-          return;
-        }
-
-        // Fetch resource name
-        let resourceName = 'Unknown';
-        if (crossDeptCheck.resourceType === 'instructor') {
-          const instructor = instructors.find((i) => i.id === crossDeptCheck.resourceId);
-          if (instructor) resourceName = `${instructor.first_name} ${instructor.last_name}`;
-        } else if (crossDeptCheck.resourceType === 'classroom') {
-          const classroom = classrooms.find((c) => c.id === crossDeptCheck.resourceId);
-          if (classroom) resourceName = classroom.name;
-        }
-
-        // Show confirmation modal
-        setCrossDeptInfo({
-          resourceType: crossDeptCheck.resourceType,
-          resourceId: crossDeptCheck.resourceId,
-          departmentId: crossDeptCheck.departmentId,
-          resourceName,
-        });
-        setPendingFormData(data);
+        handleCrossDepartmentRequest(crossDeptCheck, data);
         return;
       }
 
-      // Same-department: create normally
-      // Use program_id from form if provided (admin), otherwise use user's program_id
       const program_id = data.program_id || user.program_id;
       await addClassSession({ ...data, user_id: user.id, program_id });
       formMethods.reset();
@@ -189,17 +219,16 @@ const ClassSessionsPage: React.FC = () => {
 
     try {
       const program_id = pendingFormData.program_id || user.program_id;
-      const newSession = await addClassSession({ 
-        ...pendingFormData, 
-        user_id: user.id, 
-        program_id 
+      const newSession = await addClassSession({
+        ...pendingFormData,
+        user_id: user.id,
+        program_id,
       });
 
       if (!newSession || !newSession.id) {
         throw new Error('Failed to create class session: No ID returned');
       }
 
-      // Store cross-dept info in URL for timetable page
       const params = new URLSearchParams({
         pendingSessionId: newSession.id,
         resourceType: crossDeptInfo.resourceType || '',
@@ -211,9 +240,8 @@ const ClassSessionsPage: React.FC = () => {
       clearPersistedData();
       setCrossDeptInfo(null);
       setPendingFormData(null);
-      
+
       toast.success('Session created! Now drag it to the timetable to submit your request.');
-      // Use navigate with state to ensure smooth transition
       navigate(`/scheduler?${params.toString()}`, { replace: false });
     } catch (error) {
       console.error('Error creating class session:', error);
@@ -345,7 +373,7 @@ const ClassSessionsPage: React.FC = () => {
           </p>
           <p className="text-sm text-muted-foreground">
             You'll be redirected to the timetable where you can drag the session to a time slot. 
-            After placement, a request will be sent to the{' '}
+            After placement, a a request will be sent to the{' '}
             <strong>
               {departments.find((d) => d.id === crossDeptInfo?.departmentId)?.name || 'department'}
             </strong>{' '}
@@ -358,3 +386,4 @@ const ClassSessionsPage: React.FC = () => {
 };
 
 export default ClassSessionsPage;
+

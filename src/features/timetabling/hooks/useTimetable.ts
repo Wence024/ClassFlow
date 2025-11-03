@@ -15,6 +15,54 @@ import * as instructorsService from '../../classSessionComponents/services/instr
 import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { toast } from 'sonner';
+import { Semester } from '../../scheduleConfig/types/semesters';
+
+const getTargetRowIdForCheck = (
+  viewMode: TimetableViewMode,
+  classSession: ClassSession,
+  toClassGroupId: string
+) => {
+  switch (viewMode) {
+    case 'classroom':
+      return classSession.classroom.id;
+    case 'instructor':
+      return classSession.instructor.id;
+    case 'class-group':
+    default:
+      return toClassGroupId;
+  }
+};
+
+const handleCrossDepartmentMove = async (
+  classSession: ClassSession,
+  from: { class_group_id: string; period_index: number },
+  to: { class_group_id: string; period_index: number },
+  activeSemester: Semester
+) => {
+  const { data, error } = await supabase.rpc('handle_cross_dept_session_move' as never, {
+    _class_session_id: classSession.id,
+    _old_period_index: from.period_index,
+    _old_class_group_id: from.class_group_id,
+    _new_period_index: to.period_index,
+    _new_class_group_id: to.class_group_id,
+    _semester_id: activeSemester.id,
+  });
+
+  if (error) {
+    console.error('Failed to move cross-department session (RPC error):', error);
+    throw new Error(`Failed to create move approval request: ${error.message}`);
+  }
+
+  const result = data as { success: boolean; error?: string } | null;
+  if (!result || !result.success) {
+    const errorMsg = result?.error || 'Unknown error during move approval';
+    console.error('Move approval function returned failure:', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  console.log('Cross-department move request created:', result);
+  toast.success('Session moved - requires department head approval');
+};
 
 /**
  * A comprehensive hook for managing the state and logic of the entire timetable.
@@ -439,20 +487,9 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       classSession: ClassSession
     ): Promise<string> => {
       if (!settings || !activeSemester) return 'Schedule settings are not loaded yet.';
-      
-      // In non-class-group views, we need to use the appropriate resource ID for conflict checking
-      const targetRowIdForCheck = (() => {
-        switch (viewMode) {
-          case 'classroom':
-            return classSession.classroom.id;
-          case 'instructor':
-            return classSession.instructor.id;
-          case 'class-group':
-          default:
-            return to.class_group_id;
-        }
-      })();
-      
+
+      const targetRowIdForCheck = getTargetRowIdForCheck(viewMode, classSession, to.class_group_id);
+
       console.debug('[useTimetable] moveClassSession check', {
         viewMode,
         from,
@@ -461,7 +498,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         dbTargetGroupId: to.class_group_id,
         sessionId: classSession.id,
       });
-      
+
       const conflict = checkTimetableConflicts(
         timetable,
         classSession,
@@ -484,52 +521,28 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return conflict;
       }
 
-      // Check if session uses cross-department resources and is currently confirmed
       const isCrossDept = usesCrossDepartmentResource(classSession);
       const currentAssignment = assignments.find(
-        a => a.class_session.id === classSession.id &&
-             a.class_group_id === from.class_group_id &&
-             a.period_index === from.period_index
+        (a) =>
+          a.class_session.id === classSession.id &&
+          a.class_group_id === from.class_group_id &&
+          a.period_index === from.period_index
       );
       const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
       const requiresApproval = isCrossDept && isCurrentlyConfirmed;
-      
+
       try {
-        // If re-approval is needed, call the DB function to store original position FIRST
         if (requiresApproval) {
-          const { data, error } = await supabase.rpc('handle_cross_dept_session_move' as never, {
-            _class_session_id: classSession.id,
-            _old_period_index: from.period_index,
-            _old_class_group_id: from.class_group_id,
-            _new_period_index: to.period_index,
-            _new_class_group_id: to.class_group_id,
-            _semester_id: activeSemester.id,
-          });
-          
-          if (error) {
-            console.error('Failed to move cross-department session (RPC error):', error);
-            throw new Error(`Failed to create move approval request: ${error.message}`);
-          }
-          
-          const result = data as { success: boolean; error?: string } | null;
-          if (!result || !result.success) {
-            const errorMsg = result?.error || 'Unknown error during move approval';
-            console.error('Move approval function returned failure:', errorMsg);
-            throw new Error(errorMsg);
-          }
-          
-          console.log('Cross-department move request created:', result);
-          toast.success('Session moved - requires department head approval');
+          await handleCrossDepartmentMove(classSession, from, to, activeSemester);
         } else {
-          // Normal move without re-approval
-          await moveClassSessionMutation.mutateAsync({ 
-            from, 
+          await moveClassSessionMutation.mutateAsync({
+            from,
             to,
             classSession,
-            requiresApproval: false
+            requiresApproval: false,
           });
         }
-        
+
         return '';
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
@@ -543,8 +556,18 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return errorMsg;
       }
     },
-    [settings, timetable, programs, moveClassSessionMutation, viewMode, usesCrossDepartmentResource, assignments, activeSemester]
+    [
+      settings,
+      timetable,
+      programs,
+      moveClassSessionMutation,
+      viewMode,
+      usesCrossDepartmentResource,
+      assignments,
+      activeSemester,
+    ]
   );
+
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */
   const loading = isFetching || !settings;
