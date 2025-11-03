@@ -1,97 +1,58 @@
-# Testing Strategy and Implementation
+# Testing Approach & Philosophy
 
-This document outlines the testing strategy, tools, and current implementation status for ensuring the quality and correctness of the ClassFlow application.
+This document explains the engineering principles and strategies that guide all testing in the ClassFlow codebase. It is not a feature or version-specific status log, but a statement of core practices.
 
-## Current Status
+## Principles
 
-✅ **175+ tests passing** across unit, integration, and component testing
-✅ **NEW: Cross-department request approval workflow fully tested** (database functions, services, workflows, UI components)
-✅ **Comprehensive coverage** of critical user flows and business logic
-✅ **Automated testing** integrated into development workflow
+- **Test what matters:** Focus on business-critical flows, role-based edge cases, and scenarios that could break in real life. Strive for confidence, not just coverage.
+- **Layered/Pyramid model:**
+  - Written primarily as fast, focused unit tests (functions/services)
+  - Key integrations and user workflows are covered by integration/component tests
+  - Workflow and real-time tests verify the “happy path” and all role-based error/cross-user/race conditions
+  - E2E and UI tests exist only for critical paths
+- **Mocks and Isolation:** External dependencies—Supabase, context, window—are always mocked in all but the highest-level tests. “Always-unit-first” principle is enforced whenever code can be tested as a pure function.
+- **Critical path, not exhaustive lists:** Tests guarantee correct behaviors under normal, failure, race, and multi-user cases. Coverage is “meaningful” not merely “high.”
 
-## 1. Guiding Philosophy
+## Test Types & Examples
 
-- **Confidence, Not Just Coverage:** Prioritize tests that cover critical user flows and complex business logic over simply chasing a high coverage percentage.
-- **The Testing Pyramid:** Adhere to a model with a large base of fast unit tests, a healthy number of integration tests, and a small, targeted suite of E2E tests.
-- **Fast Feedback:** Tests must be fast and easy to run as a core part of the development workflow.
-- **Isolate and Mock Dependencies:** Isolate the unit under test by mocking its external dependencies (e.g., Supabase services).
+### 1. Unit Tests
+- **What:** Functions, logic branches, edge cases.
+- **Example:**
+  - conflict detection in timetable assignment
+  - correct role identification from JWT
+- **Tools:** Vitest, mock/stub dependencies
 
-## 2. Tooling
+### 2. Integration/Component Tests
+- **What:** Important hooks (React Query/mutations, multi-context logic), form workflows, notifications, permission-controlled actions.
+- **Example:**
+  - “Approve”/“Reject” actions and feedback in modals
+  - Pending → confirmed session flow for cross-department requests
+- **Tools:** React Testing Library, in-memory router/context
 
-- **Test Runner & Assertion:** [**Vitest**](https://vitest.dev/)
-- **Component Testing:** [**React Testing Library**](https://testing-library.com/docs/react-testing-library/intro/)
-- **Mocking API Services:** [**Vitest's built-in mocking**](https://vitest.dev/guide/mocking.html) (`vi.mock`)
+### 3. Workflow (Multi-Step/Role/Realtime) Tests
+- **What:** End-to-end process as it spans database, service, hooks, UI, and real-time updates.
+- **Example:**
+  - Cross-dept resource assignment: confirm, move, reject/cancel; notification updates
+  - Query invalidation and instant UI sync for all users
+- **Tools:** Layered mocks, supabase event simulation, scenario scripts
 
-## 3. Test Coverage by Feature (The Plan)
+### 4. Permissions & Security (RLS, Access Control)
+- **What:** Explicitly assert RLS policies, role-blocked UI, allowed/disallowed API use.
+- **How:** Simulate users with/without rights; test direct DB function access; verify optimistic/defensive UI fallback
 
-### **Authentication (`/src/features/auth`) - ✅ COMPLETED**
+### 5. Realtime (Subscriptions, Invalidation, Edge-Cases)
+- **What:** Simulate channel events, verify query invalidation, no double-subscriptions; teardown/cleanup checks.
+- **How:** Use wrapper modules for all real-time clients; test error and “unknown event” resilience
 
-- **Type:** Integration Tests
-- **Status:** ✅ Implemented and passing
-- **Coverage:**
-  - **`authService`:** Tests user authentication, role fetching, and secure token handling
-  - **`AuthProvider`:** Tests context initialization and error handling
-  - **`PrivateRoute` Component:** Tests route protection and user redirection
-  - **`UserProfilePage`:** Tests profile management and updates
+## Running Tests
 
-### **Class Session Components (`/src/features/classSessionComponents`)**
-
-- **Type:** Integration Tests
-- **Action (Pattern repeats for all components):**
-  - **`useCourses` Hook:** Mock the `coursesService`. Test that the hook correctly fetches and returns data. Test that calling `addCourse` triggers the corresponding service function.
-  - **`CourseTab.tsx` Page:** Mock the `useCourses` hook. Test that the component renders a list of courses from the mock hook data.
-
-### **Class Sessions (`/src/features/classSessions`)**
-
-- **Type:** Integration Tests
-- **Action:**
-  - **`useClassSessions` Hook:** Mock the `classSessionsService`. Test that new sessions are automatically tagged with the creator's `program_id`.
-  - **`ClassSessionsPage.tsx` Page:** Mock all necessary hooks. Verify that the form is populated with the correct dropdown options.
-
-### **Timetabling Logic (`/src/features/timetabling/utils`)**
-
-- **Type:** Unit Tests (Highest Priority)
-- **Action:**
-  - **`checkConflicts.ts`:**
-    - Write tests for **every** conflict scenario: instructor, classroom, group, and boundary.
-    - Crucially, write tests that prove **cross-program conflict detection** works (e.g., two programs booking the same shared resource).
-  - **`timetableLogic.ts`:** Test `buildTimetableGrid` to ensure it correctly transforms a flat array of assignments into the `Map` structure.
-  - **`timeLogic.ts`:** Test `generateTimetableHeaders` to ensure it produces the correct number of day and time headers.
-
-### **Timetabling (Hooks & UI)** - ✅ COMPLETED
-
-- **Type:** Integration Tests
-- **Status:** ✅ Implemented and passing
-- **Coverage:**
-  - **`useTimetable` Hook:** Pending session tracking, cross-dept detection
-  - **`useTimetableDnd` Hook:** Confirmation dialogs, request creation on placement
-  - **`TimetablePage.tsx`:** Owned vs. non-owned rendering, drawer population
-  - **`SessionCell.tsx`:** Pending state indicators (dashed border, clock icon, non-draggable)
-
-### **Cross-Department Request Workflows** - ✅ COMPLETED
-
-- **Type:** Integration Tests (E2E-style)
-- **Status:** ✅ Implemented and passing
-- **Coverage:**
-  - **Database Functions:** RPC tests for approve, reject, move, and detection functions
-  - **Request Creation:** Detection → confirmation → placement → request creation
-  - **Approval Workflow:** Atomic approval, status updates, notification cleanup
-  - **Rejection Workflow:** Pending deletion, approved restoration, rejection messages
-  - **Move Confirmed:** Re-approval requirement, original position tracking
-  - **Remove to Drawer:** Request cancellation, department head notifications
-  - **Permissions & Security:** RLS enforcement, role-based access control
-- **Test File:** `src/contexts/tests/RealtimeProvider.test.tsx` - Full coverage of real-time subscription/invalidation/edge cases (added Nov 2025)
-- **Status:** ✅ Implemented and passing
-
-### Realtime Coverage (Nov 2025) - ✅ Completed
-- Added `src/contexts/tests/RealtimeProvider.test.tsx` with stable mocking via `src/contexts/__supabaseClient__.ts` wrapper.
-- Covers: channel subscription, INSERT/UPDATE invalidation (skips DELETE), duplicate-subscription protection, cleanup on unmount, and defensive event handling.
-- Status: Passing locally and ready for CI.
-
-## 4. How to Run Tests
-
-Execute the entire test suite with:
-
+Run all tests:
 ```bash
 npm run test
 ```
+Individual or focused runs are equally supported (see README/docs for patterns).
+
+## Documentation Flow
+- **Implementation status/tracking for any feature:** recorded in its feature plan, not here.
+- **Critical edge-case or test-related bugs:** belong in tickets or as doc comments in the affected feature files.
+- **This guide will stay timeless—example-driven, not checklist-driven.**

@@ -49,6 +49,7 @@ note right of realtime_provider
   - Prevents race conditions with dismiss operations
   - DELETE events skipped for reviewed requests
   - All invalidations use exact: false for flexibility
+  - *All workflows and event flows represented are fully covered by automated tests.*
 end note
 
 ' UI Layer Relationships

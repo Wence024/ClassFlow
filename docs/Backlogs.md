@@ -200,18 +200,16 @@ Sir M's Feedback:
 
 Maam D's Feedback
 
-* [ ] Title in login page para mas formal (as a substitute sa landing page)
-* [ ] Direct "CECE Head" Name for user accounts for testing
-* [ ] Let admin edit user names
-* [ ] Classroom instructor prioritized assignment
-* [ ] Instructors can't be edited as program heads
-* [ ] Make drawer stick in the bottom viewport (timetable)
-* [ ] red/green for failure/success notifications
-* [ ] Allow users to change their full name in profiles page
-* [ ] Allow users to change password in profiles page (less prio)
-* [ ] fix sticking of navigation and form and tabs on component management
-* [ ] hover on sidebar
-* [ ] captcha for login
+* [ ] Login Page: Include system title/name (i.e., ClassFlow), and user authentication/verification (e.g., captcha)
+* [ ] Admin side: Should be allowed to change name details (and password if possible)
+* [ ] Program Head accounts: Check modification for instructor details to be disabled.
+* [ ] Alert message: Use red for warnings and green for success notifications
+* [ ] fix sticking of form on management pages
+* [ ] restore hover effects on sidebar options
+* [x] Classroom instructor prioritized assignment
+* [x] Instructors can't be edited as program heads
+* [x] Make drawer stick in the bottom viewport (timetable)
+* [x] User Names: For testing/presentation use "CECE Dean" or "CS/IT Program Head" to avoid confusion.
 
 Sir D's Feedback (School IT/Networking Head)
 
