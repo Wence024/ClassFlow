@@ -7,6 +7,10 @@ interface DayGroupTableProps {
 
 /**
  * Displays a schedule table for a specific day combination.
+ *
+ * @param root0
+ * @param root0.dayLabel
+ * @param root0.entries
  */
 export function DayGroupTable({ dayLabel, entries }: DayGroupTableProps) {
   if (entries.length === 0) return null;

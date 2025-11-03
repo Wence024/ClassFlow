@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useAllInstructors } from '@/features/classSessionComponents/hooks';
+import type { Instructor } from '@/features/classSessionComponents/types/instructor';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useInstructorReport } from '../hooks/useInstructorReport';
@@ -105,7 +106,7 @@ export default function InstructorReportsPage() {
                 {isLoadingInstructors ? (
                   <SelectItem value="loading" disabled>Loading...</SelectItem>
                 ) : (
-                  instructors.map((instructor: any) => (
+                  instructors.map((instructor: Instructor) => (
                     <SelectItem key={instructor.id} value={instructor.id}>
                       {instructor.code} - {instructor.first_name} {instructor.last_name}
                     </SelectItem>

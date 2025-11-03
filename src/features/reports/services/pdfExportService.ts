@@ -5,6 +5,8 @@ import { formatDayGroupLabel } from './instructorReportService';
 
 /**
  * Generates an elegant PDF report for an instructor's schedule.
+ *
+ * @param report
  */
 export function generateInstructorReportPDF(report: InstructorReport): void {
   const doc = new jsPDF('landscape');
@@ -50,6 +52,11 @@ export function generateInstructorReportPDF(report: InstructorReport): void {
 
 /**
  * Adds an elegant header section to the PDF.
+ *
+ * @param doc
+ * @param report
+ * @param primaryColor
+ * @param darkGray
  */
 function addHeaderSection(
   doc: jsPDF, 
@@ -112,6 +119,12 @@ function addHeaderSection(
 
 /**
  * Adds an elegant day group table to the PDF.
+ *
+ * @param doc
+ * @param dayLabel
+ * @param entries
+ * @param startY
+ * @param accentColor
  */
 function addDayGroupTable(
   doc: jsPDF,
@@ -184,11 +197,18 @@ function addDayGroupTable(
     margin: { left: 20, right: 20 },
   });
 
-  return (doc as any).lastAutoTable.finalY;
+  type AutoTableDoc = jsPDF & { lastAutoTable: { finalY: number } };
+  return (doc as AutoTableDoc).lastAutoTable.finalY;
 }
 
 /**
  * Adds an elegant footer section with totals.
+ *
+ * @param doc
+ * @param report
+ * @param startY
+ * @param primaryColor
+ * @param darkGray
  */
 function addFooterSection(
   doc: jsPDF, 

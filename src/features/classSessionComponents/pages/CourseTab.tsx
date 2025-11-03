@@ -65,9 +65,9 @@ const CourseManagement: React.FC = () => {
         code: editingCourse.code,
         color: editingCourse.color,
         program_id: editingCourse.program_id || user?.program_id || '',
-        lecture_hours: (editingCourse as any).lecture_hours ?? null,
-        lab_hours: (editingCourse as any).lab_hours ?? null,
-        units: (editingCourse as any).units ?? null,
+        lecture_hours: editingCourse.lecture_hours ?? null,
+        lab_hours: editingCourse.lab_hours ?? null,
+        units: editingCourse.units ?? null,
       });
     } else {
       formMethods.reset({ 

@@ -3,12 +3,15 @@ import type { LoadCalculationConfig, LoadCalculationResult } from '../types/inst
 
 /**
  * Fetches the load calculation configuration for a specific semester and optional department.
+ *
+ * @param semesterId
+ * @param _departmentId
  */
 export async function getLoadConfig(
   semesterId: string,
   _departmentId?: string
 ): Promise<LoadCalculationConfig> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('teaching_load_config')
     .select('*')
     .eq('semester_id', semesterId)
@@ -29,6 +32,9 @@ export async function getLoadConfig(
 
 /**
  * Calculates teaching load based on total units and configuration.
+ *
+ * @param totalUnits
+ * @param config
  */
 export function calculateLoad(
   totalUnits: number,
@@ -39,6 +45,9 @@ export function calculateLoad(
 
 /**
  * Determines load status based on total load and standard load.
+ *
+ * @param totalLoad
+ * @param standardLoad
  */
 export function getLoadStatus(
   totalLoad: number,
@@ -54,6 +63,9 @@ export function getLoadStatus(
 
 /**
  * Calculates complete load information including status.
+ *
+ * @param totalUnits
+ * @param config
  */
 export function calculateInstructorLoad(
   totalUnits: number,

@@ -7,6 +7,9 @@ interface LoadSummaryWidgetProps {
 
 /**
  * Displays a summary of teaching load calculations with color-coded status.
+ *
+ * @param root0
+ * @param root0.report
  */
 export function LoadSummaryWidget({ report }: LoadSummaryWidgetProps) {
   const { totals, loadStatus } = report;
@@ -18,6 +21,11 @@ export function LoadSummaryWidget({ report }: LoadSummaryWidgetProps) {
   };
 
   const statusColor = statusColors[loadStatus];
+  const progressColorClass = (() => {
+    if (loadStatus === 'OVERLOADED') return 'bg-red-500';
+    if (loadStatus === 'UNDERLOADED') return 'bg-yellow-500';
+    return 'bg-green-500';
+  })();
 
   return (
     <Card className="p-6">
@@ -62,13 +70,7 @@ export function LoadSummaryWidget({ report }: LoadSummaryWidgetProps) {
           <div className="text-sm text-muted-foreground mb-2">Load Progress</div>
           <div className="w-full bg-muted rounded-full h-2">
             <div
-              className={`h-2 rounded-full transition-all ${
-                loadStatus === 'OVERLOADED'
-                  ? 'bg-red-500'
-                  : loadStatus === 'UNDERLOADED'
-                  ? 'bg-yellow-500'
-                  : 'bg-green-500'
-              }`}
+              className={`h-2 rounded-full transition-all ${progressColorClass}`}
               style={{ width: `${Math.min((totals.totalLoad / 7.0) * 100, 100)}%` }}
             />
           </div>

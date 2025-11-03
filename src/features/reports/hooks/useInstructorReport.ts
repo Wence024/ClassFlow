@@ -4,6 +4,9 @@ import type { InstructorReport } from '../types/instructorReport';
 
 /**
  * Hook to fetch and manage instructor report data.
+ *
+ * @param instructorId
+ * @param semesterId
  */
 export function useInstructorReport(instructorId: string | null, semesterId: string | null) {
   return useQuery<InstructorReport | null>({

@@ -14,6 +14,9 @@ const DAY_GROUPS = {
 
 /**
  * Fetches complete instructor schedule data for a given semester.
+ *
+ * @param instructorId
+ * @param semesterId
  */
 export async function getInstructorScheduleData(
   instructorId: string,
@@ -73,7 +76,9 @@ export async function getInstructorScheduleData(
     return {
       instructor: {
         ...instructor,
-        department_name: Array.isArray(instructor.department) ? instructor.department[0]?.name : (instructor.department as any)?.name,
+        department_name: Array.isArray(instructor.department)
+          ? instructor.department[0]?.name
+          : (instructor.department as { name?: string } | null)?.name,
       },
       semester,
       schedules: {
@@ -114,7 +119,18 @@ export async function getInstructorScheduleData(
   }
 
   // Process assignments into schedule entries
-  const entries: InstructorScheduleEntry[] = (assignments || []).map((assignment: any) => {
+  type AssignmentRow = {
+    period_index: number;
+    class_session: {
+      period_count: number;
+      course: { id: string; code: string; name: string; units?: number | null; lecture_hours?: number | null; lab_hours?: number | null };
+      classroom: { code?: string | null; name?: string | null } | null;
+      class_group: { student_count?: number | null } | null;
+      program: { department?: { name?: string | null; code?: string | null } | null } | null;
+    };
+  };
+
+  const entries: InstructorScheduleEntry[] = (assignments || []).map((assignment: AssignmentRow) => {
     const session = assignment.class_session;
     const course = session.course;
     const classroom = session.classroom;
@@ -177,7 +193,9 @@ export async function getInstructorScheduleData(
   return {
     instructor: {
       ...instructor,
-      department_name: Array.isArray(instructor.department) ? instructor.department[0]?.name : (instructor.department as any)?.name,
+      department_name: Array.isArray(instructor.department)
+        ? instructor.department[0]?.name
+        : (instructor.department as { name?: string } | null)?.name,
     },
     semester,
     schedules,
@@ -191,6 +209,8 @@ export async function getInstructorScheduleData(
 
 /**
  * Groups schedule entries by day combinations (MW, TTh, F, Sat).
+ *
+ * @param entries
  */
 function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
   const grouped = {
@@ -222,6 +242,8 @@ function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
 
 /**
  * Calculates summary totals for the report.
+ *
+ * @param entries
  */
 function calculateReportTotals(entries: InstructorScheduleEntry[]) {
   return entries.reduce(
@@ -237,6 +259,8 @@ function calculateReportTotals(entries: InstructorScheduleEntry[]) {
 
 /**
  * Formats day group label for display.
+ *
+ * @param key
  */
 export function formatDayGroupLabel(key: keyof InstructorReport['schedules']): string {
   const labels: Record<keyof InstructorReport['schedules'], string> = {
