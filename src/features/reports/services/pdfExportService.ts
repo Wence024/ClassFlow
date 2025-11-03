@@ -46,8 +46,12 @@ export function generateInstructorReportPDF(report: InstructorReport): void {
   addFooterSection(doc, report, startY, primaryColor, darkGray);
 
   // Download the PDF
-  const fileName = `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.pdf`;
+  const fileName = buildPdfFilename(report);
   doc.save(fileName);
+}
+
+export function buildPdfFilename(report: InstructorReport): string {
+  return `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.pdf`;
 }
 
 /**

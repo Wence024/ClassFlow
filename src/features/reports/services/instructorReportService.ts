@@ -214,7 +214,7 @@ export async function getInstructorScheduleData(
  * @param entries The flat list of schedule entries.
  * @returns An object with entries grouped by day combination.
  */
-function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
+export function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
   const grouped = {
     mondayWednesday: [] as InstructorScheduleEntry[],
     tuesdayThursday: [] as InstructorScheduleEntry[],
@@ -248,7 +248,7 @@ function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
  * @param entries The list of entries to aggregate.
  * @returns Totals for lecture hours, lab hours, units, and load placeholder.
  */
-function calculateReportTotals(entries: InstructorScheduleEntry[]) {
+export function calculateReportTotals(entries: InstructorScheduleEntry[]) {
   return entries.reduce(
     (acc, entry) => ({
       lecHours: acc.lecHours + entry.lecHours,

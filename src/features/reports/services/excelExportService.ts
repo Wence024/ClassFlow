@@ -21,8 +21,12 @@ export function generateInstructorReportExcel(report: InstructorReport): void {
 
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Schedule');
 
-  const fileName = `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.xlsx`;
+  const fileName = buildExcelFilename(report);
   XLSX.writeFile(workbook, fileName);
+}
+
+export function buildExcelFilename(report: InstructorReport): string {
+  return `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.xlsx`;
 }
 
 function buildWorksheetData(report: InstructorReport): (string | number)[][] {
