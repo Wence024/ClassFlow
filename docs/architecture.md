@@ -1,6 +1,6 @@
 # System Architecture
 
-This document provides a deep dive into the system architecture of ClassFlow. It explains the core design principles, the multi-user data model, folder structure, data flow, and key technologies used to enable a simultaneous, role-based scheduling workflow.
+This document provides a deep dive into the system architecture of ClassFlow. All business logic and role workflows are fully tested using the principle-based approach outlined in `docs/testing.md`.
 
 ## Core Principles
 
@@ -12,6 +12,8 @@ This document provides a deep dive into the system architecture of ClassFlow. It
 - **Server State Authority**: We use **TanStack Query (React Query)** as the authority for server state. This eliminates the need for complex client-side state management for data that lives in the database.
 - **Global State Management**: React Context is used for global UI state like sidebar collapse state, while TanStack Query handles server state.
 - **Type Safety**: TypeScript is used throughout the project. Types for the Supabase schema are auto-generated to ensure end-to-end type safety.
+- **Testability as a core value:** Every new module/type/service/hook/context is required to have automated tests matching its boundary and role.
+- **Centralized Real-Time Provider:** All live sync in the client runs through a single, testable RealtimeProvider context. This prevents duplicate event handling and makes business-critical invalidation logic dependable and maintainable. Every major real-time event and invalidation is covered by targeted tests.
 
 ## Technology Stack
 

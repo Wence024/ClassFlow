@@ -1,0 +1,146 @@
+@startuml Cross-Department Resource Request Approval - Component Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+' Diagram Metadata
+title Component Diagram: Cross-Department Resource Request Approval System
+LAYOUT_WITH_LEGEND()
+
+' External Systems
+System_Ext(supabase_db, "Supabase Database", "PostgreSQL with RLS, real-time subscriptions")
+System_Ext(supabase_realtime, "Supabase Realtime", "WebSocket-based real-time updates")
+
+' Main Container
+Container_Boundary(web_app, "ClassFlow Web Application") {
+  
+  ' UI Layer Components
+  Component(class_session_form, "Class Session Form", "React Component", "Detects cross-department resources, shows confirmation modal")
+  Component(timetable_page, "Timetable Page", "React Component", "Displays timetable grid, manages drag-and-drop, handles pending placement mode from URL params")
+  Component(drawer, "Drawer", "React Component", "Displays unassigned sessions, highlights pending placement session with pulsing border")
+  Component(session_cell, "Session Cell", "React Component", "Renders individual sessions with pending/confirmed visual states")
+  Component(dept_head_notifications, "Department Head Notifications", "React Component", "Displays pending resource requests with approve/reject/dismiss actions")
+  Component(prog_head_notifications, "Program Head Notifications", "React Component", "Shows approval/rejection updates with dismissal and rejection messages")
+  Component(rejection_dialog, "Rejection Dialog", "React Component", "Modal requiring rejection message from department head")
+  Component(confirm_dialog, "Confirm Dialog", "React Component", "Generic confirmation for moving/removing cross-dept sessions")
+  
+  ' Hook Layer Components
+  Component(use_class_sessions, "useClassSessions Hook", "React Hook", "Provides checkCrossDepartmentResources helper")
+  Component(use_resource_requests, "useResourceRequests Hook", "React Hook", "Manages request lifecycle, dismissal, cancellation")
+  Component(use_timetable, "useTimetable Hook", "React Hook", "Tracks pending sessions, detects cross-dept moves")
+  Component(use_timetable_dnd, "useTimetableDnd Hook", "React Hook", "Handles drag-and-drop with confirmation callbacks")
+  Component(realtime_provider, "RealtimeProvider", "React Context", "Centralized real-time subscriptions for all tables, prevents duplicate subscriptions")
+  
+  ' Service Layer Components
+  Component(class_session_service, "Class Session Service", "TypeScript Module", "isCrossDepartmentInstructor/Classroom, getResourceDepartmentId")
+  Component(resource_request_service, "Resource Request Service", "TypeScript Module", "approveRequest, rejectRequest, dismissRequest, cancelActiveRequests, getRequestWithDetails")
+  Component(timetable_service, "Timetable Service", "TypeScript Module", "assignClassSessionToTimetable with status parameter")
+  
+  ' Database Function Layer
+  Component(db_functions, "Database Functions", "PostgreSQL Functions", "approve_resource_request, reject_resource_request, handle_cross_dept_session_move, is_cross_department_resource, cleanup_request_notifications (trigger)")
+}
+
+' RealtimeProvider Relationships
+Rel(realtime_provider, supabase_realtime, "Subscribes", "Single global subscriptions, selective invalidation (INSERT/UPDATE only for reviewed requests)")
+Rel(supabase_realtime, realtime_provider, "Pushes", "Database change events trigger query invalidation")
+note right of realtime_provider
+  **Query Invalidation Strategy**
+  - Uses invalidateQueries instead of refetchQueries
+  - Marks queries as stale without forcing refetch
+  - Queries refetch only when actively observed
+  - Prevents race conditions with dismiss operations
+  - DELETE events skipped for reviewed requests
+  - All invalidations use exact: false for flexibility
+  - *All workflows and event flows represented are fully covered by automated tests.*
+end note
+
+' UI Layer Relationships
+Rel(class_session_form, use_class_sessions, "Uses", "checkCrossDepartmentResources()")
+Rel(class_session_form, confirm_dialog, "Shows", "On cross-dept detection")
+Rel(class_session_form, timetable_page, "Redirects to", "With URL params after session creation")
+Rel(timetable_page, drawer, "Renders", "Passes pendingPlacementSessionId")
+Rel(timetable_page, session_cell, "Renders", "Passes pendingSessionIds")
+Rel(timetable_page, use_timetable, "Uses", "Gets pending sessions")
+Rel(timetable_page, use_timetable_dnd, "Uses", "Passes pending placement info")
+Rel(timetable_page, confirm_dialog, "Shows", "On move/remove cross-dept session")
+Rel(drawer, use_timetable_dnd, "Uses", "Drag start handler")
+Rel(session_cell, use_timetable, "Uses", "Checks if session is pending")
+Rel(dept_head_notifications, use_resource_requests, "Uses", "Fetches requests, approve/reject/dismiss")
+Rel(dept_head_notifications, rejection_dialog, "Opens", "On reject action")
+Rel(prog_head_notifications, use_resource_requests, "Uses", "Fetches updates, cancels, dismisses")
+
+' Hook to Service Relationships
+Rel(use_class_sessions, class_session_service, "Calls", "Cross-dept detection functions")
+Rel(use_resource_requests, resource_request_service, "Calls", "All request operations")
+Rel(use_timetable, timetable_service, "Calls", "Assign with status")
+Rel(use_timetable, resource_request_service, "Calls", "Handle cross-dept moves")
+Rel(use_timetable_dnd, resource_request_service, "Calls", "Cancel requests on drawer drop")
+
+' Service to Database Relationships
+Rel(class_session_service, db_functions, "RPC Call", "is_cross_department_resource()")
+Rel(resource_request_service, db_functions, "RPC Calls", "approve_resource_request(), reject_resource_request(), cancelActiveRequestsForClassSession()")
+Rel(timetable_service, supabase_db, "Upsert", "timetable_assignments with status")
+Rel(resource_request_service, supabase_db, "CRUD", "resource_requests, request_notifications")
+
+' Database to External System
+Rel(db_functions, supabase_db, "Queries/Updates", "Atomic operations with SECURITY DEFINER")
+Rel(supabase_db, supabase_realtime, "Publishes", "Change events")
+
+' Key Workflows Annotation
+note right of class_session_form
+  **Workflow 1: Create Cross-Dept Request**
+  1. User selects cross-dept resource
+  2. checkCrossDepartmentResources() detects
+  3. Confirmation modal shows dept name
+  4. On confirm: create session (unassigned)
+  5. Redirect to /scheduler with URL params
+  6. Session highlighted in drawer with pulsing border
+  7. User drags session to timetable
+  8. Request created automatically on placement
+end note
+
+note right of dept_head_notifications
+  **Workflow 2: Approve Request**
+  1. Dept head clicks "Approve"
+  2. approveRequest() calls DB function
+  3. DB atomically updates:
+     - resource_request status='approved'
+     - timetable_assignment status='confirmed'
+  4. Trigger deletes notifications
+  5. Real-time update to timetable
+end note
+
+note right of rejection_dialog
+  **Workflow 3: Reject Request**
+  1. Dept head clicks "Reject"
+  2. Dialog requires message (validation)
+  3. rejectRequest() calls DB function with message
+  4. DB logic:
+     - If pending: delete session/assignment
+     - If approved: restore to original position
+     - Store rejection_message in resource_requests
+  5. Trigger deletes request_notifications
+  6. Program head sees notification with feedback
+  7. Message displayed in styled red box
+end note
+
+note right of use_timetable_dnd
+  **Workflow 4: Move Confirmed Session**
+  1. User drags confirmed cross-dept session
+  2. Confirmation dialog appears
+  3. On confirm: session moves
+  4. handle_cross_dept_session_move() called
+  5. Assignment status='pending' again
+  6. New request created with original position
+  7. Dept head notified
+end note
+
+note right of use_timetable_dnd
+  **Workflow 5: Remove to Drawer**
+  1. User drags cross-dept session to drawer
+  2. Confirmation dialog appears
+  3. On confirm: session removed
+  4. cancelActiveRequestsForClassSession()
+  5. Creates cancellation notification
+  6. Dept head notified
+end note
+
+@enduml

@@ -9,17 +9,17 @@ import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/cl
 const TABLE = 'class_groups';
 
 /**
- * Fetches all class groups for a specific user from the database.
+ * Fetches all class groups for a specific program from the database.
  *
- * @param user_id - The ID of the user whose class groups to retrieve.
+ * @param program_id - The ID of the program whose class groups to retrieve.
  * @returns A promise that resolves to an array of ClassGroup objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getClassGroups(user_id: string): Promise<ClassGroup[]> {
+export async function getClassGroupsByProgram(program_id: string): Promise<ClassGroup[]> {
   const { data, error } = await supabase
     .from(TABLE)
     .select('*')
-    .eq('user_id', user_id)
+    .eq('program_id', program_id)
     .order('name');
   if (error) throw error;
   return data || [];

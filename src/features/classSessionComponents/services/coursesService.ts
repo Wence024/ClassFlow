@@ -9,27 +9,18 @@ import type { Course, CourseInsert, CourseUpdate } from '../types/course';
 const TABLE = 'courses';
 
 /**
- * Fetches courses from the database, optionally filtered by program and role.
- * Admins see all courses; program heads see only their program's courses.
+ * Fetches all courses for a specific program from the database.
  *
- * @param params - Optional filtering parameters.
- * @param params.program_id - The program ID to filter by (for non-admin users).
- * @param params.role - The user's role (determines filtering behavior).
+ * @param program_id - The ID of the program whose courses to retrieve.
  * @returns A promise that resolves to an array of Course objects.
  * @throws An error if the Supabase query fails.
  */
-export async function getCourses(params?: {
-  program_id?: string | null;
-  role?: string | null;
-}): Promise<Course[]> {
-  let query = supabase.from(TABLE).select('*').order('name');
-
-  // Only admins see all courses; others see their program's courses
-  if (params?.role !== 'admin' && params?.program_id) {
-    query = query.eq('program_id', params.program_id);
-  }
-
-  const { data, error } = await query;
+export async function getCoursesByProgram(program_id: string): Promise<Course[]> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('program_id', program_id)
+    .order('name');
   if (error) throw error;
   return data || [];
 }

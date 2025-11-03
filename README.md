@@ -18,7 +18,7 @@ Built with a focus on maintainability and developer experience, the project uses
 - 🎛️ **Collapsible Sidebar**: Modern navigation with toggle functionality and tooltips
 - ⚡ **Real-time Collaboration**: Live updates across all connected clients via Supabase subscriptions
 - 🛡️ **Type-Safe & Scalable**: Built with TypeScript and modular feature architecture
-- 🧪 **Comprehensive Testing**: 175 passing tests covering unit, integration, and component testing
+- 🧪 **Comprehensive Testing:** All critical workflows and roles are covered by fast, layered unit, integration, workflow, real-time, and permission/security (RLS) tests. Continuous improvement rooted in engineering best practices.
 
 ---
 

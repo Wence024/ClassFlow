@@ -7,9 +7,118 @@ import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useAuth } from '../../auth/hooks/useAuth';
-import type { TimetableViewMode } from '../types/timetable';
+import type { TimetableViewMode, HydratedTimetableAssignment } from '../types/timetable';
+import { User } from '../../auth/types/auth';
 
 const DRAG_DATA_KEY = 'application/json';
+
+const parseDragData = (e: React.DragEvent): DragSource | null => {
+  const rawData = e.dataTransfer.getData(DRAG_DATA_KEY);
+  if (!rawData) {
+    return null;
+  }
+  try {
+    return JSON.parse(rawData);
+  } catch (err) {
+    console.error('[TimetableDnd] Failed to parse drag data', err);
+    toast('Error', { description: 'Invalid drag data' });
+    return null;
+  }
+};
+
+const getResourceMismatchError = (
+  viewMode: TimetableViewMode,
+  session: ClassSession,
+  source: DragSource,
+  targetId: string
+): string => {
+  if (source.from !== 'timetable') return '';
+
+  switch (viewMode) {
+    case 'classroom':
+      if (session.classroom.id !== targetId) {
+        return `Cannot move this session to a different classroom. This session is assigned to "${session.classroom.name}". To reassign the classroom, please go to Manage Classes page.`;
+      }
+      break;
+    case 'instructor':
+      if (session.instructor.id !== targetId) {
+        const instructorName = `${session.instructor.first_name} ${session.instructor.last_name}`;
+        return `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please go to Manage Classes page.`;
+      }
+      break;
+    case 'class-group':
+      if (source.class_group_id !== targetId) {
+        return `Cannot move this session to a different class group. This session belongs to "${session.group.name}".`;
+      }
+      break;
+  }
+  return '';
+};
+
+const validateDrop = (
+  source: DragSource | null,
+  allClassSessions: ClassSession[],
+  user: User | null,
+  viewMode: TimetableViewMode,
+  targetClassGroupId: string
+): [DragSource, ClassSession] | [null, null] => {
+  if (!source) {
+    return [null, null];
+  }
+
+  const classSessionToDrop = allClassSessions.find((cs) => cs.id === source.class_session_id);
+
+  if (!classSessionToDrop) {
+    toast('Error', { description: 'Could not find the class session to drop.' });
+    return [null, null];
+  }
+
+  if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
+    toast('Error', { description: 'You can only move sessions that belong to your own program.' });
+    return [null, null];
+  }
+
+  const resourceMismatchError = getResourceMismatchError(
+    viewMode,
+    classSessionToDrop,
+    source,
+    targetClassGroupId
+  );
+  if (resourceMismatchError) {
+    toast('Move Restricted', { description: resourceMismatchError });
+    return [null, null];
+  }
+
+  return [source, classSessionToDrop];
+};
+
+const needsReapproval = (
+  source: DragSource,
+  classSessionToDrop: ClassSession,
+  assignments: HydratedTimetableAssignment[] | undefined,
+  user: User | null
+): boolean => {
+  if (source.from !== 'timetable') {
+    return false;
+  }
+
+  const currentAssignment = assignments?.find(
+    (a: HydratedTimetableAssignment) =>
+      a.class_session?.id === classSessionToDrop.id &&
+      a.class_group_id === source.class_group_id &&
+      a.period_index === source.period_index
+  );
+
+  const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
+  const hasCrossDeptResource = Boolean(
+    (classSessionToDrop.instructor.department_id &&
+      classSessionToDrop.instructor.department_id !== user?.program_id) ||
+    (classSessionToDrop.classroom.preferred_department_id &&
+      classSessionToDrop.classroom.preferred_department_id !== user?.program_id)
+  );
+
+  return hasCrossDeptResource && isCurrentlyConfirmed;
+};
 
 /**
  * A consolidated hook to manage the entire lifecycle of drag-and-drop (D&D)
@@ -17,10 +126,28 @@ const DRAG_DATA_KEY = 'application/json';
  * event handling, and data mutations.
  *
  * @param allClassSessions - All class sessions visible to the user (not just their own).
- * @param viewMode - The current timetable view mode for view-specific validation.
+ * @param viewMode - The current timetable view mode for validation.
+ * @param assignments - Current timetable assignments for checking confirmation status.
+ * @param pendingPlacementInfo - Optional info about a session awaiting cross-dept placement.
+ * @param pendingPlacementInfo.pendingSessionId - Pending session ID for placement.
+ * @param pendingPlacementInfo.resourceType - Resource type for pending placement ('instructor' | 'classroom').
+ * @param pendingPlacementInfo.resourceId - ID of resource that is pending placement.
+ * @param pendingPlacementInfo.departmentId - Target department ID for the resource.
+ * @param pendingPlacementInfo.onClearPending - Callback to clear pending placement state.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
-export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: TimetableViewMode = 'class-group') => {
+export const useTimetableDnd = (
+  allClassSessions: ClassSession[], 
+  viewMode: TimetableViewMode = 'class-group',
+  assignments?: HydratedTimetableAssignment[],
+  pendingPlacementInfo?: {
+    pendingSessionId?: string;
+    resourceType?: 'instructor' | 'classroom';
+    resourceId?: string;
+    departmentId?: string;
+    onClearPending?: () => void;
+  }
+) => {
   // --- Core Hooks ---
   const { user } = useAuth();
   const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable(viewMode);
@@ -30,7 +157,9 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);
-  const [activeDraggedSession, setActiveDraggedSession] = useState<ClassSession | null>(null);
+  const [activeDraggedSession, setActiveDraggedSession] = useState<ClassSession | null>(
+    null
+  );
   const [dragOverCell, setDragOverCell] = useState<{ groupId: string; periodIndex: number } | null>(
     null
   );
@@ -46,15 +175,12 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
   // Global listeners to ensure state is always cleaned up.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // If the user presses Escape during a drag, clean up the state.
       if (e.key === 'Escape') {
         cleanupDragState();
       }
     };
 
-    // The 'dragend' event fires when a drag operation concludes (e.g., drop or cancel).
     document.addEventListener('dragend', cleanupDragState);
-    // The 'keydown' listener provides a fallback for cancellation via the Escape key.
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
@@ -65,15 +191,6 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
 
   // --- Visual Feedback Logic ---
 
-  /**
-   * Validates if a drag-and-drop action is compliant with the current view mode rules.
-   *
-   * @param viewMode - The current timetable view mode.
-   * @param source - The drag source.
-   * @param draggedSession - The session being dragged.
-   * @param targetGroupId - The ID of the target row.
-   * @returns `true` if the move is allowed, `false` otherwise.
-   */
   const isViewModeCompliant = (
     viewMode: TimetableViewMode,
     source: DragSource,
@@ -99,23 +216,15 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
           return draggedSession.instructor.id === targetGroupId;
       }
     }
-    return false; // Should not be reached
+    return false;
   };
 
-  /**
-   * Checks if a specific timetable slot is available for dropping a class session.
-   *
-   * @param groupId The ID of the target class group.
-   * @param periodIndex The index of the target period.
-   * @returns True if the slot is available for the current drag operation, false otherwise.
-   */
   const isSlotAvailable = useCallback(
     (groupId: string, periodIndex: number): boolean => {
       if (!activeDraggedSession || !settings || !activeDragSource) {
         return false;
       }
 
-      // This prevents the slot from even appearing available (green) if the user is not the owner.
       if (
         activeDragSource.from === 'timetable' &&
         activeDraggedSession.program_id !== user?.program_id
@@ -146,35 +255,6 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
 
   // --- Event Handlers ---
 
-  const getResourceMismatchError = (
-    viewMode: TimetableViewMode,
-    session: ClassSession,
-    source: DragSource,
-    targetId: string
-  ): string => {
-    if (source.from !== 'timetable') return '';
-
-    switch (viewMode) {
-      case 'classroom':
-        if (session.classroom.id !== targetId) {
-          return `Cannot move this session to a different classroom. This session is assigned to "${session.classroom.name}". To reassign the classroom, please go to Manage Classes page.`;
-        }
-        break;
-      case 'instructor':
-        if (session.instructor.id !== targetId) {
-          const instructorName = `${session.instructor.first_name} ${session.instructor.last_name}`;
-          return `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please go to Manage Classes page.`;
-        }
-        break;
-      case 'class-group':
-        if (source.class_group_id !== targetId) {
-          return `Cannot move this session to a different class group. This session belongs to "${session.group.name}".`;
-        }
-        break;
-    }
-    return '';
-  };
-
   const executeDropMutation = useCallback(async (
     source: DragSource,
     session: ClassSession,
@@ -188,7 +268,7 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
         ? (source.class_group_id === dbTargetGroupId && source.period_index === targetPeriodIndex)
         : (source.period_index === targetPeriodIndex);
 
-      if (isSameCell) return ''; // Abort silently
+      if (isSameCell) return '';
 
       return moveClassSession(
         { class_group_id: source.class_group_id, period_index: source.period_index },
@@ -199,25 +279,11 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
     return 'Invalid drag source';
   }, [assignClassSession, moveClassSession, viewMode]);
 
-  /**
-   * Initiates a drag operation for a class session.
-   * 
-   * Sets up the drag state and attaches the drag source data to the event.
-   * 
-   * @param e - The drag event object.
-   * @param source - The drag source containing session and location information.
-   */
   const handleDragStart = useCallback(
     (e: React.DragEvent, source: DragSource) => {
       const session = allClassSessions.find((cs) => cs.id === source.class_session_id) || null;
       e.dataTransfer.setData(DRAG_DATA_KEY, JSON.stringify(source));
       e.dataTransfer.effectAllowed = 'move';
-
-      console.debug('[TimetableDnd] dragStart', {
-        source,
-        foundSession: !!session,
-        classSessionsCount: allClassSessions.length,
-      });
 
       setActiveDragSource(source);
       setActiveDraggedSession(session);
@@ -225,23 +291,11 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
     [allClassSessions]
   );
 
-  /**
-   * Handles the drag over event to enable drop zones.
-   * 
-   * @param e - The drag event object.
-   */
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   }, []);
 
-  /**
-   * Handles the drag enter event to update visual feedback.
-   * 
-   * @param e - The drag event object.
-   * @param groupId - The ID of the entered class group.
-   * @param periodIndex - The index of the entered period.
-   */
   const handleDragEnter = useCallback(
     (e: React.DragEvent, groupId: string, periodIndex: number) => {
       e.stopPropagation();
@@ -250,11 +304,6 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
     []
   );
 
-  /**
-   * Handles the drag leave event to clear visual feedback.
-   * 
-   * @param e - The drag event object.
-   */
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     const currentTarget = e.currentTarget as HTMLElement;
     const related = e.relatedTarget as Node | null;
@@ -263,43 +312,29 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
     }
   }, []);
 
-  /**
-   * Handles the drop event from the drag and drop functionality.
-   *
-   * @param e - The drag event object.
-   * @param targetClassGroupId - The ID of the target row (group/classroom/instructor depending on view).
-   * @param targetPeriodIndex - The index of the target period.
-   * @returns {void}
-   */
-  const handleDropToGrid = useCallback(
-    async (e: React.DragEvent, targetClassGroupId: string, targetPeriodIndex: number) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const handlePendingPlacement = useCallback(async (classSessionToDrop: ClassSession) => {
+    if (!pendingPlacementInfo?.resourceType || !pendingPlacementInfo?.resourceId || !pendingPlacementInfo?.departmentId) return;
+    const { createRequest } = await import('../../resourceRequests/services/resourceRequestService');
+    try {
+      await createRequest({
+        requester_id: user?.id || '',
+        requesting_program_id: user?.program_id || '',
+        resource_type: pendingPlacementInfo.resourceType,
+        resource_id: pendingPlacementInfo.resourceId,
+        class_session_id: classSessionToDrop.id,
+        target_department_id: pendingPlacementInfo.departmentId,
+        status: 'pending',
+      });
+      toast.success('Session placed and request submitted! Check notifications for updates.');
+      pendingPlacementInfo.onClearPending?.();
+    } catch (requestErr) {
+      console.error('Failed to create resource request:', requestErr);
+      toast.error('Session placed but failed to create request. Please try again from Classes page.');
+    }
+  }, [user, pendingPlacementInfo]);
 
-      const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
-      const classSessionToDrop = allClassSessions.find((cs) => cs.id === source.class_session_id);
-
-      if (!classSessionToDrop) {
-        toast('Error', { description: 'Could not find the class session to drop.' });
-        cleanupDragState();
-        return;
-      }
-
-      if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
-        toast('Error', { description: 'You can only move sessions that belong to your own program.' });
-        cleanupDragState();
-        return;
-      }
-
-      const resourceMismatchError = getResourceMismatchError(viewMode, classSessionToDrop, source, targetClassGroupId);
-      if (resourceMismatchError) {
-        toast('Move Restricted', { description: resourceMismatchError });
-        cleanupDragState();
-        return;
-      }
-
-      const dbTargetGroupId = viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
-
+  const handleReapproval = useCallback((source: DragSource, classSessionToDrop: ClassSession, dbTargetGroupId: string, targetPeriodIndex: number, onConfirmMove: (callback: () => void) => void) => {
+    onConfirmMove(async () => {
       try {
         const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
         if (error) {
@@ -311,41 +346,101 @@ export const useTimetableDnd = (allClassSessions: ClassSession[], viewMode: Time
       } finally {
         cleanupDragState();
       }
+    });
+  }, [executeDropMutation, cleanupDragState]);
+
+  const handleDropToGrid = useCallback(
+    async (
+      e: React.DragEvent, 
+      targetClassGroupId: string, 
+      targetPeriodIndex: number,
+      onConfirmMove?: (callback: () => void) => void
+    ) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const [source, classSessionToDrop] = validateDrop(
+        parseDragData(e),
+        allClassSessions,
+        user,
+        viewMode,
+        targetClassGroupId
+      );
+
+      if (!source || !classSessionToDrop) {
+        cleanupDragState();
+        return;
+      }
+
+      const dbTargetGroupId = viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
+
+      if (onConfirmMove && needsReapproval(source, classSessionToDrop, assignments, user)) {
+        handleReapproval(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex, onConfirmMove);
+        return;
+      }
+
+      const isPendingPlacement = pendingPlacementInfo?.pendingSessionId === classSessionToDrop.id;
+      
+      try {
+        const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
+        if (error) {
+          toast('Error', { description: error });
+        } else if (isPendingPlacement) {
+          await handlePendingPlacement(classSessionToDrop);
+        }
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        toast('Error', { description: errorMsg });
+      } finally {
+        cleanupDragState();
+      }
     },
-    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation]
+    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation, pendingPlacementInfo, assignments, handlePendingPlacement, handleReapproval]
   );
 
-  /**
-   * Handles dropping a class session back to the drawer (unassign).
-   * 
-   * Removes the session from the timetable if it was dragged from the grid.
-   * 
-   * @param e - The drag event object.
-   * @returns {Promise<void>}
-   */
   const handleDropToDrawer = useCallback(
-    async (e: React.DragEvent) => {
+    async (e: React.DragEvent, onConfirm?: (callback: () => void) => void) => {
       e.preventDefault();
       const source: DragSource = JSON.parse(e.dataTransfer.getData(DRAG_DATA_KEY));
 
-      console.debug('[TimetableDnd] dropToDrawer', { source });
-
       if (source.from === 'timetable') {
+        const session = allClassSessions.find((cs) => cs.id === source.class_session_id);
+        
+        if (session && onConfirm) {
+          const hasCrossDeptResource = 
+            (session.instructor.department_id && session.instructor.department_id !== user?.program_id) ||
+            (session.classroom.preferred_department_id && session.classroom.preferred_department_id !== user?.program_id);
+
+          if (hasCrossDeptResource) {
+            onConfirm(async () => {
+              const { cancelActiveRequestsForClassSession } = await import('../../resourceRequests/services/resourceRequestService');
+              try {
+                await cancelActiveRequestsForClassSession(session.id);
+              } catch (err) {
+                console.error('Failed to cancel resource requests:', err);
+              }
+              
+              await removeClassSession(source.class_group_id, source.period_index);
+              
+              toast.success('Session removed and department head notified');
+            });
+            cleanupDragState();
+            return;
+          }
+        }
+        
         await removeClassSession(source.class_group_id, source.period_index);
       }
 
       cleanupDragState();
     },
-    [removeClassSession, cleanupDragState]
+    [removeClassSession, cleanupDragState, allClassSessions, user]
   );
 
   return {
-    // State
     activeDraggedSession,
     dragOverCell,
-    // Visual Feedback
     isSlotAvailable,
-    // Event Handlers
     handleDragStart,
     handleDragOver,
     handleDragEnter,

@@ -7,6 +7,7 @@ import * as useTimetableDndHook from '../../hooks/useTimetableDnd';
 import * as classSessionsService from '../../../classSessions/services/classSessionsService';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { MemoryRouter } from 'react-router-dom';
 
 import type { ClassSession } from '../../../classSessions/types/classSession';
 import type { ClassGroup } from '../../../classSessionComponents/types';
@@ -35,7 +36,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
         clearError: vi.fn(),
       }}
     >
-      {children}
+      <MemoryRouter>{children}</MemoryRouter>
     </AuthContext.Provider>
   </QueryClientProvider>
 );

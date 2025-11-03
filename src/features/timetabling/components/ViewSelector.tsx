@@ -10,9 +10,9 @@ interface ViewSelectorProps {
 /**
  * A tab-based navigation component for switching between timetable view modes.
  *
- * @param props - The component props.
- * @param props.viewMode - The currently active view mode.
- * @param props.onViewModeChange - Callback function to handle view mode changes.
+ * @param vs - The component props.
+ * @param vs.viewMode - The currently active view mode.
+ * @param vs.onViewModeChange - Callback function to handle view mode changes.
  * @returns The rendered ViewSelector component.
  */
 export const ViewSelector: React.FC<ViewSelectorProps> = ({ viewMode, onViewModeChange }) => {

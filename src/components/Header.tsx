@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import { PanelLeftClose, Menu } from 'lucide-react';
 import UserAvatar from './UserAvatar';
 import RequestNotifications from './RequestNotifications';
+import PendingRequestsNotification from './PendingRequestsNotification';
+import PendingRequestsPanel from './PendingRequestsPanel';
 import { Button } from './ui/button';
 import { useLayout } from '../contexts/hooks/useLayout';
 
@@ -41,6 +43,8 @@ const Header = () => {
             <h2 className="text-lg font-semibold text-gray-700">Timeline Matrix</h2>
           </div>
           <div className="flex items-center gap-4">
+            <PendingRequestsPanel />
+            <PendingRequestsNotification />
             <RequestNotifications />
             <UserAvatar />
           </div>

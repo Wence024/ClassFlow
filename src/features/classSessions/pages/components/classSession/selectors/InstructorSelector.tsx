@@ -35,13 +35,13 @@ function toPrioritizedInstructor(
 /**
  * A modal for selecting an instructor from a list.
  *
- * @param props The props for the component.
- * @param props.isOpen Whether the modal is open.
- * @param props.onClose Callback to close the modal.
- * @param props.onSelect Callback when an instructor is selected.
- * @param props.instructors Array of instructors to choose from.
- * @param props.userDepartmentId The user's department ID for prioritization.
- * @param props.isLoading Whether instructors are loading.
+ * @param ins The props for the component.
+ * @param ins.isOpen Whether the modal is open.
+ * @param ins.onClose Callback to close the modal.
+ * @param ins.onSelect Callback when an instructor is selected.
+ * @param ins.instructors Array of instructors to choose from.
+ * @param ins.userDepartmentId The user's department ID for prioritization.
+ * @param ins.isLoading Whether instructors are loading.
  * @returns An instructor selection modal.
  */
 export function InstructorSelector({

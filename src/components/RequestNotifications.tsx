@@ -1,9 +1,27 @@
-import { Bell } from 'lucide-react';
+import { Bell, X, MapPin } from 'lucide-react';
 import { useAuth } from '../features/auth/hooks/useAuth';
-import { useDepartmentId } from '../features/auth/hooks/useDepartmentId';
 import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
-import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import RejectionDialog from './dialogs/RejectionDialog';
+import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
+import { Tables } from '../lib/supabase.types';
+
+type ResourceRequest = Tables<'resource_requests'> & {
+  dismissed?: boolean;
+  rejection_message?: string | null;
+};
+
+interface EnrichedRequest extends ResourceRequest {
+  resource_name?: string;
+  requester_name?: string;
+  program_name?: string;
+  period_index?: number;
+  class_group_id?: string;
+}
 
 /**
  * Notification dropdown for department heads and admins to review resource requests.
@@ -12,24 +30,144 @@ import type { ResourceRequest } from '@/features/resourceRequests/types/resource
  * @returns The RequestNotifications component.
  */
 export default function RequestNotifications() {
-  const { isDepartmentHead, isAdmin } = useAuth();
-  const departmentId = useDepartmentId();
-  const { requests, updateRequest } = useDepartmentRequests(departmentId || undefined);
+  const { isDepartmentHead, isAdmin, departmentId, user } = useAuth();
+  const { requests, dismissRequest } = useDepartmentRequests(departmentId || undefined);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [dismissingId, setDismissingId] = useState<string | null>(null);
+  const [rejectionDialogOpen, setRejectionDialogOpen] = useState(false);
+  const [selectedRequestForRejection, setSelectedRequestForRejection] = useState<{
+    id: string;
+    classSessionId: string;
+    resourceName: string;
+  } | null>(null);
 
-  // Only show for department heads and admins
-  if (!isDepartmentHead() && !isAdmin()) {
-    return null;
-  }
+  // Always compute role/permission after all hooks.
+  const allowed = isDepartmentHead() || isAdmin();
+  const safeRequests = requests || [];
+  const pendingRequests = allowed
+    ? safeRequests.filter((r) => r.status === 'pending' && !r.dismissed)
+    : [];
+  const hasNotifications = allowed && pendingRequests.length > 0;
 
-  const pendingRequests = requests.filter((r) => r.status === 'pending');
-  const hasNotifications = pendingRequests.length > 0;
+  // Declare useQuery after all other hooks, always called.
+  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({
+    queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
+    queryFn: async () => {
+      const enriched = await Promise.all(
+        pendingRequests.map(req => getRequestWithDetails(req.id))
+      );
+      return enriched;
+    },
+    enabled: allowed && pendingRequests.length > 0,
+  });
+
+  if (!allowed) return null;
 
   const handleApprove = async (requestId: string) => {
-    await updateRequest({ id: requestId, update: { status: 'approved' } });
+    setApprovingId(requestId);
+    try {
+      // Import the new approveRequest function
+      const { approveRequest } = await import('../features/resourceRequests/services/resourceRequestService');
+      
+      // Use the atomic approval function (trigger will cleanup notifications)
+      await approveRequest(requestId, user?.id || '');
+
+      // Invalidate affected queries (RealtimeProvider handles resource_requests)
+      await queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      await queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+
+      toast.success('Request approved and timetable updated');
+    } catch (error) {
+      console.error('Error approving request:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to approve request: ${errorMessage}`);
+    } finally {
+      setApprovingId(null);
+    }
   };
 
-  const handleReject = async (requestId: string) => {
-    await updateRequest({ id: requestId, update: { status: 'rejected' } });
+  const handleRejectClick = (requestId: string, classSessionId: string, resourceName: string) => {
+    setSelectedRequestForRejection({ id: requestId, classSessionId, resourceName });
+    setRejectionDialogOpen(true);
+  };
+
+  const handleRejectConfirm = async (message: string) => {
+    if (!selectedRequestForRejection) return;
+
+    setRejectingId(selectedRequestForRejection.id);
+    try {
+      const { rejectRequest } = await import('../features/resourceRequests/services/resourceRequestService');
+      
+      // Reject request (trigger will cleanup notifications)
+      await rejectRequest(selectedRequestForRejection.id, user?.id || '', message);
+
+      // Invalidate affected queries (RealtimeProvider handles resource_requests)
+      await queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
+      await queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
+      await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+
+      toast.success('Request rejected successfully');
+      setRejectionDialogOpen(false);
+      setSelectedRequestForRejection(null);
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast.error(`Failed to reject request: ${errorMessage}`);
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
+  const handleDismiss = async (requestId: string) => {
+    setDismissingId(requestId);
+
+    // Use stable query key with filtering
+    const currentQueryKey = ['enriched_requests', pendingRequests.map((r) => r.id)];
+
+    queryClient.setQueryData(
+      currentQueryKey,
+      (old: EnrichedRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || []
+    );
+
+    try {
+      await dismissRequest(requestId);
+
+      // Wait for propagation
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Invalidate department requests with exact match
+      await queryClient.invalidateQueries({ 
+        queryKey: ['resource_requests', 'dept', departmentId],
+        exact: true 
+      });
+
+      toast.success('Request dismissed');
+    } catch (error) {
+      console.error('Error dismissing request:', error);
+      toast.error('Failed to dismiss request');
+
+      // Revert optimistic update
+      await queryClient.invalidateQueries({ 
+        queryKey: currentQueryKey,
+        exact: true 
+      });
+    } finally {
+      setDismissingId(null);
+    }
+  };
+
+  const handleSeeInTimetable = (_classSessionId: string, periodIndex?: number, classGroupId?: string) => {
+    if (periodIndex !== undefined && classGroupId) {
+      // Navigate to timetable with highlight parameters
+      navigate(`/scheduler?highlightPeriod=${periodIndex}&highlightGroup=${classGroupId}`);
+      toast.info('Highlighted session in timetable');
+    } else {
+      toast.error('Timetable position not available');
+    }
   };
 
   return (
@@ -52,39 +190,69 @@ export default function RequestNotifications() {
           </p>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {pendingRequests.length === 0 ? (
+          {enrichedRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No pending requests</div>
           ) : (
-            pendingRequests.map((request: ResourceRequest) => (
+            enrichedRequests.map((request) => (
               <div key={request.id} className="p-3 border-b last:border-b-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm capitalize">
-                      {request.resource_type} Request
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm capitalize">
+                        {request.resource_type} Request
+                      </div>
+                      <div className="text-xs text-gray-700 font-medium truncate">
+                        {request.resource_name || 'Unknown Resource'}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Requested by: <span className="font-medium text-gray-700">{request.requester_name || 'Unknown User'}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Program: <span className="font-medium text-gray-700">{request.program_name || 'Unknown Program'}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(request.requested_at || '').toLocaleDateString()}
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      Resource ID: {request.resource_id}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(request.requested_at || '').toLocaleDateString()}
-                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 w-6 p-0"
+                      onClick={() => handleDismiss(request.id)}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  
+                  <div className="flex items-center gap-1 flex-wrap">
                     <Button
                       size="sm"
                       variant="secondary"
-                      className="text-xs px-2 py-1 h-6"
+                      className="text-xs px-2 py-1 h-7"
                       onClick={() => handleApprove(request.id)}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
                     >
-                      Approve
+                      {approvingId === request.id ? 'Approving...' : 'Approve'}
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
-                      className="text-xs px-2 py-1 h-6"
-                      onClick={() => handleReject(request.id)}
+                      className="text-xs px-2 py-1 h-7"
+                      onClick={() => handleRejectClick(request.id, request.class_session_id, request.resource_name || 'Resource')}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
                     >
-                      Reject
+                      {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs px-2 py-1 h-7 flex items-center gap-1"
+                      onClick={() => handleSeeInTimetable(request.class_session_id, request.period_index, request.class_group_id)}
+                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                    >
+                      <MapPin className="h-3 w-3" />
+                      See in Timetable
                     </Button>
                   </div>
                 </div>
@@ -93,6 +261,13 @@ export default function RequestNotifications() {
           )}
         </div>
       </PopoverContent>
+      <RejectionDialog
+        open={rejectionDialogOpen}
+        onOpenChange={setRejectionDialogOpen}
+        onConfirm={handleRejectConfirm}
+        isLoading={rejectingId !== null}
+        resourceName={selectedRequestForRejection?.resourceName}
+      />
     </Popover>
   );
 }

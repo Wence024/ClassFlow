@@ -34,16 +34,20 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
     handleDragOver,
     handleDropToGrid,
     handleDragLeave,
+    highlightPeriod,
+    highlightGroup,
   } = useTimetableContext();
 
   const isDragOver = dragOverCell?.groupId === groupId && dragOverCell?.periodIndex === periodIndex;
   const isDragging = activeDraggedSession !== null;
   const isAvailable = isDragging && isSlotAvailable(groupId, periodIndex);
+  const isHighlighted = highlightPeriod === periodIndex && highlightGroup === groupId;
   const borderClass =
     isLastInDay && isNotLastInTable ? 'border-r-2 border-dashed border-gray-300' : '';
 
-  const cellClasses =
-    'h-20 rounded-md border-2 border-dashed transition-all duration-200 bg-gray-50 hover:bg-gray-100 border-gray-200';
+  const cellClasses = isHighlighted
+    ? 'h-20 rounded-md border-2 transition-all duration-200 bg-green-100 hover:bg-green-200 border-green-500 shadow-lg shadow-green-500/50'
+    : 'h-20 rounded-md border-2 border-dashed transition-all duration-200 bg-gray-50 hover:bg-gray-100 border-gray-200';
 
   return (
     <td

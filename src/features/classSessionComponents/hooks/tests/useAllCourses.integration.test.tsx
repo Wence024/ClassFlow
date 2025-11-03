@@ -1,3 +1,4 @@
+import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -6,6 +7,8 @@ import * as coursesService from '../../services/coursesService';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import type { User } from '../../../auth/types/auth';
 import type { Course } from '../../types/course';
+import type { UseQueryResult } from '@tanstack/react-query';
+import type { AuthContextType } from '../../../auth/types/auth';
 
 // Mocks
 vi.mock('../../services/coursesService');
@@ -14,13 +17,29 @@ const mockedCoursesService = vi.mocked(coursesService, true);
 
 const queryClient = new QueryClient();
 
-const TestWrapper = ({ children, user }: { children: React.ReactNode; user: User | null }) => (
-  <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ user } as any}>
-      {children}
-    </AuthContext.Provider>
-  </QueryClientProvider>
-);
+const TestWrapper = ({ children, user }: { children: React.ReactNode; user: User | null }) => {
+  const authContextValue: Partial<AuthContextType> = {
+    user,
+    loading: false,
+    error: null,
+    role: user?.role || null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn(),
+  };
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider value={authContextValue as AuthContextType}>
+        {children}
+      </AuthContext.Provider>
+    </QueryClientProvider>
+  );
+};
+
+const useTestHook = (): UseQueryResult<Course[], unknown> => {
+  const query = useAllCourses("test");
+  return query as UseQueryResult<Course[], unknown>;
+};
 
 describe('useAllCourses', () => {
   const mockUser: User = {

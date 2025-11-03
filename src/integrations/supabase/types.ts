@@ -21,7 +21,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
-          program_id: string | null
+          program_id: string
           student_count: number | null
           user_id: string
         }
@@ -31,7 +31,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
-          program_id?: string | null
+          program_id: string
           student_count?: number | null
           user_id: string
         }
@@ -41,7 +41,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
-          program_id?: string | null
+          program_id?: string
           student_count?: number | null
           user_id?: string
         }
@@ -402,8 +402,12 @@ export type Database = {
       resource_requests: {
         Row: {
           class_session_id: string
+          dismissed: boolean
           id: string
           notes: string | null
+          original_class_group_id: string | null
+          original_period_index: number | null
+          rejection_message: string | null
           requested_at: string | null
           requester_id: string
           requesting_program_id: string
@@ -416,8 +420,12 @@ export type Database = {
         }
         Insert: {
           class_session_id: string
+          dismissed?: boolean
           id?: string
           notes?: string | null
+          original_class_group_id?: string | null
+          original_period_index?: number | null
+          rejection_message?: string | null
           requested_at?: string | null
           requester_id: string
           requesting_program_id: string
@@ -430,8 +438,12 @@ export type Database = {
         }
         Update: {
           class_session_id?: string
+          dismissed?: boolean
           id?: string
           notes?: string | null
+          original_class_group_id?: string | null
+          original_period_index?: number | null
+          rejection_message?: string | null
           requested_at?: string | null
           requester_id?: string
           requesting_program_id?: string
@@ -625,6 +637,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      approve_resource_request: {
+        Args: { _request_id: string; _reviewer_id: string }
+        Returns: Json
+      }
       create_test_user: {
         Args: {
           department_id?: string
@@ -647,6 +663,17 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      handle_cross_dept_session_move: {
+        Args: {
+          _class_session_id: string
+          _new_class_group_id: string
+          _new_period_index: number
+          _old_class_group_id: string
+          _old_period_index: number
+          _semester_id: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["user_role"]
@@ -661,6 +688,14 @@ export type Database = {
           _program_id: string
         }
         Returns: boolean
+      }
+      reject_resource_request: {
+        Args: {
+          _rejection_message: string
+          _request_id: string
+          _reviewer_id: string
+        }
+        Returns: Json
       }
       update_schedule_configuration_safely: {
         Args: {

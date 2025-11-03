@@ -55,8 +55,8 @@ const queryClient = new QueryClient({
 /**
  * Wrapper component to provide React Query context.
  *
- * @param props - The props containing children to wrap.
- * @param props.children - The children to wrap.
+ * @param w - The props containing children to wrap.
+ * @param w.children - The children to wrap.
  * @returns The wrapped component.
  */
 const wrapper = ({ children }: { children: React.ReactNode }) => (

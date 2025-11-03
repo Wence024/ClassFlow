@@ -116,3 +116,50 @@ export function useClassSessions() {
     removeClassSession: removeMutation.mutateAsync,
   };
 }
+
+/**
+ * Helper function to check if a class session uses cross-department resources.
+ *
+ * @param data - The class session form data.
+ * @param data.instructor_id - The ID of the instructor for the session.
+ * @param data.classroom_id - The ID of the classroom for the session.
+ * @param programId - The program ID to check against.
+ * @returns An object with cross-department detection results.
+ */
+export async function checkCrossDepartmentResources(
+  data: { instructor_id: string; classroom_id: string },
+  programId: string
+): Promise<{
+  isCrossDept: boolean;
+  resourceType: 'instructor' | 'classroom' | null;
+  resourceId: string | null;
+  departmentId: string | null;
+}> {
+  const { isCrossDepartmentInstructor, isCrossDepartmentClassroom, getResourceDepartmentId } =
+    await import('../../classSessions/services/classSessionsService');
+
+  const isInstructorCrossDept = await isCrossDepartmentInstructor(programId, data.instructor_id);
+  const isClassroomCrossDept = await isCrossDepartmentClassroom(programId, data.classroom_id);
+
+  if (isInstructorCrossDept) {
+    const deptId = await getResourceDepartmentId(data.instructor_id, undefined);
+    return {
+      isCrossDept: true,
+      resourceType: 'instructor',
+      resourceId: data.instructor_id,
+      departmentId: deptId,
+    };
+  }
+
+  if (isClassroomCrossDept) {
+    const deptId = await getResourceDepartmentId(undefined, data.classroom_id);
+    return {
+      isCrossDept: true,
+      resourceType: 'classroom',
+      resourceId: data.classroom_id,
+      departmentId: deptId,
+    };
+  }
+
+  return { isCrossDept: false, resourceType: null, resourceId: null, departmentId: null };
+}

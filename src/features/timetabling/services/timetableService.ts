@@ -43,9 +43,12 @@ export async function getTimetableAssignments(
     throw error;
   }
 
-  // DELETED: Obsolete check for data migration.
-
-  return data as HydratedTimetableAssignment[];
+  // Map the data to include the status field explicitly
+  // Default to 'confirmed' if status is not present
+  return (data || []).map(assignment => ({
+    ...assignment,
+    status: (assignment.status as 'pending' | 'confirmed' | undefined) || 'confirmed',
+  })) as HydratedTimetableAssignment[];
 }
 
 /**
@@ -53,16 +56,17 @@ export async function getTimetableAssignments(
  * The assignment object MUST include the semester_id.
  *
  * @param assignment TimetableAssignmentInsert object.
+ * @param status The status of the assignment ('pending' or 'confirmed').
  * @returns The upserted timetable assignment object.
  */
 export async function assignClassSessionToTimetable(
-  assignment: TimetableAssignmentInsert // This type already allows semester_id
+  assignment: TimetableAssignmentInsert,
+  status: 'pending' | 'confirmed' = 'confirmed'
 ): Promise<TimetableAssignment> {
-  // The logic here doesn't need to change, as long as the incoming
-  // 'assignment' object contains the semester_id.
+  const assignmentWithStatus = { ...assignment, status };
   const { data, error } = await supabase
     .from('timetable_assignments')
-    .upsert([assignment], { onConflict: 'user_id,class_group_id,period_index,semester_id' }) // IMPORTANT: Add semester_id to the conflict check
+    .upsert([assignmentWithStatus], { onConflict: 'user_id,class_group_id,period_index,semester_id' })
     .select('*')
     .single();
   if (error) throw error;
@@ -111,18 +115,53 @@ export async function removeClassSessionFromTimetable(
  * @param _to.class_group_id The class group ID of the destination cell.
  * @param _to.period_index The period index of the destination cell.
  * @param assignment TimetableAssignmentInsert for the new cell.
+ * @param status The status of the assignment ('pending' or 'confirmed').
  * @returns The upserted timetable assignment object for the new cell.
  */
 export async function moveClassSessionInTimetable(
   from: { class_group_id: string; period_index: number },
   _to: { class_group_id: string; period_index: number },
-  assignment: TimetableAssignmentInsert // This is the payload for the new location
+  assignment: TimetableAssignmentInsert,
+  status: 'pending' | 'confirmed' = 'confirmed'
 ): Promise<TimetableAssignment> {
   // Step 1: Create the new assignment first (safer order)
-  const newAssignment = await assignClassSessionToTimetable(assignment);
+  const newAssignment = await assignClassSessionToTimetable(assignment, status);
   
   // Step 2: Remove the old assignment only after the new one is successfully created
   await removeClassSessionFromTimetable(from.class_group_id, from.period_index, assignment.semester_id);
   
   return newAssignment;
+}
+
+/**
+ * Update the status of all timetable assignments for a specific class session.
+ * 
+ * @deprecated This function is kept for backward compatibility but should not be used
+ * for approving resource requests. Use the `approve_resource_request` database function
+ * via the `approveRequest` service function instead for atomic updates.
+ *
+ * @param classSessionId The class session ID.
+ * @param semesterId The semester ID.
+ * @param status The new status ('pending' or 'confirmed').
+ */
+export async function updateAssignmentStatusBySession(
+  classSessionId: string,
+  semesterId: string,
+  status: 'pending' | 'confirmed'
+): Promise<void> {
+  console.warn('updateAssignmentStatusBySession is deprecated. Use approveRequest service function instead.');
+  
+  const { data, error } = await supabase
+    .from('timetable_assignments')
+    .update({ status })
+    .eq('class_session_id', classSessionId)
+    .eq('semester_id', semesterId)
+    .select();
+
+  if (error) {
+    console.error('Failed to update timetable assignment status:', error);
+    throw error;
+  }
+
+  console.log(`Updated ${data?.length || 0} assignment(s) to status '${status}'`);
 }
