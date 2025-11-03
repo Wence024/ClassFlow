@@ -143,7 +143,7 @@ function styleCell(
   setCellStyle: (cell: XLSX.CellObject, style: XLSX.CellStyle) => void
 ): void {
   const handlers: Array<(r: number, c: number, cell: XLSX.CellObject) => boolean> = [
-    (r, c, current) => styleTitleRow(r, c, current, setCellStyle),
+    (r, _c, current) => styleTitleRow(r, current, setCellStyle),
     (r, c, current) => styleHeaderInfo(r, c, current, setCellStyle),
     (r, _c, current) => styleDayOrSummary(r, current, setCellStyle),
     (_r, _c, current) => styleTableHeaderCell(current, setCellStyle),
@@ -158,7 +158,6 @@ function styleCell(
 
 function styleTitleRow(
   row: number,
-  col: number,
   cell: XLSX.CellObject,
   setCellStyle: (cell: XLSX.CellObject, style: XLSX.CellStyle) => void
 ): boolean {
@@ -272,7 +271,7 @@ function borderBlack() {
     bottom: { style: 'thin', color: { rgb: '000000' } },
     left: { style: 'thin', color: { rgb: '000000' } },
     right: { style: 'thin', color: { rgb: '000000' } },
-  } as XLSX.Border;
+  } as any;
 }
 
 function borderGray() {
@@ -281,7 +280,7 @@ function borderGray() {
     bottom: { style: 'thin', color: { rgb: 'D1D5DB' } },
     left: { style: 'thin', color: { rgb: 'D1D5DB' } },
     right: { style: 'thin', color: { rgb: 'D1D5DB' } },
-  } as XLSX.Border;
+  } as any;
 }
 
 function isDayHeader(value: string): boolean {
