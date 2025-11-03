@@ -6,6 +6,8 @@ import { generateInstructorReportExcel } from '../services/excelExportService';
 
 /**
  * Hook to handle PDF and Excel export with loading states.
+ *
+ * @returns Handlers and loading flags for PDF/Excel export.
  */
 export function useReportExport() {
   const [isExportingPDF, setIsExportingPDF] = useState(false);

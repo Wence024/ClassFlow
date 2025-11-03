@@ -9,8 +9,9 @@ interface InstructorSchedulePreviewProps {
 /**
  * Displays a print-friendly preview of the instructor schedule report.
  *
- * @param root0
- * @param root0.report
+ * @param root0 The component props.
+ * @param root0.report The complete instructor report to preview.
+ * @returns The rendered preview content.
  */
 export function InstructorSchedulePreview({ report }: InstructorSchedulePreviewProps) {
   const instructorName = [

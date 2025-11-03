@@ -15,8 +15,9 @@ const DAY_GROUPS = {
 /**
  * Fetches complete instructor schedule data for a given semester.
  *
- * @param instructorId
- * @param semesterId
+ * @param instructorId The instructor to generate the report for.
+ * @param semesterId The semester whose schedule should be fetched.
+ * @returns The instructor report or null when no sessions exist.
  */
 export async function getInstructorScheduleData(
   instructorId: string,
@@ -210,7 +211,8 @@ export async function getInstructorScheduleData(
 /**
  * Groups schedule entries by day combinations (MW, TTh, F, Sat).
  *
- * @param entries
+ * @param entries The flat list of schedule entries.
+ * @returns An object with entries grouped by day combination.
  */
 function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
   const grouped = {
@@ -243,7 +245,8 @@ function groupScheduleByDays(entries: InstructorScheduleEntry[]) {
 /**
  * Calculates summary totals for the report.
  *
- * @param entries
+ * @param entries The list of entries to aggregate.
+ * @returns Totals for lecture hours, lab hours, units, and load placeholder.
  */
 function calculateReportTotals(entries: InstructorScheduleEntry[]) {
   return entries.reduce(
@@ -260,7 +263,8 @@ function calculateReportTotals(entries: InstructorScheduleEntry[]) {
 /**
  * Formats day group label for display.
  *
- * @param key
+ * @param key The day-group key to format.
+ * @returns The formatted label for UI/export.
  */
 export function formatDayGroupLabel(key: keyof InstructorReport['schedules']): string {
   const labels: Record<keyof InstructorReport['schedules'], string> = {

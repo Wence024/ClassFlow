@@ -8,9 +8,10 @@ interface DayGroupTableProps {
 /**
  * Displays a schedule table for a specific day combination.
  *
- * @param root0
- * @param root0.dayLabel
- * @param root0.entries
+ * @param root0 The component props.
+ * @param root0.dayLabel The human-readable label for the day group.
+ * @param root0.entries The schedule entries to render in the table.
+ * @returns The rendered day-grouped schedule table or null when empty.
  */
 export function DayGroupTable({ dayLabel, entries }: DayGroupTableProps) {
   if (entries.length === 0) return null;

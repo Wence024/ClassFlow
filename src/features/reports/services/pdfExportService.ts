@@ -6,7 +6,7 @@ import { formatDayGroupLabel } from './instructorReportService';
 /**
  * Generates an elegant PDF report for an instructor's schedule.
  *
- * @param report
+ * @param report The complete instructor report used to populate the PDF.
  */
 export function generateInstructorReportPDF(report: InstructorReport): void {
   const doc = new jsPDF('landscape');
@@ -53,10 +53,10 @@ export function generateInstructorReportPDF(report: InstructorReport): void {
 /**
  * Adds an elegant header section to the PDF.
  *
- * @param doc
- * @param report
- * @param primaryColor
- * @param darkGray
+ * @param doc The jsPDF document.
+ * @param report The instructor report metadata.
+ * @param primaryColor RGB tuple for the main header color.
+ * @param darkGray RGB tuple for header text color.
  */
 function addHeaderSection(
   doc: jsPDF, 
@@ -120,11 +120,12 @@ function addHeaderSection(
 /**
  * Adds an elegant day group table to the PDF.
  *
- * @param doc
- * @param dayLabel
- * @param entries
- * @param startY
- * @param accentColor
+ * @param doc The jsPDF document.
+ * @param dayLabel The label for the day-group section.
+ * @param entries The schedule entries for the day group.
+ * @param startY The starting Y position on the page.
+ * @param accentColor RGB tuple for table header color.
+ * @returns The Y position after the table to continue rendering.
  */
 function addDayGroupTable(
   doc: jsPDF,
@@ -204,11 +205,11 @@ function addDayGroupTable(
 /**
  * Adds an elegant footer section with totals.
  *
- * @param doc
- * @param report
- * @param startY
- * @param primaryColor
- * @param darkGray
+ * @param doc The jsPDF document.
+ * @param report The instructor report totals and status.
+ * @param startY The starting Y position for the footer section.
+ * @param primaryColor RGB tuple for emphasis text color.
+ * @param darkGray RGB tuple for regular text color.
  */
 function addFooterSection(
   doc: jsPDF, 

@@ -5,8 +5,9 @@ import type { InstructorReport } from '../types/instructorReport';
 /**
  * Hook to fetch and manage instructor report data.
  *
- * @param instructorId
- * @param semesterId
+ * @param instructorId The selected instructor ID or null when not selected.
+ * @param semesterId The selected semester ID or null when not selected.
+ * @returns React Query result containing the instructor report or null.
  */
 export function useInstructorReport(instructorId: string | null, semesterId: string | null) {
   return useQuery<InstructorReport | null>({

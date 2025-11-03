@@ -17,6 +17,8 @@ import { useDepartmentId } from '@/features/auth/hooks/useDepartmentId';
 
 /**
  * Page for generating and exporting instructor schedule reports.
+ *
+ * @returns The instructor reports page UI.
  */
 export default function InstructorReportsPage() {
   const [selectedInstructorId, setSelectedInstructorId] = useState<string | null>(null);

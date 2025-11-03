@@ -8,8 +8,9 @@ interface LoadSummaryWidgetProps {
 /**
  * Displays a summary of teaching load calculations with color-coded status.
  *
- * @param root0
- * @param root0.report
+ * @param root0 The component props.
+ * @param root0.report The full instructor report including totals and status.
+ * @returns The load summary card.
  */
 export function LoadSummaryWidget({ report }: LoadSummaryWidgetProps) {
   const { totals, loadStatus } = report;

@@ -6,7 +6,7 @@ import { formatDayGroupLabel } from './instructorReportService';
  * Generates a beautifully formatted Excel workbook for an instructor's schedule.
  * Includes styled headers, borders, colors, and proper number formatting.
  *
- * @param report
+ * @param report The complete instructor report used to populate the workbook.
  */
 export function generateInstructorReportExcel(report: InstructorReport): void {
   const workbook = XLSX.utils.book_new();

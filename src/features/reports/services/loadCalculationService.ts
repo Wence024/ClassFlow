@@ -4,8 +4,9 @@ import type { LoadCalculationConfig, LoadCalculationResult } from '../types/inst
 /**
  * Fetches the load calculation configuration for a specific semester and optional department.
  *
- * @param semesterId
- * @param _departmentId
+ * @param semesterId The semester to fetch configuration for.
+ * @param _departmentId Optional department override (currently unused).
+ * @returns The load calculation configuration.
  */
 export async function getLoadConfig(
   semesterId: string,
@@ -33,8 +34,9 @@ export async function getLoadConfig(
 /**
  * Calculates teaching load based on total units and configuration.
  *
- * @param totalUnits
- * @param config
+ * @param totalUnits The accumulated course units.
+ * @param config The load calculation configuration.
+ * @returns The computed teaching load value.
  */
 export function calculateLoad(
   totalUnits: number,
@@ -46,8 +48,9 @@ export function calculateLoad(
 /**
  * Determines load status based on total load and standard load.
  *
- * @param totalLoad
- * @param standardLoad
+ * @param totalLoad The computed load value.
+ * @param standardLoad The standard recommended load.
+ * @returns Whether the load is under, at, or over the standard.
  */
 export function getLoadStatus(
   totalLoad: number,
@@ -64,8 +67,9 @@ export function getLoadStatus(
 /**
  * Calculates complete load information including status.
  *
- * @param totalUnits
- * @param config
+ * @param totalUnits The accumulated course units.
+ * @param config The load calculation configuration.
+ * @returns The load value, status, and standard reference.
  */
 export function calculateInstructorLoad(
   totalUnits: number,
