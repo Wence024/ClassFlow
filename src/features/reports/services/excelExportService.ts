@@ -29,6 +29,11 @@ export function buildExcelFilename(report: InstructorReport): string {
   return `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.xlsx`;
 }
 
+/**
+ * Builds the worksheet data as an array of arrays for export.
+ * @param report The instructor report data.
+ * @returns Array of worksheet rows for Excel export.
+ */
 function buildWorksheetData(report: InstructorReport): (string | number)[][] {
   const instructorName = [
     report.instructor.prefix,
@@ -269,22 +274,30 @@ function styleNumberCell(
   return true;
 }
 
-function borderBlack() {
+/**
+ * Helper to make a black border style for Excel cells.
+ * @returns A plain JS object compatible with XLSX cell style (cast for package).
+ */
+function borderBlack(): Record<string, unknown> {
   return {
     top: { style: 'thin', color: { rgb: '000000' } },
     bottom: { style: 'thin', color: { rgb: '000000' } },
     left: { style: 'thin', color: { rgb: '000000' } },
     right: { style: 'thin', color: { rgb: '000000' } },
-  } as any;
+  };
 }
 
-function borderGray() {
+/**
+ * Helper to make a gray border style for Excel cells.
+ * @returns A plain JS object compatible with XLSX cell style (cast for package).
+ */
+function borderGray(): Record<string, unknown> {
   return {
     top: { style: 'thin', color: { rgb: 'D1D5DB' } },
     bottom: { style: 'thin', color: { rgb: 'D1D5DB' } },
     left: { style: 'thin', color: { rgb: 'D1D5DB' } },
     right: { style: 'thin', color: { rgb: 'D1D5DB' } },
-  } as any;
+  };
 }
 
 function isDayHeader(value: string): boolean {

@@ -55,12 +55,11 @@ export function buildPdfFilename(report: InstructorReport): string {
 }
 
 /**
- * Adds an elegant header section to the PDF.
- *
+ * Adds an elegant header section to the PDF report document.
  * @param doc The jsPDF document.
- * @param report The instructor report metadata.
- * @param primaryColor RGB tuple for the main header color.
- * @param darkGray RGB tuple for header text color.
+ * @param report The instructor report for context.
+ * @param primaryColor RGB tuple main header bg.
+ * @param darkGray RGB text color.
  */
 function addHeaderSection(
   doc: jsPDF, 
