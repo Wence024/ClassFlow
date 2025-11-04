@@ -47,22 +47,58 @@ const CourseManagement: React.FC = () => {
 
   const formMethods = useForm<CourseFormData>({
     resolver: zodResolver(componentSchemas.course),
-    defaultValues: { name: '', code: '', color: presetColor, program_id: user?.program_id || '' },
+    defaultValues: { 
+      name: '', 
+      code: '', 
+      color: presetColor, 
+      program_id: user?.program_id || '',
+      lecture_hours: null,
+      lab_hours: null,
+      units: null,
+    },
   });
 
   useEffect(() => {
     if (editingCourse) {
-      // Only pass form fields, not database metadata
       formMethods.reset({
         name: editingCourse.name,
         code: editingCourse.code,
         color: editingCourse.color,
         program_id: editingCourse.program_id || user?.program_id || '',
+        lecture_hours: editingCourse.lecture_hours ?? null,
+        lab_hours: editingCourse.lab_hours ?? null,
+        units: editingCourse.units ?? null,
       });
     } else {
-      formMethods.reset({ name: '', code: '', color: presetColor, program_id: user?.program_id || '' });
+      formMethods.reset({ 
+        name: '', 
+        code: '', 
+        color: presetColor, 
+        program_id: user?.program_id || '',
+        lecture_hours: null,
+        lab_hours: null,
+        units: null,
+      });
     }
   }, [editingCourse, formMethods, presetColor, user?.program_id]);
+
+  // Auto-calculate units when lecture_hours or lab_hours change
+  useEffect(() => {
+    const subscription = formMethods.watch((value, { name }) => {
+      if (name === 'lecture_hours' || name === 'lab_hours') {
+        const lecHours = value.lecture_hours || 0;
+        const labHours = value.lab_hours || 0;
+        const currentUnits = value.units;
+        const calculatedUnits = lecHours + labHours;
+        
+        // Only auto-update if units field is empty or matches previous calculation
+        if (currentUnits === null || currentUnits === undefined || currentUnits === 0) {
+          formMethods.setValue('units', calculatedUnits > 0 ? calculatedUnits : null, { shouldValidate: true });
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [formMethods]);
 
   // Memoize the filtered list to avoid re-calculating on every render
   const filteredCourses = useMemo(() => {
@@ -99,7 +135,15 @@ const CourseManagement: React.FC = () => {
     try {
       await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
       toast.success('Course created successfully');
-      formMethods.reset({ name: '', code: '', color: getRandomPresetColor(), program_id: user.program_id });
+      formMethods.reset({ 
+        name: '', 
+        code: '', 
+        color: getRandomPresetColor(), 
+        program_id: user.program_id,
+        lecture_hours: null,
+        lab_hours: null,
+        units: null,
+      });
       setRandomPresetColor(getRandomPresetColor());
     } catch (error) {
       console.error('Error adding course:', error);

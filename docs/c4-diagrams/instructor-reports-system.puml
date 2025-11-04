@@ -1,0 +1,468 @@
+@startuml Instructor Reports System - C4 Context Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title ClassFlow - Instructor Schedule Reports System (C4 Context)
+
+Person(progHead, "Program Head", "Generates reports for instructors in their department (via program)")
+Person(admin, "Administrator", "Generates reports for ALL instructors")
+Person(deptHead, "Department Head", "Generates reports for instructors in their department")
+
+note right of progHead
+    **Access Control:**
+    - Program Heads: See only department instructors
+    - Department Heads: See only department instructors
+    - Admins: See ALL instructors
+    
+    **Filtering:**
+    Program Heads filtered by program.department_id
+    Department Heads filtered by user.department_id
+    Admins see all (no filter)
+end note
+
+System(classflow, "ClassFlow System", "Timetable management and reporting system")
+
+System_Ext(printer, "Printer/PDF Viewer", "Views and prints generated reports")
+System_Ext(excel, "Excel/Spreadsheet", "Opens and edits exported Excel files")
+System_Ext(email, "Email System", "Sends reports to instructors (future)")
+
+Rel(progHead, classflow, "Generates reports (dept-filtered)", "HTTPS")
+Rel(admin, classflow, "Generates reports (all instructors)", "HTTPS")
+Rel(deptHead, classflow, "Generates reports (dept-filtered)", "HTTPS")
+
+Rel(classflow, printer, "Exports report as PDF", "File download")
+Rel(classflow, excel, "Exports report as Excel", "File download")
+Rel(classflow, email, "Emails report (future)", "SMTP")
+
+@enduml
+
+@startuml Instructor Reports System - C4 Container Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title ClassFlow - Instructor Schedule Reports System (C4 Container)
+
+Person(user, "User", "Program Head, Admin, or Department Head")
+
+System_Boundary(classflow, "ClassFlow System") {
+    Container(webapp, "Web Application", "React, TypeScript", "Provides UI for report generation and export")
+    Container(api, "Supabase API", "PostgreSQL, PostgREST", "Stores and serves schedule and course data")
+    Container(exportService, "Export Service", "Client-side libraries", "Generates PDF and Excel exports")
+    Container(calcService, "Load Calculation Service", "TypeScript", "Calculates teaching load and contact hours")
+}
+
+System_Ext(browser, "Web Browser", "Chrome, Firefox, Safari, Edge")
+System_Ext(filesystem, "File System", "Downloads folder")
+
+Rel(user, webapp, "Generates and views reports", "HTTPS")
+Rel(webapp, api, "Fetches schedule data, course metadata", "REST/GraphQL")
+Rel(webapp, calcService, "Calculates load and totals", "Function calls")
+Rel(webapp, exportService, "Generates PDF/Excel files", "Function calls")
+Rel(exportService, filesystem, "Downloads report file", "File API")
+
+ContainerDb(db, "PostgreSQL Database", "PostgreSQL", "Stores courses, instructors, schedules, load config")
+Rel(api, db, "Reads/writes data", "SQL")
+
+@enduml
+
+@startuml Instructor Reports System - C4 Component Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title ClassFlow - Instructor Schedule Reports (C4 Component)
+
+Container_Boundary(webapp, "Web Application - Reports Module") {
+    Component(reportsPage, "InstructorReportsPage", "React Component", "Main page with responsive export controls")
+    Component(reportPreview, "InstructorSchedulePreview", "React Component", "Displays formatted report preview")
+    Component(dayGroupTable, "DayGroupTable", "React Component", "Renders schedule table with merged headers")
+    Component(loadSummary, "LoadSummaryWidget", "React Component", "Shows load calculations and totals")
+    Component(exportButtons, "ExportControls", "React Component", "PDF and Excel export buttons (no print)")
+    
+    Component(useInstructorReport, "useInstructorReport", "React Hook", "Fetches and manages report data")
+    Component(useReportExport, "useReportExport", "React Hook", "Handles export operations")
+    Component(useLoadCalc, "useLoadCalculation", "React Hook", "Manages load calculations")
+    
+    Component(reportService, "instructorReportService", "Service", "Fetches and formats report data")
+    Component(loadService, "loadCalculationService", "Service", "Calculates teaching load")
+    Component(pdfService, "pdfExportService", "Service", "Generates PDF documents")
+    Component(excelService, "excelExportService", "Service", "Generates Excel workbooks")
+}
+
+Container_Ext(supabase, "Supabase API", "Provides data access")
+ContainerDb(db, "PostgreSQL Database", "Data store")
+
+Rel(reportsPage, useInstructorReport, "Uses", "Hook")
+Rel(reportsPage, reportPreview, "Renders", "Component")
+Rel(reportsPage, loadSummary, "Renders", "Component")
+Rel(reportsPage, exportButtons, "Renders", "Component")
+
+Rel(reportPreview, dayGroupTable, "Renders for each day group", "Component")
+
+Rel(exportButtons, useReportExport, "Uses", "Hook")
+Rel(useReportExport, pdfService, "Calls", "Function")
+Rel(useReportExport, excelService, "Calls", "Function")
+
+Rel(useInstructorReport, reportService, "Calls", "Function")
+Rel(useInstructorReport, useLoadCalc, "Uses", "Hook")
+
+Rel(useLoadCalc, loadService, "Calls", "Function")
+
+Rel(reportService, supabase, "Fetches data", "REST API")
+Rel(loadService, supabase, "Fetches config", "REST API")
+
+Rel(supabase, db, "Queries", "SQL")
+
+@enduml
+
+@startuml Instructor Report Generation - Sequence Diagram
+!theme plain
+title Instructor Report Generation Flow
+
+actor User
+participant "InstructorReportsPage" as Page
+participant "useInstructorReport" as Hook
+participant "reportService" as Service
+participant "loadCalculationService" as LoadCalc
+participant "Supabase API" as API
+database "PostgreSQL" as DB
+
+User -> Page: Select instructor and semester
+activate Page
+
+Page -> Hook: fetchReportData(instructorId, semesterId)
+activate Hook
+
+Hook -> Service: getInstructorScheduleData(instructorId, semesterId)
+activate Service
+
+Service -> API: Query timetable_assignments\nwith joins to class_sessions,\ncourses, classrooms, etc.
+activate API
+API -> DB: SELECT with complex joins
+activate DB
+DB --> API: Schedule data rows
+deactivate DB
+API --> Service: Hydrated schedule data
+deactivate API
+
+Service -> Service: groupScheduleByDays(assignments)
+note right: Groups by MW, TTh, F, Sat
+
+Service -> LoadCalc: calculateInstructorTotalLoad(instructorId, semesterId)
+activate LoadCalc
+
+LoadCalc -> API: Query courses with units and hours
+activate API
+API -> DB: SELECT courses metadata
+activate DB
+DB --> API: Course data
+deactivate DB
+API --> LoadCalc: Course metadata
+deactivate API
+
+LoadCalc -> LoadCalc: Calculate load for each course\nusing formula:\nLoad = Total Units / units_per_load (default: 3)\nExample: 21 units / 3 = 7 load
+LoadCalc -> LoadCalc: Determine status:\nUnderloaded: < 6.3\nAt Standard: 6.3-7.7\nOverloaded: > 7.7
+LoadCalc --> Service: Total load, units, and status
+deactivate LoadCalc
+
+Service -> Service: formatScheduleForExport(scheduleData)
+Service -> Service: calculateReportTotals(scheduleData)
+
+Service --> Hook: Formatted report data with totals
+deactivate Service
+
+Hook --> Page: Report data (cached in React Query)
+deactivate Hook
+
+Page -> Page: Render InstructorSchedulePreview
+Page -> Page: Render LoadSummaryWidget
+
+Page --> User: Display report preview
+deactivate Page
+
+User -> Page: Click "Export to PDF"
+activate Page
+
+Page -> Hook: exportToPDF(reportData)
+activate Hook
+
+Hook -> Service: pdfExportService.generateInstructorReportPDF(reportData)
+activate Service
+
+Service -> Service: Create jsPDF instance
+Service -> Service: Add header (instructor, semester)
+Service -> Service: Add day group tables (autoTable plugin)
+Service -> Service: Add totals section
+Service -> Service: Add signature line
+Service -> Service: Generate PDF blob
+
+Service --> Hook: PDF Blob
+deactivate Service
+
+Hook -> Hook: Trigger file download\n(filename: {instructor_code}_{semester}_Schedule.pdf)
+
+Hook --> Page: Download initiated
+deactivate Hook
+
+Page --> User: File downloaded
+deactivate Page
+
+@enduml
+
+@startuml Load Calculation - Activity Diagram
+!theme plain
+title Teaching Load Calculation Process
+
+start
+
+:Fetch course metadata\n(units, lecture_hours, lab_hours);
+
+:Fetch schedule configuration\n(period_duration, periods_per_day, class_days_per_week);
+
+:Fetch teaching load config\n(units_per_load = 3.0, standard_load = 7.0);
+
+:Initialize totals\n(totalUnits = 0, totalLoad = 0);
+
+partition "For Each Course Assignment" {
+    :Get course details (units, lecture_hours, lab_hours);
+    
+    :Display raw contact hours;
+    note right
+        **Display Values (Raw Database):**
+        - Lec Hrs: course.lecture_hours (as-is)
+        - Lab Hrs: course.lab_hours (as-is)
+        
+        **NOT calculated per-week**
+        Shows raw values from courses table
+    end note
+    
+    :Add units to total\ntotalUnits += course.units;
+}
+
+:Calculate total load;
+note right
+    totalLoad = totalUnits / units_per_load
+    
+    Example:
+    - totalUnits = 21
+    - units_per_load = 3
+    - totalLoad = 21 / 3 = 7
+end note
+
+:Calculate load status;
+
+if (totalLoad > standard_load * 1.1) then (yes)
+    :Set status to "OVERLOADED" (Red)\nShow warning: "Above standard load";
+elseif (totalLoad < standard_load * 0.9) then (yes)
+    :Set status to "UNDERLOADED" (Yellow)\nShow warning: "Below standard load";
+else (no)
+    :Set status to "AT_STANDARD" (Green)\nShow success: "At standard load";
+endif
+
+note right
+    Standard Load = 7
+    Tolerance = ±10%
+    
+    Ranges:
+    - Underloaded: < 6.3
+    - At Standard: 6.3 - 7.7
+    - Overloaded: > 7.7
+end note
+
+:Return load calculation result\n{totalUnits, totalLoad, status, standardLoad};
+
+stop
+
+@enduml
+
+@startuml Report Export - Component Interaction
+!theme plain
+title Report Export Component Interactions
+
+package "React Components" {
+    [InstructorReportsPage] as Page
+    [ExportControls] as Export
+    [LoadingSpinner] as Spinner
+}
+
+package "Hooks" {
+    [useReportExport] as ExportHook
+    [useInstructorReport] as ReportHook
+}
+
+package "Services" {
+    [pdfExportService] as PDF
+    [excelExportService] as Excel
+    [reportService] as Report
+}
+
+package "External Libraries" {
+    [jsPDF] as JSPDF
+    [jspdf-autotable] as AutoTable
+    [xlsx] as XLSX
+}
+
+package "Browser APIs" {
+    [File Download API] as FileAPI
+}
+
+Page --> Export : renders
+Page --> ReportHook : uses
+Export --> ExportHook : uses
+Export --> Spinner : shows while exporting
+
+ExportHook --> PDF : calls for PDF export
+ExportHook --> Excel : calls for Excel export
+
+PDF --> JSPDF : uses
+PDF --> AutoTable : uses for tables
+
+Excel --> XLSX : uses
+
+ReportHook --> Report : fetches data
+
+PDF --> FileAPI : downloads file
+Excel --> FileAPI : downloads file
+
+note right of PDF
+    **Elegant PDF Design:**
+    - Professional color scheme (blue header)
+    - Rounded info boxes
+    - Striped tables with proper spacing
+    - Color-coded load status badge
+    - Signature and date lines
+    - Automatic page breaks
+end note
+
+note right of Excel
+    **Beautified Excel Format:**
+    - Styled headers with blue background and white text
+    - Cell borders for all data cells
+    - Merged title cell with bold formatting
+    - Alternating row colors (gray/white)
+    - Number formatting with proper decimals
+    - Proper column widths for readability
+    - Full course names with codes
+    - Department short codes
+    - Teaching load summary section
+    Library: xlsx-js-style (supports full styling)
+end note
+
+@enduml
+
+@startuml Data Model for Reports
+!theme plain
+
+entity "courses" as Courses {
+    * id : UUID <<PK>>
+    --
+    * name : TEXT
+    * code : TEXT
+    * program_id : UUID <<FK>>
+    + units : DECIMAL(3,1) **NEW**
+    + lecture_hours : DECIMAL(3,1) **NEW**
+    + lab_hours : DECIMAL(3,1) **NEW**
+    + course_type : TEXT **NEW**
+    color : VARCHAR
+    created_by : UUID
+    created_at : TIMESTAMPTZ
+}
+
+entity "teaching_load_config" as LoadConfig {
+    * id : UUID <<PK>>
+    --
+    semester_id : UUID <<FK>>
+    lecture_load_factor : DECIMAL(3,2)
+    lab_load_factor : DECIMAL(3,2)
+    max_load_per_semester : DECIMAL(4,1)
+    created_at : TIMESTAMPTZ
+}
+
+entity "instructors" as Instructors {
+    * id : UUID <<PK>>
+    --
+    * first_name : TEXT
+    * last_name : TEXT
+    prefix : TEXT
+    suffix : TEXT
+    code : VARCHAR
+    department_id : UUID <<FK>>
+    ...
+}
+
+entity "timetable_assignments" as Assignments {
+    * id : UUID <<PK>>
+    --
+    * class_session_id : UUID <<FK>>
+    * class_group_id : UUID <<FK>>
+    * period_index : INTEGER
+    * semester_id : UUID <<FK>>
+    ...
+}
+
+entity "class_sessions" as Sessions {
+    * id : UUID <<PK>>
+    --
+    * course_id : UUID <<FK>>
+    * instructor_id : UUID <<FK>>
+    * classroom_id : UUID <<FK>>
+    * class_group_id : UUID <<FK>>
+    * period_count : INTEGER
+    ...
+}
+
+entity "semesters" as Semesters {
+    * id : UUID <<PK>>
+    --
+    * name : TEXT
+    * start_date : DATE
+    * end_date : DATE
+    * is_active : BOOLEAN
+}
+
+entity "schedule_configuration" as ScheduleConfig {
+    * id : UUID <<PK>>
+    --
+    semester_id : UUID <<FK>>
+    periods_per_day : BIGINT
+    period_duration_mins : BIGINT
+    class_days_per_week : BIGINT
+    start_time : TIME
+}
+
+Sessions }o--|| Courses : references
+Sessions }o--|| Instructors : references
+Assignments }o--|| Sessions : references
+Assignments }o--|| Semesters : references
+LoadConfig }o--|| Semesters : references
+ScheduleConfig }o--|| Semesters : references
+
+note right of Courses
+    **New fields for reports:**
+    - units: Course credit units (used for load calculation)
+    - lecture_hours: Raw lecture hours from database (display only)
+    - lab_hours: Raw lab hours from database (display only)
+    
+    **Display Behavior:**
+    Lecture/lab hours show raw database values (no calculations)
+    Only the "Load" column contains calculations
+    Load calculation: Load = Total Units / units_per_load (default 3)
+    
+    **Example:**
+    - Course has lecture_hours=3.0, lab_hours=2.0, units=5.0
+    - Report displays: Lec Hrs=3.0, Lab Hrs=2.0, Load=1.67 (5/3)
+end note
+
+note right of LoadConfig
+    **Configuration for load calculation:**
+    - lecture_load_factor: Typically 1.0
+    - lab_load_factor: Typically 0.75
+    - max_load_per_semester: Max teaching units
+    
+    Can be configured per semester
+    for institutional flexibility
+end note
+
+@enduml

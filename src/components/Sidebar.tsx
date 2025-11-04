@@ -2,7 +2,7 @@
  * @file A docked, collapsible sidebar component for application navigation.
  * Provides role-based navigation with icon-only mode and hover tooltips when collapsed.
  */
-import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send } from 'lucide-react';
+import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send, FileText } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useLayout } from '../contexts/hooks/useLayout';
@@ -16,6 +16,7 @@ const adminNavLinks = [
   { to: '/user-management', icon: Users, label: 'User Management' },
   { to: '/schedule-configuration', icon: Settings, label: 'Schedule Configuration' },
   { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
+  { to: '/reports/instructors', icon: FileText, label: 'Instructor Reports' },
 ];
 
 /** An array defining the navigation links for department heads - ordered by workflow. */
@@ -24,6 +25,7 @@ const departmentHeadNavLinks = [
   { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
   { to: '/class-sessions', icon: BookOpenCheck, label: 'Manage Classes' },
   { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
+  { to: '/reports/instructors', icon: FileText, label: 'Instructor Reports' },
 ];
 
 /** An array defining the navigation links for program heads - ordered by workflow. */
@@ -33,6 +35,7 @@ const programHeadNavLinks = [
   { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
   { to: '/browse/instructors', icon: Search, label: 'Browse Instructors' },
   { to: '/requests/instructor', icon: Send, label: 'Request Instructor' },
+  { to: '/reports/instructors', icon: FileText, label: 'Instructor Reports' },
 ];
 
 /**

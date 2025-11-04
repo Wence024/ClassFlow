@@ -21,7 +21,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
-          program_id: string | null
+          program_id: string
           student_count: number | null
           user_id: string
         }
@@ -31,7 +31,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
-          program_id?: string | null
+          program_id: string
           student_count?: number | null
           user_id: string
         }
@@ -41,7 +41,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
-          program_id?: string | null
+          program_id?: string
           student_count?: number | null
           user_id?: string
         }
@@ -178,8 +178,11 @@ export type Database = {
           created_at: string | null
           created_by: string
           id: string
+          lab_hours: number | null
+          lecture_hours: number | null
           name: string
-          program_id: string | null
+          program_id: string
+          units: number | null
         }
         Insert: {
           code: string
@@ -187,8 +190,11 @@ export type Database = {
           created_at?: string | null
           created_by: string
           id?: string
+          lab_hours?: number | null
+          lecture_hours?: number | null
           name: string
-          program_id?: string | null
+          program_id: string
+          units?: number | null
         }
         Update: {
           code?: string
@@ -196,8 +202,11 @@ export type Database = {
           created_at?: string | null
           created_by?: string
           id?: string
+          lab_hours?: number | null
+          lecture_hours?: number | null
           name?: string
-          program_id?: string | null
+          program_id?: string
+          units?: number | null
         }
         Relationships: [
           {
@@ -402,8 +411,12 @@ export type Database = {
       resource_requests: {
         Row: {
           class_session_id: string
+          dismissed: boolean
           id: string
           notes: string | null
+          original_class_group_id: string | null
+          original_period_index: number | null
+          rejection_message: string | null
           requested_at: string | null
           requester_id: string
           requesting_program_id: string
@@ -416,8 +429,12 @@ export type Database = {
         }
         Insert: {
           class_session_id: string
+          dismissed?: boolean
           id?: string
           notes?: string | null
+          original_class_group_id?: string | null
+          original_period_index?: number | null
+          rejection_message?: string | null
           requested_at?: string | null
           requester_id: string
           requesting_program_id: string
@@ -430,8 +447,12 @@ export type Database = {
         }
         Update: {
           class_session_id?: string
+          dismissed?: boolean
           id?: string
           notes?: string | null
+          original_class_group_id?: string | null
+          original_period_index?: number | null
+          rejection_message?: string | null
           requested_at?: string | null
           requester_id?: string
           requesting_program_id?: string
@@ -531,6 +552,48 @@ export type Database = {
         }
         Relationships: []
       }
+      teaching_load_config: {
+        Row: {
+          created_at: string | null
+          department_id: string | null
+          id: string
+          semester_id: string | null
+          standard_load: number
+          units_per_load: number
+        }
+        Insert: {
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          semester_id?: string | null
+          standard_load?: number
+          units_per_load?: number
+        }
+        Update: {
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          semester_id?: string | null
+          standard_load?: number
+          units_per_load?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_load_config_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teaching_load_config_semester_id_fkey"
+            columns: ["semester_id"]
+            isOneToOne: false
+            referencedRelation: "semesters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       timetable_assignments: {
         Row: {
           class_group_id: string
@@ -625,6 +688,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      approve_resource_request: {
+        Args: { _request_id: string; _reviewer_id: string }
+        Returns: Json
+      }
       create_test_user: {
         Args: {
           department_id?: string
@@ -641,10 +708,22 @@ export type Database = {
         Args: { _class_session_id: string }
         Returns: string
       }
+      get_user_department_id: { Args: { _user_id: string }; Returns: string }
       get_user_program_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      handle_cross_dept_session_move: {
+        Args: {
+          _class_session_id: string
+          _new_class_group_id: string
+          _new_period_index: number
+          _old_class_group_id: string
+          _old_period_index: number
+          _semester_id: string
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
@@ -660,6 +739,14 @@ export type Database = {
           _program_id: string
         }
         Returns: boolean
+      }
+      reject_resource_request: {
+        Args: {
+          _rejection_message: string
+          _request_id: string
+          _reviewer_id: string
+        }
+        Returns: Json
       }
       update_schedule_configuration_safely: {
         Args: {
