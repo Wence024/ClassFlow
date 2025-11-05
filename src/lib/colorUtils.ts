@@ -19,6 +19,22 @@ export const PRESET_COLORS_DATA = [
   { hex: '#78716c', name: 'Stone' },
   { hex: '#ef4444', name: 'Red' },
   { hex: '#3b82f6', name: 'Blue' },
+ { hex: '#84cc16', name: 'Chartreuse' },
+  { hex: '#22d3ee', name: 'Aqua' },
+  { hex: '#a855f7', name: 'Purple' },
+  { hex: '#fbbf24', name: 'Apricot' },
+  { hex: '#f472b6', name: 'Blush' },
+  { hex: '#34d399', name: 'Mint' },
+  { hex: '#fcd34d', name: 'Gold' },
+  { hex: '#64748b', name: 'Slate' },
+  { hex: '#e11d48', name: 'Crimson' },
+  { hex: '#0891b2', name: 'Cerulean' },
+  { hex: '#16a34a', name: 'Forest' },
+  { hex: '#fca5a5', name: 'Coral' },
+  { hex: '#8d8d8d', name: 'Taupe' },
+  { hex: '#1e40af', name: 'Royal' },
+  { hex: '#f5d0fe', name: 'Lilac' },
+  { hex: '#78350f', name: 'Bronze' }
 ];
 
 /**
