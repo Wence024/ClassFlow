@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
@@ -694,10 +694,6 @@ export type Database = {
       }
       approve_resource_request: {
         Args: { _request_id: string; _reviewer_id: string }
-        Returns: Json
-      }
-      cancel_resource_request: {
-        Args: { _request_id: string; _requester_id: string }
         Returns: Json
       }
       create_test_user: {
