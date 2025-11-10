@@ -363,6 +363,49 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
 }
 
 /**
+ * Cancels a resource request initiated by the program head.
+ * Restores session to original position if approved, or removes from timetable if pending.
+ * 
+ * @param requestId - The ID of the resource request to cancel.
+ * @param requesterId - The ID of the user canceling the request (for permission check).
+ * @returns A promise resolving to the result of the cancellation.
+ */
+export async function cancelRequest(requestId: string, requesterId: string): Promise<{ 
+  success: boolean; 
+  action: 'removed_from_timetable' | 'restored'; 
+  class_session_id?: string; 
+  restored_to_period?: number;
+  error?: string;
+}> {
+  const { data, error } = await supabase.rpc('cancel_resource_request' as never, {
+    _request_id: requestId,
+    _requester_id: requesterId,
+  } as never);
+
+  if (error) {
+    console.error('Failed to cancel request (RPC error):', error);
+    throw new Error(`Failed to cancel request: ${error.message}`);
+  }
+
+  const result = data as { 
+    success: boolean; 
+    action: 'removed_from_timetable' | 'restored'; 
+    class_session_id?: string; 
+    restored_to_period?: number;
+    error?: string;
+  } | null;
+  
+  if (!result || !result.success) {
+    const errorMsg = result?.error || 'Unknown error during cancellation';
+    console.error('Cancellation function returned failure:', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  console.log('Request cancelled successfully:', result);
+  return result;
+}
+
+/**
  * Cancels all active resource requests for a specific resource (instructor or classroom).
  * Used as an edge case handler when resources are deleted.
  * 
