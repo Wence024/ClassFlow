@@ -101,42 +101,10 @@ export function useMyPendingRequests() {
 
   const cancelMutation = useMutation({
     mutationFn: async (requestId: string) => {
-      const { supabase } = await import('../../../lib/supabase');
-      
-      // Get the request to find the class_session_id
-      const { data: request, error: reqError } = await supabase
-        .from('resource_requests')
-        .select('class_session_id')
-        .eq('id', requestId)
-        .single();
-      
-      if (reqError) throw reqError;
-      
-      const classSessionId = request.class_session_id;
-      
-      // Delete timetable assignment first (by class_session_id)
-      const { error: assignError } = await supabase
-        .from('timetable_assignments')
-        .delete()
-        .eq('class_session_id', classSessionId);
-      
-      if (assignError) console.error('Error deleting assignment:', assignError);
-      
-      // Delete class session
-      const { error: sessionError } = await supabase
-        .from('class_sessions')
-        .delete()
-        .eq('id', classSessionId);
-      
-      if (sessionError) throw sessionError;
-      
-      // Delete the request itself
-      const { error: delError } = await supabase
-        .from('resource_requests')
-        .delete()
-        .eq('id', requestId);
-      
-      if (delError) throw delError;
+      if (!user?.id) {
+        throw new Error('User not authenticated');
+      }
+      return service.cancelRequest(requestId, user.id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });

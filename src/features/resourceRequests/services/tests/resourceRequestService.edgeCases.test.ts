@@ -226,4 +226,90 @@ describe('resourceRequestService - Edge Cases', () => {
       expect(mockFrom).toHaveBeenCalledWith('request_notifications');
     });
   });
+
+  describe('cancelRequest', () => {
+    it('should cancel pending request and remove from timetable', async () => {
+      const mockResult = {
+        success: true,
+        action: 'removed_from_timetable',
+        class_session_id: 'session-1',
+      };
+
+      vi.mocked(supabase.rpc).mockResolvedValue({
+        data: mockResult,
+        error: null,
+      } as never);
+
+      const result = await resourceRequestService.cancelRequest('request-1', 'user-1');
+
+      expect(result).toEqual(mockResult);
+      expect(supabase.rpc).toHaveBeenCalledWith('cancel_resource_request', {
+        _request_id: 'request-1',
+        _requester_id: 'user-1',
+      });
+    });
+
+    it('should cancel approved request and restore to original position', async () => {
+      const mockResult = {
+        success: true,
+        action: 'restored',
+        class_session_id: 'session-1',
+        restored_to_period: 5,
+      };
+
+      vi.mocked(supabase.rpc).mockResolvedValue({
+        data: mockResult,
+        error: null,
+      } as never);
+
+      const result = await resourceRequestService.cancelRequest('request-2', 'user-1');
+
+      expect(result).toEqual(mockResult);
+      expect(result.action).toBe('restored');
+      expect(result.restored_to_period).toBe(5);
+    });
+
+    it('should throw error if requester lacks permission', async () => {
+      const mockError = {
+        success: false,
+        error: 'Permission denied: You can only cancel your own requests',
+      };
+
+      vi.mocked(supabase.rpc).mockResolvedValue({
+        data: mockError,
+        error: null,
+      } as never);
+
+      await expect(
+        resourceRequestService.cancelRequest('request-1', 'wrong-user')
+      ).rejects.toThrow('Permission denied');
+    });
+
+    it('should throw error if request not found', async () => {
+      const mockError = {
+        success: false,
+        error: 'Resource request not found',
+      };
+
+      vi.mocked(supabase.rpc).mockResolvedValue({
+        data: mockError,
+        error: null,
+      } as never);
+
+      await expect(
+        resourceRequestService.cancelRequest('nonexistent-id', 'user-1')
+      ).rejects.toThrow('Resource request not found');
+    });
+
+    it('should throw error if RPC call fails', async () => {
+      vi.mocked(supabase.rpc).mockResolvedValue({
+        data: null,
+        error: { message: 'Database error', code: 'DB_ERROR' },
+      } as never);
+
+      await expect(
+        resourceRequestService.cancelRequest('request-1', 'user-1')
+      ).rejects.toThrow('Failed to cancel request: Database error');
+    });
+  });
 });

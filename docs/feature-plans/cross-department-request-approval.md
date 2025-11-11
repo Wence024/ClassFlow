@@ -2,7 +2,90 @@
 
 ## Overview
 
-This feature enables program heads to request instructors or classrooms from other departments, requiring approval from the resource-owning department head before the assignment becomes confirmed. The system includes automatic notifications, confirmations, and state management for the entire request lifecycle.
+This feature enables program heads to request instructors or classrooms from other departments, requiring approval from the resource-owning department head before the assignment becomes confirmed. The system includes automatic notifications, confirmations, state management, and cancellation workflows for the entire request lifecycle.
+
+---
+
+## Architecture Flow
+
+```mermaid
+graph TD
+    A[Program Head Selects Cross-Dept Resource] --> B{From Drawer or Moving?}
+    B -->|From Drawer| C[Modal: Confirm Cross-Dept Request]
+    B -->|Moving Confirmed| D[Modal: Requires Re-approval]
+    
+    C -->|Confirm| E[Place in Drawer with Orange Pulsing Border]
+    E --> F[Program Head Drags to Timetable]
+    F --> G[Create Resource Request - Status: Pending]
+    G --> H[Notify Department Head]
+    
+    D -->|Confirm| I[Move Session & Create Request]
+    I --> H
+    
+    H --> J{Department Head Action}
+    J -->|Approve| K[Update Status: Confirmed]
+    J -->|Reject| L[Restore or Remove Session]
+    
+    K --> M[Notify Program Head: Approved]
+    L --> N[Notify Program Head: Rejected]
+    
+    O[Program Head Cancels Request] --> P{Request Status?}
+    P -->|Pending| Q[Remove from Timetable]
+    P -->|Approved| R[Restore to Original Position]
+    Q --> S[Notify Department Head]
+    R --> S
+```
+
+---
+
+## Cancellation Workflow Details
+
+### Entry Points
+
+**1. From Pending Requests Panel (Notifications)**
+- Program head clicks "Cancel" (X button) on their own pending request
+- Triggers `useMyPendingRequests.cancelRequest` mutation
+- Calls `cancelRequest(requestId, userId)` service function
+
+**2. From Dragging to Drawer**
+- Program head drags confirmed cross-dept session to drawer
+- Triggers confirmation dialog: "This will cancel the approval"
+- On confirm, calls `cancelActiveRequestsForClassSession(sessionId)`
+- Only sends notifications, doesn't handle restoration (sessions dragged to drawer are removed)
+
+### Behavior by Request Status
+
+| Request Status | Action Taken | Assignment Status | Class Session | Department Head Notified |
+|---------------|--------------|-------------------|---------------|-------------------------|
+| **Pending** (initial placement) | Remove from timetable | Deleted | **Preserved** ✅ | Yes - "Request cancelled" |
+| **Approved** (previously confirmed) | Restore to original position | Restored to original slot, status = 'confirmed' | **Preserved** ✅ | Yes - "Request cancelled" |
+
+### Database Function: `cancel_resource_request`
+
+**Purpose:** Atomically handle cancellation logic for program heads
+
+**Parameters:**
+- `_request_id` (uuid): The request to cancel
+- `_requester_id` (uuid): User initiating cancellation (permission check)
+
+**Logic:**
+1. Validate request exists and requester has permission
+2. Check request status is pending or approved
+3. Get active semester
+4. Create cancellation notification for department head
+5. **If has original position (approved request):**
+   - UPDATE timetable_assignments to restore original position
+   - SET status = 'confirmed'
+   - Return `{success: true, action: 'restored', ...}`
+6. **Else (pending request):**
+   - DELETE timetable_assignments for this session
+   - Return `{success: true, action: 'removed_from_timetable', ...}`
+7. DELETE resource_request
+
+**Key Difference from Rejection:**
+- Rejection is initiated by department heads (reviewers)
+- Cancellation is initiated by program heads (requesters)
+- Both preserve the class_session record ✅
 
 ---
 
@@ -123,8 +206,10 @@ This feature enables program heads to request instructors or classrooms from oth
 
 - [x] See pending requests in dropdown (separate Clock icon component)
 - [x] Click "Cancel" (X button) → Request cancelled immediately
-- [x] Confirm → Request deleted, session removed from timetable
+- [x] Confirm → Pending request: Session removed from timetable, class_session preserved
+- [x] Confirm → Approved request: Session restored to original confirmed position, class_session preserved
 - [x] All related queries invalidated for consistency
+- [x] Department head receives cancellation notification
 
 ### Real-Time Testing
 
