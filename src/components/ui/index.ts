@@ -39,14 +39,7 @@ export { Toaster } from './sonner';
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip';
 
 // Form components
-export {
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-} from './form';
+export { Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from './form';
 
 // Custom components
 export { default as ColorPicker } from './custom/color-picker';

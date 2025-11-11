@@ -42,7 +42,7 @@ const AdminInstructorManagement: React.FC = () => {
     error,
   } = useInstructors();
   const { classSessions } = useClassSessions();
-  
+
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -75,7 +75,6 @@ const AdminInstructorManagement: React.FC = () => {
     }
   }, [editingInstructor, formMethods]);
 
-
   const filteredInstructors = useMemo(() => {
     if (!searchTerm) return instructors;
     return instructors.filter(
@@ -88,13 +87,15 @@ const AdminInstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    
+
     // For department heads, validate they have a department assigned
     if (!isAdmin() && !departmentId) {
-      toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
+      toast.error(
+        'You must be assigned to a department before creating instructors. Please contact an administrator.'
+      );
       return;
     }
-    
+
     // Explicitly construct instructor data
     const instructorData: InstructorInsert = {
       first_name: data.first_name,
@@ -108,11 +109,9 @@ const AdminInstructorManagement: React.FC = () => {
       color: data.color || null,
       // For department heads: use their department_id
       // For admins: use the department_id from the form
-      department_id: !isAdmin() && departmentId
-        ? departmentId
-        : (data.department_id || null),
+      department_id: !isAdmin() && departmentId ? departmentId : data.department_id || null,
     };
-    
+
     await addInstructor(instructorData);
     formMethods.reset();
     toast.success('Instructor added successfully!');
@@ -121,23 +120,23 @@ const AdminInstructorManagement: React.FC = () => {
 
   const handleSave = async (data: InstructorFormData) => {
     if (!editingInstructor) return;
-    
+
     // Check if department was changed (for admins)
     const currentDeptId = editingInstructor.department_id;
     const newDeptId = data.department_id;
     const departmentChanged = isAdmin() && currentDeptId !== newDeptId;
-    
+
     await updateInstructor(editingInstructor.id, data);
     setEditingInstructor(null);
-    
+
     if (departmentChanged) {
-      toast('Success', { 
-        description: 'Instructor updated and reassigned to new department!' 
+      toast('Success', {
+        description: 'Instructor updated and reassigned to new department!',
       });
     } else {
       toast('Success', { description: 'Instructor updated successfully!' });
     }
-    
+
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -147,7 +146,7 @@ const AdminInstructorManagement: React.FC = () => {
   };
 
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
-  
+
   const handleDeleteRequest = (id: string) =>
     setInstructorToDelete(instructors.find((i) => i.id === id) || null);
 
@@ -203,7 +202,7 @@ const AdminInstructorManagement: React.FC = () => {
             </FormProvider>
           </div>
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">
             Instructors {isAdmin() && '(All Departments)'}
@@ -256,7 +255,6 @@ const AdminInstructorManagement: React.FC = () => {
         Are you sure you want to delete the instructor "{instructorToDelete?.first_name}{' '}
         {instructorToDelete?.last_name}"?
       </ConfirmModal>
-
     </>
   );
 };

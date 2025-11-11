@@ -28,7 +28,10 @@ const TABLE = 'instructors';
  * @param params.department_id - The department ID to filter by for non-admin users.
  * @returns A promise that resolves to an array of Instructor objects filtered by role and department.
  */
-export async function getInstructors(params?: { role?: string | null; department_id?: string | null }): Promise<Instructor[]> {
+export async function getInstructors(params?: {
+  role?: string | null;
+  department_id?: string | null;
+}): Promise<Instructor[]> {
   let query = supabase.from(TABLE).select('*').order('first_name');
   const role = params?.role ?? null;
   const departmentId = params?.department_id ?? null;
@@ -65,16 +68,18 @@ export async function getInstructors(params?: { role?: string | null; department
 export async function getAllInstructors(): Promise<Instructor[]> {
   const { data, error } = await supabase
     .from(TABLE)
-    .select(`
+    .select(
+      `
       *,
       departments:department_id (
         name
       )
-    `)
+    `
+    )
     .order('first_name');
-  
+
   if (error) throw error;
-  
+
   // Transform the nested department object to a flat department_name field
   return (data || []).map((instructor) => ({
     ...instructor,
@@ -93,31 +98,38 @@ export async function getAllInstructors(): Promise<Instructor[]> {
  */
 export async function addInstructor(instructor: InstructorInsert): Promise<Instructor> {
   // Get current user ID for created_by field
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
   if (userError || !user) throw new Error('User not authenticated');
-  
+
   // Ensure created_by is set
   const instructorWithCreator = {
     ...instructor,
     created_by: user.id,
   };
-  
-  const { data, error } = await supabase.from(TABLE).insert([instructorWithCreator]).select().single();
-  
+
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert([instructorWithCreator])
+    .select()
+    .single();
+
   if (error) {
     // Provide more context for RLS policy violations
     if (error.code === '42501') {
       throw new Error(
         `Permission denied: Unable to create instructor. This may be due to: \n` +
-        `1. Missing department assignment (department_id: ${instructorWithCreator.department_id})\n` +
-        `2. Insufficient permissions for this operation\n` +
-        `3. Row-level security policy violation\n` +
-        `Original error: ${error.message}`
+          `1. Missing department assignment (department_id: ${instructorWithCreator.department_id})\n` +
+          `2. Insufficient permissions for this operation\n` +
+          `3. Row-level security policy violation\n` +
+          `Original error: ${error.message}`
       );
     }
     throw error;
   }
-  
+
   return data;
 }
 
@@ -147,7 +159,7 @@ export async function updateInstructor(
 /**
  * Removes an instructor from the database.
  * This operation is protected by RLS policies in the database.
- * 
+ *
  * **Edge Case Handling:**
  * - Cancels all active resource requests for this instructor before deletion
  * - Notifies department heads if requests are cancelled.
@@ -159,13 +171,15 @@ export async function updateInstructor(
  */
 export async function removeInstructor(id: string, _user_id: string): Promise<void> {
   // Cancel any active requests for this instructor before deletion
-  const { cancelActiveRequestsForResource } = await import('../../resourceRequests/services/resourceRequestService');
+  const { cancelActiveRequestsForResource } = await import(
+    '../../resourceRequests/services/resourceRequestService'
+  );
   try {
     await cancelActiveRequestsForResource('instructor', id);
   } catch (err) {
     console.error('Failed to cancel requests for instructor:', err);
   }
-  
+
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

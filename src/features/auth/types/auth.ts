@@ -1,14 +1,14 @@
 /**
  * User object for authentication context.
- * 
+ *
  * SECURITY WARNING: Roles are currently stored on the user profile object.
  * This is NOT ideal for production as roles can potentially be manipulated client-side.
- * 
+ *
  * RECOMMENDED: Move roles to a separate `user_roles` table with:
  * - An enum type for valid roles
  * - A `has_role()` security definer function
  * - RLS policies that use the security definer function.
- * 
+ *
  * See: docs/postgresql_schema for migration examples.
  */
 export type User = {
@@ -47,7 +47,7 @@ export type AuthContextType = {
   canReviewRequestsForDepartment: (departmentId: string) => boolean;
   /** Row-scoped: manage an instructor with department ownership. */
   canManageInstructorRow: (instructorDepartmentId: string) => boolean;
-  /** 
+  /**
    * Row-scoped: manage courses for a program.
    * Returns true if user is admin OR (is program_head AND targetProgramId matches user's program).
    * Returns false if either programId is null/undefined.

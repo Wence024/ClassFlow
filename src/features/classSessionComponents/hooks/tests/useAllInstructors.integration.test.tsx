@@ -67,7 +67,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 const createDelayedPromise = <T,>(data: T, delay: number): Promise<T> => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(data);
     }, delay);
@@ -102,9 +102,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(
-      await import('../../services/instructorsService'),
-    );
+    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
     mockInstructorsService.getAllInstructors.mockResolvedValue(allMockInstructors);
 
     const { result } = renderHook(() => useAllInstructors(), { wrapper });
@@ -140,9 +138,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(
-      await import('../../services/instructorsService'),
-    );
+    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
     mockInstructorsService.getAllInstructors.mockResolvedValue(allMockInstructors);
 
     const { result } = renderHook(() => useAllInstructors(), { wrapper });
@@ -178,11 +174,9 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(
-      await import('../../services/instructorsService'),
-    );
+    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
     mockInstructorsService.getAllInstructors.mockImplementation(() =>
-      createDelayedPromise(allMockInstructors, 100),
+      createDelayedPromise(allMockInstructors, 100)
     );
 
     const { result } = renderHook(() => useAllInstructors(), { wrapper });
@@ -218,9 +212,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(
-      await import('../../services/instructorsService')
-    );
+    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
     mockInstructorsService.getAllInstructors.mockRejectedValue(
       new Error('Failed to fetch instructors')
     );

@@ -26,7 +26,10 @@ const TABLE = 'classrooms';
  * @param params.department_id - The department ID to filter by for non-admin users.
  * @returns A promise that resolves to an array of Classroom objects.
  */
-export async function getClassrooms(params?: { role?: string | null; department_id?: string | null }): Promise<Classroom[]> {
+export async function getClassrooms(params?: {
+  role?: string | null;
+  department_id?: string | null;
+}): Promise<Classroom[]> {
   let query = supabase.from(TABLE).select('*').order('name');
   const role = params?.role ?? null;
   const departmentId = params?.department_id ?? null;
@@ -63,16 +66,18 @@ export async function getClassrooms(params?: { role?: string | null; department_
 export async function getAllClassrooms(): Promise<Classroom[]> {
   const { data, error } = await supabase
     .from(TABLE)
-    .select(`
+    .select(
+      `
       *,
       departments:preferred_department_id (
         name
       )
-    `)
+    `
+    )
     .order('name');
-  
+
   if (error) throw error;
-  
+
   // Transform the nested department object to a flat preferred_department_name field
   return (data || []).map((classroom) => ({
     ...classroom,
@@ -90,11 +95,7 @@ export async function getAllClassrooms(): Promise<Classroom[]> {
  * @throws An error if the Supabase insert fails.
  */
 export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert([classroom])
-    .select()
-    .single();
+  const { data, error } = await supabase.from(TABLE).insert([classroom]).select().single();
   if (error) throw error;
   return data;
 }
@@ -122,7 +123,7 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 /**
  * Removes a classroom from the database.
  * This operation is protected by RLS policies in the database.
- * 
+ *
  * **Edge Case Handling:**
  * - Cancels all active resource requests for this classroom before deletion
  * - Notifies department heads if requests are cancelled.
@@ -134,13 +135,15 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
  */
 export async function removeClassroom(id: string, _user_id: string): Promise<void> {
   // Cancel any active requests for this classroom before deletion
-  const { cancelActiveRequestsForResource } = await import('../../resourceRequests/services/resourceRequestService');
+  const { cancelActiveRequestsForResource } = await import(
+    '../../resourceRequests/services/resourceRequestService'
+  );
   try {
     await cancelActiveRequestsForResource('classroom', id);
   } catch (err) {
     console.error('Failed to cancel requests for classroom:', err);
   }
-  
+
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
   if (error) throw error;
 }

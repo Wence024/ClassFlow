@@ -21,11 +21,7 @@ export async function listPrograms(): Promise<Program[]> {
  * @returns A promise that resolves to the newly created Program object.
  */
 export async function createProgram(payload: ProgramInsert): Promise<Program> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert([payload])
-    .select()
-    .single();
+  const { data, error } = await supabase.from(TABLE).insert([payload]).select().single();
   if (error) throw error;
   return data as Program;
 }

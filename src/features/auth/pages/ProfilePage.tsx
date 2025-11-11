@@ -15,7 +15,8 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name || '');
   const [success, setSuccess] = useState<string | null>(null);
 
-  if (!user) return <Alert variant="destructive">You must be logged in to manage your profile.</Alert>;
+  if (!user)
+    return <Alert variant="destructive">You must be logged in to manage your profile.</Alert>;
 
   const onSave = async () => {
     setSuccess(null);
@@ -51,7 +52,9 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex gap-2 pt-2">
-          <Button onClick={onSave} disabled={loading}>Save</Button>
+          <Button onClick={onSave} disabled={loading}>
+            Save
+          </Button>
         </div>
         {error && <Alert variant="destructive">{error}</Alert>}
         {success && <Alert>{success}</Alert>}
@@ -59,6 +62,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-
-

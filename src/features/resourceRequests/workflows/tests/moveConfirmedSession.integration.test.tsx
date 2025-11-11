@@ -52,7 +52,7 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
 
   it('should move session on confirm', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       requires_approval: true,
@@ -77,7 +77,7 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
 
   it('should call handle_cross_dept_session_move RPC function', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       requires_approval: true,
@@ -107,7 +107,7 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
 
   it('should change assignment status to pending again', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       requires_approval: true,
@@ -131,7 +131,7 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
 
   it('should create new request with original position stored', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       requires_approval: true,
@@ -156,7 +156,7 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
 
   it('should notify department head of new request', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       requires_approval: true,

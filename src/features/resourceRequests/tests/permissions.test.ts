@@ -15,7 +15,7 @@ describe('Resource Request Permissions and Security', () => {
 
   it('should allow department heads to approve requests for their department', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       updated_assignments: 1,
@@ -37,10 +37,7 @@ describe('Resource Request Permissions and Security', () => {
       }),
     });
 
-    const result = await resourceRequestService.approveRequest(
-      'request-1',
-      'dept-head-business'
-    );
+    const result = await resourceRequestService.approveRequest('request-1', 'dept-head-business');
 
     expect(result.status).toBe('approved');
     expect(result.target_department_id).toBe('dept-business');
@@ -48,7 +45,7 @@ describe('Resource Request Permissions and Security', () => {
 
   it('should prevent department heads from approving requests for other departments', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockError = {
       code: '42501', // RLS policy violation
       message: 'Permission denied',
@@ -63,21 +60,19 @@ describe('Resource Request Permissions and Security', () => {
 
   it('should allow program heads to dismiss their own reviewed requests', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null }),
       }),
     });
 
-    await expect(
-      resourceRequestService.dismissRequest('request-1')
-    ).resolves.not.toThrow();
+    await expect(resourceRequestService.dismissRequest('request-1')).resolves.not.toThrow();
   });
 
   it('should prevent program heads from dismissing other programs requests', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockError = {
       code: '42501',
       message: 'Permission denied',
@@ -89,14 +84,14 @@ describe('Resource Request Permissions and Security', () => {
       }),
     });
 
-    await expect(
-      resourceRequestService.dismissRequest('request-other-program')
-    ).rejects.toThrow('Permission denied');
+    await expect(resourceRequestService.dismissRequest('request-other-program')).rejects.toThrow(
+      'Permission denied'
+    );
   });
 
   it('should prevent program heads from dismissing pending requests', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockError = {
       code: '23514', // Check constraint violation
       message: 'Cannot dismiss a pending request',
@@ -108,14 +103,12 @@ describe('Resource Request Permissions and Security', () => {
       }),
     });
 
-    await expect(
-      resourceRequestService.dismissRequest('pending-request')
-    ).rejects.toThrow();
+    await expect(resourceRequestService.dismissRequest('pending-request')).rejects.toThrow();
   });
 
   it('should enforce RLS policies preventing unauthorized access', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     // Simulate RLS policy blocking access
     vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
@@ -135,7 +128,7 @@ describe('Resource Request Permissions and Security', () => {
 
   it('should allow admins full access to all requests', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockRequests = [
       { id: 'request-1', target_department_id: 'dept-cs' },
       { id: 'request-2', target_department_id: 'dept-business' },
@@ -158,7 +151,7 @@ describe('Resource Request Permissions and Security', () => {
 
   it('should validate reviewer_id is provided for approval', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockResult = {
       success: false,
       error: 'Reviewer ID is required',
@@ -166,14 +159,12 @@ describe('Resource Request Permissions and Security', () => {
 
     vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });
 
-    await expect(
-      resourceRequestService.approveRequest('request-1', '')
-    ).rejects.toThrow();
+    await expect(resourceRequestService.approveRequest('request-1', '')).rejects.toThrow();
   });
 
   it('should prevent non-owners from updating requests', async () => {
     const { supabase } = await import('../../../lib/supabase');
-    
+
     const mockError = {
       code: '42501',
       message: 'RLS policy violation',

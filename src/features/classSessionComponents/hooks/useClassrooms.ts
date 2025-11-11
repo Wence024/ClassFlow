@@ -33,12 +33,8 @@ export function useClassrooms() {
   const prioritizedClassrooms = useMemo(() => {
     if (!user?.department_id) return allClassrooms;
 
-    const preferred = allClassrooms.filter(
-      (c) => c.preferred_department_id === user.department_id
-    );
-    const other = allClassrooms.filter(
-      (c) => c.preferred_department_id !== user.department_id
-    );
+    const preferred = allClassrooms.filter((c) => c.preferred_department_id === user.department_id);
+    const other = allClassrooms.filter((c) => c.preferred_department_id !== user.department_id);
 
     return [...preferred, ...other];
   }, [allClassrooms, user?.department_id]);

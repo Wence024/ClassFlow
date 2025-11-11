@@ -25,10 +25,10 @@ export interface TimetableContextType {
 
   // Pending session tracking
   pendingSessionIds?: Set<string>;
-  
+
   // Pending placement session (awaiting cross-dept request submission)
   pendingPlacementSessionId?: string;
-  
+
   // Highlight parameters for showing requested resource location
   highlightPeriod?: number;
   highlightGroup?: string;

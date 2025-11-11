@@ -1,14 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useDepartments } from '../hooks/useDepartments';
 import { useAuth } from '../../auth/hooks/useAuth';
-import {
-  Button,
-  Card,
-  ConfirmModal,
-  ErrorMessage,
-  LoadingSpinner,
-  Alert,
-} from '@/components/ui';
+import { Button, Card, ConfirmModal, ErrorMessage, LoadingSpinner, Alert } from '@/components/ui';
 import type { Department } from '../types/department';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -57,7 +50,10 @@ export default function DepartmentManagementPage() {
   const onSaveEdit = async () => {
     if (!editing) return;
     const values = formMethods.getValues();
-    await updateMutation.mutateAsync({ id: editing.id, update: { name: values.name, code: values.code } });
+    await updateMutation.mutateAsync({
+      id: editing.id,
+      update: { name: values.name, code: values.code },
+    });
     setEditing(null);
   };
 
@@ -73,13 +69,21 @@ export default function DepartmentManagementPage() {
       <div className="max-w-6xl mx-auto p-4 flex flex-col md:flex-row-reverse gap-8">
         <div className="w-full md:w-96">
           <Card className="p-4 space-y-3">
-            <div className="font-semibold text-center">{editing ? 'Edit Department' : 'Create Department'}</div>
+            <div className="font-semibold text-center">
+              {editing ? 'Edit Department' : 'Create Department'}
+            </div>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editing ? onSaveEdit : onCreate)}>
                 <fieldset className="space-y-2">
-                  <DepartmentFields control={formMethods.control} errors={formMethods.formState.errors} />
+                  <DepartmentFields
+                    control={formMethods.control}
+                    errors={formMethods.formState.errors}
+                  />
                   <div className="flex gap-2 pt-2">
-                    <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
+                    <Button
+                      type="submit"
+                      loading={createMutation.isPending || updateMutation.isPending}
+                    >
                       {editing ? 'Save Changes' : 'Create'}
                     </Button>
                     {editing && (
@@ -92,14 +96,16 @@ export default function DepartmentManagementPage() {
               </form>
             </FormProvider>
             {(createMutation.error || updateMutation.error) && (
-              <Alert variant="destructive">{editing ? 'Failed to update department.' : 'Failed to create department.'}</Alert>
+              <Alert variant="destructive">
+                {editing ? 'Failed to update department.' : 'Failed to create department.'}
+              </Alert>
             )}
           </Card>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="p-4 space-y-3">
-          <h1 className="text-3xl font-bold mb-6">Departments</h1>
+            <h1 className="text-3xl font-bold mb-6">Departments</h1>
             <div className="mb-2">
               <FormField
                 id="search-departments"
@@ -114,13 +120,16 @@ export default function DepartmentManagementPage() {
                 <div className="text-gray-500">No departments found.</div>
               ) : (
                 filtered.map((d) => (
-                  <DepartmentCard key={d.id} department={d} onEdit={setEditing} onDelete={(id) => setToDelete(filtered.find((x) => x.id === id) || null)} />
+                  <DepartmentCard
+                    key={d.id}
+                    department={d}
+                    onEdit={setEditing}
+                    onDelete={(id) => setToDelete(filtered.find((x) => x.id === id) || null)}
+                  />
                 ))
               )}
             </div>
-            {deleteMutation.error && (
-              <Alert variant="destructive">Delete failed.</Alert>
-            )}
+            {deleteMutation.error && <Alert variant="destructive">Delete failed.</Alert>}
           </div>
         </div>
       </div>

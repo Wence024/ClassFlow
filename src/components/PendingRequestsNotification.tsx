@@ -35,11 +35,12 @@ export default function RequestStatusNotification() {
   }, [user?.id, queryClient]);
 
   // Fetch reviewed requests (approved or rejected) that haven't been dismissed
-  const { data: reviewedRequests = [] } = useQuery<ResourceRequest[]>({ // Use ResourceRequest[]
+  const { data: reviewedRequests = [] } = useQuery<ResourceRequest[]>({
+    // Use ResourceRequest[]
     queryKey: ['my_reviewed_requests', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('resource_requests')
         .select('*')
@@ -47,7 +48,7 @@ export default function RequestStatusNotification() {
         .in('status', ['approved', 'rejected'])
         .eq('dismissed', false)
         .order('reviewed_at', { ascending: false });
-      
+
       if (error) throw error;
       return data || [];
     },
@@ -58,7 +59,8 @@ export default function RequestStatusNotification() {
   const hasNotifications = reviewedRequests.length > 0;
 
   // Fetch enriched details for each reviewed request
-  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({ // Use EnrichedRequest[]
+  const { data: enrichedRequests = [] } = useQuery<EnrichedRequest[]>({
+    // Use EnrichedRequest[]
     queryKey: ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
@@ -79,10 +81,10 @@ export default function RequestStatusNotification() {
               .single();
             if (data) resourceName = data.name;
           }
-          return { 
-            ...req, 
+          return {
+            ...req,
             resource_name: resourceName,
-            rejection_message: req.rejection_message ?? null
+            rejection_message: req.rejection_message ?? null,
           };
         })
       );
@@ -119,41 +121,41 @@ export default function RequestStatusNotification() {
       if (error) throw error;
 
       // Wait longer for full propagation (DB + realtime + React Query cascade)
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Then invalidate with exact match
-      await queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: ['my_reviewed_requests', user?.id],
-        exact: true 
+        exact: true,
       });
 
       // Force refetch enriched requests after base query updates
-      await queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: ['my_enriched_reviewed_requests'],
-        exact: false
+        exact: false,
       });
     } catch (error) {
       console.error('Error dismissing notification:', error);
-      
+
       // Show specific error message to user
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(`Failed to dismiss notification: ${errorMessage}`);
-      
+
       // Revert BOTH optimistic updates on error
-      await queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: ['my_reviewed_requests', user?.id],
-        exact: true 
+        exact: true,
       });
-      await queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: ['my_enriched_reviewed_requests'],
-        exact: false
+        exact: false,
       });
     }
   };
 
   // Calculate badge color based on statuses
-  const approvedCount = reviewedRequests.filter(r => r.status === 'approved').length;
-  const rejectedCount = reviewedRequests.filter(r => r.status === 'rejected').length;
+  const approvedCount = reviewedRequests.filter((r) => r.status === 'approved').length;
+  const rejectedCount = reviewedRequests.filter((r) => r.status === 'rejected').length;
   const badgeColor = rejectedCount > 0 ? 'bg-red-500' : 'bg-green-500';
 
   return (
@@ -162,7 +164,9 @@ export default function RequestStatusNotification() {
         <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
           <Bell className="w-5 h-5" />
           {hasNotifications && (
-            <span className={`absolute -top-1 -right-1 ${badgeColor} text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}>
+            <span
+              className={`absolute -top-1 -right-1 ${badgeColor} text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}
+            >
               {reviewedRequests.length}
             </span>
           )}
@@ -181,47 +185,51 @@ export default function RequestStatusNotification() {
           {enrichedRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No reviewed requests</div>
           ) : (
-            enrichedRequests.filter(request => !request.dismissed).map((request) => (
-              <div key={request.id} className="p-3 border-b last:border-b-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {request.status === 'approved' ? (
-                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+            enrichedRequests
+              .filter((request) => !request.dismissed)
+              .map((request) => (
+                <div key={request.id} className="p-3 border-b last:border-b-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {request.status === 'approved' ? (
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                        )}
+                        <div className="font-medium text-sm capitalize">
+                          {request.resource_type} Request
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-700 font-medium truncate mt-1">
+                        {request.resource_name}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Reviewed: {new Date(request.reviewed_at || '').toLocaleDateString()}
+                      </div>
+                      <div
+                        className={`text-xs mt-1 font-medium ${
+                          request.status === 'approved' ? 'text-green-600' : 'text-red-600'
+                        }`}
+                      >
+                        {request.status === 'approved' ? 'Approved' : 'Rejected'}
+                      </div>
+                      {request.status === 'rejected' && request.rejection_message && (
+                        <div className="text-xs mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                          <span className="font-medium text-red-700">Reason: </span>
+                          <span className="text-gray-700">{request.rejection_message}</span>
+                        </div>
                       )}
-                      <div className="font-medium text-sm capitalize">
-                        {request.resource_type} Request
-                      </div>
                     </div>
-                    <div className="text-xs text-gray-700 font-medium truncate mt-1">
-                      {request.resource_name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Reviewed: {new Date(request.reviewed_at || '').toLocaleDateString()}
-                    </div>
-                    <div className={`text-xs mt-1 font-medium ${
-                      request.status === 'approved' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {request.status === 'approved' ? 'Approved' : 'Rejected'}
-                    </div>
-                    {request.status === 'rejected' && request.rejection_message && (
-                      <div className="text-xs mt-2 p-2 bg-red-50 border border-red-200 rounded">
-                        <span className="font-medium text-red-700">Reason: </span>
-                        <span className="text-gray-700">{request.rejection_message}</span>
-                      </div>
-                    )}
+                    <button
+                      onClick={() => handleDismiss(request.id)}
+                      className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
+                    >
+                      Dismiss
+                    </button>
                   </div>
-                  <button
-                    onClick={() => handleDismiss(request.id)}
-                    className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
-                  >
-                    Dismiss
-                  </button>
                 </div>
-              </div>
-            ))
+              ))
           )}
         </div>
       </PopoverContent>

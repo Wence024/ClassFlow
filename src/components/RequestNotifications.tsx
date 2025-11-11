@@ -57,7 +57,7 @@ export default function RequestNotifications() {
     queryKey: ['enriched_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
-        pendingRequests.map(req => getRequestWithDetails(req.id))
+        pendingRequests.map((req) => getRequestWithDetails(req.id))
       );
       return enriched;
     },
@@ -70,8 +70,10 @@ export default function RequestNotifications() {
     setApprovingId(requestId);
     try {
       // Import the new approveRequest function
-      const { approveRequest } = await import('../features/resourceRequests/services/resourceRequestService');
-      
+      const { approveRequest } = await import(
+        '../features/resourceRequests/services/resourceRequestService'
+      );
+
       // Use the atomic approval function (trigger will cleanup notifications)
       await approveRequest(requestId, user?.id || '');
 
@@ -100,8 +102,10 @@ export default function RequestNotifications() {
 
     setRejectingId(selectedRequestForRejection.id);
     try {
-      const { rejectRequest } = await import('../features/resourceRequests/services/resourceRequestService');
-      
+      const { rejectRequest } = await import(
+        '../features/resourceRequests/services/resourceRequestService'
+      );
+
       // Reject request (trigger will cleanup notifications)
       await rejectRequest(selectedRequestForRejection.id, user?.id || '', message);
 
@@ -137,12 +141,12 @@ export default function RequestNotifications() {
       await dismissRequest(requestId);
 
       // Wait for propagation
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Invalidate department requests with exact match
-      await queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: ['resource_requests', 'dept', departmentId],
-        exact: true 
+        exact: true,
       });
 
       toast.success('Request dismissed');
@@ -151,16 +155,20 @@ export default function RequestNotifications() {
       toast.error('Failed to dismiss request');
 
       // Revert optimistic update
-      await queryClient.invalidateQueries({ 
+      await queryClient.invalidateQueries({
         queryKey: currentQueryKey,
-        exact: true 
+        exact: true,
       });
     } finally {
       setDismissingId(null);
     }
   };
 
-  const handleSeeInTimetable = (_classSessionId: string, periodIndex?: number, classGroupId?: string) => {
+  const handleSeeInTimetable = (
+    _classSessionId: string,
+    periodIndex?: number,
+    classGroupId?: string
+  ) => {
     if (periodIndex !== undefined && classGroupId) {
       // Navigate to timetable with highlight parameters
       navigate(`/scheduler?highlightPeriod=${periodIndex}&highlightGroup=${classGroupId}`);
@@ -205,10 +213,16 @@ export default function RequestNotifications() {
                         {request.resource_name || 'Unknown Resource'}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Requested by: <span className="font-medium text-gray-700">{request.requester_name || 'Unknown User'}</span>
+                        Requested by:{' '}
+                        <span className="font-medium text-gray-700">
+                          {request.requester_name || 'Unknown User'}
+                        </span>
                       </div>
                       <div className="text-xs text-gray-500">
-                        Program: <span className="font-medium text-gray-700">{request.program_name || 'Unknown Program'}</span>
+                        Program:{' '}
+                        <span className="font-medium text-gray-700">
+                          {request.program_name || 'Unknown Program'}
+                        </span>
                       </div>
                       <div className="text-xs text-gray-500">
                         {new Date(request.requested_at || '').toLocaleDateString()}
@@ -219,19 +233,27 @@ export default function RequestNotifications() {
                       variant="ghost"
                       className="h-6 w-6 p-0"
                       onClick={() => handleDismiss(request.id)}
-                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                      disabled={
+                        approvingId === request.id ||
+                        rejectingId === request.id ||
+                        dismissingId === request.id
+                      }
                     >
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
-                  
+
                   <div className="flex items-center gap-1 flex-wrap">
                     <Button
                       size="sm"
                       variant="secondary"
                       className="text-xs px-2 py-1 h-7"
                       onClick={() => handleApprove(request.id)}
-                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                      disabled={
+                        approvingId === request.id ||
+                        rejectingId === request.id ||
+                        dismissingId === request.id
+                      }
                     >
                       {approvingId === request.id ? 'Approving...' : 'Approve'}
                     </Button>
@@ -239,8 +261,18 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="destructive"
                       className="text-xs px-2 py-1 h-7"
-                      onClick={() => handleRejectClick(request.id, request.class_session_id, request.resource_name || 'Resource')}
-                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                      onClick={() =>
+                        handleRejectClick(
+                          request.id,
+                          request.class_session_id,
+                          request.resource_name || 'Resource'
+                        )
+                      }
+                      disabled={
+                        approvingId === request.id ||
+                        rejectingId === request.id ||
+                        dismissingId === request.id
+                      }
                     >
                       {rejectingId === request.id ? 'Rejecting...' : 'Reject'}
                     </Button>
@@ -248,8 +280,18 @@ export default function RequestNotifications() {
                       size="sm"
                       variant="outline"
                       className="text-xs px-2 py-1 h-7 flex items-center gap-1"
-                      onClick={() => handleSeeInTimetable(request.class_session_id, request.period_index, request.class_group_id)}
-                      disabled={approvingId === request.id || rejectingId === request.id || dismissingId === request.id}
+                      onClick={() =>
+                        handleSeeInTimetable(
+                          request.class_session_id,
+                          request.period_index,
+                          request.class_group_id
+                        )
+                      }
+                      disabled={
+                        approvingId === request.id ||
+                        rejectingId === request.id ||
+                        dismissingId === request.id
+                      }
                     >
                       <MapPin className="h-3 w-3" />
                       See in Timetable

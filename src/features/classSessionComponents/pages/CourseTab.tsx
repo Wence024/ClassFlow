@@ -47,10 +47,10 @@ const CourseManagement: React.FC = () => {
 
   const formMethods = useForm<CourseFormData>({
     resolver: zodResolver(componentSchemas.course),
-    defaultValues: { 
-      name: '', 
-      code: '', 
-      color: presetColor, 
+    defaultValues: {
+      name: '',
+      code: '',
+      color: presetColor,
       program_id: user?.program_id || '',
       lecture_hours: null,
       lab_hours: null,
@@ -70,10 +70,10 @@ const CourseManagement: React.FC = () => {
         units: editingCourse.units ?? null,
       });
     } else {
-      formMethods.reset({ 
-        name: '', 
-        code: '', 
-        color: presetColor, 
+      formMethods.reset({
+        name: '',
+        code: '',
+        color: presetColor,
         program_id: user?.program_id || '',
         lecture_hours: null,
         lab_hours: null,
@@ -90,10 +90,12 @@ const CourseManagement: React.FC = () => {
         const labHours = value.lab_hours || 0;
         const currentUnits = value.units;
         const calculatedUnits = lecHours + labHours;
-        
+
         // Only auto-update if units field is empty or matches previous calculation
         if (currentUnits === null || currentUnits === undefined || currentUnits === 0) {
-          formMethods.setValue('units', calculatedUnits > 0 ? calculatedUnits : null, { shouldValidate: true });
+          formMethods.setValue('units', calculatedUnits > 0 ? calculatedUnits : null, {
+            shouldValidate: true,
+          });
         }
       }
     });
@@ -114,13 +116,14 @@ const CourseManagement: React.FC = () => {
   const canManageCourse = (course: Course) => {
     if (!user) return false;
     if (user.role === 'admin') return true;
-    
+
     // Check program-based ownership (both must be non-null and match)
-    const programMatch = !!course.program_id && !!user.program_id && course.program_id === user.program_id;
-    
+    const programMatch =
+      !!course.program_id && !!user.program_id && course.program_id === user.program_id;
+
     // Check creator-based ownership as fallback
     const creatorMatch = course.created_by === user.id;
-    
+
     return programMatch || creatorMatch;
   };
 
@@ -135,10 +138,10 @@ const CourseManagement: React.FC = () => {
     try {
       await addCourse({ ...data, created_by: user.id, program_id: user.program_id });
       toast.success('Course created successfully');
-      formMethods.reset({ 
-        name: '', 
-        code: '', 
-        color: getRandomPresetColor(), 
+      formMethods.reset({
+        name: '',
+        code: '',
+        color: getRandomPresetColor(),
         program_id: user.program_id,
         lecture_hours: null,
         lab_hours: null,

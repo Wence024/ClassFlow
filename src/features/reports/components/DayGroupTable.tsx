@@ -19,23 +19,67 @@ export function DayGroupTable({ dayLabel, entries }: DayGroupTableProps) {
   return (
     <div className="mb-8">
       <h3 className="text-lg font-bold mb-3">{dayLabel}</h3>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-border">
           <thead>
             <tr className="bg-muted">
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Time</th>
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Subject(s)</th>
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Dept</th>
-              <th className="border border-border px-3 py-2 text-left text-sm font-semibold" rowSpan={2}>Room</th>
-              <th className="border border-border px-3 py-2 text-center text-sm font-semibold" colSpan={2}>Contact hr/wk</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold" rowSpan={2}>Units</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold" rowSpan={2}>Load</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold" rowSpan={2}>Class Size</th>
+              <th
+                className="border border-border px-3 py-2 text-left text-sm font-semibold"
+                rowSpan={2}
+              >
+                Time
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-left text-sm font-semibold"
+                rowSpan={2}
+              >
+                Subject(s)
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-left text-sm font-semibold"
+                rowSpan={2}
+              >
+                Dept
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-left text-sm font-semibold"
+                rowSpan={2}
+              >
+                Room
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-center text-sm font-semibold"
+                colSpan={2}
+              >
+                Contact hr/wk
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-right text-sm font-semibold"
+                rowSpan={2}
+              >
+                Units
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-right text-sm font-semibold"
+                rowSpan={2}
+              >
+                Load
+              </th>
+              <th
+                className="border border-border px-3 py-2 text-right text-sm font-semibold"
+                rowSpan={2}
+              >
+                Class Size
+              </th>
             </tr>
             <tr className="bg-muted">
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Lec Hrs</th>
-              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">Lab Hrs</th>
+              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">
+                Lec Hrs
+              </th>
+              <th className="border border-border px-3 py-2 text-right text-sm font-semibold">
+                Lab Hrs
+              </th>
             </tr>
           </thead>
           <tbody>

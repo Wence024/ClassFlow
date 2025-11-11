@@ -48,9 +48,7 @@ export function ClassroomSelector({
   userDepartmentId,
   isLoading = false,
 }: ClassroomSelectorProps) {
-  const prioritizedClassrooms = classrooms.map((c) =>
-    toPrioritizedClassroom(c, userDepartmentId)
-  );
+  const prioritizedClassrooms = classrooms.map((c) => toPrioritizedClassroom(c, userDepartmentId));
 
   return (
     <ResourceSelectorModal

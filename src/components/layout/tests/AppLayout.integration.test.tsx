@@ -23,7 +23,13 @@ const renderAppLayout = (authContextValue: Partial<AuthContextType> = {}) => {
   });
 
   const mockAuthContext: AuthContextType = {
-    user: { id: 'u1', role: 'program_head', program_id: 'p1', name: 'Program Head', email: 'ph@test.com' },
+    user: {
+      id: 'u1',
+      role: 'program_head',
+      program_id: 'p1',
+      name: 'Program Head',
+      email: 'ph@test.com',
+    },
     role: 'admin',
     departmentId: null,
     login: vi.fn(),

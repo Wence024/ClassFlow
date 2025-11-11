@@ -2,7 +2,17 @@
  * @file A docked, collapsible sidebar component for application navigation.
  * Provides role-based navigation with icon-only mode and hover tooltips when collapsed.
  */
-import { LayoutGrid, BookOpenCheck, Settings, Blocks, Building2, Users, Search, Send, FileText } from 'lucide-react';
+import {
+  LayoutGrid,
+  BookOpenCheck,
+  Settings,
+  Blocks,
+  Building2,
+  Users,
+  Search,
+  Send,
+  FileText,
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { useLayout } from '../contexts/hooks/useLayout';
@@ -53,7 +63,7 @@ const Sidebar = () => {
 
   // Build navigation links based on user role - each role has its own workflow
   let navLinks: typeof adminNavLinks = [];
-  
+
   if (isAdmin()) {
     navLinks = adminNavLinks;
   } else if (isDepartmentHead()) {

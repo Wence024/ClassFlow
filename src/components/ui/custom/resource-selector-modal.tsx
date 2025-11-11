@@ -21,25 +21,25 @@ export interface PrioritizedItem {
 interface ResourceSelectorModalProps<T extends PrioritizedItem> {
   /** Whether the modal is open. */
   isOpen: boolean;
-  
+
   /** Callback to close the modal. */
   onClose: () => void;
-  
+
   /** Callback when an item is selected. */
   onSelectItem: (item: T) => void;
-  
+
   /** Array of items to display and select from. */
   items: T[];
-  
+
   /** The title displayed at the top of the modal. */
   title: string;
-  
+
   /** A render function that takes an item and returns JSX for display. */
   renderItem: (item: T, onSelect: () => void) => React.ReactNode;
-  
+
   /** Whether the items are currently being loaded. */
   isLoading?: boolean;
-  
+
   /** Whether to show all items without grouping when no priority items exist. */
   showAllItemsWhenNoPriority?: boolean;
 }
@@ -77,9 +77,7 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
     if (!searchQuery.trim()) return items;
 
     const query = searchQuery.toLowerCase();
-    return items.filter(item =>
-      item.searchTerm?.toLowerCase().includes(query),
-    );
+    return items.filter((item) => item.searchTerm?.toLowerCase().includes(query));
   }, [items, searchQuery]);
 
   // Group items into priority and non-priority
@@ -87,7 +85,7 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
     const priority: T[] = [];
     const other: T[] = [];
 
-    filteredItems.forEach(item => {
+    filteredItems.forEach((item) => {
       if (item.isPriority) {
         priority.push(item);
       } else {
@@ -117,9 +115,7 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
       return (
         <div className="text-center py-8 text-muted-foreground">
           <p>No results found</p>
-          {searchQuery && (
-            <p className="text-sm mt-2">Try adjusting your search terms</p>
-          )}
+          {searchQuery && <p className="text-sm mt-2">Try adjusting your search terms</p>}
         </div>
       );
     }
@@ -131,7 +127,7 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
             Note: Resources are not assigned to specific departments yet
           </div>
           <div className="space-y-2">
-            {filteredItems.map(item => (
+            {filteredItems.map((item) => (
               <div key={item.id} className="cursor-pointer">
                 {renderItem(item, () => handleSelect(item))}
               </div>
@@ -145,11 +141,9 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
       <div className="space-y-6">
         {priorityItems.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">
-              From Your Department
-            </h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">From Your Department</h3>
             <div className="space-y-2">
-              {priorityItems.map(item => (
+              {priorityItems.map((item) => (
                 <div key={item.id} className="cursor-pointer">
                   {renderItem(item, () => handleSelect(item))}
                 </div>
@@ -160,12 +154,10 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
         {otherItems.length > 0 && (
           <div>
             {priorityItems.length > 0 && (
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                From Other Departments
-              </h3>
+              <h3 className="text-sm font-semibold text-foreground mb-3">From Other Departments</h3>
             )}
             <div className="space-y-2">
-              {otherItems.map(item => (
+              {otherItems.map((item) => (
                 <div key={item.id} className="cursor-pointer">
                   {renderItem(item, () => handleSelect(item))}
                 </div>
@@ -189,14 +181,12 @@ export function ResourceSelectorModal<T extends PrioritizedItem>({
             type="text"
             placeholder="Search..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full"
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 pb-6">
-          {renderContent()}
-        </div>
+        <div className="flex-1 overflow-y-auto px-6 pb-6">{renderContent()}</div>
       </DialogContent>
     </Dialog>
   );

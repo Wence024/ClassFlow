@@ -36,7 +36,9 @@ const mockUser: User = {
 
 // Minimal context: just pass the required structure for useAuth
 const TestAuthProvider = ({ children }: { children: ReactNode }) => (
-  <AuthContext.Provider value={{ user: mockUser, loading: false, error: null }}>{children}</AuthContext.Provider>
+  <AuthContext.Provider value={{ user: mockUser, loading: false, error: null }}>
+    {children}
+  </AuthContext.Provider>
 );
 
 // Provide QueryClientWrapper for context
@@ -48,7 +50,11 @@ const createWrapper = () => {
     },
   });
   return function Wrapper({ children }: { children: ReactNode }) {
-    return <QueryClientProvider client={client}><TestAuthProvider>{children}</TestAuthProvider></QueryClientProvider>;
+    return (
+      <QueryClientProvider client={client}>
+        <TestAuthProvider>{children}</TestAuthProvider>
+      </QueryClientProvider>
+    );
   };
 };
 
@@ -74,7 +80,12 @@ describe('RealtimeProvider', () => {
 
   it('should invalidate queries on INSERT/UPDATE but not DELETE (resource_requests)', async () => {
     const { RealtimeProvider } = await import('../RealtimeProvider');
-    render(<RealtimeProvider><div /></RealtimeProvider>, { wrapper: createWrapper() });
+    render(
+      <RealtimeProvider>
+        <div />
+      </RealtimeProvider>,
+      { wrapper: createWrapper() }
+    );
     const firstOnCall = mockOn.mock.calls[0];
     expect(firstOnCall).toBeDefined();
     const handler = firstOnCall && firstOnCall[2];
@@ -122,7 +133,12 @@ describe('RealtimeProvider', () => {
 
   it('should not break on unknown/fuzz events and uses defensive handling', async () => {
     const { RealtimeProvider } = await import('../RealtimeProvider');
-    render(<RealtimeProvider><div /></RealtimeProvider>, { wrapper: createWrapper() });
+    render(
+      <RealtimeProvider>
+        <div />
+      </RealtimeProvider>,
+      { wrapper: createWrapper() }
+    );
     const firstOnCall = mockOn.mock.calls[0];
     const handler = firstOnCall && firstOnCall[2];
     if (handler) expect(() => handler({ eventType: 'UNKNOWN', table: 'foobar' })).not.toThrow();

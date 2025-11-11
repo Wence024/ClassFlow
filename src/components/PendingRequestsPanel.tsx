@@ -102,9 +102,7 @@ export default function PendingRequestsPanel() {
                     <div className="text-xs text-gray-500">
                       Requested: {new Date(request.requested_at || '').toLocaleDateString()}
                     </div>
-                    <div className="text-xs mt-1 text-blue-600 font-medium">
-                      Awaiting approval
-                    </div>
+                    <div className="text-xs mt-1 text-blue-600 font-medium">Awaiting approval</div>
                   </div>
                   <Button
                     size="sm"

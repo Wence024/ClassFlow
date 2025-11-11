@@ -2,7 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as service from '../services/resourceRequestService';
-import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
+import type {
+  ResourceRequest,
+  ResourceRequestInsert,
+  ResourceRequestUpdate,
+} from '../types/resourceRequest';
 
 /**
  * A hook for managing resource requests initiated by the current user.
@@ -58,7 +62,8 @@ export function useDepartmentRequests(departmentId?: string) {
 
   const listQuery = useQuery({
     queryKey,
-    queryFn: () => (departmentId ? service.getRequestsForDepartment(departmentId) : Promise.resolve([])),
+    queryFn: () =>
+      departmentId ? service.getRequestsForDepartment(departmentId) : Promise.resolve([]),
     enabled: !!departmentId,
   });
 

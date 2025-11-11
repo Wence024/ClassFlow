@@ -19,7 +19,13 @@ import { toast } from 'sonner';
  */
 const ScheduleConfigPage: React.FC = () => {
   const { isAdmin } = useAuth();
-  const { settings, updateSettings, isLoading, isUpdating, error: queryError } = useScheduleConfig();
+  const {
+    settings,
+    updateSettings,
+    isLoading,
+    isUpdating,
+    error: queryError,
+  } = useScheduleConfig();
   const [formData, setFormData] = useState({
     periods_per_day: 8,
     class_days_per_week: 5,
@@ -48,7 +54,7 @@ const ScheduleConfigPage: React.FC = () => {
       toast('Success', { description: 'Settings saved successfully!' });
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
-      
+
       if (errorMessage.includes('Cannot save')) {
         setConflictError(errorMessage);
         toast('Action Blocked', { description: 'Please resolve the conflicts shown on the page.' });
@@ -63,13 +69,13 @@ const ScheduleConfigPage: React.FC = () => {
   }
 
   if (queryError) {
-    return <ErrorMessage message={(queryError as Error).message || "Failed to load settings."} />;
+    return <ErrorMessage message={(queryError as Error).message || 'Failed to load settings.'} />;
   }
 
   return (
     <div className="max-w-2xl mx-auto mt-8 p-6 bg-white rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-6 text-center">Academic Schedule Configuration</h1>
-      
+
       {conflictError && (
         <Alert variant="destructive" className="mb-4">
           {conflictError}

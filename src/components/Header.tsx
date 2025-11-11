@@ -34,7 +34,11 @@ const Header = () => {
               onClick={toggleSidebar}
               title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {isSidebarCollapsed ? <Menu className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+              {isSidebarCollapsed ? (
+                <Menu className="h-5 w-5" />
+              ) : (
+                <PanelLeftClose className="h-5 w-5" />
+              )}
               <span className="sr-only">Toggle Sidebar</span>
             </Button>
             <Link to="/scheduler" className="text-xl font-bold text-gray-900">

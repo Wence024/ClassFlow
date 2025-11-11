@@ -79,7 +79,9 @@ describe('usersService Integration Tests', () => {
     });
 
     it('should handle missing roles with default program_head', async () => {
-      const mockProfiles = [{ id: 'u1', full_name: 'Charlie User', program_id: null, department_id: 'd1' }];
+      const mockProfiles = [
+        { id: 'u1', full_name: 'Charlie User', program_id: null, department_id: 'd1' },
+      ];
 
       vi.mocked(supabase.from).mockReturnValue({
         select: vi.fn().mockReturnValue({

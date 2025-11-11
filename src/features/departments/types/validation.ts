@@ -7,5 +7,3 @@ export const departmentSchema = z.object({
 });
 
 export type DepartmentFormData = z.infer<typeof departmentSchema>;
-
-

@@ -6,14 +6,16 @@ import FormField from '@/components/ui/custom/form-field';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const completeRegistrationSchema = z.object({
-  fullName: z.string().min(1, 'Name is required').max(100),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
+const completeRegistrationSchema = z
+  .object({
+    fullName: z.string().min(1, 'Name is required').max(100),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
 
 /**
  * A page for invited users to complete their registration by setting their password.
@@ -110,7 +112,7 @@ export default function CompleteRegistrationPage() {
         <p className="text-gray-600 mb-6 text-center">
           Set your password to complete your account setup.
         </p>
-        
+
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <FormField
             id="fullName"
@@ -121,7 +123,7 @@ export default function CompleteRegistrationPage() {
             required
             disabled={loading}
           />
-          
+
           <FormField
             id="password"
             label="Password"
@@ -133,7 +135,7 @@ export default function CompleteRegistrationPage() {
             disabled={loading}
             autoComplete="new-password"
           />
-          
+
           <FormField
             id="confirmPassword"
             label="Confirm Password"

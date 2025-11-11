@@ -45,7 +45,7 @@ describe('Remove to Drawer Workflow', () => {
 
   it('should remove session on confirm', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -70,13 +70,13 @@ describe('Remove to Drawer Workflow', () => {
 
   it('should call cancelRequest service for pending request', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       action: 'removed_from_timetable',
       class_session_id: 'session-1',
     };
-    
+
     vi.mocked(supabase.rpc).mockResolvedValue({
       data: mockResult,
       error: null,
@@ -92,14 +92,14 @@ describe('Remove to Drawer Workflow', () => {
 
   it('should call cancelRequest service for approved request', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       action: 'restored',
       class_session_id: 'session-1',
       restored_to_period: 5,
     };
-    
+
     vi.mocked(supabase.rpc).mockResolvedValue({
       data: mockResult,
       error: null,
@@ -113,7 +113,7 @@ describe('Remove to Drawer Workflow', () => {
 
   it('should create cancellation notification for department head', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockRequests = [
       {
         id: 'request-1',
@@ -142,16 +142,18 @@ describe('Remove to Drawer Workflow', () => {
 
     await resourceRequestService.cancelActiveRequestsForClassSession('session-1');
 
-    const insertCalls = vi.mocked(supabase.from).mock.results.filter(
-      (result: unknown) => (result as { value?: { insert?: unknown } })?.value?.insert
-    );
-    
+    const insertCalls = vi
+      .mocked(supabase.from)
+      .mock.results.filter(
+        (result: unknown) => (result as { value?: { insert?: unknown } })?.value?.insert
+      );
+
     expect(insertCalls.length).toBeGreaterThan(0);
   });
 
   it('should show "cancelled by program head" message to dept head', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockRequests = [
       {
         id: 'request-1',
@@ -184,7 +186,7 @@ describe('Remove to Drawer Workflow', () => {
 
   it('should delete the resource request after notification', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
@@ -211,7 +213,7 @@ describe('Remove to Drawer Workflow', () => {
 
   it('should handle no active requests gracefully', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     vi.mocked(supabase.from).mockReturnValue({
       select: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({

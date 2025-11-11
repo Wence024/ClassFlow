@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '../ui/dialog';
 import { Button } from '../ui/button';
 
 interface ConfirmDialogProps {
@@ -50,11 +57,7 @@ export default function ConfirmDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             {cancelText}
           </Button>
-          <Button
-            variant={variant}
-            onClick={onConfirm}
-            disabled={isLoading}
-          >
+          <Button variant={variant} onClick={onConfirm} disabled={isLoading}>
             {isLoading ? 'Processing...' : confirmText}
           </Button>
         </DialogFooter>

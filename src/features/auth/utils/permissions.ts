@@ -69,7 +69,9 @@ export function canReviewRequestsForDepartment(
   targetDepartmentId: string
 ): boolean {
   if (role === 'admin') return true;
-  return role === 'department_head' && !!userDepartmentId && userDepartmentId === targetDepartmentId;
+  return (
+    role === 'department_head' && !!userDepartmentId && userDepartmentId === targetDepartmentId
+  );
 }
 
 /**
@@ -86,7 +88,9 @@ export function canManageInstructorRow(
   instructorDepartmentId: string
 ): boolean {
   if (role === 'admin') return true;
-  return role === 'department_head' && !!userDepartmentId && userDepartmentId === instructorDepartmentId;
+  return (
+    role === 'department_head' && !!userDepartmentId && userDepartmentId === instructorDepartmentId
+  );
 }
 
 /**
@@ -103,7 +107,12 @@ export function canManageCourses(
   targetProgramId: string | null | undefined
 ): boolean {
   if (role === 'admin') return true;
-  return role === 'program_head' && !!userProgramId && !!targetProgramId && userProgramId === targetProgramId;
+  return (
+    role === 'program_head' &&
+    !!userProgramId &&
+    !!targetProgramId &&
+    userProgramId === targetProgramId
+  );
 }
 
 /**

@@ -11,5 +11,3 @@ export type DepartmentInsert = {
 };
 
 export type DepartmentUpdate = Partial<DepartmentInsert>;
-
-

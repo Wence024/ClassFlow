@@ -30,11 +30,7 @@ vi.mock('react-router-dom', async () => {
  * @param tc.onRender - Callback when component renders with auth context.
  * @returns A test component.
  */
-const TestComponent = ({
-  onRender,
-}: {
-  onRender: (ctx: AuthContextType) => void;
-}) => {
+const TestComponent = ({ onRender }: { onRender: (ctx: AuthContextType) => void }) => {
   const ctx = useAuth();
   onRender(ctx);
   return <div>Test Component</div>;
@@ -62,9 +58,7 @@ describe('AuthProvider Integration Tests', () => {
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent
-            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
-          />
+          <TestComponent onRender={(ctx: AuthContextType) => (capturedContext = ctx)} />
         </AuthProvider>
       </MemoryRouter>
     );
@@ -83,9 +77,7 @@ describe('AuthProvider Integration Tests', () => {
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent
-            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
-          />
+          <TestComponent onRender={(ctx: AuthContextType) => (capturedContext = ctx)} />
         </AuthProvider>
       </MemoryRouter>
     );
@@ -112,9 +104,7 @@ describe('AuthProvider Integration Tests', () => {
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent
-            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
-          />
+          <TestComponent onRender={(ctx: AuthContextType) => (capturedContext = ctx)} />
         </AuthProvider>
       </MemoryRouter>
     );
@@ -131,17 +121,13 @@ describe('AuthProvider Integration Tests', () => {
   });
 
   it('should handle auth initialization errors gracefully', async () => {
-    vi.mocked(authService.getStoredUser).mockRejectedValue(
-      new Error('Network error')
-    );
+    vi.mocked(authService.getStoredUser).mockRejectedValue(new Error('Network error'));
 
     let capturedContext: AuthContextType | null = null;
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent
-            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
-          />
+          <TestComponent onRender={(ctx: AuthContextType) => (capturedContext = ctx)} />
         </AuthProvider>
       </MemoryRouter>
     );
@@ -174,9 +160,7 @@ describe('AuthProvider Integration Tests', () => {
     render(
       <MemoryRouter>
         <AuthProvider>
-          <TestComponent
-            onRender={(ctx: AuthContextType) => (capturedContext = ctx)}
-          />
+          <TestComponent onRender={(ctx: AuthContextType) => (capturedContext = ctx)} />
         </AuthProvider>
       </MemoryRouter>
     );
@@ -196,7 +180,7 @@ describe('AuthProvider Integration Tests', () => {
     it('should redirect admin users to /departments', async () => {
       const mockNavigate = vi.fn();
       vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-      
+
       const adminUser = {
         id: 'u1',
         name: 'Admin User',
@@ -230,7 +214,7 @@ describe('AuthProvider Integration Tests', () => {
     it('should redirect department_head users to /department-head', async () => {
       const mockNavigate = vi.fn();
       vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-      
+
       const deptHeadUser = {
         id: 'u2',
         name: 'Dept Head',
@@ -264,7 +248,7 @@ describe('AuthProvider Integration Tests', () => {
     it('should redirect program_head users to /scheduler', async () => {
       const mockNavigate = vi.fn();
       vi.mocked(useNavigate).mockReturnValue(mockNavigate);
-      
+
       const progHeadUser = {
         id: 'u3',
         name: 'Prog Head',

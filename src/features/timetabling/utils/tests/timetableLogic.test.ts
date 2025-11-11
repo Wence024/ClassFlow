@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  buildTimetableGridForClassGroups,
-} from '../timetableLogic';
+import { buildTimetableGridForClassGroups } from '../timetableLogic';
 
 // --- Mock Data Setup ---
 
@@ -300,7 +298,12 @@ describe('buildTimetableGridForClassGroups', () => {
         period_count: 1,
         program_id: 'p1',
       };
-      const differentCourse: Course = { ...mockCourse, id: 'course2', name: 'Different Course', code: 'C102' };
+      const differentCourse: Course = {
+        ...mockCourse,
+        id: 'course2',
+        name: 'Different Course',
+        code: 'C102',
+      };
       const session2: ClassSession = {
         id: 's2',
         course: differentCourse, // Course B
@@ -330,7 +333,11 @@ describe('buildTimetableGridForClassGroups', () => {
       };
 
       // ACT
-      const grid = buildTimetableGridForClassGroups([assignment1, assignment2], [mockGroup1, mockGroup2], totalPeriods);
+      const grid = buildTimetableGridForClassGroups(
+        [assignment1, assignment2],
+        [mockGroup1, mockGroup2],
+        totalPeriods
+      );
 
       // ASSERT
       const group1Cell = grid.get('group1')?.[0];

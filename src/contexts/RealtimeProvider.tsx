@@ -69,15 +69,11 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     // Subscribe to class_sessions changes (for cancellations)
     const classSessionsChannel = supabase
       .channel('global_class_sessions')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'class_sessions' },
-        () => {
-          console.log('[Realtime] class_sessions changed');
-          queryClient.invalidateQueries({ queryKey: ['classSessions'], exact: false });
-          queryClient.invalidateQueries({ queryKey: ['allClassSessions'], exact: false });
-        }
-      )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'class_sessions' }, () => {
+        console.log('[Realtime] class_sessions changed');
+        queryClient.invalidateQueries({ queryKey: ['classSessions'], exact: false });
+        queryClient.invalidateQueries({ queryKey: ['allClassSessions'], exact: false });
+      })
       .subscribe();
 
     console.log('[Realtime] All channels subscribed for user:', user.id);

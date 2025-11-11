@@ -2,7 +2,13 @@ import React from 'react';
 import type { Control, FieldErrors } from 'react-hook-form';
 import type { Department } from '../../types/department';
 import type { DepartmentFormData } from '../../types/validation';
-import { FormControl, FormField as RHFFormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  FormControl,
+  FormField as RHFFormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,8 +80,12 @@ export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, onEd
         <div className="font-medium">{department.name}</div>
         <div className="text-sm text-gray-500">{department.code}</div>
       </div>
-      <Button variant="secondary" onClick={() => onEdit(department)}>Edit</Button>
-      <Button variant="destructive" onClick={() => onDelete(department.id)}>Delete</Button>
+      <Button variant="secondary" onClick={() => onEdit(department)}>
+        Edit
+      </Button>
+      <Button variant="destructive" onClick={() => onDelete(department.id)}>
+        Delete
+      </Button>
     </Card>
   );
 };

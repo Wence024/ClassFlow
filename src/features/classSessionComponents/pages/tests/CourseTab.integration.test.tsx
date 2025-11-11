@@ -53,7 +53,14 @@ const queryClient = new QueryClient();
 // A helper to render the component with all necessary providers
 const renderComponent = () => {
   const authContextValue: AuthContextType = {
-    user: { id: 'u1', name: 'test', email: 'test@test.com', role: 'admin', program_id: 'p1', department_id: null },
+    user: {
+      id: 'u1',
+      name: 'test',
+      email: 'test@test.com',
+      role: 'admin',
+      program_id: 'p1',
+      department_id: null,
+    },
     loading: false,
     login: vi.fn(),
     logout: vi.fn(),
@@ -124,11 +131,11 @@ describe('CourseTab (CourseManagement)', () => {
 
   it('should show edit/delete buttons for courses owned by program head', () => {
     renderComponent();
-    
+
     // Should show buttons for courses in same program (p1)
     const editButton = screen.getByRole('button', { name: /Edit React Fundamentals/i });
     const deleteButton = screen.getByRole('button', { name: /Delete React Fundamentals/i });
-    
+
     expect(editButton).toBeInTheDocument();
     expect(deleteButton).toBeInTheDocument();
   });

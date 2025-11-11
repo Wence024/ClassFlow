@@ -14,7 +14,11 @@ import SessionCell from './SessionCell';
  * @param periodsPerDay - The number of periods per day.
  * @returns Whether this is the last period in the day.
  */
-const isLastPeriodInDay = (periodIndex: number, numberOfPeriods: number, periodsPerDay: number): boolean => {
+const isLastPeriodInDay = (
+  periodIndex: number,
+  numberOfPeriods: number,
+  periodsPerDay: number
+): boolean => {
   return (periodIndex + numberOfPeriods - 1) % periodsPerDay === periodsPerDay - 1;
 };
 
@@ -26,7 +30,11 @@ const isLastPeriodInDay = (periodIndex: number, numberOfPeriods: number, periods
  * @param periodsPerDay - The number of periods per day.
  * @returns Whether this is not the last day in the table.
  */
-const isNotLastDayOfTable = (periodIndex: number, totalPeriods: number, periodsPerDay: number): boolean => {
+const isNotLastDayOfTable = (
+  periodIndex: number,
+  totalPeriods: number,
+  periodsPerDay: number
+): boolean => {
   const currentDay = Math.floor(periodIndex / periodsPerDay);
   const totalDays = Math.floor(totalPeriods / periodsPerDay);
   return currentDay < totalDays - 1;
@@ -39,7 +47,11 @@ const isNotLastDayOfTable = (periodIndex: number, totalPeriods: number, periodsP
  * @param periodIndex - The index of the period.
  * @param numberOfPeriods - The number of periods this session spans.
  */
-const markPeriodsAsRendered = (renderedPeriods: Set<number>, periodIndex: number, numberOfPeriods: number): void => {
+const markPeriodsAsRendered = (
+  renderedPeriods: Set<number>,
+  periodIndex: number,
+  numberOfPeriods: number
+): void => {
   for (let i = 0; i < numberOfPeriods; i++) {
     renderedPeriods.add(periodIndex + i);
   }
@@ -138,7 +150,8 @@ function getResourceLabel(viewMode: TimetableViewMode, resource: TimetableRowRes
     }
     case 'instructor': {
       const instructor = resource as Instructor;
-      const fullName = `${instructor.prefix || ''} ${instructor.first_name} ${instructor.last_name} ${instructor.suffix || ''}`.trim();
+      const fullName =
+        `${instructor.prefix || ''} ${instructor.first_name} ${instructor.last_name} ${instructor.suffix || ''}`.trim();
       if (instructor.contract_type) {
         return `${fullName} (${instructor.contract_type})`;
       }

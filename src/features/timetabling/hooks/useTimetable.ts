@@ -3,7 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../auth/hooks/useAuth';
 import * as timetableService from '../services/timetableService';
 import checkTimetableConflicts from '../utils/checkConflicts';
-import { buildTimetableGrid, type TimetableGrid, type TimetableRowResource } from '../utils/timetableLogic';
+import {
+  buildTimetableGrid,
+  type TimetableGrid,
+  type TimetableRowResource,
+} from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
 import type { ClassSession } from '../../classSessions/types/classSession';
@@ -39,14 +43,17 @@ const handleCrossDepartmentMove = async (
   to: { class_group_id: string; period_index: number },
   activeSemester: Semester
 ) => {
-  const { data, error } = await supabase.rpc('handle_cross_dept_session_move' as never, {
-    _class_session_id: classSession.id,
-    _old_period_index: from.period_index,
-    _old_class_group_id: from.class_group_id,
-    _new_period_index: to.period_index,
-    _new_class_group_id: to.class_group_id,
-    _semester_id: activeSemester.id,
-  } as never);
+  const { data, error } = await supabase.rpc(
+    'handle_cross_dept_session_move' as never,
+    {
+      _class_session_id: classSession.id,
+      _old_period_index: from.period_index,
+      _old_class_group_id: from.class_group_id,
+      _new_period_index: to.period_index,
+      _new_class_group_id: to.class_group_id,
+      _semester_id: activeSemester.id,
+    } as never
+  );
 
   if (error) {
     console.error('Failed to move cross-department session (RPC error):', error);
@@ -191,14 +198,17 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       if (!activeSemester) throw new Error('Active semester not loaded');
 
       const status = variables.requiresApproval ? 'pending' : 'confirmed';
-      
-      return timetableService.assignClassSessionToTimetable({
-        user_id: user.id,
-        class_group_id: variables.class_group_id,
-        period_index: variables.period_index,
-        class_session_id: variables.classSession.id,
-        semester_id: activeSemester.id,
-      }, status);
+
+      return timetableService.assignClassSessionToTimetable(
+        {
+          user_id: user.id,
+          class_group_id: variables.class_group_id,
+          period_index: variables.period_index,
+          class_session_id: variables.classSession.id,
+          semester_id: activeSemester.id,
+        },
+        status
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
@@ -255,14 +265,19 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       if (!activeSemester) throw new Error('Active semester not loaded');
 
       const status = variables.requiresApproval ? 'pending' : 'confirmed';
-      
-      return timetableService.moveClassSessionInTimetable(variables.from, variables.to, {
-        user_id: user.id,
-        class_group_id: variables.to.class_group_id,
-        period_index: variables.to.period_index,
-        class_session_id: variables.classSession.id,
-        semester_id: activeSemester.id,
-      }, status);
+
+      return timetableService.moveClassSessionInTimetable(
+        variables.from,
+        variables.to,
+        {
+          user_id: user.id,
+          class_group_id: variables.to.class_group_id,
+          period_index: variables.to.period_index,
+          class_session_id: variables.classSession.id,
+          semester_id: activeSemester.id,
+        },
+        status
+      );
     },
     // Optimistic update: move the item in the cache immediately.
     onMutate: async (movedItem) => {
@@ -320,67 +335,76 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
   /**
    * Checks if a class session uses cross-department resources.
    */
-  const usesCrossDepartmentResource = useCallback((classSession: ClassSession): boolean => {
-    if (!user?.program_id) return false;
-    
-    const userProgram = programs.find(p => p.id === user.program_id);
-    if (!userProgram?.department_id) return false;
-    
-    const instructorDeptId = classSession.instructor.department_id;
-    const classroomDeptId = classSession.classroom.preferred_department_id;
-    
-    return (
-      (instructorDeptId != null && instructorDeptId !== userProgram.department_id) ||
-      (classroomDeptId != null && classroomDeptId !== userProgram.department_id)
-    );
-  }, [user, programs]);
+  const usesCrossDepartmentResource = useCallback(
+    (classSession: ClassSession): boolean => {
+      if (!user?.program_id) return false;
+
+      const userProgram = programs.find((p) => p.id === user.program_id);
+      if (!userProgram?.department_id) return false;
+
+      const instructorDeptId = classSession.instructor.department_id;
+      const classroomDeptId = classSession.classroom.preferred_department_id;
+
+      return (
+        (instructorDeptId != null && instructorDeptId !== userProgram.department_id) ||
+        (classroomDeptId != null && classroomDeptId !== userProgram.department_id)
+      );
+    },
+    [user, programs]
+  );
 
   /**
    * Creates a resource request for a class session that uses cross-department resources.
    */
-  const createResourceRequestForSession = useCallback(async (classSession: ClassSession) => {
-    if (!user?.program_id || !activeSemester) return;
-    
-    const userProgram = programs.find(p => p.id === user.program_id);
-    if (!userProgram?.department_id) return;
-    
-    const instructorDeptId = classSession.instructor.department_id;
-    const classroomDeptId = classSession.classroom.preferred_department_id;
-    
-    const crossDeptInstructor = instructorDeptId && instructorDeptId !== userProgram.department_id;
-    const crossDeptClassroom = classroomDeptId && classroomDeptId !== userProgram.department_id;
-    
-    if (!crossDeptInstructor && !crossDeptClassroom) return;
-    
-    // Import the resource request service dynamically
-    const { createRequest } = await import('../../resourceRequests/services/resourceRequestService');
-    
-    // Create request for cross-department instructor
-    if (crossDeptInstructor) {
-      await createRequest({
-        resource_type: 'instructor',
-        resource_id: classSession.instructor.id,
-        requesting_program_id: user.program_id,
-        target_department_id: instructorDeptId,
-        requester_id: user.id,
-        class_session_id: classSession.id,
-        notes: `Request to use instructor ${classSession.instructor.first_name} ${classSession.instructor.last_name}`,
-      });
-    }
-    
-    // Create request for cross-department classroom
-    if (crossDeptClassroom) {
-      await createRequest({
-        resource_type: 'classroom',
-        resource_id: classSession.classroom.id,
-        requesting_program_id: user.program_id,
-        target_department_id: classroomDeptId,
-        requester_id: user.id,
-        class_session_id: classSession.id,
-        notes: `Request to use classroom ${classSession.classroom.name}`,
-      });
-    }
-  }, [user, programs, activeSemester]);
+  const createResourceRequestForSession = useCallback(
+    async (classSession: ClassSession) => {
+      if (!user?.program_id || !activeSemester) return;
+
+      const userProgram = programs.find((p) => p.id === user.program_id);
+      if (!userProgram?.department_id) return;
+
+      const instructorDeptId = classSession.instructor.department_id;
+      const classroomDeptId = classSession.classroom.preferred_department_id;
+
+      const crossDeptInstructor =
+        instructorDeptId && instructorDeptId !== userProgram.department_id;
+      const crossDeptClassroom = classroomDeptId && classroomDeptId !== userProgram.department_id;
+
+      if (!crossDeptInstructor && !crossDeptClassroom) return;
+
+      // Import the resource request service dynamically
+      const { createRequest } = await import(
+        '../../resourceRequests/services/resourceRequestService'
+      );
+
+      // Create request for cross-department instructor
+      if (crossDeptInstructor) {
+        await createRequest({
+          resource_type: 'instructor',
+          resource_id: classSession.instructor.id,
+          requesting_program_id: user.program_id,
+          target_department_id: instructorDeptId,
+          requester_id: user.id,
+          class_session_id: classSession.id,
+          notes: `Request to use instructor ${classSession.instructor.first_name} ${classSession.instructor.last_name}`,
+        });
+      }
+
+      // Create request for cross-department classroom
+      if (crossDeptClassroom) {
+        await createRequest({
+          resource_type: 'classroom',
+          resource_id: classSession.classroom.id,
+          requesting_program_id: user.program_id,
+          target_department_id: classroomDeptId,
+          requester_id: user.id,
+          class_session_id: classSession.id,
+          notes: `Request to use classroom ${classSession.classroom.name}`,
+        });
+      }
+    },
+    [user, programs, activeSemester]
+  );
 
   /**
    * Assigns a class session after performing a conflict check. Returns an error message string on failure.
@@ -422,21 +446,21 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         });
         return conflict;
       }
-      
+
       const requiresApproval = usesCrossDepartmentResource(classSession);
-      
+
       try {
-        await assignClassSessionMutation.mutateAsync({ 
-          class_group_id, 
-          period_index, 
+        await assignClassSessionMutation.mutateAsync({
+          class_group_id,
+          period_index,
           classSession,
-          requiresApproval 
+          requiresApproval,
         });
-        
+
         if (requiresApproval) {
           await createResourceRequestForSession(classSession);
         }
-        
+
         return '';
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
@@ -450,7 +474,15 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         return errorMsg;
       }
     },
-    [settings, timetable, programs, assignClassSessionMutation, viewMode, usesCrossDepartmentResource, createResourceRequestForSession]
+    [
+      settings,
+      timetable,
+      programs,
+      assignClassSessionMutation,
+      viewMode,
+      usesCrossDepartmentResource,
+      createResourceRequestForSession,
+    ]
   );
 
   /**
@@ -567,7 +599,6 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       activeSemester,
     ]
   );
-
 
   /** A consolidated loading state that is true if settings are missing or any data is being fetched. */
   const loading = isFetching || !settings;

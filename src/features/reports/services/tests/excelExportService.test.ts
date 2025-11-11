@@ -30,5 +30,3 @@ function buildReport(): InstructorReport {
     loadStatus: 'AT_STANDARD',
   };
 }
-
-

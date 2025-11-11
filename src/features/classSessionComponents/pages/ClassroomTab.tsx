@@ -32,7 +32,7 @@ type ClassroomFormData = z.infer<typeof componentSchemas.classroom>;
  */
 const ClassroomManagement: React.FC = () => {
   const { user, isProgramHead } = useAuth();
-  
+
   // Use unified hook that adapts based on role
   const {
     classrooms,
@@ -45,18 +45,18 @@ const ClassroomManagement: React.FC = () => {
     error,
     canManage,
   } = useClassroomsUnified();
-  
+
   const { classSessions } = useClassSessions();
   const { listQuery: departmentsQuery } = useDepartments();
-  
+
   // Memoize department options with a "None" option using sentinel value
   const departmentOptions = useMemo(() => {
     const departments = departmentsQuery.data || [];
     const noneOption = { id: '__none__', name: '-- None --' };
-    const mappedDepartments = departments.map(d => ({ id: d.id, name: `${d.name} (${d.code})` }));
+    const mappedDepartments = departments.map((d) => ({ id: d.id, name: `${d.name} (${d.code})` }));
     return [noneOption, ...mappedDepartments];
   }, [departmentsQuery.data]);
-  
+
   const [editingClassroom, setEditingClassroom] = useState<Classroom | null>(null);
   const [classroomToDelete, setClassroomToDelete] = useState<Classroom | null>(null);
   const [searchTerm, setSearchTerm] = useState(''); // <-- NEW: State for the search term
@@ -92,9 +92,7 @@ const ClassroomManagement: React.FC = () => {
 
   // Find the index where "other" classrooms begin (for separator)
   const firstOtherIndex = useMemo(() => {
-    return filteredClassrooms.findIndex(
-      (c) => c.preferred_department_id !== user?.department_id
-    );
+    return filteredClassrooms.findIndex((c) => c.preferred_department_id !== user?.department_id);
   }, [filteredClassrooms, user?.department_id]);
 
   const handleAdd = async (data: ClassroomFormData) => {
@@ -153,8 +151,14 @@ const ClassroomManagement: React.FC = () => {
                 {editingClassroom ? 'Edit Classroom' : 'Create Classroom'}
               </h2>
               <FormProvider {...formMethods}>
-                <form onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}>
-                  <fieldset data-testid="classroom-form-fieldset" disabled={isSubmitting} className="space-y-1">
+                <form
+                  onSubmit={formMethods.handleSubmit(editingClassroom ? handleSave : handleAdd)}
+                >
+                  <fieldset
+                    data-testid="classroom-form-fieldset"
+                    disabled={isSubmitting}
+                    className="space-y-1"
+                  >
                     <ClassroomFields
                       control={formMethods.control}
                       errors={formMethods.formState.errors}
@@ -178,12 +182,13 @@ const ClassroomManagement: React.FC = () => {
         )}
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">Classrooms</h2>
-          
+
           {/* Informational alert for program heads */}
           {isProgramHead() && !canManage && (
             <Alert className="mb-4">
               <p className="text-sm">
-                You are viewing all available classrooms. Only administrators and department heads can create or modify classrooms.
+                You are viewing all available classrooms. Only administrators and department heads
+                can create or modify classrooms.
               </p>
             </Alert>
           )}

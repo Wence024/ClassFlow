@@ -45,7 +45,7 @@ export async function getTimetableAssignments(
 
   // Map the data to include the status field explicitly
   // Default to 'confirmed' if status is not present
-  return (data || []).map(assignment => ({
+  return (data || []).map((assignment) => ({
     ...assignment,
     status: (assignment.status as 'pending' | 'confirmed' | undefined) || 'confirmed',
   })) as HydratedTimetableAssignment[];
@@ -66,7 +66,9 @@ export async function assignClassSessionToTimetable(
   const assignmentWithStatus = { ...assignment, status };
   const { data, error } = await supabase
     .from('timetable_assignments')
-    .upsert([assignmentWithStatus], { onConflict: 'user_id,class_group_id,period_index,semester_id' })
+    .upsert([assignmentWithStatus], {
+      onConflict: 'user_id,class_group_id,period_index,semester_id',
+    })
     .select('*')
     .single();
   if (error) throw error;
@@ -99,12 +101,12 @@ export async function removeClassSessionFromTimetable(
  * Move a class session from one cell to another (upsert new first, then delete old) in Supabase.
  * The new assignment object MUST include the semester_id.
  * Authorization is handled by RLS policies based on program/department ownership.
- * 
+ *
  * This approach (upsert first, delete second) is safer than delete-first because:
  * - If the upsert fails, the original assignment remains intact
  * - If the delete fails, we have a duplicate but the data is preserved
  * - The client can handle duplicate cleanup through refetch/invalidation.
- * 
+ *
  * NOTE: This is not fully atomic. A future improvement would be to wrap this in a
  * Postgres function that performs both operations within a single transaction.
  *
@@ -126,16 +128,20 @@ export async function moveClassSessionInTimetable(
 ): Promise<TimetableAssignment> {
   // Step 1: Create the new assignment first (safer order)
   const newAssignment = await assignClassSessionToTimetable(assignment, status);
-  
+
   // Step 2: Remove the old assignment only after the new one is successfully created
-  await removeClassSessionFromTimetable(from.class_group_id, from.period_index, assignment.semester_id);
-  
+  await removeClassSessionFromTimetable(
+    from.class_group_id,
+    from.period_index,
+    assignment.semester_id
+  );
+
   return newAssignment;
 }
 
 /**
  * Update the status of all timetable assignments for a specific class session.
- * 
+ *
  * @deprecated This function is kept for backward compatibility but should not be used
  * for approving resource requests. Use the `approve_resource_request` database function
  * via the `approveRequest` service function instead for atomic updates.
@@ -149,8 +155,10 @@ export async function updateAssignmentStatusBySession(
   semesterId: string,
   status: 'pending' | 'confirmed'
 ): Promise<void> {
-  console.warn('updateAssignmentStatusBySession is deprecated. Use approveRequest service function instead.');
-  
+  console.warn(
+    'updateAssignmentStatusBySession is deprecated. Use approveRequest service function instead.'
+  );
+
   const { data, error } = await supabase
     .from('timetable_assignments')
     .update({ status })

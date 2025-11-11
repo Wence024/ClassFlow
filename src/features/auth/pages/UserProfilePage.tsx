@@ -20,7 +20,8 @@ export default function UserProfilePage() {
   const { listQuery: departmentsQuery } = useDepartments();
   const [name, setName] = useState(user?.name || '');
 
-  if (!user) return <Alert variant="destructive">You must be logged in to manage your profile.</Alert>;
+  if (!user)
+    return <Alert variant="destructive">You must be logged in to manage your profile.</Alert>;
 
   if (programsQuery.isLoading || departmentsQuery.isLoading) {
     return <LoadingSpinner text="Loading profile..." />;
@@ -28,9 +29,9 @@ export default function UserProfilePage() {
 
   const programs = programsQuery.data || [];
   const departments = departmentsQuery.data || [];
-  
-  const assignedProgram = programs.find(p => p.id === user.program_id);
-  const assignedDepartment = departments.find(d => d.id === user.department_id);
+
+  const assignedProgram = programs.find((p) => p.id === user.program_id);
+  const assignedDepartment = departments.find((d) => d.id === user.department_id);
 
   const onSave = async () => {
     try {
@@ -62,15 +63,25 @@ export default function UserProfilePage() {
           </div>
           <div>
             <div className="text-sm text-gray-600">Program</div>
-            <div>{assignedProgram ? `${assignedProgram.name} (${assignedProgram.short_code})` : 'Not Assigned'}</div>
+            <div>
+              {assignedProgram
+                ? `${assignedProgram.name} (${assignedProgram.short_code})`
+                : 'Not Assigned'}
+            </div>
           </div>
         </div>
         <div>
           <div className="text-sm text-gray-600">Department</div>
-          <div>{assignedDepartment ? `${assignedDepartment.name} (${assignedDepartment.code})` : 'Not Assigned'}</div>
+          <div>
+            {assignedDepartment
+              ? `${assignedDepartment.name} (${assignedDepartment.code})`
+              : 'Not Assigned'}
+          </div>
         </div>
         <div className="flex gap-2 pt-2">
-          <Button onClick={onSave} disabled={loading}>Save</Button>
+          <Button onClick={onSave} disabled={loading}>
+            Save
+          </Button>
         </div>
       </Card>
     </div>

@@ -1,6 +1,6 @@
 /**
  * Edge case tests for resource request service functions.
- * 
+ *
  * Tests scenarios like:
  * - Resource deletion while requests are pending
  * - Session deletion during pending placement
@@ -72,7 +72,8 @@ describe('resourceRequestService - Edge Cases', () => {
         status: 'pending',
       };
 
-      const mockFrom = vi.fn()
+      const mockFrom = vi
+        .fn()
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
@@ -124,7 +125,8 @@ describe('resourceRequestService - Edge Cases', () => {
         { id: 'req-2', target_department_id: 'dept-2' },
       ];
 
-      const mockFrom = vi.fn()
+      const mockFrom = vi
+        .fn()
         // First call: fetch requests
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
@@ -189,11 +191,10 @@ describe('resourceRequestService - Edge Cases', () => {
 
   describe('cancelActiveRequestsForClassSession', () => {
     it('should cancel all active requests when session is deleted', async () => {
-      const mockRequests = [
-        { id: 'req-1', target_department_id: 'dept-1', status: 'pending' },
-      ];
+      const mockRequests = [{ id: 'req-1', target_department_id: 'dept-1', status: 'pending' }];
 
-      const mockFrom = vi.fn()
+      const mockFrom = vi
+        .fn()
         // Fetch requests
         .mockReturnValueOnce({
           select: vi.fn().mockReturnValue({
@@ -280,9 +281,9 @@ describe('resourceRequestService - Edge Cases', () => {
         error: null,
       } as never);
 
-      await expect(
-        resourceRequestService.cancelRequest('request-1', 'wrong-user')
-      ).rejects.toThrow('Permission denied');
+      await expect(resourceRequestService.cancelRequest('request-1', 'wrong-user')).rejects.toThrow(
+        'Permission denied'
+      );
     });
 
     it('should throw error if request not found', async () => {
@@ -307,9 +308,9 @@ describe('resourceRequestService - Edge Cases', () => {
         error: { message: 'Database error', code: 'DB_ERROR' },
       } as never);
 
-      await expect(
-        resourceRequestService.cancelRequest('request-1', 'user-1')
-      ).rejects.toThrow('Failed to cancel request: Database error');
+      await expect(resourceRequestService.cancelRequest('request-1', 'user-1')).rejects.toThrow(
+        'Failed to cancel request: Database error'
+      );
     });
   });
 });

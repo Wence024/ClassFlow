@@ -1,6 +1,6 @@
 /**
  * Integration tests for ResourceSelectorModal component.
- * 
+ *
  * Tests department-based prioritization, search filtering, and fallback UI behavior.
  */
 

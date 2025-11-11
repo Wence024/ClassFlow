@@ -17,7 +17,9 @@ import type { EnrichedRequest } from '../RequestNotifications';
 vi.mock('../../features/auth/hooks/useDepartmentId');
 vi.mock('../../features/resourceRequests/hooks/useResourceRequests');
 vi.mock('../../features/resourceRequests/services/resourceRequestService', async () => {
-  const actual = await vi.importActual('../../features/resourceRequests/services/resourceRequestService');
+  const actual = await vi.importActual(
+    '../../features/resourceRequests/services/resourceRequestService'
+  );
   return {
     ...actual,
     approveRequest: vi.fn(),
@@ -30,31 +32,40 @@ const mockedResourceRequestService = vi.mocked(resourceRequestService, true);
 
 const queryClient = new QueryClient();
 
-const TestWrapper = ({ children, user }: { children: ReactNode; user: AuthContextType['user'] }) => (
+const TestWrapper = ({
+  children,
+  user,
+}: {
+  children: ReactNode;
+  user: AuthContextType['user'];
+}) => (
   <QueryClientProvider client={queryClient}>
     <MemoryRouter>
       <AuthContext.Provider
-      value={{
-        user,
-        role: user?.role || null,
-        departmentId: user?.department_id || null,
-        loading: false,
-        error: null,
-        login: vi.fn(),
-        logout: vi.fn(),
-        clearError: vi.fn(),
-        updateMyProfile: vi.fn(),
-        isAdmin: () => user?.role === 'admin',
-        isDepartmentHead: () => user?.role === 'department_head',
-        isProgramHead: () => user?.role === 'program_head',
-        canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
-        canManageClassrooms: () => user?.role === 'admin',
-        canReviewRequestsForDepartment: (departmentId: string) =>
-          user?.role === 'admin' || (user?.role === 'department_head' && user.department_id === departmentId),
-        canManageInstructorRow: () => false,
-        canManageCourses: () => false,
-        canManageAssignmentsForProgram: () => false,
-      } as AuthContextType}
+        value={
+          {
+            user,
+            role: user?.role || null,
+            departmentId: user?.department_id || null,
+            loading: false,
+            error: null,
+            login: vi.fn(),
+            logout: vi.fn(),
+            clearError: vi.fn(),
+            updateMyProfile: vi.fn(),
+            isAdmin: () => user?.role === 'admin',
+            isDepartmentHead: () => user?.role === 'department_head',
+            isProgramHead: () => user?.role === 'program_head',
+            canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
+            canManageClassrooms: () => user?.role === 'admin',
+            canReviewRequestsForDepartment: (departmentId: string) =>
+              user?.role === 'admin' ||
+              (user?.role === 'department_head' && user.department_id === departmentId),
+            canManageInstructorRow: () => false,
+            canManageCourses: () => false,
+            canManageAssignmentsForProgram: () => false,
+          } as AuthContextType
+        }
       >
         {children}
       </AuthContext.Provider>
@@ -84,7 +95,9 @@ describe('RequestNotifications', () => {
       updateRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
 
-    const { container } = render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper> });
+    const { container } = render(<RequestNotifications />, {
+      wrapper: ({ children }) => <TestWrapper user={programHeadUser}>{children}</TestWrapper>,
+    });
 
     expect(container).toBeEmptyDOMElement();
   });
@@ -99,8 +112,20 @@ describe('RequestNotifications', () => {
       program_id: null,
     };
     const mockRequests: ResourceRequest[] = [
-      { id: 'req1', resource_id: 'res1', resource_type: 'instructor', status: 'pending', requested_at: new Date().toISOString() },
-      { id: 'req2', resource_id: 'res2', resource_type: 'classroom', status: 'approved', requested_at: new Date().toISOString() },
+      {
+        id: 'req1',
+        resource_id: 'res1',
+        resource_type: 'instructor',
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+      },
+      {
+        id: 'req2',
+        resource_id: 'res2',
+        resource_type: 'classroom',
+        status: 'approved',
+        requested_at: new Date().toISOString(),
+      },
     ];
 
     mockedUseDepartmentId.useDepartmentId.mockReturnValue('dept1');
@@ -109,7 +134,9 @@ describe('RequestNotifications', () => {
       updateRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
 
-    render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+    render(<RequestNotifications />, {
+      wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper>,
+    });
 
     expect(screen.getByRole('button')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument(); // Badge count
@@ -126,7 +153,14 @@ describe('RequestNotifications', () => {
       program_id: null,
     };
     const mockRequests: ResourceRequest[] = [
-      { id: 'req1', resource_id: 'res1', resource_type: 'instructor', status: 'pending', requested_at: new Date().toISOString(), target_department_id: 'dept1' } as ResourceRequest,
+      {
+        id: 'req1',
+        resource_id: 'res1',
+        resource_type: 'instructor',
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+        target_department_id: 'dept1',
+      } as ResourceRequest,
     ];
 
     mockedUseDepartmentId.useDepartmentId.mockReturnValue('dept1');
@@ -146,7 +180,9 @@ describe('RequestNotifications', () => {
       class_session_id: 'session1',
     } as EnrichedRequest);
 
-    render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+    render(<RequestNotifications />, {
+      wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper>,
+    });
 
     await user.click(screen.getByRole('button'));
 
@@ -167,11 +203,11 @@ describe('RequestNotifications', () => {
       program_id: null,
     };
     const mockRequests: ResourceRequest[] = [
-      { 
-        id: 'req1', 
-        resource_id: 'res1', 
-        resource_type: 'instructor', 
-        status: 'pending', 
+      {
+        id: 'req1',
+        resource_id: 'res1',
+        resource_type: 'instructor',
+        status: 'pending',
         requested_at: new Date().toISOString(),
         class_session_id: 'session1',
         target_department_id: 'dept1',
@@ -202,7 +238,9 @@ describe('RequestNotifications', () => {
       class_session_id: 'session1',
     } as EnrichedRequest);
 
-    render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+    render(<RequestNotifications />, {
+      wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper>,
+    });
 
     await user.click(screen.getByRole('button'));
     await user.click(await screen.findByRole('button', { name: /Approve/i }));
@@ -225,7 +263,13 @@ describe('RequestNotifications', () => {
       program_id: null,
     };
     const mockRequests: ResourceRequest[] = [
-      { id: 'req1', resource_id: 'res1', resource_type: 'instructor', status: 'pending', requested_at: new Date().toISOString() },
+      {
+        id: 'req1',
+        resource_id: 'res1',
+        resource_type: 'instructor',
+        status: 'pending',
+        requested_at: new Date().toISOString(),
+      },
     ];
 
     mockedUseDepartmentId.useDepartmentId.mockReturnValue('dept1');
@@ -235,7 +279,8 @@ describe('RequestNotifications', () => {
       dismissRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
 
-    mockedResourceRequestService.rejectRequest = rejectRequest as unknown as typeof resourceRequestService.rejectRequest;
+    mockedResourceRequestService.rejectRequest =
+      rejectRequest as unknown as typeof resourceRequestService.rejectRequest;
     mockedResourceRequestService.getRequestWithDetails = vi.fn().mockResolvedValue({
       id: 'req1',
       resource_type: 'instructor',
@@ -246,7 +291,9 @@ describe('RequestNotifications', () => {
       class_session_id: 'session1',
     } as EnrichedRequest);
 
-    render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+    render(<RequestNotifications />, {
+      wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper>,
+    });
 
     await user.click(screen.getByRole('button'));
     await user.click(await screen.findByRole('button', { name: /Reject/i }));
@@ -277,7 +324,9 @@ describe('RequestNotifications', () => {
       updateRequest: vi.fn(),
     } as unknown as ReturnType<typeof useDepartmentRequestsHook.useDepartmentRequests>);
 
-    render(<RequestNotifications />, { wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper> });
+    render(<RequestNotifications />, {
+      wrapper: ({ children }) => <TestWrapper user={deptHeadUser}>{children}</TestWrapper>,
+    });
 
     await user.click(screen.getByRole('button'));
 

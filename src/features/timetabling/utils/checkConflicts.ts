@@ -548,7 +548,12 @@ function checkGroupDoubleBooking(
 
   for (let i = 0; i < period_count; i++) {
     const periodIndex = targetPeriodIndex + i;
-    const conflict = findGroupConflictInPeriod(timetable, sessionToCheck, targetGroupId, periodIndex);
+    const conflict = findGroupConflictInPeriod(
+      timetable,
+      sessionToCheck,
+      targetGroupId,
+      periodIndex
+    );
     if (conflict) {
       return conflict;
     }

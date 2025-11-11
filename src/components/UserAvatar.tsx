@@ -32,9 +32,13 @@ export default function UserAvatar() {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-40 p-2 space-y-1">
         <Link to="/profile" className="block">
-          <Button variant="secondary" className="w-full justify-start">My Profile</Button>
+          <Button variant="secondary" className="w-full justify-start">
+            My Profile
+          </Button>
         </Link>
-        <Button variant="destructive" className="w-full justify-start" onClick={logout}>Logout</Button>
+        <Button variant="destructive" className="w-full justify-start" onClick={logout}>
+          Logout
+        </Button>
       </PopoverContent>
     </Popover>
   );

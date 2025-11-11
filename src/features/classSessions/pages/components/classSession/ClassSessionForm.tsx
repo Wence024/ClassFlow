@@ -151,7 +151,9 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                         errors.program_id ? 'border-destructive' : 'border-input'
                       } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
                     >
-                      <span className={selectedProgram ? 'text-foreground' : 'text-muted-foreground'}>
+                      <span
+                        className={selectedProgram ? 'text-foreground' : 'text-muted-foreground'}
+                      >
                         {selectedProgram
                           ? `${selectedProgram.name} (${selectedProgram.short_code})`
                           : 'Select Program...'}
@@ -322,7 +324,9 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                       errors.classroom_id ? 'border-destructive' : 'border-input'
                     } ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent'}`}
                   >
-                    <span className={selectedClassroom ? 'text-foreground' : 'text-muted-foreground'}>
+                    <span
+                      className={selectedClassroom ? 'text-foreground' : 'text-muted-foreground'}
+                    >
                       {selectedClassroom ? selectedClassroom.name : 'Select Classroom...'}
                     </span>
                     <ChevronDown className="h-4 w-4" />

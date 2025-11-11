@@ -37,7 +37,7 @@ const TestWrapper = ({ children, user }: { children: React.ReactNode; user: User
 };
 
 const useTestHook = (): UseQueryResult<Course[], unknown> => {
-  const query = useAllCourses("test");
+  const query = useAllCourses('test');
   return query as UseQueryResult<Course[], unknown>;
 };
 
@@ -52,8 +52,24 @@ describe('useAllCourses', () => {
   };
 
   const mockCourses: Course[] = [
-    { id: 'c1', name: 'Course 1', code: 'C1', program_id: 'p1', created_at: '', color: '#fff', created_by: 'u1' },
-    { id: 'c2', name: 'Course 2', code: 'C2', program_id: 'p2', created_at: '', color: '#fff', created_by: 'u1' },
+    {
+      id: 'c1',
+      name: 'Course 1',
+      code: 'C1',
+      program_id: 'p1',
+      created_at: '',
+      color: '#fff',
+      created_by: 'u1',
+    },
+    {
+      id: 'c2',
+      name: 'Course 2',
+      code: 'C2',
+      program_id: 'p2',
+      created_at: '',
+      color: '#fff',
+      created_by: 'u1',
+    },
   ];
 
   beforeEach(() => {

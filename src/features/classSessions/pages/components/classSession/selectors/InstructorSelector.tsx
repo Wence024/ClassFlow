@@ -21,10 +21,8 @@ function toPrioritizedInstructor(
   i: Instructor,
   userDepartmentId?: string | null
 ): Instructor & PrioritizedItem {
-  const fullName = [i.prefix, i.first_name, i.last_name, i.suffix]
-    .filter(Boolean)
-    .join(' ');
-  
+  const fullName = [i.prefix, i.first_name, i.last_name, i.suffix].filter(Boolean).join(' ');
+
   return {
     ...i,
     searchTerm: `${fullName} ${i.code || ''} ${i.email || ''}`,

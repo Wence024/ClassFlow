@@ -37,29 +37,29 @@ function App() {
           <RealtimeProvider>
             <TooltipProvider>
               <Routes>
-              {/* Public Routes */}
-              {AuthRoutes}
+                {/* Public Routes */}
+                {AuthRoutes}
 
-              {/* Private Routes */}
-              <Route element={<PrivateRoute />}>
-                <Route element={<AppLayout />}>
-                  <Route path="/" element={<Navigate to="/class-sessions" replace />} />
-                  <Route path="/class-sessions" element={<ClassSessions />} />
-                  <Route path="/scheduler" element={<TimetablePage />} />
-                  <Route path="/component-management" element={<ComponentManagement />} />
-                  <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
-                  <Route path="/departments" element={<DepartmentManagementPage />} />
-                  <Route path="/programs" element={<ProgramManagementPage />} />
-                  <Route path="/user-management" element={<UserManagementPage />} />
-                  <Route path="/department-head" element={<DepartmentHeadDashboard />} />
-                  <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
-                  <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
-                  <Route path="/reports/instructors" element={<InstructorReportsPage />} />
-                  <Route path="/profile" element={<UserProfilePage />} />
+                {/* Private Routes */}
+                <Route element={<PrivateRoute />}>
+                  <Route element={<AppLayout />}>
+                    <Route path="/" element={<Navigate to="/class-sessions" replace />} />
+                    <Route path="/class-sessions" element={<ClassSessions />} />
+                    <Route path="/scheduler" element={<TimetablePage />} />
+                    <Route path="/component-management" element={<ComponentManagement />} />
+                    <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
+                    <Route path="/departments" element={<DepartmentManagementPage />} />
+                    <Route path="/programs" element={<ProgramManagementPage />} />
+                    <Route path="/user-management" element={<UserManagementPage />} />
+                    <Route path="/department-head" element={<DepartmentHeadDashboard />} />
+                    <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
+                    <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
+                    <Route path="/reports/instructors" element={<InstructorReportsPage />} />
+                    <Route path="/profile" element={<UserProfilePage />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
               <Toaster />
             </TooltipProvider>

@@ -113,8 +113,8 @@ const needsReapproval = (
   const hasCrossDeptResource = Boolean(
     (classSessionToDrop.instructor.department_id &&
       classSessionToDrop.instructor.department_id !== user?.program_id) ||
-    (classSessionToDrop.classroom.preferred_department_id &&
-      classSessionToDrop.classroom.preferred_department_id !== user?.program_id)
+      (classSessionToDrop.classroom.preferred_department_id &&
+        classSessionToDrop.classroom.preferred_department_id !== user?.program_id)
   );
 
   return hasCrossDeptResource && isCurrentlyConfirmed;
@@ -137,7 +137,7 @@ const needsReapproval = (
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
 export const useTimetableDnd = (
-  allClassSessions: ClassSession[], 
+  allClassSessions: ClassSession[],
   viewMode: TimetableViewMode = 'class-group',
   assignments?: HydratedTimetableAssignment[],
   pendingPlacementInfo?: {
@@ -150,16 +150,15 @@ export const useTimetableDnd = (
 ) => {
   // --- Core Hooks ---
   const { user } = useAuth();
-  const { timetable, assignClassSession, removeClassSession, moveClassSession } = useTimetable(viewMode);
+  const { timetable, assignClassSession, removeClassSession, moveClassSession } =
+    useTimetable(viewMode);
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
   const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);
-  const [activeDraggedSession, setActiveDraggedSession] = useState<ClassSession | null>(
-    null
-  );
+  const [activeDraggedSession, setActiveDraggedSession] = useState<ClassSession | null>(null);
   const [dragOverCell, setDragOverCell] = useState<{ groupId: string; periodIndex: number } | null>(
     null
   );
@@ -255,29 +254,33 @@ export const useTimetableDnd = (
 
   // --- Event Handlers ---
 
-  const executeDropMutation = useCallback(async (
-    source: DragSource,
-    session: ClassSession,
-    dbTargetGroupId: string,
-    targetPeriodIndex: number
-  ) => {
-    if (source.from === 'drawer') {
-      return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
-    } else if (source.from === 'timetable') {
-      const isSameCell = viewMode === 'class-group'
-        ? (source.class_group_id === dbTargetGroupId && source.period_index === targetPeriodIndex)
-        : (source.period_index === targetPeriodIndex);
+  const executeDropMutation = useCallback(
+    async (
+      source: DragSource,
+      session: ClassSession,
+      dbTargetGroupId: string,
+      targetPeriodIndex: number
+    ) => {
+      if (source.from === 'drawer') {
+        return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
+      } else if (source.from === 'timetable') {
+        const isSameCell =
+          viewMode === 'class-group'
+            ? source.class_group_id === dbTargetGroupId && source.period_index === targetPeriodIndex
+            : source.period_index === targetPeriodIndex;
 
-      if (isSameCell) return '';
+        if (isSameCell) return '';
 
-      return moveClassSession(
-        { class_group_id: source.class_group_id, period_index: source.period_index },
-        { class_group_id: dbTargetGroupId, period_index: targetPeriodIndex },
-        session
-      );
-    }
-    return 'Invalid drag source';
-  }, [assignClassSession, moveClassSession, viewMode]);
+        return moveClassSession(
+          { class_group_id: source.class_group_id, period_index: source.period_index },
+          { class_group_id: dbTargetGroupId, period_index: targetPeriodIndex },
+          session
+        );
+      }
+      return 'Invalid drag source';
+    },
+    [assignClassSession, moveClassSession, viewMode]
+  );
 
   const handleDragStart = useCallback(
     (e: React.DragEvent, source: DragSource) => {
@@ -312,47 +315,73 @@ export const useTimetableDnd = (
     }
   }, []);
 
-  const handlePendingPlacement = useCallback(async (classSessionToDrop: ClassSession) => {
-    if (!pendingPlacementInfo?.resourceType || !pendingPlacementInfo?.resourceId || !pendingPlacementInfo?.departmentId) return;
-    const { createRequest } = await import('../../resourceRequests/services/resourceRequestService');
-    try {
-      await createRequest({
-        requester_id: user?.id || '',
-        requesting_program_id: user?.program_id || '',
-        resource_type: pendingPlacementInfo.resourceType,
-        resource_id: pendingPlacementInfo.resourceId,
-        class_session_id: classSessionToDrop.id,
-        target_department_id: pendingPlacementInfo.departmentId,
-        status: 'pending',
-      });
-      toast.success('Session placed and request submitted! Check notifications for updates.');
-      pendingPlacementInfo.onClearPending?.();
-    } catch (requestErr) {
-      console.error('Failed to create resource request:', requestErr);
-      toast.error('Session placed but failed to create request. Please try again from Classes page.');
-    }
-  }, [user, pendingPlacementInfo]);
-
-  const handleReapproval = useCallback((source: DragSource, classSessionToDrop: ClassSession, dbTargetGroupId: string, targetPeriodIndex: number, onConfirmMove: (callback: () => void) => void) => {
-    onConfirmMove(async () => {
+  const handlePendingPlacement = useCallback(
+    async (classSessionToDrop: ClassSession) => {
+      if (
+        !pendingPlacementInfo?.resourceType ||
+        !pendingPlacementInfo?.resourceId ||
+        !pendingPlacementInfo?.departmentId
+      )
+        return;
+      const { createRequest } = await import(
+        '../../resourceRequests/services/resourceRequestService'
+      );
       try {
-        const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
-        if (error) {
-          toast('Error', { description: error });
-        }
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        toast('Error', { description: errorMsg });
-      } finally {
-        cleanupDragState();
+        await createRequest({
+          requester_id: user?.id || '',
+          requesting_program_id: user?.program_id || '',
+          resource_type: pendingPlacementInfo.resourceType,
+          resource_id: pendingPlacementInfo.resourceId,
+          class_session_id: classSessionToDrop.id,
+          target_department_id: pendingPlacementInfo.departmentId,
+          status: 'pending',
+        });
+        toast.success('Session placed and request submitted! Check notifications for updates.');
+        pendingPlacementInfo.onClearPending?.();
+      } catch (requestErr) {
+        console.error('Failed to create resource request:', requestErr);
+        toast.error(
+          'Session placed but failed to create request. Please try again from Classes page.'
+        );
       }
-    });
-  }, [executeDropMutation, cleanupDragState]);
+    },
+    [user, pendingPlacementInfo]
+  );
+
+  const handleReapproval = useCallback(
+    (
+      source: DragSource,
+      classSessionToDrop: ClassSession,
+      dbTargetGroupId: string,
+      targetPeriodIndex: number,
+      onConfirmMove: (callback: () => void) => void
+    ) => {
+      onConfirmMove(async () => {
+        try {
+          const error = await executeDropMutation(
+            source,
+            classSessionToDrop,
+            dbTargetGroupId,
+            targetPeriodIndex
+          );
+          if (error) {
+            toast('Error', { description: error });
+          }
+        } catch (err) {
+          const errorMsg = err instanceof Error ? err.message : String(err);
+          toast('Error', { description: errorMsg });
+        } finally {
+          cleanupDragState();
+        }
+      });
+    },
+    [executeDropMutation, cleanupDragState]
+  );
 
   const handleDropToGrid = useCallback(
     async (
-      e: React.DragEvent, 
-      targetClassGroupId: string, 
+      e: React.DragEvent,
+      targetClassGroupId: string,
       targetPeriodIndex: number,
       onConfirmMove?: (callback: () => void) => void
     ) => {
@@ -372,17 +401,29 @@ export const useTimetableDnd = (
         return;
       }
 
-      const dbTargetGroupId = viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
+      const dbTargetGroupId =
+        viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
 
       if (onConfirmMove && needsReapproval(source, classSessionToDrop, assignments, user)) {
-        handleReapproval(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex, onConfirmMove);
+        handleReapproval(
+          source,
+          classSessionToDrop,
+          dbTargetGroupId,
+          targetPeriodIndex,
+          onConfirmMove
+        );
         return;
       }
 
       const isPendingPlacement = pendingPlacementInfo?.pendingSessionId === classSessionToDrop.id;
-      
+
       try {
-        const error = await executeDropMutation(source, classSessionToDrop, dbTargetGroupId, targetPeriodIndex);
+        const error = await executeDropMutation(
+          source,
+          classSessionToDrop,
+          dbTargetGroupId,
+          targetPeriodIndex
+        );
         if (error) {
           toast('Error', { description: error });
         } else if (isPendingPlacement) {
@@ -395,7 +436,17 @@ export const useTimetableDnd = (
         cleanupDragState();
       }
     },
-    [allClassSessions, cleanupDragState, user, viewMode, executeDropMutation, pendingPlacementInfo, assignments, handlePendingPlacement, handleReapproval]
+    [
+      allClassSessions,
+      cleanupDragState,
+      user,
+      viewMode,
+      executeDropMutation,
+      pendingPlacementInfo,
+      assignments,
+      handlePendingPlacement,
+      handleReapproval,
+    ]
   );
 
   const handleDropToDrawer = useCallback(
@@ -405,15 +456,19 @@ export const useTimetableDnd = (
 
       if (source.from === 'timetable') {
         const session = allClassSessions.find((cs) => cs.id === source.class_session_id);
-        
+
         if (session && onConfirm) {
-          const hasCrossDeptResource = 
-            (session.instructor.department_id && session.instructor.department_id !== user?.program_id) ||
-            (session.classroom.preferred_department_id && session.classroom.preferred_department_id !== user?.program_id);
+          const hasCrossDeptResource =
+            (session.instructor.department_id &&
+              session.instructor.department_id !== user?.program_id) ||
+            (session.classroom.preferred_department_id &&
+              session.classroom.preferred_department_id !== user?.program_id);
 
           if (hasCrossDeptResource) {
             onConfirm(async () => {
-              const { cancelActiveRequestsForClassSession } = await import('../../resourceRequests/services/resourceRequestService');
+              const { cancelActiveRequestsForClassSession } = await import(
+                '../../resourceRequests/services/resourceRequestService'
+              );
               try {
                 await cancelActiveRequestsForClassSession(session.id);
                 toast.success('Session removed and department head notified');
@@ -421,14 +476,14 @@ export const useTimetableDnd = (
                 console.error('Failed to cancel resource requests:', err);
                 toast.error('Failed to notify department head');
               }
-              
+
               await removeClassSession(source.class_group_id, source.period_index);
             });
             cleanupDragState();
             return;
           }
         }
-        
+
         await removeClassSession(source.class_group_id, source.period_index);
       }
 

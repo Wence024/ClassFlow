@@ -21,27 +21,28 @@ export default function ProgramHeadInstructors() {
 
   // Hooks must be called unconditionally at the top level.
   const deptOptions = useMemo(() => departmentsQuery.data || [], [departmentsQuery.data]);
-  
+
   // Filter instructors by selected department and search term
   const filtered = useMemo(() => {
     let list = allInstructors || [];
-    
+
     // Filter by department if one is selected
     if (selectedDepartmentId) {
       list = list.filter((i) => i.department_id === selectedDepartmentId);
     }
-    
+
     // Filter by search term
     if (search) {
       const q = search.toLowerCase();
-      list = list.filter((i) =>
-        i.first_name.toLowerCase().includes(q) || 
-        i.last_name.toLowerCase().includes(q) || 
-        i.code?.toLowerCase().includes(q) ||
-        i.department_name?.toLowerCase().includes(q)
+      list = list.filter(
+        (i) =>
+          i.first_name.toLowerCase().includes(q) ||
+          i.last_name.toLowerCase().includes(q) ||
+          i.code?.toLowerCase().includes(q) ||
+          i.department_name?.toLowerCase().includes(q)
       );
     }
-    
+
     return list;
   }, [allInstructors, selectedDepartmentId, search]);
 
@@ -62,7 +63,10 @@ export default function ProgramHeadInstructors() {
           placeholder="Select department..."
           value={selectedDepartmentId || ''}
           onChange={(v) => setSelectedDepartmentId(v || undefined)}
-          options={deptOptions.map((d: Department) => ({ label: `${d.name} (${d.code})`, value: d.id }))}
+          options={deptOptions.map((d: Department) => ({
+            label: `${d.name} (${d.code})`,
+            value: d.id,
+          }))}
         />
         <FormField
           id="search-instructors"

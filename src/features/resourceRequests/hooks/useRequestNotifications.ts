@@ -15,7 +15,10 @@ import type { RequestNotification } from '../services/notificationsService';
 export function useRequestNotifications() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const queryKey = useMemo(() => ['request-notifications', user?.department_id || null], [user?.department_id]);
+  const queryKey = useMemo(
+    () => ['request-notifications', user?.department_id || null],
+    [user?.department_id]
+  );
 
   const listQuery = useQuery({
     queryKey,

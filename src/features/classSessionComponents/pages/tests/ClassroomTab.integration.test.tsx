@@ -44,38 +44,82 @@ const mockProgramHeadUser: User = {
 };
 
 const mockDepartments: Department[] = [
-  { id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', name: 'Computer Science', code: 'CS', created_at: new Date().toISOString() },
-  { id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1', name: 'Mathematics', code: 'MATH', created_at: new Date().toISOString() },
+  {
+    id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    name: 'Computer Science',
+    code: 'CS',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1',
+    name: 'Mathematics',
+    code: 'MATH',
+    created_at: new Date().toISOString(),
+  },
 ];
 
 const mockClassrooms: Classroom[] = [
-  { id: 'room-cs', name: 'CS Room', capacity: 50, preferred_department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', color: '#ff0000', code: 'CS101', created_at: '', created_by: 'admin', location: '' },
-  { id: 'room-math', name: 'Math Room', capacity: 40, preferred_department_id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1', color: '#00ff00', code: 'MA101', created_at: '', created_by: 'admin', location: '' },
-  { id: 'room-none', name: 'General Room', capacity: 60, preferred_department_id: null, color: '#0000ff', code: 'GEN101', created_at: '', created_by: 'admin', location: '' },
+  {
+    id: 'room-cs',
+    name: 'CS Room',
+    capacity: 50,
+    preferred_department_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    color: '#ff0000',
+    code: 'CS101',
+    created_at: '',
+    created_by: 'admin',
+    location: '',
+  },
+  {
+    id: 'room-math',
+    name: 'Math Room',
+    capacity: 40,
+    preferred_department_id: 'b79a7f26-95b3-4b7b-8c27-8e6a4e9b22c1',
+    color: '#00ff00',
+    code: 'MA101',
+    created_at: '',
+    created_by: 'admin',
+    location: '',
+  },
+  {
+    id: 'room-none',
+    name: 'General Room',
+    capacity: 60,
+    preferred_department_id: null,
+    color: '#0000ff',
+    code: 'GEN101',
+    created_at: '',
+    created_by: 'admin',
+    location: '',
+  },
 ];
 
 const TestWrapper = ({ children, user }: { children: ReactNode; user: User | null }) => (
   <QueryClientProvider client={queryClient}>
-    <AuthContext.Provider value={{ 
-      user, 
-      role: user?.role || null,
-      departmentId: user?.department_id || null,
-      loading: false,
-      error: null,
-      login: vi.fn(),
-      logout: vi.fn(),
-      clearError: vi.fn(),
-      updateMyProfile: vi.fn(),
-      isAdmin: () => user?.role === 'admin',
-      isDepartmentHead: () => user?.role === 'department_head',
-      isProgramHead: () => user?.role === 'program_head',
-      canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
-      canManageClassrooms: () => user?.role === 'admin',
-      canReviewRequestsForDepartment: vi.fn().mockReturnValue(false),
-      canManageInstructorRow: vi.fn().mockReturnValue(false),
-      canManageCourses: vi.fn().mockReturnValue(false),
-      canManageAssignmentsForProgram: vi.fn().mockReturnValue(false),
-    } as AuthContextType}>
+    <AuthContext.Provider
+      value={
+        {
+          user,
+          role: user?.role || null,
+          departmentId: user?.department_id || null,
+          loading: false,
+          error: null,
+          login: vi.fn(),
+          logout: vi.fn(),
+          clearError: vi.fn(),
+          updateMyProfile: vi.fn(),
+          isAdmin: () => user?.role === 'admin',
+          isDepartmentHead: () => user?.role === 'department_head',
+          isProgramHead: () => user?.role === 'program_head',
+          canManageInstructors: () => user?.role === 'admin' || user?.role === 'department_head',
+          canManageClassrooms: () => user?.role === 'admin',
+          canReviewRequestsForDepartment: vi.fn().mockReturnValue(false),
+          canManageInstructorRow: vi.fn().mockReturnValue(false),
+          canManageCourses: vi.fn().mockReturnValue(false),
+          canManageAssignmentsForProgram: vi.fn().mockReturnValue(false),
+        } as AuthContextType
+      }
+    >
       {children}
     </AuthContext.Provider>
   </QueryClientProvider>
@@ -125,19 +169,23 @@ describe('ClassroomTab Integration Tests', () => {
         canManage: false,
       } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper>,
+      });
 
       expect(screen.queryByRole('button', { name: /edit/i })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
     });
 
     it('should NOT show the creation/edit form for non-admin users', () => {
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper>,
+      });
 
       // Program heads should NOT see the form at all (isManagementView = false in ClassroomTab)
       expect(screen.queryByTestId('classroom-form-fieldset')).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /Create/i })).not.toBeInTheDocument();
-      
+
       // But they should see the info alert about viewing
       expect(screen.getByText(/You are viewing all available classrooms/i)).toBeInTheDocument();
     });
@@ -156,7 +204,9 @@ describe('ClassroomTab Integration Tests', () => {
         canManage: false,
       } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockProgramHeadUser}>{children}</TestWrapper>,
+      });
 
       // Wait for data to load and cards to render with explicit timeout
       await waitFor(
@@ -177,9 +227,11 @@ describe('ClassroomTab Integration Tests', () => {
       // The DOM order should be [CS Room, Separator, Math Room, General Room]
       const parent = separator.parentElement!;
       const children = Array.from(parent.children);
-      const csIndex = children.findIndex(el => el.textContent?.includes('CS Room'));
-      const separatorIndex = children.findIndex(el => el.textContent?.includes('Other Classrooms'));
-      const mathIndex = children.findIndex(el => el.textContent?.includes('Math Room'));
+      const csIndex = children.findIndex((el) => el.textContent?.includes('CS Room'));
+      const separatorIndex = children.findIndex((el) =>
+        el.textContent?.includes('Other Classrooms')
+      );
+      const mathIndex = children.findIndex((el) => el.textContent?.includes('Math Room'));
 
       expect(csIndex).toBeLessThan(separatorIndex);
       expect(mathIndex).toBeGreaterThan(separatorIndex);
@@ -201,7 +253,9 @@ describe('ClassroomTab Integration Tests', () => {
         canManage: true,
       } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper>,
+      });
 
       expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
@@ -220,7 +274,9 @@ describe('ClassroomTab Integration Tests', () => {
         canManage: true, // Set to true for admin
       } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper>,
+      });
 
       const fieldset = screen.getByTestId('classroom-form-fieldset');
       expect(fieldset).not.toBeDisabled();
@@ -240,13 +296,15 @@ describe('ClassroomTab Integration Tests', () => {
         canManage: true,
       } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper>,
+      });
 
       await user.click(screen.getByRole('button', { name: /edit/i }));
-      
+
       const select = await screen.findByLabelText(/Preferred Department/i);
       await user.click(select);
-      
+
       const listbox = await screen.findByRole('listbox');
       await user.click(within(listbox).getByText('Computer Science (CS)'));
 
@@ -280,7 +338,9 @@ describe('ClassroomTab Integration Tests', () => {
         canManage: true,
       } as unknown as ReturnType<typeof useClassroomsUnifiedHook.useClassroomsUnified>);
 
-      render(<ClassroomManagement />, { wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper> });
+      render(<ClassroomManagement />, {
+        wrapper: ({ children }) => <TestWrapper user={mockAdminUser}>{children}</TestWrapper>,
+      });
 
       await user.click(screen.getByRole('button', { name: /edit/i }));
 

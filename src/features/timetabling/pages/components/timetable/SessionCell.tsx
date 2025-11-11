@@ -50,9 +50,12 @@ interface VisibleBlockProps {
  * @param viewMode - The current view mode.
  * @returns The JSX element to be rendered inside the tooltip.
  */
-const buildTooltipContent = (sessions: ClassSession[], viewMode: 'class-group' | 'classroom' | 'instructor'): React.ReactElement => {
+const buildTooltipContent = (
+  sessions: ClassSession[],
+  viewMode: 'class-group' | 'classroom' | 'instructor'
+): React.ReactElement => {
   const primary = sessions[0];
-  
+
   if (viewMode === 'classroom') {
     return (
       <>
@@ -97,7 +100,7 @@ const buildTooltipContent = (sessions: ClassSession[], viewMode: 'class-group' |
       </>
     );
   }
-  
+
   return (
     <>
       <p className="font-bold text-sm">{primary.course.name}</p>
@@ -149,7 +152,7 @@ const createCellBackground = (
   }
 
   const color1 = getSessionCellBgColor(instructorColor, isDragged);
-  
+
   if (sessions.length > 1 && sessions[1]?.instructor?.color !== primarySession?.instructor?.color) {
     const color2 = getSessionCellBgColor(
       sessions[1]?.instructor?.color ?? DEFAULT_FALLBACK_COLOR,
@@ -163,7 +166,13 @@ const createCellBackground = (
   return { background, border };
 };
 
-const useSessionCellStyles = (sessions: ClassSession[], isOwnSession: boolean, isPending: boolean, isHighlighted: boolean, isDraggedSession: boolean) => {
+const useSessionCellStyles = (
+  sessions: ClassSession[],
+  isOwnSession: boolean,
+  isPending: boolean,
+  isHighlighted: boolean,
+  isDraggedSession: boolean
+) => {
   const primarySession = sessions[0];
   const instructorColor = primarySession?.instructor?.color ?? DEFAULT_FALLBACK_COLOR;
   let cellStyle: React.CSSProperties;
@@ -175,7 +184,11 @@ const useSessionCellStyles = (sessions: ClassSession[], isOwnSession: boolean, i
     if (isPending) {
       cellStyle = { ...baseStyle, border: '2px dashed #F59E0B', opacity: 0.7 };
     } else if (isHighlighted) {
-      cellStyle = { ...baseStyle, border: '3px solid #10B981', boxShadow: '0 0 12px rgba(16, 185, 129, 0.6)' };
+      cellStyle = {
+        ...baseStyle,
+        border: '3px solid #10B981',
+        boxShadow: '0 0 12px rgba(16, 185, 129, 0.6)',
+      };
     } else {
       cellStyle = baseStyle;
     }
@@ -320,12 +333,12 @@ function computeSessionState(
   groupId: string
 ) {
   const isOwnSession = !!ownSession;
-  const isDraggedSession = activeDraggedSession && sessions
-    ? sessions.some((s) => s.id === activeDraggedSession.id)
-    : false;
-  const isPending = primarySession && pendingSessionIds
-    ? pendingSessionIds.has(primarySession.id)
-    : false;
+  const isDraggedSession =
+    activeDraggedSession && sessions
+      ? sessions.some((s) => s.id === activeDraggedSession.id)
+      : false;
+  const isPending =
+    primarySession && pendingSessionIds ? pendingSessionIds.has(primarySession.id) : false;
   const isHighlighted = highlightPeriod === periodIndex && highlightGroup === groupId;
 
   return { isOwnSession, isDraggedSession, isPending, isHighlighted };
@@ -336,7 +349,15 @@ function createDragStartHandler(
   ownSession: ClassSession | undefined,
   isPending: boolean,
   periodIndex: number,
-  handleDragStart: (e: React.DragEvent, source: { from: 'timetable'; class_session_id: string; class_group_id: string; period_index: number }) => void
+  handleDragStart: (
+    e: React.DragEvent,
+    source: {
+      from: 'timetable';
+      class_session_id: string;
+      class_group_id: string;
+      period_index: number;
+    }
+  ) => void
 ) {
   return (e: React.DragEvent) => {
     if (isOwnSession && ownSession && !isPending) {
@@ -376,7 +397,15 @@ const SessionCell: React.FC<SessionCellProps> = ({
   isNotLastInTable,
   viewMode,
 }) => {
-  const { activeDraggedSession, handleDragStart, onShowTooltip: contextOnShowTooltip, onHideTooltip, pendingSessionIds, highlightPeriod, highlightGroup } = useTimetableContext();
+  const {
+    activeDraggedSession,
+    handleDragStart,
+    onShowTooltip: contextOnShowTooltip,
+    onHideTooltip,
+    pendingSessionIds,
+    highlightPeriod,
+    highlightGroup,
+  } = useTimetableContext();
   const { user } = useAuth();
 
   const primarySession = sessions && sessions[0];
@@ -405,12 +434,19 @@ const SessionCell: React.FC<SessionCellProps> = ({
 
   // Early outs
   if (!sessions || sessions.length === 0) return <td className="p-0.5 align-top h-20" />;
-  if (isSessionDataInvalid(primarySession)) return <InvalidSessionCell periodCount={primarySession?.period_count || 1} />;
+  if (isSessionDataInvalid(primarySession))
+    return <InvalidSessionCell periodCount={primarySession?.period_count || 1} />;
 
   const handleShowTooltip = (e: React.MouseEvent<HTMLElement>) => {
     contextOnShowTooltip(buildTooltipContent(sessions, viewMode), e.currentTarget as HTMLElement);
   };
-  const onDragStart = createDragStartHandler(isOwnSession, ownSession, isPending, periodIndex, handleDragStart);
+  const onDragStart = createDragStartHandler(
+    isOwnSession,
+    ownSession,
+    isPending,
+    periodIndex,
+    handleDragStart
+  );
   const isDragging = activeDraggedSession !== null;
   const numberOfPeriods = primarySession.period_count || 1;
   const borderClass = computeBorderClass(isLastInDay, isNotLastInTable);

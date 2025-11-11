@@ -4,14 +4,14 @@ import { usePrograms } from '../../programs/hooks/usePrograms';
 
 /**
  * Returns the user's department ID, deriving it from their program if needed.
- * 
+ *
  * This hook provides CLIENT-SIDE department inference for UI display purposes.
  * It should NOT be used for permission checks (use RLS policies instead).
- * 
+ *
  * For Department Heads: Returns their explicitly assigned department_id.
  * For Program Heads: Infers department through their assigned program.
  * For Admins: Returns null (they manage all departments).
- * 
+ *
  * @returns The user's department ID (explicit or inferred), or null.
  */
 export function useDepartmentId(): string | null {
@@ -27,7 +27,7 @@ export function useDepartmentId(): string | null {
 
     // 2. Derive from program (for program heads)
     if (user.program_id) {
-      const program = programs.find(p => p.id === user.program_id);
+      const program = programs.find((p) => p.id === user.program_id);
       return program?.department_id || null;
     }
 

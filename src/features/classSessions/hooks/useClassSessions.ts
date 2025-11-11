@@ -73,7 +73,8 @@ export function useClassSessions() {
     onError: (error: Error) => {
       if (error.message.includes('foreign key') || error.message.includes('violates')) {
         toast.error('Cannot delete class session', {
-          description: 'This class session is being used in timetable assignments and cannot be deleted.',
+          description:
+            'This class session is being used in timetable assignments and cannot be deleted.',
         });
       } else {
         toast.error('Failed to delete class session', {

@@ -15,7 +15,7 @@ describe('Rejection Workflow', () => {
 
   it('should require rejection message (validation)', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     // Empty message should fail validation at UI level
     // This test verifies the service receives the message
     const mockResult = { success: true, action: 'removed_from_timetable' };
@@ -34,7 +34,7 @@ describe('Rejection Workflow', () => {
 
   it('should delete session and assignment for pending request', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       action: 'removed_from_timetable',
@@ -55,7 +55,7 @@ describe('Rejection Workflow', () => {
 
   it('should restore to original position for approved request', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       action: 'restored',
@@ -77,7 +77,7 @@ describe('Rejection Workflow', () => {
 
   it('should store rejection_message in database', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const rejectionMessage = 'Instructor is on sabbatical leave';
     const mockResult = { success: true, action: 'removed_from_timetable' };
 
@@ -109,7 +109,7 @@ describe('Rejection Workflow', () => {
 
   it('should allow program head to dismiss notification', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     vi.mocked(supabase.from).mockReturnValue({
       update: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null }),
@@ -123,7 +123,7 @@ describe('Rejection Workflow', () => {
 
   it('should handle rejection with detailed error messages', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: false,
       error: 'Request is not pending or approved (current status: cancelled)',

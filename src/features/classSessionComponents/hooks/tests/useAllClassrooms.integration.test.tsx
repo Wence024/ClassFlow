@@ -64,7 +64,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 const createDelayedPromise = <T,>(data: T, delay: number): Promise<T> => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     setTimeout(() => {
       resolve(data);
     }, delay);
@@ -99,9 +99,7 @@ describe('useAllClassrooms Integration', () => {
       error: null,
     });
 
-    const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService'),
-    );
+    const mockClassroomsService = vi.mocked(await import('../../services/classroomsService'));
     mockClassroomsService.getAllClassrooms.mockResolvedValue(allMockClassrooms);
 
     const { result } = renderHook(() => useAllClassrooms(), { wrapper });
@@ -137,9 +135,7 @@ describe('useAllClassrooms Integration', () => {
       error: null,
     });
 
-    const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService'),
-    );
+    const mockClassroomsService = vi.mocked(await import('../../services/classroomsService'));
     mockClassroomsService.getAllClassrooms.mockResolvedValue(allMockClassrooms);
 
     const { result } = renderHook(() => useAllClassrooms(), { wrapper });
@@ -175,11 +171,9 @@ describe('useAllClassrooms Integration', () => {
       error: null,
     });
 
-    const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService'),
-    );
+    const mockClassroomsService = vi.mocked(await import('../../services/classroomsService'));
     mockClassroomsService.getAllClassrooms.mockImplementation(() =>
-      createDelayedPromise(allMockClassrooms, 100),
+      createDelayedPromise(allMockClassrooms, 100)
     );
 
     const { result } = renderHook(() => useAllClassrooms(), { wrapper });
@@ -215,9 +209,7 @@ describe('useAllClassrooms Integration', () => {
       error: null,
     });
 
-    const mockClassroomsService = vi.mocked(
-      await import('../../services/classroomsService')
-    );
+    const mockClassroomsService = vi.mocked(await import('../../services/classroomsService'));
     mockClassroomsService.getAllClassrooms.mockRejectedValue(
       new Error('Failed to fetch classrooms')
     );

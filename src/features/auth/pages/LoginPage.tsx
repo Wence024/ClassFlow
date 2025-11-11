@@ -6,7 +6,7 @@ import { Button, FormField, ErrorMessage } from '../../../components/ui';
 
 /**
  * A page component for user login.
- * 
+ *
  * This component handles form validation and submission only.
  * Post-login navigation is handled by AuthProvider's login() function,
  * which redirects users based on their role.

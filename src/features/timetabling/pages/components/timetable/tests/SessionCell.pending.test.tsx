@@ -33,7 +33,13 @@ const mockTimetableContext: TimetableContextType = {
 };
 
 const mockAuthContext = {
-  user: { id: 'user-1', name: 'Test User', email: 'test@example.com', program_id: 'program-1', role: 'program_head' },
+  user: {
+    id: 'user-1',
+    name: 'Test User',
+    email: 'test@example.com',
+    program_id: 'program-1',
+    role: 'program_head',
+  },
   role: 'program_head',
   loading: false,
   login: vi.fn(),
@@ -144,7 +150,9 @@ describe('SessionCell - Pending State Visual Indicators', () => {
       }
     );
 
-    const cell = container.querySelector('[data-testid="session-card-session-1"] > div') as HTMLElement;
+    const cell = container.querySelector(
+      '[data-testid="session-card-session-1"] > div'
+    ) as HTMLElement;
     expect(cell.style.border).toContain('2px dashed');
   });
 
@@ -194,7 +202,9 @@ describe('SessionCell - Pending State Visual Indicators', () => {
       }
     );
 
-    const cell = container.querySelector('[data-testid="session-card-session-1"] > div') as HTMLElement;
+    const cell = container.querySelector(
+      '[data-testid="session-card-session-1"] > div'
+    ) as HTMLElement;
     expect(cell.style.opacity).toBe('0.7');
   });
 
@@ -238,7 +248,9 @@ describe('SessionCell - Pending State Visual Indicators', () => {
       { wrapper: TestWrapper }
     );
 
-    const cell = container.querySelector('[data-testid="session-card-session-1"] > div') as HTMLElement;
+    const cell = container.querySelector(
+      '[data-testid="session-card-session-1"] > div'
+    ) as HTMLElement;
     expect(cell.style.border).not.toContain('2px dashed');
     expect(cell.style.opacity).not.toBe('0.7');
   });

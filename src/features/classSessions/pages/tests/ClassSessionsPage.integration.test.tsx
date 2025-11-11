@@ -7,7 +7,6 @@ import ClassSessionsPage from '../ClassSessionsPage';
 import { AuthContext } from '../../../auth/contexts/AuthContext';
 import type { User, AuthContextType } from '../../../auth/types/auth';
 
-
 // --- Mocks ---
 vi.mock('../../../auth/hooks/useAuth');
 vi.mock('../../hooks/useClassSessions');
@@ -96,7 +95,9 @@ const setupComponent = async (
     canManageAssignmentsForProgram: () => true,
   };
 
-  const mockUseClassSessions = vi.mocked(await import('../../hooks/useClassSessions')).useClassSessions;
+  const mockUseClassSessions = vi.mocked(
+    await import('../../hooks/useClassSessions')
+  ).useClassSessions;
   mockUseClassSessions.mockReturnValue({
     classSessions,
     isLoading,
@@ -108,14 +109,18 @@ const setupComponent = async (
     removeClassSession: vi.fn(),
   });
 
-  const mockUseAllCourses = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllCourses;
+  const mockUseAllCourses = vi.mocked(
+    await import('../../../classSessionComponents/hooks')
+  ).useAllCourses;
   mockUseAllCourses.mockReturnValue({
     courses: [mockClassSession.course],
     isLoading: false,
     error: null,
   });
 
-  const mockUseClassGroups = vi.mocked(await import('../../../classSessionComponents/hooks')).useClassGroups;
+  const mockUseClassGroups = vi.mocked(
+    await import('../../../classSessionComponents/hooks')
+  ).useClassGroups;
   mockUseClassGroups.mockReturnValue({
     classGroups: [mockClassSession.group],
     isLoading: false,
@@ -127,21 +132,27 @@ const setupComponent = async (
     removeClassGroup: vi.fn(),
   });
 
-  const mockUseAllClassrooms = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllClassrooms;
+  const mockUseAllClassrooms = vi.mocked(
+    await import('../../../classSessionComponents/hooks')
+  ).useAllClassrooms;
   mockUseAllClassrooms.mockReturnValue({
     classrooms: [mockClassSession.classroom],
     isLoading: false,
     error: null,
   });
 
-  const mockUseAllInstructors = vi.mocked(await import('../../../classSessionComponents/hooks')).useAllInstructors;
+  const mockUseAllInstructors = vi.mocked(
+    await import('../../../classSessionComponents/hooks')
+  ).useAllInstructors;
   mockUseAllInstructors.mockReturnValue({
     instructors: [mockClassSession.instructor],
     isLoading: false,
     error: null,
   });
 
-  const mockUsePrograms = vi.mocked(await import('../../../programs/hooks/usePrograms')).usePrograms;
+  const mockUsePrograms = vi.mocked(
+    await import('../../../programs/hooks/usePrograms')
+  ).usePrograms;
   mockUsePrograms.mockReturnValue({
     listQuery: {
       data: [],
@@ -213,10 +224,13 @@ describe('ClassSessionsPage Integration', () => {
   it('should display class session cards when sessions exist', async () => {
     await setupComponent();
 
-    await waitFor(async () => {
-      expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
-      expect(await screen.findByText(/Mathematics 101 - CS-1A/i)).toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      async () => {
+        expect(await screen.findByText(/MATH101/i, { selector: 'p' })).toBeInTheDocument();
+        expect(await screen.findByText(/Mathematics 101 - CS-1A/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 }
+    );
   });
 
   it('should render the class session form', async () => {

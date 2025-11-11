@@ -8,7 +8,11 @@ import { AuthContext } from '../../../../../auth/contexts/AuthContext';
 import TimetableContext from '../TimetableContext';
 import type { AuthContextType } from '../../../../../auth/types/auth';
 import type { TimetableContextType } from '../TimetableContext';
-import type { ClassGroup, Classroom, Instructor } from '../../../../../classSessionComponents/types';
+import type {
+  ClassGroup,
+  Classroom,
+  Instructor,
+} from '../../../../../classSessionComponents/types';
 import type { TimetableViewMode } from '../../../../types/timetable';
 import * as useScheduleConfigHook from '../../../../../scheduleConfig/hooks/useScheduleConfig';
 import * as useDepartmentIdHook from '../../../../../auth/hooks/useDepartmentId';
@@ -206,7 +210,7 @@ describe('Timetable - Resource Filtering', () => {
       // Should NOT see separation labels for admin
       expect(screen.queryByText('Unassigned Classrooms')).not.toBeInTheDocument();
       expect(screen.queryByText('Classrooms from Other Departments')).not.toBeInTheDocument();
-      
+
       // But should see all classrooms
       expect(screen.getByText('My Classroom (30)')).toBeInTheDocument();
       expect(screen.getByText('Unassigned Classroom (25)')).toBeInTheDocument();
@@ -341,7 +345,7 @@ describe('Timetable - Resource Filtering', () => {
       // Should NOT see separation labels for admin
       expect(screen.queryByText('Unassigned Instructors')).not.toBeInTheDocument();
       expect(screen.queryByText('Instructors from Other Departments')).not.toBeInTheDocument();
-      
+
       // But should see all instructors
       expect(screen.getByText(/John Doe/)).toBeInTheDocument();
       expect(screen.getByText(/Jane Smith/)).toBeInTheDocument();

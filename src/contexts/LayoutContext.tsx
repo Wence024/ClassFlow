@@ -20,9 +20,5 @@ export const LayoutProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const value: LayoutContextType = { isSidebarCollapsed, toggleSidebar };
 
-  return (
-    <LayoutContext.Provider value={value}>
-      {children}
-    </LayoutContext.Provider>
-  );
+  return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;
 };

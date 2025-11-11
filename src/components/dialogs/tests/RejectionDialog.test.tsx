@@ -96,7 +96,7 @@ describe('RejectionDialog', () => {
 
     // Reopen dialog
     render(<RejectionDialog {...defaultProps} open={true} />);
-    
+
     await waitFor(() => {
       const inputAfterReopen = screen.getByLabelText(/Rejection Reason \*/i);
       expect(inputAfterReopen).toHaveValue('');

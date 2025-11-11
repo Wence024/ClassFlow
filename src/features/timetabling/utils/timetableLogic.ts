@@ -46,7 +46,9 @@ function initializeGridRows(
  * @param assignments - The assignments to group.
  * @returns A map of period index to assignments.
  */
-function groupAssignmentsByPeriod(assignments: HydratedTimetableAssignment[]): Map<number, HydratedTimetableAssignment[]> {
+function groupAssignmentsByPeriod(
+  assignments: HydratedTimetableAssignment[]
+): Map<number, HydratedTimetableAssignment[]> {
   const assignmentsByPeriod = new Map<number, HydratedTimetableAssignment[]>();
   for (const assignment of assignments) {
     if (!assignmentsByPeriod.has(assignment.period_index)) {
@@ -71,7 +73,7 @@ function groupMergeableAssignments(
   periodIndex: number
 ): Map<string, HydratedTimetableAssignment[]> {
   const mergeGroups = new Map<string, HydratedTimetableAssignment[]>();
-  
+
   for (const assignment of assignmentsInPeriod) {
     const row = grid.get(assignment.class_group_id);
     if (!assignment.class_session || !row || row[periodIndex] !== null) {
@@ -87,7 +89,7 @@ function groupMergeableAssignments(
     }
     mergeGroups.get(mergeKey)!.push(assignment);
   }
-  
+
   return mergeGroups;
 }
 
@@ -114,9 +116,9 @@ function updateGroupRowWithMergedSessions(
   // Create array with this group's session first, followed by others
   const orderedSessions = [
     sessionForThisGroup,
-    ...allMergedSessions.filter(s => s.id !== sessionForThisGroup.id)
+    ...allMergedSessions.filter((s) => s.id !== sessionForThisGroup.id),
   ];
-  
+
   for (let i = 0; i < periodCount; i++) {
     if (periodIndex + i < totalPeriods) {
       groupRow[periodIndex + i] = orderedSessions;
@@ -282,7 +284,13 @@ function placeResourceAssignments(
     if (resourceId) {
       const resourceRow = grid.get(resourceId);
       if (resourceRow) {
-        fillPeriodsForMergedSession(resourceRow, allMergedSessions, periodIndex, period_count, totalPeriods);
+        fillPeriodsForMergedSession(
+          resourceRow,
+          allMergedSessions,
+          periodIndex,
+          period_count,
+          totalPeriods
+        );
       }
     }
   }
@@ -317,7 +325,12 @@ function buildTimetableGridForResource(
     const assignmentsInPeriod = assignmentsByPeriod.get(periodIndex) || [];
     if (assignmentsInPeriod.length === 0) continue;
 
-    const resourceMergeGroups = groupResourceAssignments(assignmentsInPeriod, grid, periodIndex, getResourceId);
+    const resourceMergeGroups = groupResourceAssignments(
+      assignmentsInPeriod,
+      grid,
+      periodIndex,
+      getResourceId
+    );
     placeResourceAssignments(resourceMergeGroups, grid, periodIndex, totalPeriods, getResourceId);
   }
 
@@ -338,7 +351,12 @@ export function buildTimetableGridForClassrooms(
   classrooms: Classroom[],
   totalPeriods: number
 ): TimetableGrid {
-  return buildTimetableGridForResource(assignments, classrooms, totalPeriods, (session) => session.classroom?.id);
+  return buildTimetableGridForResource(
+    assignments,
+    classrooms,
+    totalPeriods,
+    (session) => session.classroom?.id
+  );
 }
 
 /**
@@ -355,7 +373,12 @@ export function buildTimetableGridForInstructors(
   instructors: Instructor[],
   totalPeriods: number
 ): TimetableGrid {
-  return buildTimetableGridForResource(assignments, instructors, totalPeriods, (session) => session.instructor?.id);
+  return buildTimetableGridForResource(
+    assignments,
+    instructors,
+    totalPeriods,
+    (session) => session.instructor?.id
+  );
 }
 
 /**

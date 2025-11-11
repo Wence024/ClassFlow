@@ -38,10 +38,7 @@ export async function getLoadConfig(
  * @param config The load calculation configuration.
  * @returns The computed teaching load value.
  */
-export function calculateLoad(
-  totalUnits: number,
-  config: LoadCalculationConfig
-): number {
+export function calculateLoad(totalUnits: number, config: LoadCalculationConfig): number {
   return totalUnits / config.unitsPerLoad;
 }
 

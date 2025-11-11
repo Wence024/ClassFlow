@@ -301,11 +301,26 @@ function borderGray(): Record<string, unknown> {
 }
 
 function isDayHeader(value: string): boolean {
-  return value.includes('Monday') || value.includes('Tuesday') || value.includes('Friday') || value.includes('Saturday');
+  return (
+    value.includes('Monday') ||
+    value.includes('Tuesday') ||
+    value.includes('Friday') ||
+    value.includes('Saturday')
+  );
 }
 
 function isTableHeader(value: string): boolean {
-  return ['Time', 'Subject(s)', 'Dept', 'Room', 'Lec Hrs', 'Lab Hrs', 'Units', 'Load', 'Class Size'].includes(value);
+  return [
+    'Time',
+    'Subject(s)',
+    'Dept',
+    'Room',
+    'Lec Hrs',
+    'Lab Hrs',
+    'Units',
+    'Load',
+    'Class Size',
+  ].includes(value);
 }
 
 function mergeTitleAndSummary(worksheet: XLSX.WorkSheet): void {

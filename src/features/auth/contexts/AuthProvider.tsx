@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const initializeAuth = async () => {
       try {
         const storedUser = await authService.getStoredUser();
-        
+
         if (storedUser) {
           setUser(storedUser);
         }
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   /**
    * Handles user login and redirects based on role.
-   * 
+   *
    * SINGLE SOURCE OF TRUTH: This is the only place where post-login navigation happens.
    * - admin → /departments
    * - department_head → /department-head
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { user } = await authService.login(email, password);
       setUser(user);
-      
+
       // Role-based redirect after login
       if (user.role === 'admin') {
         navigate('/departments');
@@ -95,7 +95,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setLoading(false);
     }
   };
-
 
   /** Handles user logout. */
   const logout = async () => {
@@ -138,7 +137,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-
   /** Clears any existing authentication error message. */
   const clearError = () => {
     setError(null);
@@ -161,9 +159,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     canManageInstructors: () => roleCanManageInstructors(user?.role || null),
     canManageClassrooms: () => roleCanManageClassrooms(user?.role || null),
     canReviewRequestsForDepartment: (departmentId: string) =>
-      roleCanReviewRequestsForDepartment(user?.role || null, user?.department_id || null, departmentId),
+      roleCanReviewRequestsForDepartment(
+        user?.role || null,
+        user?.department_id || null,
+        departmentId
+      ),
     canManageInstructorRow: (instructorDepartmentId: string) =>
-      roleCanManageInstructorRow(user?.role || null, user?.department_id || null, instructorDepartmentId),
+      roleCanManageInstructorRow(
+        user?.role || null,
+        user?.department_id || null,
+        instructorDepartmentId
+      ),
     canManageCourses: (courseProgramId: string | null | undefined) =>
       roleCanManageCourses(user?.role || null, user?.program_id || null, courseProgramId),
     canManageAssignmentsForProgram: (programId: string) =>

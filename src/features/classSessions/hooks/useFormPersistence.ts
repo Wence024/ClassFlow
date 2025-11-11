@@ -5,7 +5,7 @@ const FORM_STORAGE_KEY = 'classSessionFormData';
 
 /**
  * Hook to persist form data to localStorage and restore it on mount.
- * 
+ *
  * @param fp Form methods from react-hook-form.
  * @param fp.formMethods - The form methods object.
  * @param fp.isEditing - Whether the form is in editing mode.

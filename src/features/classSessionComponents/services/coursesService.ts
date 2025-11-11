@@ -48,14 +48,12 @@ export async function getAllCourses(): Promise<Course[]> {
 
   if (error) throw error;
 
-  return (
-    data?.map((course) => ({
-      ...course,
-      program_name: course.programs?.name || null,
-      program_short_code: course.programs?.short_code || null,
-      programs: undefined,
-    })) || []
-  ) as Course[];
+  return (data?.map((course) => ({
+    ...course,
+    program_name: course.programs?.name || null,
+    program_short_code: course.programs?.short_code || null,
+    programs: undefined,
+  })) || []) as Course[];
 }
 
 /**

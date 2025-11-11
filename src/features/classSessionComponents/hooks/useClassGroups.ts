@@ -43,7 +43,10 @@ export function useClassGroups() {
     error,
   } = useQuery<ClassGroup[]>({
     queryKey,
-    queryFn: () => (user?.program_id ? classGroupsService.getClassGroupsByProgram(user.program_id) : Promise.resolve([])),
+    queryFn: () =>
+      user?.program_id
+        ? classGroupsService.getClassGroupsByProgram(user.program_id)
+        : Promise.resolve([]),
     enabled: !!user?.program_id, // The query will not run until the program_id is available.
   });
 
@@ -51,7 +54,9 @@ export function useClassGroups() {
   const addMutation = useMutation({
     mutationFn: (data: Omit<ClassGroupInsert, 'user_id' | 'program_id'>) => {
       if (!user?.program_id) {
-        return Promise.reject(new Error('You must be assigned to a program to create a class group.'));
+        return Promise.reject(
+          new Error('You must be assigned to a program to create a class group.')
+        );
       }
       return classGroupsService.addClassGroup({
         ...data,
@@ -77,7 +82,8 @@ export function useClassGroups() {
     onError: (error: Error) => {
       if (error.message.includes('foreign key') || error.message.includes('violates')) {
         toast.error('Cannot delete class group', {
-          description: 'This class group is being used in class sessions or timetable assignments and cannot be deleted.',
+          description:
+            'This class group is being used in class sessions or timetable assignments and cannot be deleted.',
         });
       } else {
         toast.error('Failed to delete class group', {

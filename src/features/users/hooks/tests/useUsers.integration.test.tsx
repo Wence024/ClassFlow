@@ -43,7 +43,9 @@ describe('useUsers Integration Tests', () => {
   });
 
   it('should handle update mutation and invalidate cache', async () => {
-    const mockUsers = [{ id: 'u1', full_name: 'Alice', role: 'admin', program_id: null, department_id: null }];
+    const mockUsers = [
+      { id: 'u1', full_name: 'Alice', role: 'admin', program_id: null, department_id: null },
+    ];
 
     vi.mocked(usersService.getUsers).mockResolvedValue(mockUsers);
     vi.mocked(usersService.updateUserProfile).mockResolvedValue(undefined);

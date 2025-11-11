@@ -51,7 +51,7 @@ export const CourseFields: React.FC<{
           />
         )}
       />
-      
+
       <div className="grid grid-cols-2 gap-4">
         <Controller
           name="lecture_hours"

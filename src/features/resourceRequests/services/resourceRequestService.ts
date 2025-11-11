@@ -1,20 +1,22 @@
 import { supabase } from '../../../lib/supabase';
-import type { ResourceRequest, ResourceRequestInsert, ResourceRequestUpdate } from '../types/resourceRequest';
+import type {
+  ResourceRequest,
+  ResourceRequestInsert,
+  ResourceRequestUpdate,
+} from '../types/resourceRequest';
 
 const TABLE = 'resource_requests';
 const NOTIF_TABLE = 'request_notifications';
 
 async function createNotificationForRequest(request: ResourceRequest): Promise<void> {
   const message = `New ${request.resource_type} request awaiting review.`;
-  const { error } = await supabase
-    .from(NOTIF_TABLE)
-    .insert([
-      {
-        request_id: request.id,
-        target_department_id: request.target_department_id,
-        message,
-      },
-    ]);
+  const { error } = await supabase.from(NOTIF_TABLE).insert([
+    {
+      request_id: request.id,
+      target_department_id: request.target_department_id,
+      message,
+    },
+  ]);
   if (error) throw error;
 }
 
@@ -50,7 +52,7 @@ export async function getRequestsForDepartment(departmentId: string): Promise<Re
 
 /**
  * Creates a new resource request and a corresponding notification.
- * 
+ *
  * **Edge Case Handling:**
  * - Checks for existing pending/approved requests to prevent duplicates
  * - Returns existing request if one already exists for this session.
@@ -65,17 +67,13 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
     .select('*')
     .eq('class_session_id', payload.class_session_id)
     .in('status', ['pending', 'approved']);
-  
+
   if (existingRequests && existingRequests.length > 0) {
     console.warn('Request already exists for this class session:', existingRequests[0]);
     return existingRequests[0] as ResourceRequest;
   }
-  
-  const { data, error } = await supabase
-    .from(TABLE)
-    .insert([payload])
-    .select()
-    .single();
+
+  const { data, error } = await supabase.from(TABLE).insert([payload]).select().single();
   if (error) throw error;
   const created = data as ResourceRequest;
   try {
@@ -101,10 +99,13 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
 export async function approveRequest(id: string, reviewerId: string): Promise<ResourceRequest> {
   // Call the database function to atomically approve the request and update assignments
   // Note: Using type assertion as the types are auto-generated and may not include new functions yet
-  const { data, error } = await supabase.rpc('approve_resource_request' as never, {
-    _request_id: id,
-    _reviewer_id: reviewerId,
-  } as never);
+  const { data, error } = await supabase.rpc(
+    'approve_resource_request' as never,
+    {
+      _request_id: id,
+      _reviewer_id: reviewerId,
+    } as never
+  );
 
   if (error) {
     console.error('Failed to approve request (RPC error):', error);
@@ -112,8 +113,14 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
   }
 
   // Parse the response as JSON
-  const result = data as { success: boolean; error?: string; updated_assignments?: number; class_session_id?: string; semester_id?: string } | null;
-  
+  const result = data as {
+    success: boolean;
+    error?: string;
+    updated_assignments?: number;
+    class_session_id?: string;
+    semester_id?: string;
+  } | null;
+
   // Check if the function returned a success response
   if (!result || !result.success) {
     const errorMsg = result?.error || 'Unknown error during approval';
@@ -148,20 +155,38 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
  * @param message - The rejection message from the department head.
  * @returns A promise resolving to the result of the rejection.
  */
-export async function rejectRequest(id: string, reviewerId: string, message: string): Promise<{ success: boolean; action: 'removed_from_timetable' | 'restored'; class_session_id?: string; restored_to_period?: number }> {
-  const { data, error } = await supabase.rpc('reject_resource_request' as never, {
-    _request_id: id,
-    _reviewer_id: reviewerId,
-    _rejection_message: message,
-  } as never);
+export async function rejectRequest(
+  id: string,
+  reviewerId: string,
+  message: string
+): Promise<{
+  success: boolean;
+  action: 'removed_from_timetable' | 'restored';
+  class_session_id?: string;
+  restored_to_period?: number;
+}> {
+  const { data, error } = await supabase.rpc(
+    'reject_resource_request' as never,
+    {
+      _request_id: id,
+      _reviewer_id: reviewerId,
+      _rejection_message: message,
+    } as never
+  );
 
   if (error) {
     console.error('Failed to reject request (RPC error):', error);
     throw new Error(`Failed to reject request: ${error.message}`);
   }
 
-  const result = data as { success: boolean; action: 'removed_from_timetable' | 'restored'; class_session_id?: string; restored_to_period?: number; error?: string } | null;
-  
+  const result = data as {
+    success: boolean;
+    action: 'removed_from_timetable' | 'restored';
+    class_session_id?: string;
+    restored_to_period?: number;
+    error?: string;
+  } | null;
+
   if (!result || !result.success) {
     const errorMsg = result?.error || 'Unknown error during rejection';
     console.error('Rejection function returned failure:', errorMsg);
@@ -185,13 +210,13 @@ export async function dismissRequest(id: string): Promise<void> {
     .from(TABLE)
     .update({ dismissed: true } as ResourceRequestUpdate)
     .eq('id', id);
-    
+
   if (error) {
     // Provide more context for RLS policy violations
     if (error.code === '42501') {
       throw new Error(
         'Permission denied: You can only dismiss your own reviewed requests (approved/rejected). ' +
-        'If this is your request, please contact an administrator.'
+          'If this is your request, please contact an administrator.'
       );
     }
     throw error;
@@ -205,13 +230,11 @@ export async function dismissRequest(id: string): Promise<void> {
  * @param update - The update payload.
  * @returns A promise resolving to the updated resource request.
  */
-export async function updateRequest(id: string, update: ResourceRequestUpdate): Promise<ResourceRequest> {
-  const { data, error } = await supabase
-    .from(TABLE)
-    .update(update)
-    .eq('id', id)
-    .select()
-    .single();
+export async function updateRequest(
+  id: string,
+  update: ResourceRequestUpdate
+): Promise<ResourceRequest> {
+  const { data, error } = await supabase.from(TABLE).update(update).eq('id', id).select().single();
   if (error) throw error;
   return data as ResourceRequest;
 }
@@ -230,35 +253,33 @@ export async function cancelActiveRequestsForClassSession(classSessionId: string
     .select('*')
     .eq('class_session_id', classSessionId)
     .in('status', ['pending', 'approved']);
-  
+
   if (fetchError) throw fetchError;
-  
+
   if (!requests || requests.length === 0) return;
-  
+
   // For each request, insert a cancellation notification
   for (const request of requests) {
     try {
-      await supabase
-        .from(NOTIF_TABLE)
-        .insert([
-          {
-            request_id: request.id,
-            target_department_id: request.target_department_id,
-            message: 'Request cancelled by program head',
-          },
-        ]);
+      await supabase.from(NOTIF_TABLE).insert([
+        {
+          request_id: request.id,
+          target_department_id: request.target_department_id,
+          message: 'Request cancelled by program head',
+        },
+      ]);
     } catch (e) {
       console.error('Failed to create cancellation notification', e);
     }
   }
-  
+
   // Delete all the requests (trigger will cleanup notifications)
   const { error: deleteError } = await supabase
     .from(TABLE)
     .delete()
     .eq('class_session_id', classSessionId)
     .in('status', ['pending', 'approved']);
-  
+
   if (deleteError) throw deleteError;
 }
 
@@ -268,27 +289,29 @@ export async function cancelActiveRequestsForClassSession(classSessionId: string
  * @param requestId - The ID of the resource request.
  * @returns A promise resolving to the enriched resource request with additional metadata.
  */
-export async function getRequestWithDetails(requestId: string): Promise<ResourceRequest & { 
-  resource_name?: string;
-  requester_name?: string;
-  program_name?: string;
-  period_index?: number;
-  class_group_id?: string;
-}> {
+export async function getRequestWithDetails(requestId: string): Promise<
+  ResourceRequest & {
+    resource_name?: string;
+    requester_name?: string;
+    program_name?: string;
+    period_index?: number;
+    class_group_id?: string;
+  }
+> {
   const { data: request, error } = await supabase
     .from(TABLE)
     .select('*')
     .eq('id', requestId)
     .single();
-  
+
   if (error) throw error;
-  
+
   let resourceName = 'Unknown Resource';
   let requesterName = 'Unknown User';
   let programName = 'Unknown Program';
   let periodIndex: number | undefined;
   let classGroupId: string | undefined;
-  
+
   // Fetch resource name
   if (request.resource_type === 'instructor') {
     const { data: instructor } = await supabase
@@ -296,7 +319,7 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
       .select('first_name, last_name')
       .eq('id', request.resource_id)
       .single();
-    
+
     if (instructor) {
       resourceName = `${instructor.first_name} ${instructor.last_name}`;
     }
@@ -306,54 +329,54 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
       .select('name')
       .eq('id', request.resource_id)
       .single();
-    
+
     if (classroom) {
       resourceName = classroom.name;
     }
   }
-  
+
   // Fetch requester profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('full_name')
     .eq('id', request.requester_id)
     .single();
-  
+
   if (profile?.full_name) {
     requesterName = profile.full_name;
   }
-  
+
   // Fetch program name
   const { data: program } = await supabase
     .from('programs')
     .select('name')
     .eq('id', request.requesting_program_id)
     .single();
-  
+
   if (program?.name) {
     programName = program.name;
   }
-  
+
   // Fetch timetable assignment position
   const { data: assignment } = await supabase
     .from('timetable_assignments')
     .select('period_index, class_group_id')
     .eq('class_session_id', request.class_session_id)
     .single();
-  
+
   if (assignment) {
     periodIndex = assignment.period_index;
     classGroupId = assignment.class_group_id;
   }
-  
-  return { 
-    ...request, 
+
+  return {
+    ...request,
     resource_name: resourceName,
     requester_name: requesterName,
     program_name: programName,
     period_index: periodIndex,
     class_group_id: classGroupId,
-  } as ResourceRequest & { 
+  } as ResourceRequest & {
     resource_name: string;
     requester_name: string;
     program_name: string;
@@ -365,36 +388,42 @@ export async function getRequestWithDetails(requestId: string): Promise<Resource
 /**
  * Cancels a resource request initiated by the program head.
  * Restores session to original position if approved, or removes from timetable if pending.
- * 
+ *
  * @param requestId - The ID of the resource request to cancel.
  * @param requesterId - The ID of the user canceling the request (for permission check).
  * @returns A promise resolving to the result of the cancellation.
  */
-export async function cancelRequest(requestId: string, requesterId: string): Promise<{ 
-  success: boolean; 
-  action: 'removed_from_timetable' | 'restored'; 
-  class_session_id?: string; 
+export async function cancelRequest(
+  requestId: string,
+  requesterId: string
+): Promise<{
+  success: boolean;
+  action: 'removed_from_timetable' | 'restored';
+  class_session_id?: string;
   restored_to_period?: number;
   error?: string;
 }> {
-  const { data, error } = await supabase.rpc('cancel_resource_request' as never, {
-    _request_id: requestId,
-    _requester_id: requesterId,
-  } as never);
+  const { data, error } = await supabase.rpc(
+    'cancel_resource_request' as never,
+    {
+      _request_id: requestId,
+      _requester_id: requesterId,
+    } as never
+  );
 
   if (error) {
     console.error('Failed to cancel request (RPC error):', error);
     throw new Error(`Failed to cancel request: ${error.message}`);
   }
 
-  const result = data as { 
-    success: boolean; 
-    action: 'removed_from_timetable' | 'restored'; 
-    class_session_id?: string; 
+  const result = data as {
+    success: boolean;
+    action: 'removed_from_timetable' | 'restored';
+    class_session_id?: string;
     restored_to_period?: number;
     error?: string;
   } | null;
-  
+
   if (!result || !result.success) {
     const errorMsg = result?.error || 'Unknown error during cancellation';
     console.error('Cancellation function returned failure:', errorMsg);
@@ -408,7 +437,7 @@ export async function cancelRequest(requestId: string, requesterId: string): Pro
 /**
  * Cancels all active resource requests for a specific resource (instructor or classroom).
  * Used as an edge case handler when resources are deleted.
- * 
+ *
  * @param resourceType - The type of resource ('instructor' or 'classroom').
  * @param resourceId - The ID of the resource.
  * @returns A promise resolving when all requests are cancelled and notifications sent.
@@ -424,28 +453,26 @@ export async function cancelActiveRequestsForResource(
     .eq('resource_type', resourceType)
     .eq('resource_id', resourceId)
     .in('status', ['pending', 'approved']);
-  
+
   if (fetchError) throw fetchError;
-  
+
   if (!requests || requests.length === 0) return;
-  
+
   // For each request, insert a cancellation notification
   for (const request of requests) {
     try {
-      await supabase
-        .from(NOTIF_TABLE)
-        .insert([
-          {
-            request_id: request.id,
-            target_department_id: request.target_department_id,
-            message: `Request cancelled - ${resourceType} was deleted`,
-          },
-        ]);
+      await supabase.from(NOTIF_TABLE).insert([
+        {
+          request_id: request.id,
+          target_department_id: request.target_department_id,
+          message: `Request cancelled - ${resourceType} was deleted`,
+        },
+      ]);
     } catch (e) {
       console.error('Failed to create cancellation notification', e);
     }
   }
-  
+
   // Delete all the requests (trigger will cleanup notifications)
   const { error: deleteError } = await supabase
     .from(TABLE)
@@ -453,6 +480,6 @@ export async function cancelActiveRequestsForResource(
     .eq('resource_type', resourceType)
     .eq('resource_id', resourceId)
     .in('status', ['pending', 'approved']);
-  
+
   if (deleteError) throw deleteError;
 }

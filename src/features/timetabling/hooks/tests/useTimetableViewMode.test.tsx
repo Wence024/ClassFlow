@@ -48,12 +48,12 @@ describe('useTimetableViewMode', () => {
     });
 
     expect(result.current.viewMode).toBe('classroom');
-    
+
     // Wait for useEffect to complete
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 10));
+      await new Promise((resolve) => setTimeout(resolve, 10));
     });
-    
+
     expect(localStorage.getItem(STORAGE_KEY)).toBe('classroom');
   });
 
@@ -96,20 +96,20 @@ describe('useTimetableViewMode', () => {
     act(() => {
       result.current.setViewMode('classroom');
     });
-    
+
     // Wait for useEffect to complete
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
     expect(localStorage.getItem(STORAGE_KEY)).toBe('classroom');
 
     act(() => {
       result.current.setViewMode('instructor');
     });
-    
+
     // Wait for useEffect to complete
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
     });
     expect(localStorage.getItem(STORAGE_KEY)).toBe('instructor');
   });

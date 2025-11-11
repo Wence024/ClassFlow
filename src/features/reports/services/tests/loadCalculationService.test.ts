@@ -30,6 +30,3 @@ describe('loadCalculationService', () => {
     expect(result.standardLoad).toBe(7);
   });
 });
-
-
-

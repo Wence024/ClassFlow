@@ -38,8 +38,18 @@ describe('usePrograms Integration Tests', () => {
 
   it('should fetch all programs for admin users', async () => {
     const mockPrograms = [
-      { id: 'p1', name: 'Bachelor of Science in Information Technology', department_id: 'd1', created_at: '2024-01-01' },
-      { id: 'p2', name: 'Bachelor of Science in Computer Science', department_id: 'd1', created_at: '2024-01-02' },
+      {
+        id: 'p1',
+        name: 'Bachelor of Science in Information Technology',
+        department_id: 'd1',
+        created_at: '2024-01-01',
+      },
+      {
+        id: 'p2',
+        name: 'Bachelor of Science in Computer Science',
+        department_id: 'd1',
+        created_at: '2024-01-02',
+      },
     ];
 
     vi.mocked(programsService.listPrograms).mockResolvedValue(mockPrograms);
@@ -57,7 +67,11 @@ describe('usePrograms Integration Tests', () => {
   });
 
   it('should allow creating a new program', async () => {
-    const newProgram = { name: 'Bachelor of Arts in Multimedia Arts', short_code: 'BAMMA', department_id: 'd2' };
+    const newProgram = {
+      name: 'Bachelor of Arts in Multimedia Arts',
+      short_code: 'BAMMA',
+      department_id: 'd2',
+    };
     const createdProgram = { id: 'p3', ...newProgram, created_at: '2024-01-03' };
 
     vi.mocked(programsService.listPrograms).mockResolvedValue([]);

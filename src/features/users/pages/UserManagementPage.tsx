@@ -53,7 +53,11 @@ export default function UserManagementPage() {
     return list.filter((u) => u.full_name?.toLowerCase().includes(q));
   }, [usersQuery.data, searchTerm]);
 
-  const handleUpdate = async (userId: string, field: 'role' | 'program_id' | 'department_id', value: string | null) => {
+  const handleUpdate = async (
+    userId: string,
+    field: 'role' | 'program_id' | 'department_id',
+    value: string | null
+  ) => {
     await updateMutation.mutateAsync({
       userId,
       updates: { [field]: value || null },
@@ -104,7 +108,7 @@ export default function UserManagementPage() {
     <div className="max-w-6xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">User Management</h1>
-        
+
         <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -125,7 +129,7 @@ export default function UserManagementPage() {
                 onChange={(val) => setInviteForm({ ...inviteForm, email: val })}
                 required
               />
-              
+
               <div>
                 <label className="text-sm font-medium mb-2 block">Role</label>
                 <Select
@@ -147,7 +151,9 @@ export default function UserManagementPage() {
                 <label className="text-sm font-medium mb-2 block">Program</label>
                 <Select
                   value={inviteForm.program_id || 'none'}
-                  onValueChange={(value) => setInviteForm({ ...inviteForm, program_id: value === 'none' ? null : value })}
+                  onValueChange={(value) =>
+                    setInviteForm({ ...inviteForm, program_id: value === 'none' ? null : value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select program" />
@@ -167,7 +173,9 @@ export default function UserManagementPage() {
                 <label className="text-sm font-medium mb-2 block">Department</label>
                 <Select
                   value={inviteForm.department_id || 'none'}
-                  onValueChange={(value) => setInviteForm({ ...inviteForm, department_id: value === 'none' ? null : value })}
+                  onValueChange={(value) =>
+                    setInviteForm({ ...inviteForm, department_id: value === 'none' ? null : value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
@@ -190,7 +198,7 @@ export default function UserManagementPage() {
           </DialogContent>
         </Dialog>
       </div>
-      
+
       <div className="mb-4">
         <FormField
           id="search-users"
@@ -219,7 +227,9 @@ export default function UserManagementPage() {
       </div>
 
       {updateMutation.error && (
-        <Alert variant="destructive" className="mt-4">Failed to update user.</Alert>
+        <Alert variant="destructive" className="mt-4">
+          Failed to update user.
+        </Alert>
       )}
     </div>
   );
@@ -229,7 +239,11 @@ type UserCardProps = {
   user: UserProfile;
   programs: Array<{ id: string; name: string; short_code: string }>;
   departments: Array<{ id: string; name: string; code: string }>;
-  onUpdate: (userId: string, field: 'role' | 'program_id' | 'department_id', value: string | null) => Promise<void>;
+  onUpdate: (
+    userId: string,
+    field: 'role' | 'program_id' | 'department_id',
+    value: string | null
+  ) => Promise<void>;
   isUpdating: boolean;
 };
 
@@ -244,12 +258,18 @@ type UserCardProps = {
  * @param uc.isUpdating - A boolean indicating if the user is being updated.
  * @returns The rendered user card.
  */
-const UserCard: React.FC<UserCardProps> = ({ user, programs, departments, onUpdate, isUpdating }) => {
+const UserCard: React.FC<UserCardProps> = ({
+  user,
+  programs,
+  departments,
+  onUpdate,
+  isUpdating,
+}) => {
   return (
     <Card className="p-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
         <div className="font-medium">{user.full_name || 'No name'}</div>
-        
+
         <Select
           value={user.role}
           onValueChange={(value) => onUpdate(user.id, 'role', value)}
@@ -267,7 +287,9 @@ const UserCard: React.FC<UserCardProps> = ({ user, programs, departments, onUpda
 
         <Select
           value={user.program_id || 'none'}
-          onValueChange={(value) => onUpdate(user.id, 'program_id', value === 'none' ? null : value)}
+          onValueChange={(value) =>
+            onUpdate(user.id, 'program_id', value === 'none' ? null : value)
+          }
           disabled={isUpdating}
         >
           <SelectTrigger>
@@ -285,7 +307,9 @@ const UserCard: React.FC<UserCardProps> = ({ user, programs, departments, onUpda
 
         <Select
           value={user.department_id || 'none'}
-          onValueChange={(value) => onUpdate(user.id, 'department_id', value === 'none' ? null : value)}
+          onValueChange={(value) =>
+            onUpdate(user.id, 'department_id', value === 'none' ? null : value)
+          }
           disabled={isUpdating}
         >
           <SelectTrigger>

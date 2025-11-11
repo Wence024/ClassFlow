@@ -86,7 +86,7 @@ describe('authService.getStoredUser - profile hydration', () => {
     expect(mockedSupabase.from).toHaveBeenCalledWith('profiles');
     expect(fromProfilesMock.select).toHaveBeenCalledWith('program_id, department_id');
     expect(fromProfilesMock.eq).toHaveBeenCalledWith('id', 'u1');
-    
+
     expect(mockedSupabase.from).toHaveBeenCalledWith('user_roles');
     expect(fromUserRolesMock.select).toHaveBeenCalledWith('role');
     expect(fromUserRolesMock.eq).toHaveBeenCalledWith('user_id', 'u1');

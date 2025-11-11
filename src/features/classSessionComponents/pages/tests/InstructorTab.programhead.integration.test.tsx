@@ -1,6 +1,6 @@
 /**
  * Integration tests for InstructorTab component with Program Head user.
- * 
+ *
  * Tests the read-only browsing behavior for program heads viewing instructors.
  */
 
@@ -190,7 +190,7 @@ describe('InstructorTab - Program Head Integration', () => {
 
     // Find and use the search input
     const searchInput = screen.getByPlaceholderText(/search by name or code/i);
-    
+
     // Type in search query using userEvent
     await user.type(searchInput, 'John');
 

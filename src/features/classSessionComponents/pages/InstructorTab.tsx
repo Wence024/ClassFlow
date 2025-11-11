@@ -32,7 +32,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 const InstructorManagement: React.FC = () => {
   const { user, isProgramHead } = useAuth();
   const departmentId = useDepartmentId();
-  
+
   // Use unified hook that adapts based on role
   const {
     instructors,
@@ -45,7 +45,7 @@ const InstructorManagement: React.FC = () => {
     isRemoving,
     canManage,
   } = useInstructorsUnified();
-  
+
   const { classSessions } = useClassSessions();
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
   const [instructorToDelete, setInstructorToDelete] = useState<Instructor | null>(null);
@@ -94,13 +94,15 @@ const InstructorManagement: React.FC = () => {
 
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
-    
+
     // For department heads, validate they have a department assigned
     if (user.role === 'department_head' && !departmentId) {
-      toast.error('You must be assigned to a department before creating instructors. Please contact an administrator.');
+      toast.error(
+        'You must be assigned to a department before creating instructors. Please contact an administrator.'
+      );
       return;
     }
-    
+
     // Explicitly construct instructor data with department_id
     const instructorData: InstructorInsert = {
       first_name: data.first_name,
@@ -114,11 +116,9 @@ const InstructorManagement: React.FC = () => {
       color: data.color || null,
       // For department heads: use their department_id
       // For admins: use the department_id from the form
-      department_id: user.role === 'department_head' 
-        ? departmentId
-        : (data.department_id || null),
+      department_id: user.role === 'department_head' ? departmentId : data.department_id || null,
     };
-    
+
     await addInstructor(instructorData);
     formMethods.reset();
     toast.success('Instructor added successfully!');
@@ -170,41 +170,43 @@ const InstructorManagement: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4 text-center">
                 {editingInstructor ? 'Edit Instructor' : 'Create Instructor'}
               </h2>
-            <FormProvider {...formMethods}>
-              <form onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}>
-                <fieldset disabled={isSubmitting || !canManage} className="space-y-1">
-                  <AdminInstructorFields
-                    control={formMethods.control}
-                    errors={formMethods.formState.errors}
-                    isEditing={!!editingInstructor}
-                    currentDepartmentId={editingInstructor?.department_id ?? undefined}
-                  />
-                  <div className="flex gap-2 pt-4">
-                    <Button type="submit" loading={isSubmitting} className="flex-1">
-                      {editingInstructor ? 'Save Changes' : 'Create'}
-                    </Button>
-                    {editingInstructor && (
-                      <Button type="button" variant="secondary" onClick={handleCancel}>
-                        Cancel
+              <FormProvider {...formMethods}>
+                <form
+                  onSubmit={formMethods.handleSubmit(editingInstructor ? handleSave : handleAdd)}
+                >
+                  <fieldset disabled={isSubmitting || !canManage} className="space-y-1">
+                    <AdminInstructorFields
+                      control={formMethods.control}
+                      errors={formMethods.formState.errors}
+                      isEditing={!!editingInstructor}
+                      currentDepartmentId={editingInstructor?.department_id ?? undefined}
+                    />
+                    <div className="flex gap-2 pt-4">
+                      <Button type="submit" loading={isSubmitting} className="flex-1">
+                        {editingInstructor ? 'Save Changes' : 'Create'}
                       </Button>
-                    )}
-                  </div>
-                </fieldset>
-              </form>
-            </FormProvider>
+                      {editingInstructor && (
+                        <Button type="button" variant="secondary" onClick={handleCancel}>
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </fieldset>
+                </form>
+              </FormProvider>
+            </div>
           </div>
-        </div>
         )}
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">
             {canManage ? 'Instructors' : 'Browse Instructors'}
           </h2>
-          
+
           {isProgramHead() && !canManage && (
             <Alert className="mb-4">
               <p className="text-sm">
-                You can browse instructors from all departments to assign them to your class sessions.
-                Only department heads can create or modify instructor records.
+                You can browse instructors from all departments to assign them to your class
+                sessions. Only department heads can create or modify instructor records.
               </p>
             </Alert>
           )}

@@ -52,8 +52,8 @@ export default function RejectionDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <p className="text-sm text-muted-foreground">
-            You are rejecting the request for <strong>{resourceName}</strong>.
-            Please provide a reason for the program head.
+            You are rejecting the request for <strong>{resourceName}</strong>. Please provide a
+            reason for the program head.
           </p>
           <div className="space-y-2">
             <Label htmlFor="rejection-message">Rejection Reason *</Label>

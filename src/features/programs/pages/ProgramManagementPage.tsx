@@ -2,14 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { usePrograms } from '../hooks/usePrograms';
 import { useDepartments } from '../../departments/hooks/useDepartments';
 import { useAuth } from '../../auth/hooks/useAuth';
-import {
-  Button,
-  Card,
-  ConfirmModal,
-  ErrorMessage,
-  LoadingSpinner,
-  Alert,
-} from '@/components/ui';
+import { Button, Card, ConfirmModal, ErrorMessage, LoadingSpinner, Alert } from '@/components/ui';
 import type { Program } from '../types/program';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,10 +31,10 @@ export default function ProgramManagementPage() {
 
   useEffect(() => {
     if (editing) {
-      formMethods.reset({ 
-        name: editing.name, 
-        short_code: editing.short_code, 
-        department_id: editing.department_id || '' 
+      formMethods.reset({
+        name: editing.name,
+        short_code: editing.short_code,
+        department_id: editing.department_id || '',
       });
     } else {
       formMethods.reset({ name: '', short_code: '', department_id: '' });
@@ -52,14 +45,16 @@ export default function ProgramManagementPage() {
     const list = listQuery.data || [];
     if (!searchTerm) return list;
     const q = searchTerm.toLowerCase();
-    return list.filter((p) => p.name.toLowerCase().includes(q) || p.short_code.toLowerCase().includes(q));
+    return list.filter(
+      (p) => p.name.toLowerCase().includes(q) || p.short_code.toLowerCase().includes(q)
+    );
   }, [listQuery.data, searchTerm]);
 
   const onCreate = async (data: ProgramFormData) => {
-    await createMutation.mutateAsync({ 
-      name: data.name, 
-      short_code: data.short_code, 
-      department_id: data.department_id 
+    await createMutation.mutateAsync({
+      name: data.name,
+      short_code: data.short_code,
+      department_id: data.department_id,
     });
     formMethods.reset();
   };
@@ -67,24 +62,24 @@ export default function ProgramManagementPage() {
   const onSaveEdit = async () => {
     if (!editing) return;
     const values = formMethods.getValues();
-    await updateMutation.mutateAsync({ 
-      id: editing.id, 
-      update: { 
-        name: values.name, 
-        short_code: values.short_code, 
-        department_id: values.department_id 
-      } 
+    await updateMutation.mutateAsync({
+      id: editing.id,
+      update: {
+        name: values.name,
+        short_code: values.short_code,
+        department_id: values.department_id,
+      },
     });
     setEditing(null);
   };
 
   const departmentOptions = useMemo(() => {
-    return (departmentsQuery.data || []).map(d => ({ id: d.id, name: d.name }));
+    return (departmentsQuery.data || []).map((d) => ({ id: d.id, name: d.name }));
   }, [departmentsQuery.data]);
 
   const departmentsMap = useMemo(() => {
     const map = new Map<string, string>();
-    (departmentsQuery.data || []).forEach(d => map.set(d.id, d.name));
+    (departmentsQuery.data || []).forEach((d) => map.set(d.id, d.name));
     return map;
   }, [departmentsQuery.data]);
 
@@ -92,7 +87,8 @@ export default function ProgramManagementPage() {
     return <Alert variant="destructive">You do not have access to this page.</Alert>;
   }
 
-  if (listQuery.isLoading || departmentsQuery.isLoading) return <LoadingSpinner text="Loading programs..." />;
+  if (listQuery.isLoading || departmentsQuery.isLoading)
+    return <LoadingSpinner text="Loading programs..." />;
   if (listQuery.error) return <ErrorMessage message="Failed to load programs." />;
   if (departmentsQuery.error) return <ErrorMessage message="Failed to load departments." />;
 
@@ -101,17 +97,22 @@ export default function ProgramManagementPage() {
       <div className="max-w-6xl mx-auto p-4 flex flex-col md:flex-row-reverse gap-8">
         <div className="w-full md:w-96">
           <Card className="p-4 space-y-3">
-            <div className="font-semibold text-center">{editing ? 'Edit Program' : 'Create Program'}</div>
+            <div className="font-semibold text-center">
+              {editing ? 'Edit Program' : 'Create Program'}
+            </div>
             <FormProvider {...formMethods}>
               <form onSubmit={formMethods.handleSubmit(editing ? onSaveEdit : onCreate)}>
                 <fieldset className="space-y-2">
-                  <ProgramFields 
-                    control={formMethods.control} 
-                    errors={formMethods.formState.errors} 
+                  <ProgramFields
+                    control={formMethods.control}
+                    errors={formMethods.formState.errors}
                     departmentOptions={departmentOptions}
                   />
                   <div className="flex gap-2 pt-2">
-                    <Button type="submit" loading={createMutation.isPending || updateMutation.isPending}>
+                    <Button
+                      type="submit"
+                      loading={createMutation.isPending || updateMutation.isPending}
+                    >
                       {editing ? 'Save Changes' : 'Create'}
                     </Button>
                     {editing && (
@@ -124,14 +125,16 @@ export default function ProgramManagementPage() {
               </form>
             </FormProvider>
             {(createMutation.error || updateMutation.error) && (
-              <Alert variant="destructive">{editing ? 'Failed to update program.' : 'Failed to create program.'}</Alert>
+              <Alert variant="destructive">
+                {editing ? 'Failed to update program.' : 'Failed to create program.'}
+              </Alert>
             )}
           </Card>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="p-4 space-y-3">
-          <h1 className="text-3xl font-bold mb-6">Programs</h1>
+            <h1 className="text-3xl font-bold mb-6">Programs</h1>
             <div className="mb-2">
               <FormField
                 id="search-programs"
@@ -146,19 +149,19 @@ export default function ProgramManagementPage() {
                 <div className="text-gray-500">No programs found.</div>
               ) : (
                 filtered.map((p) => (
-                  <ProgramCard 
-                    key={p.id} 
-                    program={p} 
-                    onEdit={setEditing} 
+                  <ProgramCard
+                    key={p.id}
+                    program={p}
+                    onEdit={setEditing}
                     onDelete={(id) => setToDelete(filtered.find((x) => x.id === id) || null)}
-                    departmentName={p.department_id ? departmentsMap.get(p.department_id) : undefined}
+                    departmentName={
+                      p.department_id ? departmentsMap.get(p.department_id) : undefined
+                    }
                   />
                 ))
               )}
             </div>
-            {deleteMutation.error && (
-              <Alert variant="destructive">Delete failed.</Alert>
-            )}
+            {deleteMutation.error && <Alert variant="destructive">Delete failed.</Alert>}
           </div>
         </div>
       </div>

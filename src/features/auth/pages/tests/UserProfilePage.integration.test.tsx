@@ -59,12 +59,7 @@ vi.spyOn(programHooks, 'usePrograms').mockReturnValue({
     { id: string; update: ProgramUpdate },
     unknown
   >,
-  deleteMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
-    void,
-    Error,
-    string,
-    unknown
-  >,
+  deleteMutation: { mutate: vi.fn() } as unknown as UseMutationResult<void, Error, string, unknown>,
 });
 
 vi.spyOn(departmentHooks, 'useDepartments').mockReturnValue({
@@ -85,12 +80,7 @@ vi.spyOn(departmentHooks, 'useDepartments').mockReturnValue({
     { id: string; update: DepartmentUpdate },
     unknown
   >,
-  deleteMutation: { mutate: vi.fn() } as unknown as UseMutationResult<
-    void,
-    Error,
-    string,
-    unknown
-  >,
+  deleteMutation: { mutate: vi.fn() } as unknown as UseMutationResult<void, Error, string, unknown>,
 });
 
 const queryClient = new QueryClient();

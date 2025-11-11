@@ -5,7 +5,11 @@ import { MemoryRouter } from 'react-router-dom';
 import TimetableRow from '../TimetableRow';
 import TimetableContext from '../TimetableContext';
 import { AuthProvider } from '../../../../../auth/contexts/AuthProvider';
-import type { ClassGroup, Classroom, Instructor } from '../../../../../classSessionComponents/types';
+import type {
+  ClassGroup,
+  Classroom,
+  Instructor,
+} from '../../../../../classSessionComponents/types';
 import type { ClassSession } from '../../../../../classSessions/types/classSession';
 import type { Course } from '../../../../../classSessionComponents/types/course';
 import type { TimetableViewMode } from '../../../../types/timetable';
@@ -149,11 +153,17 @@ describe('TimetableRow', () => {
       const timetable = new Map<string, (ClassSession[] | null)[]>();
       timetable.set('group1', Array(totalPeriods).fill(null));
 
-      const { container } = renderWithContext('class-group', mockGroup, timetable, periodsPerDay, totalPeriods);
+      const { container } = renderWithContext(
+        'class-group',
+        mockGroup,
+        timetable,
+        periodsPerDay,
+        totalPeriods
+      );
 
       const row = container.querySelector('tr');
       const cells = row?.querySelectorAll('td');
-      
+
       // First cell is the label, rest are empty cells
       expect(cells?.length).toBe(totalPeriods + 1);
     });
@@ -182,7 +192,13 @@ describe('TimetableRow', () => {
       rowData[2] = [multiPeriodSession];
       timetable.set('group1', rowData);
 
-      const { container } = renderWithContext('class-group', mockGroup, timetable, periodsPerDay, totalPeriods);
+      const { container } = renderWithContext(
+        'class-group',
+        mockGroup,
+        timetable,
+        periodsPerDay,
+        totalPeriods
+      );
 
       // Should only render once despite spanning 3 periods
       const sessionCells = container.querySelectorAll('[data-testid*="session-cell"]');
@@ -252,7 +268,13 @@ describe('TimetableRow', () => {
     it('should handle empty timetable data gracefully', () => {
       const timetable = new Map<string, (ClassSession[] | null)[]>();
 
-      const { container } = renderWithContext('class-group', mockGroup, timetable, periodsPerDay, totalPeriods);
+      const { container } = renderWithContext(
+        'class-group',
+        mockGroup,
+        timetable,
+        periodsPerDay,
+        totalPeriods
+      );
 
       const row = container.querySelector('tr');
       expect(row).toBeInTheDocument();
@@ -262,11 +284,17 @@ describe('TimetableRow', () => {
       const timetable = new Map<string, (ClassSession[] | null)[]>();
       // Not adding mockGroup.id to the map
 
-      const { container } = renderWithContext('class-group', mockGroup, timetable, periodsPerDay, totalPeriods);
+      const { container } = renderWithContext(
+        'class-group',
+        mockGroup,
+        timetable,
+        periodsPerDay,
+        totalPeriods
+      );
 
       const row = container.querySelector('tr');
       const cells = row?.querySelectorAll('td');
-      
+
       // Should still render with empty cells
       expect(cells?.length).toBe(totalPeriods + 1);
     });

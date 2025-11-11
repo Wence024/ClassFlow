@@ -26,14 +26,16 @@ export function useInstructors() {
     queryKey,
     queryFn: () =>
       user
-        ? instructorsService.getInstructors({ role: user.role, department_id: (user as { department_id?: string | null })?.department_id || null })
+        ? instructorsService.getInstructors({
+            role: user.role,
+            department_id: (user as { department_id?: string | null })?.department_id || null,
+          })
         : Promise.resolve([]),
     enabled: !!user,
   });
 
   const addMutation = useMutation({
-    mutationFn: (data: InstructorInsert) =>
-      instructorsService.addInstructor(data),
+    mutationFn: (data: InstructorInsert) => instructorsService.addInstructor(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
   });
 

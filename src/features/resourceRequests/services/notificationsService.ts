@@ -22,9 +22,9 @@ export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
     .is('read_at', null)
     .order('created_at', { ascending: false });
   if (error) throw error;
-  return (data || []).map(d => ({
+  return (data || []).map((d) => ({
     ...d,
-    created_at: d.created_at || new Date().toISOString()
+    created_at: d.created_at || new Date().toISOString(),
   }));
 }
 
@@ -49,9 +49,6 @@ export async function markRead(id: string): Promise<void> {
  * @returns A promise that resolves when the operation is complete.
  */
 export async function deleteNotification(id: string): Promise<void> {
-  const { error } = await supabase
-    .from('request_notifications')
-    .delete()
-    .eq('id', id);
+  const { error } = await supabase.from('request_notifications').delete().eq('id', id);
   if (error) throw error;
 }

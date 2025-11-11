@@ -24,7 +24,9 @@ export default function DepartmentHeadDashboard() {
       </div>
       <Card className="p-4">
         <div className="text-sm text-gray-600 mb-2">
-          {isAdmin() ? 'Manage instructors across all departments' : 'Manage instructors for your department'}
+          {isAdmin()
+            ? 'Manage instructors across all departments'
+            : 'Manage instructors for your department'}
         </div>
         <AdminInstructorManagement />
       </Card>

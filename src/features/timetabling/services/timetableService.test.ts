@@ -79,9 +79,12 @@ describe('TimetableService', () => {
       const result = await assignClassSessionToTimetable(mockAssignmentInput);
 
       // Test that the raw input is passed directly to upsert with status field
-      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([{ ...mockAssignmentInput, status: 'confirmed' }], {
-        onConflict: 'user_id,class_group_id,period_index,semester_id',
-      });
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
+        [{ ...mockAssignmentInput, status: 'confirmed' }],
+        {
+          onConflict: 'user_id,class_group_id,period_index,semester_id',
+        }
+      );
       expect(result).toEqual(mockAssignmentWithId);
     });
 
@@ -102,9 +105,12 @@ describe('TimetableService', () => {
 
       await assignClassSessionToTimetable(mockAssignmentInput);
 
-      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([{ ...mockAssignmentInput, status: 'confirmed' }], {
-        onConflict: 'user_id,class_group_id,period_index,semester_id',
-      });
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
+        [{ ...mockAssignmentInput, status: 'confirmed' }],
+        {
+          onConflict: 'user_id,class_group_id,period_index,semester_id',
+        }
+      );
     });
   });
 
@@ -156,9 +162,7 @@ describe('TimetableService', () => {
       // Final eq call (semester_id) returns the result of the delete operation
       mockSupabaseQueryBuilder.eq.mockResolvedValueOnce({ error: null });
 
-      await expect(
-        removeClassSessionFromTimetable('group-id', 1, 'sem1')
-      ).resolves.toBeUndefined();
+      await expect(removeClassSessionFromTimetable('group-id', 1, 'sem1')).resolves.toBeUndefined();
     });
 
     test('should throw if Supabase delete returns error', async () => {
@@ -168,9 +172,7 @@ describe('TimetableService', () => {
         .mockImplementationOnce(() => mockSupabaseQueryBuilder)
         .mockImplementationOnce(() => Promise.resolve({ error: { message: 'fail' } }));
 
-      await expect(removeClassSessionFromTimetable('group-id', 1, 'sem1')).rejects.toThrow(
-        'fail'
-      );
+      await expect(removeClassSessionFromTimetable('group-id', 1, 'sem1')).rejects.toThrow('fail');
     });
   });
 
@@ -196,13 +198,16 @@ describe('TimetableService', () => {
       );
 
       // Check that upsert was called first
-      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith([{ ...mockAssignmentInput, status: 'confirmed' }], {
-        onConflict: 'user_id,class_group_id,period_index,semester_id',
-      });
-      
+      expect(mockSupabaseQueryBuilder.upsert).toHaveBeenCalledWith(
+        [{ ...mockAssignmentInput, status: 'confirmed' }],
+        {
+          onConflict: 'user_id,class_group_id,period_index,semester_id',
+        }
+      );
+
       // Check that delete was called with the 'from' location
       expect(mockSupabaseQueryBuilder.delete).toHaveBeenCalled();
-      
+
       expect(result).toEqual(mockAssignmentWithId);
     });
 
@@ -220,7 +225,7 @@ describe('TimetableService', () => {
           mockAssignmentInput
         )
       ).rejects.toThrow('upsert failed');
-      
+
       // Delete should not have been called since upsert failed
       expect(mockSupabaseQueryBuilder.delete).not.toHaveBeenCalled();
     });

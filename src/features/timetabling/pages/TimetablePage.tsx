@@ -37,23 +37,23 @@ interface TooltipState {
 const TimetablePage: React.FC = () => {
   const { viewMode, setViewMode } = useTimetableViewMode();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Extract pending placement info from URL
   const pendingSessionId = searchParams.get('pendingSessionId');
   const resourceType = searchParams.get('resourceType') as 'instructor' | 'classroom' | null;
   const resourceId = searchParams.get('resourceId');
   const departmentId = searchParams.get('departmentId');
-  
+
   // Extract highlight info from URL
   const highlightPeriod = searchParams.get('highlightPeriod');
   const highlightGroup = searchParams.get('highlightGroup');
-  
+
   // Fetches ALL class sessions from the database for a global view.
   const { data: allClassSessions = [], isLoading: isLoadingSessions } = useQuery<ClassSession[]>({
     queryKey: ['allClassSessions'],
     queryFn: classSessionsService.getAllClassSessions,
   });
-  
+
   // Store pending session info in localStorage for persistence across navigation
   useEffect(() => {
     if (pendingSessionId && resourceType && resourceId && departmentId) {
@@ -67,33 +67,42 @@ const TimetablePage: React.FC = () => {
       }
     }
   }, [pendingSessionId, resourceType, resourceId, departmentId]);
-  
+
   // Load pending session info from localStorage if not in URL (persistence across navigation)
   useEffect(() => {
     if (!pendingSessionId) {
       try {
         const stored = localStorage.getItem('pendingCrossDeptSession');
         if (stored) {
-          const { pendingSessionId: storedId, resourceType: storedType, resourceId: storedResId, departmentId: storedDeptId } = JSON.parse(stored);
+          const {
+            pendingSessionId: storedId,
+            resourceType: storedType,
+            resourceId: storedResId,
+            departmentId: storedDeptId,
+          } = JSON.parse(stored);
           // Restore URL params from localStorage
           searchParams.set('pendingSessionId', storedId);
           searchParams.set('resourceType', storedType);
           searchParams.set('resourceId', storedResId);
           searchParams.set('departmentId', storedDeptId);
-          window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+          window.history.replaceState(
+            {},
+            '',
+            `${window.location.pathname}?${searchParams.toString()}`
+          );
         }
       } catch (error) {
         console.error('Failed to restore pending session from localStorage:', error);
       }
     }
   }, [pendingSessionId, searchParams]);
-  
+
   // Validate session existence with delayed retry to avoid false positives on fresh redirects
   useEffect(() => {
     if (pendingSessionId && !isLoadingSessions) {
       // Wait a bit for the query to settle after redirect
       const timeoutId = setTimeout(() => {
-        const sessionExists = allClassSessions.some(s => s.id === pendingSessionId);
+        const sessionExists = allClassSessions.some((s) => s.id === pendingSessionId);
         if (!sessionExists) {
           toast.error('Session not found. It may have been deleted.');
           // Clear both URL params and localStorage
@@ -101,15 +110,19 @@ const TimetablePage: React.FC = () => {
           searchParams.delete('resourceType');
           searchParams.delete('resourceId');
           searchParams.delete('departmentId');
-          window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+          window.history.replaceState(
+            {},
+            '',
+            `${window.location.pathname}?${searchParams.toString()}`
+          );
           localStorage.removeItem('pendingCrossDeptSession');
         }
       }, 1000); // 1 second delay to allow query cache to update
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [pendingSessionId, allClassSessions, isLoadingSessions, searchParams]);
-  
+
   // Clear pending placement when active semester changes (edge case)
   useEffect(() => {
     if (pendingSessionId) {
@@ -118,11 +131,15 @@ const TimetablePage: React.FC = () => {
         searchParams.delete('resourceType');
         searchParams.delete('resourceId');
         searchParams.delete('departmentId');
-        window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+        window.history.replaceState(
+          {},
+          '',
+          `${window.location.pathname}?${searchParams.toString()}`
+        );
         localStorage.removeItem('pendingCrossDeptSession');
         toast.info('Pending placement cleared due to semester change');
       };
-      
+
       // Subscribe to semester changes
       const channel = supabase
         .channel('semester-changes')
@@ -139,15 +156,22 @@ const TimetablePage: React.FC = () => {
           }
         )
         .subscribe();
-      
+
       return () => {
         supabase.removeChannel(channel);
       };
     }
   }, [pendingSessionId, searchParams]);
 
-  const { timetable, groups, resources, assignments, loading: loadingTimetable, pendingSessionIds } = useTimetable(viewMode);
-  
+  const {
+    timetable,
+    groups,
+    resources,
+    assignments,
+    loading: loadingTimetable,
+    pendingSessionIds,
+  } = useTimetable(viewMode);
+
   const clearPendingPlacement = useCallback(() => {
     searchParams.delete('pendingSessionId');
     searchParams.delete('resourceType');
@@ -156,7 +180,7 @@ const TimetablePage: React.FC = () => {
     window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
     localStorage.removeItem('pendingCrossDeptSession');
   }, [searchParams]);
-  
+
   const dnd = useTimetableDnd(allClassSessions, viewMode, assignments, {
     pendingSessionId: pendingSessionId || undefined,
     resourceType: resourceType || undefined,
@@ -165,11 +189,11 @@ const TimetablePage: React.FC = () => {
     onClearPending: clearPendingPlacement,
   });
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
-  
+
   // Show toast notification for pending placement
   useEffect(() => {
     if (pendingSessionId && !isLoadingSessions) {
-      const session = allClassSessions.find(s => s.id === pendingSessionId);
+      const session = allClassSessions.find((s) => s.id === pendingSessionId);
       if (session) {
         toast.info('Drag the highlighted session to the timetable to submit your request', {
           duration: 8000,
@@ -177,7 +201,7 @@ const TimetablePage: React.FC = () => {
       }
     }
   }, [pendingSessionId, allClassSessions, isLoadingSessions]);
-  
+
   // Confirmation dialog state
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [confirmDialogConfig, setConfirmDialogConfig] = useState<{
@@ -191,13 +215,13 @@ const TimetablePage: React.FC = () => {
     setTooltip({ content, position: { top: rect.top, left: rect.left + rect.width / 2 } });
   };
   const handleHideTooltip = () => setTooltip(null);
-  
+
   // Confirmation callback for DnD operations
   const handleConfirmAction = (callback: () => void, title: string, description: string) => {
     setConfirmDialogConfig({ title, description, onConfirm: callback });
     setConfirmDialogOpen(true);
   };
-  
+
   const handleConfirmDialogConfirm = () => {
     if (confirmDialogConfig) {
       confirmDialogConfig.onConfirm();
@@ -205,25 +229,25 @@ const TimetablePage: React.FC = () => {
     setConfirmDialogOpen(false);
     setConfirmDialogConfig(null);
   };
-  
+
   // Wrap DnD handlers with confirmation logic
-  const handleDropToGridWithConfirm: typeof dnd.handleDropToGrid = async (e, targetGroupId, targetPeriodIndex) => {
-    return dnd.handleDropToGrid(
-      e, 
-      targetGroupId, 
-      targetPeriodIndex, 
-      (callback) => handleConfirmAction(
+  const handleDropToGridWithConfirm: typeof dnd.handleDropToGrid = async (
+    e,
+    targetGroupId,
+    targetPeriodIndex
+  ) => {
+    return dnd.handleDropToGrid(e, targetGroupId, targetPeriodIndex, (callback) =>
+      handleConfirmAction(
         callback,
         'Move Confirmed Session',
         'This session uses cross-department resources and is currently confirmed. Moving it will require department head approval again. Continue?'
       )
     );
   };
-  
+
   const handleDropToDrawerWithConfirm: typeof dnd.handleDropToDrawer = async (e) => {
-    return dnd.handleDropToDrawer(
-      e,
-      (callback) => handleConfirmAction(
+    return dnd.handleDropToDrawer(e, (callback) =>
+      handleConfirmAction(
         callback,
         'Remove Cross-Department Session',
         'This session uses cross-department resources. Removing it will cancel the approval and notify the department head. Continue?'
@@ -235,7 +259,7 @@ const TimetablePage: React.FC = () => {
   // Use DB assignments (source of truth) instead of view-dependent grid.
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
-    
+
     // Extract assigned session IDs from DB assignments (not view grid)
     for (const assignment of assignments) {
       if (assignment.class_session?.id) {
@@ -278,7 +302,7 @@ const TimetablePage: React.FC = () => {
         );
         if (cellElement) {
           cellElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-          
+
           // Clear highlight params after 5 seconds
           setTimeout(() => {
             searchParams.delete('highlightPeriod');
@@ -287,7 +311,7 @@ const TimetablePage: React.FC = () => {
           }, 5000);
         }
       }, 300); // Small delay to ensure DOM is ready
-      
+
       return () => clearTimeout(timer);
     }
   }, [highlightPeriod, highlightGroup, loadingTimetable, searchParams, setSearchParams]);
@@ -312,20 +336,20 @@ const TimetablePage: React.FC = () => {
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
       <div className="flex-1 space-y-6 min-w-0 overflow-auto">
         <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
-        
+
         {isInitialLoading ? (
           <div className="w-full h-96 flex items-center justify-center bg-white rounded-lg shadow-sm">
             <LoadingSpinner size={'lg'} text="Loading Timetable..." />
           </div>
         ) : (
           <TimetableContext.Provider value={contextValue}>
-        <Timetable 
-          viewMode={viewMode}
-          groups={groups} 
-          resources={resources}
-          timetable={timetable} 
-          isLoading={isInitialLoading} 
-        />
+            <Timetable
+              viewMode={viewMode}
+              groups={groups}
+              resources={resources}
+              timetable={timetable}
+              isLoading={isInitialLoading}
+            />
             <Drawer
               drawerClassSessions={drawerClassSessions}
               onDragStart={dnd.handleDragStart}
@@ -335,7 +359,7 @@ const TimetablePage: React.FC = () => {
           </TimetableContext.Provider>
         )}
       </div>
-      
+
       <ConfirmDialog
         open={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}

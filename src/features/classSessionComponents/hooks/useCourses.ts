@@ -24,7 +24,8 @@ export function useCourses() {
     error,
   } = useQuery<Course[]>({
     queryKey,
-    queryFn: () => (user?.program_id ? coursesService.getCoursesByProgram(user.program_id) : Promise.resolve([])),
+    queryFn: () =>
+      user?.program_id ? coursesService.getCoursesByProgram(user.program_id) : Promise.resolve([]),
     enabled: !!user?.program_id,
   });
 

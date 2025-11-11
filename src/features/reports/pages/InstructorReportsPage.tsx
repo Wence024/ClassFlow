@@ -1,7 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useAllInstructors } from '@/features/classSessionComponents/hooks';
 import type { Instructor } from '@/features/classSessionComponents/types/instructor';
@@ -28,22 +34,22 @@ export default function InstructorReportsPage() {
   const { user } = useAuth();
   const departmentId = useDepartmentId();
   const { instructors: allInstructors, isLoading: isLoadingInstructors } = useAllInstructors();
-  
+
   // Filter instructors based on role
   const instructors = useMemo(() => {
     if (!user || !allInstructors) return [];
-    
+
     // Admin sees all instructors
     if (user.role === 'admin') return allInstructors;
-    
+
     // Department Head and Program Head see only their department's instructors
     if (departmentId) {
-      return allInstructors.filter(i => i.department_id === departmentId);
+      return allInstructors.filter((i) => i.department_id === departmentId);
     }
-    
+
     return [];
   }, [allInstructors, user, departmentId]);
-  
+
   const { data: semesters = [], isLoading: isLoadingSemesters } = useQuery({
     queryKey: ['semesters'],
     queryFn: async () => {
@@ -51,7 +57,7 @@ export default function InstructorReportsPage() {
         .from('semesters')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
@@ -64,7 +70,7 @@ export default function InstructorReportsPage() {
 
   const { exportToPDF, exportToExcel, isExportingPDF, isExportingExcel } = useReportExport();
 
-  const activeSemester = semesters.find(s => s.is_active);
+  const activeSemester = semesters.find((s) => s.is_active);
 
   // Set active semester as default and focus on instructor select
   React.useEffect(() => {
@@ -89,8 +95,9 @@ export default function InstructorReportsPage() {
       {user?.role !== 'admin' && departmentId && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
-            📋 Viewing instructors from your department only. 
-            {user?.role === 'program_head' && ' You can generate reports for instructors teaching in your program.'}
+            📋 Viewing instructors from your department only.
+            {user?.role === 'program_head' &&
+              ' You can generate reports for instructors teaching in your program.'}
           </p>
         </div>
       )}
@@ -106,7 +113,9 @@ export default function InstructorReportsPage() {
               </SelectTrigger>
               <SelectContent>
                 {isLoadingInstructors ? (
-                  <SelectItem value="loading" disabled>Loading...</SelectItem>
+                  <SelectItem value="loading" disabled>
+                    Loading...
+                  </SelectItem>
                 ) : (
                   instructors.map((instructor: Instructor) => (
                     <SelectItem key={instructor.id} value={instructor.id}>
@@ -120,8 +129,8 @@ export default function InstructorReportsPage() {
 
           <div>
             <label className="text-sm font-medium mb-2 block">Select Semester</label>
-            <Select 
-              value={selectedSemesterId || ''} 
+            <Select
+              value={selectedSemesterId || ''}
               onValueChange={setSelectedSemesterId}
               defaultValue={activeSemester?.id}
             >
@@ -130,7 +139,9 @@ export default function InstructorReportsPage() {
               </SelectTrigger>
               <SelectContent>
                 {isLoadingSemesters ? (
-                  <SelectItem value="loading" disabled>Loading...</SelectItem>
+                  <SelectItem value="loading" disabled>
+                    Loading...
+                  </SelectItem>
                 ) : (
                   semesters.map((semester) => (
                     <SelectItem key={semester.id} value={semester.id}>
@@ -177,7 +188,7 @@ export default function InstructorReportsPage() {
           <div className="lg:col-span-1">
             <LoadSummaryWidget report={report} />
           </div>
-          
+
           <div className="lg:col-span-3">
             <Card className="p-6">
               <InstructorSchedulePreview report={report} />

@@ -188,10 +188,10 @@ describe('TimetablePage Integration Tests', () => {
 
   it('should render a fallback UI for sessions with invalid/orphaned data', async () => {
     // @ts-expect-error - Intentionally creating an invalid session for testing
-    const invalidSession: Partial<ClassSession> = { 
-      id: 's-invalid', 
+    const invalidSession: Partial<ClassSession> = {
+      id: 's-invalid',
       course: null,
-      group: mockMyGroup // Add group to prevent undefined access
+      group: mockMyGroup, // Add group to prevent undefined access
     };
     const timetableWithInvalidData: TimetableGrid = new Map([
       ['g1', [[invalidSession as ClassSession]]],
@@ -291,7 +291,7 @@ describe('TimetablePage Integration Tests', () => {
         ),
       },
     } as unknown as React.DragEvent;
-    
+
     await dndHookValues.handleDropToGrid(mockEvent, 'g1', 1);
 
     // The main assertion is that no error was thrown during the drop.
@@ -347,7 +347,7 @@ describe('TimetablePage Integration Tests', () => {
 
     // Click on Classrooms view
     const classroomButton = screen.getByLabelText('Switch to Classrooms view');
-    
+
     // Use act() to ensure state updates are processed
     await act(async () => {
       classroomButton.click();

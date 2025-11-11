@@ -15,7 +15,7 @@ describe('Approval Workflow', () => {
 
   it('should call approve_resource_request atomically', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       updated_assignments: 1,
@@ -46,7 +46,7 @@ describe('Approval Workflow', () => {
 
   it('should update request status to approved', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = { success: true, updated_assignments: 1 };
 
     vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
@@ -75,7 +75,7 @@ describe('Approval Workflow', () => {
 
   it('should update timetable assignment status to confirmed', async () => {
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = {
       success: true,
       updated_assignments: 1,
@@ -98,7 +98,7 @@ describe('Approval Workflow', () => {
     // The cleanup_request_notifications trigger handles this automatically
     // We just verify the approval succeeds
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = { success: true, updated_assignments: 1 };
 
     vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
@@ -123,7 +123,7 @@ describe('Approval Workflow', () => {
     // Real-time updates are handled by RealtimeProvider
     // This test verifies the data structure is correct for real-time
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = { success: true, updated_assignments: 1 };
 
     vi.mocked(supabase.rpc).mockResolvedValueOnce({ data: mockResult, error: null });
@@ -152,7 +152,7 @@ describe('Approval Workflow', () => {
     // After approval, status changes to 'confirmed'
     // This is tested in SessionCell tests - confirmed sessions are draggable
     const { supabase } = await import('../../../../lib/supabase');
-    
+
     const mockResult = { success: true, updated_assignments: 1 };
 
     vi.mocked(supabase.rpc).mockResolvedValue({ data: mockResult, error: null });

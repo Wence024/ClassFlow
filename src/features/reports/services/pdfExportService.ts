@@ -10,7 +10,7 @@ import { formatDayGroupLabel } from './instructorReportService';
  */
 export function generateInstructorReportPDF(report: InstructorReport): void {
   const doc = new jsPDF('landscape');
-  
+
   // Color scheme
   const primaryColor = [41, 128, 185] as [number, number, number]; // Professional blue
   const accentColor = [52, 152, 219] as [number, number, number];
@@ -62,7 +62,7 @@ export function buildPdfFilename(report: InstructorReport): string {
  * @param darkGray RGB text color.
  */
 function addHeaderSection(
-  doc: jsPDF, 
+  doc: jsPDF,
   report: InstructorReport,
   primaryColor: [number, number, number],
   darkGray: [number, number, number]
@@ -77,7 +77,7 @@ function addHeaderSection(
     .join(' ');
 
   const pageWidth = doc.internal.pageSize.getWidth();
-  
+
   // Header background
   doc.setFillColor(...primaryColor);
   doc.rect(0, 0, pageWidth, 45, 'F');
@@ -91,29 +91,29 @@ function addHeaderSection(
   // Info box
   doc.setFillColor(255, 255, 255);
   doc.roundedRect(15, 30, pageWidth - 30, 20, 2, 2, 'F');
-  
+
   doc.setTextColor(...darkGray);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  
+
   const leftCol = 20;
   const rightCol = pageWidth - 20;
-  
+
   doc.setFont('helvetica', 'bold');
   doc.text('Instructor:', leftCol, 38);
   doc.setFont('helvetica', 'normal');
   doc.text(instructorName, leftCol + 25, 38);
-  
+
   doc.setFont('helvetica', 'bold');
   doc.text('Department:', leftCol, 44);
   doc.setFont('helvetica', 'normal');
   doc.text(report.instructor.department_name || 'N/A', leftCol + 25, 44);
-  
+
   doc.setFont('helvetica', 'bold');
   doc.text('Semester:', rightCol - 60, 38);
   doc.setFont('helvetica', 'normal');
   doc.text(report.semester.name, rightCol - 32, 38);
-  
+
   doc.setFont('helvetica', 'bold');
   doc.text('Generated:', rightCol - 60, 44);
   doc.setFont('helvetica', 'normal');
@@ -171,7 +171,7 @@ function addDayGroupTable(
     ],
     body: tableData,
     theme: 'striped',
-    headStyles: { 
+    headStyles: {
       fillColor: accentColor,
       fontSize: 9,
       fontStyle: 'bold',
@@ -179,7 +179,7 @@ function addDayGroupTable(
       valign: 'middle',
       cellPadding: 3,
     },
-    bodyStyles: { 
+    bodyStyles: {
       fontSize: 8.5,
       cellPadding: 3,
       valign: 'top',
@@ -215,8 +215,8 @@ function addDayGroupTable(
  * @param darkGray RGB tuple for regular text color.
  */
 function addFooterSection(
-  doc: jsPDF, 
-  report: InstructorReport, 
+  doc: jsPDF,
+  report: InstructorReport,
   startY: number,
   primaryColor: [number, number, number],
   darkGray: [number, number, number]
@@ -227,7 +227,7 @@ function addFooterSection(
   // Totals box
   doc.setFillColor(245, 247, 250);
   doc.roundedRect(15, finalY - 5, pageWidth - 30, 42, 2, 2, 'F');
-  
+
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...primaryColor);
@@ -239,39 +239,39 @@ function addFooterSection(
 
   const col1 = 25;
   const col2 = 110;
-  
+
   doc.text(`Total Lecture Hours:`, col1, finalY + 12);
   doc.setFont('helvetica', 'bold');
   doc.text(report.totals.lecHours.toFixed(1), col1 + 50, finalY + 12);
-  
+
   doc.setFont('helvetica', 'normal');
   doc.text(`Total Units:`, col2, finalY + 12);
   doc.setFont('helvetica', 'bold');
   doc.text(report.totals.totalUnits.toFixed(1), col2 + 50, finalY + 12);
-  
+
   doc.setFont('helvetica', 'normal');
   doc.text(`Total Lab Hours:`, col1, finalY + 20);
   doc.setFont('helvetica', 'bold');
   doc.text(report.totals.labHours.toFixed(1), col1 + 50, finalY + 20);
-  
+
   doc.setFont('helvetica', 'normal');
   doc.text(`Total Load:`, col2, finalY + 20);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...primaryColor);
   doc.text(report.totals.totalLoad.toFixed(2), col2 + 50, finalY + 20);
-  
+
   // Load status badge
   const statusColors: Record<string, [number, number, number]> = {
     UNDERLOADED: [241, 196, 15],
     AT_STANDARD: [39, 174, 96],
     OVERLOADED: [231, 76, 60],
   };
-  
+
   const statusColor = statusColors[report.loadStatus] || [149, 165, 166];
   doc.setFillColor(...statusColor);
   doc.roundedRect(col1, finalY + 25, 80, 8, 1, 1, 'F');
-  
+
   doc.setFontSize(9);
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
@@ -283,6 +283,6 @@ function addFooterSection(
   doc.setFont('helvetica', 'normal');
   doc.line(20, finalY + 60, 90, finalY + 60);
   doc.text('Instructor Signature', 20, finalY + 66);
-  
+
   doc.text(`Date: __________________`, pageWidth - 80, finalY + 66);
 }

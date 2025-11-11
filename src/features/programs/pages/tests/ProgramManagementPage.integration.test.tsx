@@ -17,13 +17,33 @@ vi.mock('../../../departments/hooks/useDepartments');
 // Mock UI barrel to avoid alias resolution in test environment
 vi.mock('@/components/ui', () => {
   const Button = (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} />;
-  const Card = ({ children, className }: { children?: React.ReactNode, className?: string }) => <div className={className}>{children}</div>;
-  const ConfirmModal = ({ isOpen, children, onConfirm, confirmText, title, onClose, isLoading }: { isOpen: boolean, children?: React.ReactNode, onConfirm: () => void, confirmText: string, title: string, onClose: () => void, isLoading: boolean }) => {
+  const Card = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
+    <div className={className}>{children}</div>
+  );
+  const ConfirmModal = ({
+    isOpen,
+    children,
+    onConfirm,
+    confirmText,
+    title,
+    onClose,
+    isLoading,
+  }: {
+    isOpen: boolean;
+    children?: React.ReactNode;
+    onConfirm: () => void;
+    confirmText: string;
+    title: string;
+    onClose: () => void;
+    isLoading: boolean;
+  }) => {
     if (!isOpen) return null;
     return (
       <div role="dialog" aria-modal="true" title={title}>
         <div>{children}</div>
-        <button onClick={onConfirm} disabled={isLoading}>{confirmText || 'Confirm'}</button>
+        <button onClick={onConfirm} disabled={isLoading}>
+          {confirmText || 'Confirm'}
+        </button>
         <button onClick={onClose}>Cancel</button>
       </div>
     );
@@ -40,7 +60,9 @@ vi.mock('@/components/ui/input', () => {
   return { Input };
 });
 vi.mock('@/components/ui/card', () => {
-  const Card = ({ children, className }: { children?: React.ReactNode, className?: string }) => <div className={className}>{children}</div>;
+  const Card = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
+    <div className={className}>{children}</div>
+  );
   return { Card };
 });
 vi.mock('@/components/ui/button', () => {
@@ -62,15 +84,17 @@ describe('ProgramManagementPage Integration Tests', () => {
   const mockDeleteMutation = vi.fn();
   let d1: string, d2: string;
 
-  const createWrapper = (authContext: Partial<AuthContextType>) => ({ children }: { children: ReactNode }) => (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <AuthContext.Provider value={authContext as AuthContextType}>
-          {children}
-        </AuthContext.Provider>
-      </QueryClientProvider>
-    </BrowserRouter>
-  );
+  const createWrapper =
+    (authContext: Partial<AuthContextType>) =>
+    ({ children }: { children: ReactNode }) => (
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <AuthContext.Provider value={authContext as AuthContextType}>
+            {children}
+          </AuthContext.Provider>
+        </QueryClientProvider>
+      </BrowserRouter>
+    );
 
   beforeEach(() => {
     d1 = crypto.randomUUID();
@@ -178,7 +202,11 @@ describe('ProgramManagementPage Integration Tests', () => {
 
     await waitFor(() => {
       expect(mockCreateMutation).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'New Program', short_code: 'NP', department_id: expect.any(String) })
+        expect.objectContaining({
+          name: 'New Program',
+          short_code: 'NP',
+          department_id: expect.any(String),
+        })
       );
     });
   });
@@ -187,7 +215,9 @@ describe('ProgramManagementPage Integration Tests', () => {
     const adminContext: Partial<AuthContextType> = {
       isAdmin: () => true,
     };
-    const mockPrograms = [{ id: 'p1', name: 'Program A', short_code: 'PA', department_id: d1, created_at: '' }];
+    const mockPrograms = [
+      { id: 'p1', name: 'Program A', short_code: 'PA', department_id: d1, created_at: '' },
+    ];
 
     vi.mocked(programsHooks.usePrograms).mockReturnValue({
       listQuery: { data: mockPrograms, isLoading: false, error: null },
@@ -217,25 +247,31 @@ describe('ProgramManagementPage Integration Tests', () => {
     await waitFor(() => {
       expect(mockUpdateMutation).toHaveBeenCalledWith({
         id: 'p1',
-        update: expect.objectContaining({ name: 'Updated Program A', short_code: 'PA', department_id: d1 }),
+        update: expect.objectContaining({
+          name: 'Updated Program A',
+          short_code: 'PA',
+          department_id: d1,
+        }),
       });
     });
   });
 
   it('should call the delete mutation when deletion is confirmed', async () => {
     const adminContext: Partial<AuthContextType> = {
-        isAdmin: () => true,
+      isAdmin: () => true,
     };
-    const mockPrograms = [{ id: 'p1', name: 'Program A', short_code: 'PA', department_id: d1, created_at: '' }];
+    const mockPrograms = [
+      { id: 'p1', name: 'Program A', short_code: 'PA', department_id: d1, created_at: '' },
+    ];
 
     vi.mocked(programsHooks.usePrograms).mockReturnValue({
-        listQuery: { data: mockPrograms, isLoading: false, error: null },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        createMutation: { mutateAsync: mockCreateMutation, isPending: false } as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        updateMutation: { mutateAsync: mockUpdateMutation, isPending: false } as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        deleteMutation: { mutateAsync: mockDeleteMutation, isPending: false } as any,
+      listQuery: { data: mockPrograms, isLoading: false, error: null },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      createMutation: { mutateAsync: mockCreateMutation, isPending: false } as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updateMutation: { mutateAsync: mockUpdateMutation, isPending: false } as any,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      deleteMutation: { mutateAsync: mockDeleteMutation, isPending: false } as any,
     });
 
     const { default: ProgramManagementPage } = await import('../ProgramManagementPage');
@@ -250,7 +286,7 @@ describe('ProgramManagementPage Integration Tests', () => {
     await userEvent.click(within(modal).getByRole('button', { name: /delete/i }));
 
     await waitFor(() => {
-        expect(mockDeleteMutation).toHaveBeenCalledWith('p1');
+      expect(mockDeleteMutation).toHaveBeenCalledWith('p1');
     });
   });
 });

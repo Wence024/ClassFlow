@@ -258,33 +258,33 @@ describe('SessionCell', () => {
     });
 
     it('should NOT be draggable if the user owns none of the sessions', () => {
-        const nonOwnedSession = { ...mockSession1, program_id: 'p2' };
-        const { container } = renderWithContext(
-          <SessionCell
-            sessions={[nonOwnedSession]}
-            groupId="g1"
-            periodIndex={0}
-            isLastInDay={false}
-            isNotLastInTable={false}
-          />
-        );
-  
-        const draggableDiv = container.querySelector('[draggable="true"]');
-        expect(draggableDiv).not.toBeInTheDocument();
-      });
+      const nonOwnedSession = { ...mockSession1, program_id: 'p2' };
+      const { container } = renderWithContext(
+        <SessionCell
+          sessions={[nonOwnedSession]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
+
+      const draggableDiv = container.querySelector('[draggable="true"]');
+      expect(draggableDiv).not.toBeInTheDocument();
+    });
   });
 
   describe('Invalid Data Handling', () => {
     it('should render an invalid cell if sessions array is empty', () => {
-        const { container } = renderWithContext(
-            <SessionCell
-              sessions={[]}
-              groupId="g1"
-              periodIndex={0}
-              isLastInDay={false}
-              isNotLastInTable={false}
-            />
-          );
+      const { container } = renderWithContext(
+        <SessionCell
+          sessions={[]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
       // It should render an empty <td> to not break the table layout
       const td = container.querySelector('td');
       expect(td).toBeInTheDocument();
@@ -292,18 +292,18 @@ describe('SessionCell', () => {
     });
 
     it('should render the invalid data fallback if the primary session is missing data', () => {
-        const invalidSession = { ...mockSession1, instructor: undefined as unknown as Instructor };
-        renderWithContext(
-            <SessionCell
-              sessions={[invalidSession]}
-              groupId="g1"
-              periodIndex={0}
-              isLastInDay={false}
-              isNotLastInTable={false}
-            />
-          );
+      const invalidSession = { ...mockSession1, instructor: undefined as unknown as Instructor };
+      renderWithContext(
+        <SessionCell
+          sessions={[invalidSession]}
+          groupId="g1"
+          periodIndex={0}
+          isLastInDay={false}
+          isNotLastInTable={false}
+        />
+      );
 
-        expect(screen.getByText('Invalid Session Data')).toBeInTheDocument();
+      expect(screen.getByText('Invalid Session Data')).toBeInTheDocument();
     });
   });
 });

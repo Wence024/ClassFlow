@@ -21,9 +21,13 @@ export default function ProgramHeadRequestPage() {
   const instructorsQuery = useInstructorsByDepartment(targetDepartmentId);
   const { createRequest } = useResourceRequests();
 
-  if (!isProgramHead()) return <Alert variant="destructive">You do not have access to this page.</Alert>;
+  if (!isProgramHead())
+    return <Alert variant="destructive">You do not have access to this page.</Alert>;
 
-  const deptOptions = (departmentsQuery.data || []).map((d: Department) => ({ label: `${d.name} (${d.code})`, value: d.id }));
+  const deptOptions = (departmentsQuery.data || []).map((d: Department) => ({
+    label: `${d.name} (${d.code})`,
+    value: d.id,
+  }));
   const instructorOptions = (instructorsQuery.data || []).map((i: Instructor) => {
     const codeSuffix = i.code ? ` (${i.code})` : '';
     return {
@@ -74,7 +78,9 @@ export default function ProgramHeadRequestPage() {
           />
         )}
         <div>
-          <Button onClick={onSubmit} disabled={!targetDepartmentId || !selectedInstructorId}>Submit Request</Button>
+          <Button onClick={onSubmit} disabled={!targetDepartmentId || !selectedInstructorId}>
+            Submit Request
+          </Button>
         </div>
       </Card>
     </div>

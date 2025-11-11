@@ -13,10 +13,7 @@ import type { ScheduleConfig, ScheduleConfigUpdate } from '../types/scheduleConf
  * @returns The user's schedule configuration (currently), or global config (in future).
  */
 export async function getScheduleConfig(): Promise<ScheduleConfig | null> {
-  const { data, error } = await supabase
-    .from('schedule_configuration')
-    .select('*')
-    .maybeSingle();
+  const { data, error } = await supabase.from('schedule_configuration').select('*').maybeSingle();
 
   if (error) {
     console.error('Error fetching schedule configuration:', error);

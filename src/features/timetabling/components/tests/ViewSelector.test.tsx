@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { ViewSelector } from '../ViewSelector';
 
-
 describe('ViewSelector', () => {
   it('should render all three view options', () => {
     const mockOnChange = vi.fn();
@@ -50,7 +49,9 @@ describe('ViewSelector', () => {
   it('should switch between all view modes correctly', async () => {
     const user = userEvent.setup();
     const mockOnChange = vi.fn();
-    const { rerender } = render(<ViewSelector viewMode="class-group" onViewModeChange={mockOnChange} />);
+    const { rerender } = render(
+      <ViewSelector viewMode="class-group" onViewModeChange={mockOnChange} />
+    );
 
     // Switch to classroom
     const classroomButton = screen.getByRole('button', { name: /switch to classrooms view/i });
@@ -80,7 +81,7 @@ describe('ViewSelector', () => {
 
     const buttons = screen.getAllByRole('button');
     expect(buttons).toHaveLength(3);
-    
+
     // Each button should have an icon (svg element)
     buttons.forEach((button) => {
       const svg = button.querySelector('svg');

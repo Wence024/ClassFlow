@@ -71,7 +71,8 @@ const FormField: React.FC<FormFieldProps> = ({
   const errorId = error ? `${id}-error` : undefined;
 
   // Helper to check if option has 'id' property (SelectOption) or 'value' property (FlexSelectOption)
-  const isSelectOption = (opt: SelectOption | FlexSelectOption): opt is SelectOption => 'id' in opt && 'name' in opt;
+  const isSelectOption = (opt: SelectOption | FlexSelectOption): opt is SelectOption =>
+    'id' in opt && 'name' in opt;
 
   return (
     <div className="mb-4">

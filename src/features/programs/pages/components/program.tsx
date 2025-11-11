@@ -2,7 +2,13 @@ import React from 'react';
 import type { Control, FieldErrors } from 'react-hook-form';
 import type { Program } from '../../types/program';
 import type { ProgramFormData } from '../../types/validation';
-import { FormControl, FormField as RHFFormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  FormControl,
+  FormField as RHFFormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -94,7 +100,12 @@ type ProgramCardProps = {
  * @param pc.departmentName - The name of the department this program belongs to.
  * @returns The rendered program card.
  */
-export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onEdit, onDelete, departmentName }) => {
+export const ProgramCard: React.FC<ProgramCardProps> = ({
+  program,
+  onEdit,
+  onDelete,
+  departmentName,
+}) => {
   return (
     <Card className="p-4 flex items-center gap-2">
       <div className="flex-1">
@@ -104,8 +115,12 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program, onEdit, onDel
           <div className="text-xs text-muted-foreground mt-1">Department: {departmentName}</div>
         )}
       </div>
-      <Button variant="secondary" onClick={() => onEdit(program)}>Edit</Button>
-      <Button variant="destructive" onClick={() => onDelete(program.id)}>Delete</Button>
+      <Button variant="secondary" onClick={() => onEdit(program)}>
+        Edit
+      </Button>
+      <Button variant="destructive" onClick={() => onDelete(program.id)}>
+        Delete
+      </Button>
     </Card>
   );
 };

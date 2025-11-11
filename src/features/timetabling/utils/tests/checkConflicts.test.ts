@@ -379,10 +379,12 @@ describe('checkConflicts', () => {
 
     it('should detect an instructor conflict in the second period of a multi-period class', () => {
       // Setup existing session that conflicts
-      timetable.get(mockGroup1.id)![0] = [{
-        ...classSession1,
-        instructor: mockInstructor1,
-      }];
+      timetable.get(mockGroup1.id)![0] = [
+        {
+          ...classSession1,
+          instructor: mockInstructor1,
+        },
+      ];
 
       // Try to place a 2-period class at index 0, which conflicts with instructor1 at period 0
       const result = checkTimetableConflicts(
@@ -398,11 +400,13 @@ describe('checkConflicts', () => {
 
     it('should detect a classroom conflict in the second period of a multi-period class', () => {
       // Place conflicting session for classroom at period 1
-      timetable.get(mockGroup1.id)![1] = [{
-        ...classSession1,
-        id: 'session-other',
-        instructor: mockInstructor1,
-      }]; // same classroom1
+      timetable.get(mockGroup1.id)![1] = [
+        {
+          ...classSession1,
+          id: 'session-other',
+          instructor: mockInstructor1,
+        },
+      ]; // same classroom1
 
       // Try to place a 2-period class starting at index 0
       const result = checkTimetableConflicts(
@@ -469,11 +473,11 @@ describe('checkConflicts', () => {
     // Session A is at [1, 2], Session B is at [3, 4].
     // Make sessionB have a different course to prevent merging
     const sessionA = { ...classSession1, id: 'sessionA', program_id: 'mockProgram' };
-    const sessionB = { 
-      ...classSession1, 
-      id: 'sessionB', 
+    const sessionB = {
+      ...classSession1,
+      id: 'sessionB',
       program_id: 'mockProgram',
-      course: mockCourse2 // Different course to prevent merging
+      course: mockCourse2, // Different course to prevent merging
     };
 
     const groupSessions = timetable.get(mockGroup1.id)!;
@@ -740,7 +744,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockGroup1.id, new Array(40).fill(null));
       timetable.set(mockGroup2.id, new Array(40).fill(null));
@@ -777,7 +781,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockGroup1.id, new Array(40).fill(null));
 
@@ -813,7 +817,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockClassroom1.id, new Array(40).fill(null));
       timetable.set(mockClassroom2.id, new Array(40).fill(null));
@@ -849,7 +853,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockInstructor1.id, new Array(40).fill(null));
       timetable.set(mockInstructor2.id, new Array(40).fill(null));
@@ -886,7 +890,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockClassroom1.id, new Array(40).fill(null));
 
@@ -919,7 +923,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockInstructor1.id, new Array(40).fill(null));
 
@@ -952,7 +956,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockGroup1.id, new Array(40).fill(null));
       timetable.set(mockGroup2.id, new Array(40).fill(null));
@@ -987,7 +991,7 @@ describe('checkConflicts', () => {
         user_id: MOCK_USER_ID,
         created_at: MOCK_CREATED_AT,
       };
-      
+
       const timetable = new Map();
       timetable.set(mockClassroom1.id, new Array(40).fill(null));
       timetable.set(mockClassroom2.id, new Array(40).fill(null));
@@ -1026,5 +1030,4 @@ describe('checkConflicts', () => {
       expect(resultInstructor).not.toContain('Instructor mismatch');
     });
   });
-
 });

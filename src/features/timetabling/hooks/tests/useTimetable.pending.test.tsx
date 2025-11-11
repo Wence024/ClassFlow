@@ -23,7 +23,11 @@ vi.mock('../../services/timetableService', () => ({
 
 vi.mock('../../../../lib/supabase', () => ({
   supabase: {
-    channel: vi.fn(() => ({ on: vi.fn().mockReturnThis(), subscribe: vi.fn(), unsubscribe: vi.fn() })),
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn(),
+      unsubscribe: vi.fn(),
+    })),
     removeChannel: vi.fn(),
     from: vi.fn(() => ({ select: vi.fn().mockResolvedValue({ data: [], error: null }) })),
   },

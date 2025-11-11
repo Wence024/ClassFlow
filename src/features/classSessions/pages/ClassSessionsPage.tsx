@@ -163,7 +163,11 @@ const ClassSessionsPage: React.FC = () => {
     },
     data: ClassSessionFormData
   ) => {
-    if (!crossDeptCheck.resourceId || !crossDeptCheck.resourceType || !crossDeptCheck.departmentId) {
+    if (
+      !crossDeptCheck.resourceId ||
+      !crossDeptCheck.resourceType ||
+      !crossDeptCheck.departmentId
+    ) {
       toast.error('Invalid cross-department resource information');
       return;
     }
@@ -368,11 +372,11 @@ const ClassSessionsPage: React.FC = () => {
       >
         <div className="space-y-2">
           <p>
-            The selected {crossDeptInfo?.resourceType} (<strong>{crossDeptInfo?.resourceName}</strong>) belongs to a
-            different department.
+            The selected {crossDeptInfo?.resourceType} (
+            <strong>{crossDeptInfo?.resourceName}</strong>) belongs to a different department.
           </p>
           <p className="text-sm text-muted-foreground">
-            You'll be redirected to the timetable where you can drag the session to a time slot. 
+            You'll be redirected to the timetable where you can drag the session to a time slot.
             After placement, a a request will be sent to the{' '}
             <strong>
               {departments.find((d) => d.id === crossDeptInfo?.departmentId)?.name || 'department'}
@@ -386,4 +390,3 @@ const ClassSessionsPage: React.FC = () => {
 };
 
 export default ClassSessionsPage;
-

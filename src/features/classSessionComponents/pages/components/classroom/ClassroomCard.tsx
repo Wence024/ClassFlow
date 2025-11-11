@@ -20,7 +20,12 @@ interface ClassroomCardProps {
  * @param cc.isOwner Indicator if user can edit this or not.
  * @returns The rendered item card component for the classroom.
  */
-export const ClassroomCard: React.FC<ClassroomCardProps> = ({ classroom, onEdit, onDelete, isOwner }) => {
+export const ClassroomCard: React.FC<ClassroomCardProps> = ({
+  classroom,
+  onEdit,
+  onDelete,
+  isOwner,
+}) => {
   const details = [];
   if (classroom.code) {
     details.push({ label: 'Code', value: classroom.code });

@@ -88,7 +88,9 @@ export const AdminInstructorFields: React.FC<{
             )}
           />
           <p className="text-xs text-blue-600 mt-1">
-            {isEditing ? 'Admins can reassign instructors to different departments' : 'Select the department this instructor belongs to'}
+            {isEditing
+              ? 'Admins can reassign instructors to different departments'
+              : 'Select the department this instructor belongs to'}
           </p>
         </div>
       )}

@@ -70,13 +70,11 @@ export async function login(email: string, password: string): Promise<AuthRespon
       email: data.user.email!,
       role: role || 'program_head',
       program_id: profile.program_id,
-      department_id: profile.department_id
+      department_id: profile.department_id,
     },
     token: data.session.access_token,
   };
 }
-
-
 
 /**
  * Retrieves the currently authenticated user's session and enriches it with data from the `profiles` table.

@@ -6,7 +6,10 @@ import { Button } from '@/components/ui';
 import { useTimetableContext } from './timetable/useTimetableContext';
 
 /** Represents the minimal data needed to display a class session in the drawer. */
-type DrawerClassSession = Pick<ClassSession, 'id' | 'course' | 'group' | 'instructor' | 'classroom'> & { displayName: string };
+type DrawerClassSession = Pick<
+  ClassSession,
+  'id' | 'course' | 'group' | 'instructor' | 'classroom'
+> & { displayName: string };
 
 /**
  * Builds tooltip content for a drawer session.
@@ -19,7 +22,9 @@ const buildDrawerTooltipContent = (session: DrawerClassSession): React.ReactElem
     <p className="font-bold text-sm">{session.course.name}</p>
     <p className="text-gray-300">{session.course.code}</p>
     <p className="mt-1">Class Group: {session.group.name}</p>
-    <p>Instructor: {session.instructor.first_name} {session.instructor.last_name}</p>
+    <p>
+      Instructor: {session.instructor.first_name} {session.instructor.last_name}
+    </p>
     <p>Classroom: {session.classroom.name}</p>
     <p className="mt-1 text-xs text-gray-400">Drag to timetable to schedule</p>
   </>
@@ -59,7 +64,12 @@ interface DrawerProps {
  * @param d.pendingPlacementSessionId - Optional ID of a class session currently awaiting cross-department timetable placement (this pill is highlighted).
  * @returns The rendered drawer component.
  */
-const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDropToDrawer, pendingPlacementSessionId }) => {
+const Drawer: React.FC<DrawerProps> = ({
+  drawerClassSessions,
+  onDragStart,
+  onDropToDrawer,
+  pendingPlacementSessionId,
+}) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { onShowTooltip, onHideTooltip } = useTimetableContext();
 
@@ -126,12 +136,16 @@ const Drawer: React.FC<DrawerProps> = ({ drawerClassSessions, onDragStart, onDro
                 <li
                   key={session.id}
                   draggable
-                  onDragStart={(e) => onDragStart(e, { from: 'drawer', class_session_id: session.id })}
-                  onMouseEnter={(e) => onShowTooltip(buildDrawerTooltipContent(session), e.currentTarget)}
+                  onDragStart={(e) =>
+                    onDragStart(e, { from: 'drawer', class_session_id: session.id })
+                  }
+                  onMouseEnter={(e) =>
+                    onShowTooltip(buildDrawerTooltipContent(session), e.currentTarget)
+                  }
                   onMouseLeave={onHideTooltip}
                   className={`relative px-3 py-2 rounded-md cursor-grab text-sm transition-all ${
-                    isPendingPlacement 
-                      ? 'bg-orange-500/10 border-2 border-orange-500 animate-pulse shadow-lg shadow-orange-500/20' 
+                    isPendingPlacement
+                      ? 'bg-orange-500/10 border-2 border-orange-500 animate-pulse shadow-lg shadow-orange-500/20'
                       : 'bg-muted hover:bg-muted/80'
                   }`}
                   aria-label={`Draggable session: ${session.displayName}`}

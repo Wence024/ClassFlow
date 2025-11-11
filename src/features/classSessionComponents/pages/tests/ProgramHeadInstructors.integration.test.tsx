@@ -140,13 +140,13 @@ describe('ProgramHeadInstructors Integration Tests', () => {
     await user.click(option);
 
     await waitFor(() => {
-        expect(instructorsService.getAllInstructors).toHaveBeenCalled();
+      expect(instructorsService.getAllInstructors).toHaveBeenCalled();
     });
 
     // Assert that instructors are displayed
     await waitFor(() => {
-        expect(screen.getByText('John Doe')).toBeInTheDocument();
-        expect(screen.getByText('Jane Smith')).toBeInTheDocument();
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+      expect(screen.getByText('Jane Smith')).toBeInTheDocument();
     });
   });
 

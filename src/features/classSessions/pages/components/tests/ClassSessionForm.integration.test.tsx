@@ -147,7 +147,7 @@ describe('ClassSessionForm', () => {
     // Open Class Group selector
     await waitFor(() => expect(screen.getByLabelText(/Class Group/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Class Group/i));
-    
+
     // Wait for dialog and select Large Group
     const groupDialog = await screen.findByRole('dialog');
     await user.click(within(groupDialog).getByText('Large Group'));
@@ -155,7 +155,7 @@ describe('ClassSessionForm', () => {
     // Open Classroom selector
     await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));
-    
+
     // Wait for dialog and select Small Room
     const classroomDialog = await screen.findByRole('dialog');
     await user.click(within(classroomDialog).getByText('Small Room'));
@@ -177,7 +177,7 @@ describe('ClassSessionForm', () => {
     await user.click(screen.getByLabelText(/Class Group/i));
     const groupDialog = await screen.findByRole('dialog');
     await user.click(within(groupDialog).getByText('Large Group'));
-    
+
     // Select Small Room (creates conflict)
     await waitFor(() => expect(screen.getByLabelText(/Classroom/i)).not.toBeDisabled());
     await user.click(screen.getByLabelText(/Classroom/i));

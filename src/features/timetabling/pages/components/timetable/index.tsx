@@ -49,67 +49,66 @@ const Timetable: React.FC<TimetableProps> = ({
   const { handleDragLeave, handleDragOver } = useTimetableContext();
 
   // Separate resources by ownership based on view mode
-  const { myResources, unassignedResources, otherResources, unassignedLabel, otherLabel } = useMemo(() => {
-    // If user has no department (admin), show all resources without separation
-    if (!userDepartmentId && viewMode !== 'class-group') {
-      return {
-        myResources: resources,
-        unassignedResources: [],
-        otherResources: [],
-        unassignedLabel: '',
-        otherLabel: '',
-      };
-    }
+  const { myResources, unassignedResources, otherResources, unassignedLabel, otherLabel } =
+    useMemo(() => {
+      // If user has no department (admin), show all resources without separation
+      if (!userDepartmentId && viewMode !== 'class-group') {
+        return {
+          myResources: resources,
+          unassignedResources: [],
+          otherResources: [],
+          unassignedLabel: '',
+          otherLabel: '',
+        };
+      }
 
-    if (viewMode === 'classroom') {
-      const classrooms = resources as Classroom[];
-      const myDeptClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id !== null && c.preferred_department_id === userDepartmentId
-      );
-      const unassignedClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id === null
-      );
-      const otherDeptClassrooms = classrooms.filter(
-        (c) => c.preferred_department_id !== null && c.preferred_department_id !== userDepartmentId
-      );
-      return {
-        myResources: myDeptClassrooms,
-        unassignedResources: unassignedClassrooms,
-        otherResources: otherDeptClassrooms,
-        unassignedLabel: 'Unassigned Classrooms',
-        otherLabel: 'Classrooms from Other Departments',
-      };
-    } else if (viewMode === 'instructor') {
-      const instructors = resources as Instructor[];
-      const myDeptInstructors = instructors.filter(
-        (i) => i.department_id !== null && i.department_id === userDepartmentId
-      );
-      const unassignedInstructors = instructors.filter(
-        (i) => i.department_id === null
-      );
-      const otherDeptInstructors = instructors.filter(
-        (i) => i.department_id !== null && i.department_id !== userDepartmentId
-      );
-      return {
-        myResources: myDeptInstructors,
-        unassignedResources: unassignedInstructors,
-        otherResources: otherDeptInstructors,
-        unassignedLabel: 'Unassigned Instructors',
-        otherLabel: 'Instructors from Other Departments',
-      };
-    } else {
-      // class-group view
-      const myGroups = groups.filter((g) => g.program_id === user?.program_id);
-      const otherGroups = groups.filter((g) => g.program_id !== user?.program_id);
-      return {
-        myResources: myGroups,
-        unassignedResources: [],
-        otherResources: otherGroups,
-        unassignedLabel: '',
-        otherLabel: 'Schedules from Other Programs',
-      };
-    }
-  }, [viewMode, resources, groups, user, userDepartmentId]);
+      if (viewMode === 'classroom') {
+        const classrooms = resources as Classroom[];
+        const myDeptClassrooms = classrooms.filter(
+          (c) =>
+            c.preferred_department_id !== null && c.preferred_department_id === userDepartmentId
+        );
+        const unassignedClassrooms = classrooms.filter((c) => c.preferred_department_id === null);
+        const otherDeptClassrooms = classrooms.filter(
+          (c) =>
+            c.preferred_department_id !== null && c.preferred_department_id !== userDepartmentId
+        );
+        return {
+          myResources: myDeptClassrooms,
+          unassignedResources: unassignedClassrooms,
+          otherResources: otherDeptClassrooms,
+          unassignedLabel: 'Unassigned Classrooms',
+          otherLabel: 'Classrooms from Other Departments',
+        };
+      } else if (viewMode === 'instructor') {
+        const instructors = resources as Instructor[];
+        const myDeptInstructors = instructors.filter(
+          (i) => i.department_id !== null && i.department_id === userDepartmentId
+        );
+        const unassignedInstructors = instructors.filter((i) => i.department_id === null);
+        const otherDeptInstructors = instructors.filter(
+          (i) => i.department_id !== null && i.department_id !== userDepartmentId
+        );
+        return {
+          myResources: myDeptInstructors,
+          unassignedResources: unassignedInstructors,
+          otherResources: otherDeptInstructors,
+          unassignedLabel: 'Unassigned Instructors',
+          otherLabel: 'Instructors from Other Departments',
+        };
+      } else {
+        // class-group view
+        const myGroups = groups.filter((g) => g.program_id === user?.program_id);
+        const otherGroups = groups.filter((g) => g.program_id !== user?.program_id);
+        return {
+          myResources: myGroups,
+          unassignedResources: [],
+          otherResources: otherGroups,
+          unassignedLabel: '',
+          otherLabel: 'Schedules from Other Programs',
+        };
+      }
+    }, [viewMode, resources, groups, user, userDepartmentId]);
 
   const { dayHeaders, timeHeaders } = useMemo(() => {
     if (!settings) return { dayHeaders: [], timeHeaders: [] };

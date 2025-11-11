@@ -31,34 +31,32 @@ export function LoadSummaryWidget({ report }: LoadSummaryWidgetProps) {
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold mb-4">Teaching Load Summary</h3>
-      
+
       <div className="space-y-3">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Total Lecture Hours:</span>
           <span className="font-medium">{totals.lecHours.toFixed(1)}</span>
         </div>
-        
+
         <div className="flex justify-between">
           <span className="text-muted-foreground">Total Lab Hours:</span>
           <span className="font-medium">{totals.labHours.toFixed(1)}</span>
         </div>
-        
+
         <div className="flex justify-between">
           <span className="text-muted-foreground">Total Units:</span>
           <span className="font-medium">{totals.totalUnits.toFixed(1)}</span>
         </div>
-        
+
         <div className="border-t pt-3 mt-3">
           <div className="flex justify-between items-center">
             <span className="font-semibold">Total Teaching Load:</span>
             <span className="text-xl font-bold">{totals.totalLoad.toFixed(2)}</span>
           </div>
-          
-          <div className="text-sm text-muted-foreground mt-1">
-            Formula: Total Units / 3 = Load
-          </div>
+
+          <div className="text-sm text-muted-foreground mt-1">Formula: Total Units / 3 = Load</div>
         </div>
-        
+
         <div className={`p-3 rounded-md border ${statusColor} mt-4`}>
           <div className="flex justify-between items-center">
             <span className="font-medium">Status:</span>

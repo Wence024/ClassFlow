@@ -40,5 +40,3 @@ export function useDepartments() {
 
   return { listQuery, createMutation, updateMutation, deleteMutation };
 }
-
-

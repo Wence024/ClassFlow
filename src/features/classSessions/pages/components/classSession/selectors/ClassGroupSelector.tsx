@@ -48,9 +48,7 @@ export function ClassGroupSelector({
   userProgramId,
   isLoading = false,
 }: ClassGroupSelectorProps) {
-  const prioritizedGroups = classGroups.map((cg) =>
-    toPrioritizedClassGroup(cg, userProgramId)
-  );
+  const prioritizedGroups = classGroups.map((cg) => toPrioritizedClassGroup(cg, userProgramId));
 
   return (
     <ResourceSelectorModal
@@ -76,9 +74,7 @@ export function ClassGroupSelector({
             <div className="font-medium truncate">{group.name}</div>
             <div className="text-sm text-muted-foreground">
               {group.code && <span className="mr-2">{group.code}</span>}
-              {group.student_count !== undefined && (
-                <span>{group.student_count} students</span>
-              )}
+              {group.student_count !== undefined && <span>{group.student_count} students</span>}
             </div>
           </div>
         </div>

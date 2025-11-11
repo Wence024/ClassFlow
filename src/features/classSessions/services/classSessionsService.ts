@@ -107,7 +107,7 @@ export async function updateClassSession(
 
 /**
  * Removes a class session from the database.
- * 
+ *
  * **Edge Case Handling:**
  * - Cancels all active resource requests for this session before deletion
  * - Notifies department heads if requests are cancelled.
@@ -119,13 +119,15 @@ export async function updateClassSession(
  */
 export async function removeClassSession(id: string, user_id: string): Promise<void> {
   // Cancel any active requests for this session before deletion
-  const { cancelActiveRequestsForClassSession } = await import('../../resourceRequests/services/resourceRequestService');
+  const { cancelActiveRequestsForClassSession } = await import(
+    '../../resourceRequests/services/resourceRequestService'
+  );
   try {
     await cancelActiveRequestsForClassSession(id);
   } catch (err) {
     console.error('Failed to cancel requests for session:', err);
   }
-  
+
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
   if (error) throw error;
 }
@@ -141,11 +143,14 @@ export async function isCrossDepartmentInstructor(
   programId: string,
   instructorId: string
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc('is_cross_department_resource' as never, {
-    _program_id: programId,
-    _instructor_id: instructorId,
-    _classroom_id: null,
-  } as never);
+  const { data, error } = await supabase.rpc(
+    'is_cross_department_resource' as never,
+    {
+      _program_id: programId,
+      _instructor_id: instructorId,
+      _classroom_id: null,
+    } as never
+  );
   if (error) throw error;
   return data as boolean;
 }
@@ -161,11 +166,14 @@ export async function isCrossDepartmentClassroom(
   programId: string,
   classroomId: string
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc('is_cross_department_resource' as never, {
-    _program_id: programId,
-    _instructor_id: null,
-    _classroom_id: classroomId,
-  } as never);
+  const { data, error } = await supabase.rpc(
+    'is_cross_department_resource' as never,
+    {
+      _program_id: programId,
+      _instructor_id: null,
+      _classroom_id: classroomId,
+    } as never
+  );
   if (error) throw error;
   return data as boolean;
 }
