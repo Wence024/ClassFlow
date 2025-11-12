@@ -15,10 +15,10 @@ describe('Authentication: Role-Based Routing', () => {
       const adminRoutes = [
         '/departments',
         '/programs',
-        '/users',
+        '/user-management',
         '/component-management',
-        '/timetable',
-        '/schedule-config',
+        '/scheduler',
+        '/schedule-configuration',
         '/reports/instructors',
         '/class-sessions'
       ];
@@ -38,8 +38,8 @@ describe('Authentication: Role-Based Routing', () => {
 
     it('should allow access to department head routes', () => {
       const allowedRoutes = [
-        '/departments/head-dashboard',
-        '/timetable',
+        '/department-head',
+        '/scheduler',
         '/reports/instructors'
       ];
 
@@ -54,8 +54,8 @@ describe('Authentication: Role-Based Routing', () => {
       const deniedRoutes = [
         '/departments',
         '/programs',
-        '/users',
-        '/schedule-config'
+        '/user-management',
+        '/schedule-configuration'
       ];
 
       deniedRoutes.forEach(route => {
@@ -74,10 +74,10 @@ describe('Authentication: Role-Based Routing', () => {
     it('should allow access to program head routes', () => {
       const allowedRoutes = [
         '/component-management',
-        '/timetable',
+        '/scheduler',
         '/class-sessions',
         '/reports/instructors',
-        '/requests'
+        '/requests/instructor'
       ];
 
       allowedRoutes.forEach(route => {
@@ -91,9 +91,9 @@ describe('Authentication: Role-Based Routing', () => {
       const deniedRoutes = [
         '/departments',
         '/programs',
-        '/users',
-        '/schedule-config',
-        '/departments/head-dashboard'
+        '/user-management',
+        '/schedule-configuration',
+        '/department-head'
       ];
 
       deniedRoutes.forEach(route => {
@@ -107,7 +107,7 @@ describe('Authentication: Role-Based Routing', () => {
     it('should redirect to login when accessing protected routes', () => {
       const protectedRoutes = [
         '/departments',
-        '/timetable',
+        '/scheduler',
         '/class-sessions'
       ];
 

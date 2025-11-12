@@ -7,7 +7,7 @@
 describe('Program Head: Timetable Drag and Drop', () => {
   beforeEach(() => {
     cy.loginAs('program_head');
-    cy.visit('/timetable');
+    cy.visit('/scheduler');
   });
 
   context('View Selector', () => {

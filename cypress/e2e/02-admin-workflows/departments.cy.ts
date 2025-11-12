@@ -32,9 +32,11 @@ describe('Admin: Department Management', () => {
       // Look for create/add button
       cy.contains('button', /create|add/i).should('be.visible').click();
 
-      // Fill form
-      cy.get('input[name*="name"], input[placeholder*="name" i]').type(deptName);
-      cy.get('input[name*="code"], input[placeholder*="code" i]').type(deptCode);
+      // Fill form - use form context to avoid search input
+      cy.get('form').within(() => {
+        cy.get('input[placeholder*="Computer Science"]').type(deptName);
+        cy.get('input[placeholder*="CS"]').type(deptCode);
+      });
 
       // Submit
       cy.contains('button', /create|save|submit/i).click();
@@ -52,9 +54,11 @@ describe('Admin: Department Management', () => {
       });
 
       // Modify name
-      cy.get('input[name*="name"], input[placeholder*="name" i]')
-        .clear()
-        .type(`Updated ${Date.now()}`);
+      cy.get('form').within(() => {
+        cy.get('input[placeholder*="Computer Science"]')
+          .clear()
+          .type(`Updated ${Date.now()}`);
+      });
 
       // Save changes
       cy.contains('button', /save|update/i).click();
@@ -71,9 +75,11 @@ describe('Admin: Department Management', () => {
       const deptCode = `DEL${Date.now().toString().slice(-4)}`;
 
       cy.contains('button', /create|add/i).click();
-      cy.get('input[name*="name"], input[placeholder*="name" i]').type(deptName);
-      cy.get('input[name*="code"], input[placeholder*="code" i]').type(deptCode);
-      cy.contains('button', /create|save|submit/i).click();
+      cy.get('form').within(() => {
+        cy.get('input[placeholder*="Computer Science"]').type(deptName);
+        cy.get('input[placeholder*="CS"]').type(deptCode);
+        cy.contains('button', /create|save|submit/i).click();
+      });
       cy.contains(deptName).should('be.visible');
 
       // Now delete it
@@ -107,10 +113,14 @@ describe('Admin: Department Management', () => {
       cy.contains('button', /create|add/i).click();
       
       // Try to submit with empty fields
-      cy.contains('button', /create|save|submit/i).click();
+      cy.get('form').within(() => {
+        cy.contains('button', /create|save|submit/i).click();
+      });
 
       // Should still be on the form or show error
-      cy.get('input[name*="name"], input[placeholder*="name" i]').should('be.visible');
+      cy.get('form').within(() => {
+        cy.get('input[placeholder*="Computer Science"]').should('be.visible');
+      });
     });
   });
 });
