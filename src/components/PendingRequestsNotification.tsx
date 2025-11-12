@@ -100,56 +100,45 @@ export default function RequestStatusNotification() {
   }
 
   const handleDismiss = async (requestId: string) => {
-    // Optimistically remove from BOTH queries
+    // Optimistically remove from BOTH queries immediately
     queryClient.setQueryData(
       ['my_reviewed_requests', user?.id],
-      (old: ResourceRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || [] // Use ResourceRequest[]
+      (old: ResourceRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || []
     );
 
     queryClient.setQueryData(
       ['my_enriched_reviewed_requests', reviewedRequests.map((r) => r.id)],
-      (old: EnrichedRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || [] // Use EnrichedRequest[]
+      (old: EnrichedRequest[] | undefined) => old?.filter((req) => req.id !== requestId) || []
     );
 
     try {
       // Mark as dismissed in the database
       const { error } = await supabase
         .from('resource_requests')
-        .update({ dismissed: true } as TablesUpdate<'resource_requests'>) // Use TablesUpdate
+        .update({ dismissed: true } as TablesUpdate<'resource_requests'>)
         .eq('id', requestId);
 
       if (error) throw error;
 
-      // Wait longer for full propagation (DB + realtime + React Query cascade)
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      // Short delay for DB trigger propagation
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      // Then invalidate with exact match
-      await queryClient.invalidateQueries({
-        queryKey: ['my_reviewed_requests', user?.id],
-        exact: true,
-      });
-
-      // Force refetch enriched requests after base query updates
-      await queryClient.invalidateQueries({
-        queryKey: ['my_enriched_reviewed_requests'],
-        exact: false,
-      });
+      // Invalidate all related queries for complete refresh
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id], exact: true }),
+        queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'], exact: false }),
+        queryClient.invalidateQueries({ queryKey: ['resource_requests'], exact: false }),
+      ]);
     } catch (error) {
       console.error('Error dismissing notification:', error);
-
-      // Show specific error message to user
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(`Failed to dismiss notification: ${errorMessage}`);
 
-      // Revert BOTH optimistic updates on error
-      await queryClient.invalidateQueries({
-        queryKey: ['my_reviewed_requests', user?.id],
-        exact: true,
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['my_enriched_reviewed_requests'],
-        exact: false,
-      });
+      // Revert optimistic updates on error
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests', user?.id], exact: true }),
+        queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'], exact: false }),
+      ]);
     }
   };
 
@@ -161,7 +150,10 @@ export default function RequestStatusNotification() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
+        <button 
+          data-cy="request-updates-bell"
+          className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
           <Bell className="w-5 h-5" />
           {hasNotifications && (
             <span
@@ -172,7 +164,7 @@ export default function RequestStatusNotification() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-80 p-0" data-cy="request-updates-popover">
         <div className="p-3 border-b">
           <h3 className="font-semibold">Request Updates</h3>
           <p className="text-sm text-gray-600">
@@ -222,6 +214,7 @@ export default function RequestStatusNotification() {
                       )}
                     </div>
                     <button
+                      data-cy={`dismiss-notification-button-${request.id}`}
                       onClick={() => handleDismiss(request.id)}
                       className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1"
                     >

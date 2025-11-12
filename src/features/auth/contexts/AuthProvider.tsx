@@ -101,13 +101,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setLoading(true);
     try {
       await authService.logout();
+      // Clear all local state
+      localStorage.clear();
+      sessionStorage.clear();
     } catch (err: unknown) {
       console.error('Logout error:', err);
       // Even if the remote logout fails, we clear the session locally.
+      localStorage.clear();
+      sessionStorage.clear();
     } finally {
       setUser(null);
       setLoading(false);
-      navigate('/'); // Redirect to home page after logout.
+      navigate('/login'); // Redirect to login page after logout.
     }
   };
 

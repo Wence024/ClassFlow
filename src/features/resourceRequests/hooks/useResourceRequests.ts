@@ -112,12 +112,15 @@ export function useMyPendingRequests() {
       return service.cancelRequest(requestId, user.id);
     },
     onSuccess: () => {
+      // Invalidate all related queries for comprehensive UI update
       queryClient.invalidateQueries({ queryKey });
       queryClient.invalidateQueries({ queryKey: ['classSessions'] });
       queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
       queryClient.invalidateQueries({ queryKey: ['timetable_assignments'] });
       queryClient.invalidateQueries({ queryKey: ['hydratedTimetable'] });
       queryClient.invalidateQueries({ queryKey: ['my_reviewed_requests'] });
+      queryClient.invalidateQueries({ queryKey: ['enriched_requests'] });
+      queryClient.invalidateQueries({ queryKey: ['my_enriched_reviewed_requests'] });
     },
   });
 

@@ -95,7 +95,8 @@ const Drawer: React.FC<DrawerProps> = ({
 
   return (
     <div
-      className="sticky bottom-0 bg-background border-t shadow-lg transition-transform duration-300 z-40"
+      data-cy="timetable-drawer"
+      className="sticky bottom-0 bg-background border-t shadow-lg transition-transform duration-300 z-40 drawer"
       style={{ transform: isCollapsed ? 'translateY(calc(100% - 3rem))' : 'translateY(0)' }}
     >
       {/* Collapse/Expand Button */}
@@ -135,6 +136,7 @@ const Drawer: React.FC<DrawerProps> = ({
               return (
                 <li
                   key={session.id}
+                  data-cy={`unassigned-session-${session.id}`}
                   draggable
                   onDragStart={(e) =>
                     onDragStart(e, { from: 'drawer', class_session_id: session.id })

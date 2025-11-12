@@ -66,7 +66,10 @@ export default function PendingRequestsPanel() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
+        <button 
+          data-cy="pending-requests-bell"
+          className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
           <Clock className="w-5 h-5" />
           {hasPendingRequests && (
             <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -75,7 +78,7 @@ export default function PendingRequestsPanel() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-80 p-0" data-cy="my-pending-requests-popover">
         <div className="p-3 border-b">
           <h3 className="font-semibold">My Pending Requests</h3>
           <p className="text-sm text-gray-600">
@@ -105,6 +108,7 @@ export default function PendingRequestsPanel() {
                     <div className="text-xs mt-1 text-blue-600 font-medium">Awaiting approval</div>
                   </div>
                   <Button
+                    data-cy={`cancel-request-button-${request.id}`}
                     size="sm"
                     variant="ghost"
                     onClick={() => handleCancel(request.id)}
