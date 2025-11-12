@@ -7,6 +7,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 **Test Organization:** `cypress/e2e/` will contain feature-based folders with numbered prefixes for execution order.
 
 **Database Context (from Supabase scan):**
+
 - **Departments:** CECE (College of Engineering and Computer Education), CBA (College of Business and Accountancy), CTELAN (College of Teachers Education, Liberal Arts and Nursing)
 - **Programs:** 7 total (BSCS, BSCpE, BSCE, BSECE, BSIT, BSA, BSN)
 - **Instructors:** 20+ across all departments
@@ -17,6 +18,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 - **Schedule Config:** 8 periods/day, 3 class days/week, 90 min periods, starts at 07:30
 
 **Test User Credentials (from cypress.env.json):**
+
 ```json
 {
   "program_head_username": "cs.head@gmail.com",
@@ -39,6 +41,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 **File:** `login.cy.ts`
 
 ##### Happy Path
+
 - Navigate to `/login`
 - Enter valid credentials for each role (admin, department_head, program_head)
 - Click "Sign In" button
@@ -47,10 +50,12 @@ This document provides a complete audit of all user workflows, interactive eleme
 - Verify user avatar displays in header
 
 ##### Alternative Paths
+
 - Login with "Remember me" checkbox (if implemented)
 - Login and immediately navigate to different pages
 
 ##### Error Cases
+
 - Empty email field → Verify error message "Email cannot be empty"
 - Invalid email format (e.g., "notanemail") → Verify error message
 - Empty password field → Verify error message "Password cannot be empty"
@@ -58,6 +63,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 - Account that doesn't exist → Verify appropriate error
 
 ##### Edge Cases
+
 - Very long email (255+ characters) → Verify truncation or error
 - Special characters in password → Should work correctly
 - Email with uppercase letters → Should normalize to lowercase
@@ -65,6 +71,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 - Submit form via Enter key → Should work same as button click
 
 **Interactive Elements to Test:**
+
 - Email input field (id: likely "email")
 - Password input field (id: likely "password", type: "password")
 - "Sign In" button (type: "submit")
@@ -76,6 +83,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 **File:** `logout.cy.ts`
 
 ##### Happy Path
+
 - Login as any role
 - Click user avatar in header
 - Click "Logout" button in dropdown
@@ -83,11 +91,13 @@ This document provides a complete audit of all user workflows, interactive eleme
 - Verify session cleared (can't access protected routes)
 
 ##### Edge Cases
+
 - Logout from different pages (timetable, dashboard, etc.)
 - Logout with unsaved form data → Should not lose data warning (if implemented)
 - Multiple rapid logout clicks → Should handle gracefully
 
 **Interactive Elements:**
+
 - User avatar button (top right)
 - Logout button in dropdown menu
 
@@ -96,6 +106,7 @@ This document provides a complete audit of all user workflows, interactive eleme
 **File:** `password-reset.cy.ts`
 
 ##### Happy Path
+
 - Click "Forgot Password?" on login page
 - Enter valid email
 - Click "Send Reset Link" button
@@ -103,11 +114,13 @@ This document provides a complete audit of all user workflows, interactive eleme
 - (Note: Email verification not testable in E2E)
 
 ##### Error Cases
+
 - Empty email field → Verify error
 - Invalid email format → Verify error
 - Email not in system → Verify appropriate handling
 
 **Interactive Elements:**
+
 - Email input on forgot password page
 - "Send Reset Link" button
 - "Back to Login" link
@@ -117,12 +130,15 @@ This document provides a complete audit of all user workflows, interactive eleme
 **File:** `role-based-routing.cy.ts`
 
 ##### Test Scenarios
+
 For each role (admin, department_head, program_head):
+
 - Login with role credentials
 - Attempt to navigate to each route
 - Verify access granted/denied based on role matrix:
 
 **Admin Access:**
+
 - ✅ `/departments` (Department Management)
 - ✅ `/programs` (Program Management)
 - ✅ `/users` (User Management)
@@ -136,6 +152,7 @@ For each role (admin, department_head, program_head):
 - ✅ `/class-sessions` (Class Sessions Page)
 
 **Department Head Access:**
+
 - ❌ `/departments` (should redirect/show error)
 - ❌ `/programs` (should redirect/show error)
 - ❌ `/users` (should redirect/show error)
@@ -146,6 +163,7 @@ For each role (admin, department_head, program_head):
 - ❌ `/schedule-config` (should redirect/show error)
 
 **Program Head Access:**
+
 - ❌ `/departments` (should redirect/show error)
 - ❌ `/programs` (should redirect/show error)
 - ❌ `/users` (should redirect/show error)
@@ -161,6 +179,7 @@ For each role (admin, department_head, program_head):
 - ❌ `/schedule-config` (should redirect/show error)
 
 ##### Edge Cases
+
 - Direct URL navigation to forbidden routes
 - URL tampering with query parameters
 - Browser back/forward after role change
@@ -177,10 +196,12 @@ For each role (admin, department_head, program_head):
 **File:** `departments.cy.ts`
 
 ##### Setup
+
 - Login as admin
 - Navigate to `/departments`
 
 ##### Create Department (Happy Path)
+
 - Fill in "Name" field (e.g., "College of Arts and Sciences")
 - Fill in "Code" field (e.g., "CAS")
 - Click "Create" button
@@ -188,6 +209,7 @@ For each role (admin, department_head, program_head):
 - Verify success notification/toast
 
 ##### Edit Department (Happy Path)
+
 - Click "Edit" button on existing department card
 - Modify "Name" field
 - Click "Save Changes" button
@@ -195,6 +217,7 @@ For each role (admin, department_head, program_head):
 - Verify card updates immediately
 
 ##### Delete Department (Happy Path)
+
 - Click "Delete" button on department card
 - Verify confirmation modal appears with message "Are you sure you want to delete the department "{name}"?"
 - Click "Delete" button in modal
@@ -202,12 +225,14 @@ For each role (admin, department_head, program_head):
 - Verify success notification
 
 ##### Search/Filter
+
 - Enter search term in "Search Departments" input
 - Verify list filters by name
 - Verify list filters by code
 - Clear search → Verify full list returns
 
 ##### Error Cases
+
 - Create with empty name → Verify error "Name cannot be empty"
 - Create with empty code → Verify error "Code cannot be empty"
 - Create duplicate code → Verify unique constraint error
@@ -215,6 +240,7 @@ For each role (admin, department_head, program_head):
 - Cancel delete modal → Verify department not deleted
 
 ##### Edge Cases
+
 - Create department with very long name (100+ chars) → Verify max length validation
 - Create with special characters in code → Verify sanitization
 - Delete department that has associated programs → Verify cascade behavior (SET NULL)
@@ -223,6 +249,7 @@ For each role (admin, department_head, program_head):
 - Rapid create/delete operations → Verify data consistency
 
 **Interactive Elements:**
+
 - Name input field
 - Code input field
 - "Create" button (type: "submit")
@@ -239,10 +266,12 @@ For each role (admin, department_head, program_head):
 **File:** `programs.cy.ts`
 
 ##### Setup
+
 - Login as admin
 - Navigate to `/programs`
 
 ##### Create Program (Happy Path)
+
 - Fill "Program Name" (e.g., "Bachelor of Science in Mathematics")
 - Fill "Short Code" (e.g., "BSM")
 - Select department from dropdown (required)
@@ -251,33 +280,39 @@ For each role (admin, department_head, program_head):
 - Verify success notification
 
 ##### Edit Program
+
 - Click "Edit" on program card
 - Modify name, code, or department
 - Click "Save Changes"
 - Verify updates reflected
 
 ##### Delete Program
+
 - Click "Delete" on program card
 - Confirm deletion in modal
 - Verify program removed
 - Verify any orphaned class sessions handled gracefully
 
 ##### Search/Filter
+
 - Search by program name
 - Search by short code
 - Search by department name
 
 ##### Error Cases
+
 - Create without department → Verify validation error
 - Create with duplicate short code → Verify error
 - Empty required fields → Verify validation
 
 ##### Edge Cases
+
 - Change program department → Verify impact on class sessions
 - Delete program with active class sessions → Verify warning/cascade
 - Department dropdown shows all 3 departments (CECE, CBA, CTELAN)
 
 **Interactive Elements:**
+
 - Program Name input
 - Short Code input
 - Department Select dropdown
@@ -290,10 +325,12 @@ For each role (admin, department_head, program_head):
 **File:** `users.cy.ts`
 
 ##### Setup
+
 - Login as admin
 - Navigate to `/users`
 
 ##### Invite User (Happy Path)
+
 - Click "Invite User" button
 - Fill email field
 - Fill name field
@@ -305,6 +342,7 @@ For each role (admin, department_head, program_head):
 - Verify invitation sent message
 
 ##### Edit User Profile
+
 - Click "Edit" on user card
 - Change name
 - Change role (verify program/department fields appear/disappear)
@@ -314,17 +352,20 @@ For each role (admin, department_head, program_head):
 - Verify updates reflected
 
 ##### Delete User
+
 - Click "Delete" on user card
 - Confirm deletion
 - Verify user removed from list
 - Verify cascade deletion (profile, user_roles)
 
 ##### Search/Filter
+
 - Search by name
 - Search by email
 - Filter by role
 
 ##### Error Cases
+
 - Invite with invalid email → Verify error
 - Invite duplicate email → Verify error
 - Assign program_head without program → Verify validation
@@ -332,6 +373,7 @@ For each role (admin, department_head, program_head):
 - Change own role to non-admin → Verify prevented
 
 ##### Edge Cases
+
 - Edit currently logged-in admin user → Should warn/prevent role change
 - Delete user with active class sessions → Verify ownership transfer or warning
 - Bulk user operations (if implemented)
@@ -339,6 +381,7 @@ For each role (admin, department_head, program_head):
 - Special characters in names
 
 **Interactive Elements:**
+
 - "Invite User" button
 - Email input
 - Name input
@@ -354,10 +397,12 @@ For each role (admin, department_head, program_head):
 **File:** `classrooms.cy.ts`
 
 ##### Setup
+
 - Login as admin
 - Navigate to `/resources/classrooms`
 
 ##### Create Classroom (Happy Path)
+
 - Fill "Name" (e.g., "M301")
 - Fill "Code" (e.g., "M301")
 - Fill "Capacity" (e.g., "40")
@@ -368,21 +413,25 @@ For each role (admin, department_head, program_head):
 - Verify classroom appears in list
 
 ##### Edit Classroom
+
 - Click "Edit" on classroom card
 - Modify fields
 - Click "Save Changes"
 - Verify updates
 
 ##### Delete Classroom
+
 - Click "Delete" on classroom card
 - Confirm deletion
 - Verify removal
 - Verify impact on class sessions using this classroom
 
 ##### Search/Filter
+
 - Search by name or code
 
 ##### Error Cases
+
 - Empty name → Verify error
 - Empty code → Verify error
 - Negative capacity → Verify error
@@ -390,12 +439,14 @@ For each role (admin, department_head, program_head):
 - Capacity = 0 → Should allow (edge case) or validate minimum
 
 ##### Edge Cases
+
 - Very large capacity (999+) → Verify accepted
 - Classroom with no preferred department → Should be allowed
 - Delete classroom in use by timetable assignment → Verify warning/prevention
 - Color picker edge cases (hex validation, random color button)
 
 **Interactive Elements:**
+
 - Name input
 - Code input
 - Capacity input (type: number)
@@ -411,10 +462,12 @@ For each role (admin, department_head, program_head):
 **File:** `schedule-config.cy.ts`
 
 ##### Setup
+
 - Login as admin
 - Navigate to `/schedule-config`
 
 ##### View Configuration
+
 - Verify current configuration displays:
   - Periods per day: 8
   - Class days per week: 3
@@ -422,6 +475,7 @@ For each role (admin, department_head, program_head):
   - Period duration: 90 minutes
 
 ##### Update Configuration (Happy Path)
+
 - Click "Edit Configuration" button
 - Change periods per day (e.g., 9)
 - Change class days per week (e.g., 5)
@@ -433,24 +487,28 @@ For each role (admin, department_head, program_head):
 - Verify configuration updated
 
 ##### Update with Conflicts
+
 - Reduce periods per day from 8 to 6
 - Attempt to save
 - Verify conflict warning shows count of affected assignments
 - Choose to cancel or force update
 
 ##### Error Cases
+
 - Set periods per day to 0 → Verify validation
 - Set negative values → Verify validation
 - Set non-numeric values → Verify validation
 - Set class days > 7 → Verify validation
 
 ##### Edge Cases
+
 - Increase schedule size (should always work)
 - Decrease schedule size with active assignments in affected slots → Verify prevents or warns
 - Change start time → Should not cause conflicts
 - Change period duration → Should not cause conflicts directly
 
 **Interactive Elements:**
+
 - "Edit Configuration" button
 - Periods per day input (number)
 - Class days per week input (number)
@@ -470,16 +528,19 @@ For each role (admin, department_head, program_head):
 **File:** `department-dashboard.cy.ts`
 
 ##### Setup
-- Login as department_head (cba.head@gmail.com)
+
+- Login as department_head (<cba.head@gmail.com>)
 - Navigate to `/departments/head-dashboard`
 
 ##### View Department Instructors
+
 - Verify page title "Department Instructors"
 - Verify only CBA instructors displayed (based on department_id)
 - Verify instructor count matches database
 - Verify each instructor card shows: name, code, contract type, department
 
 ##### Create Instructor (Happy Path)
+
 - Click "Add Instructor" button
 - Fill "First Name" (e.g., "Maria")
 - Fill "Last Name" (e.g., "Santos")
@@ -494,33 +555,39 @@ For each role (admin, department_head, program_head):
 - Verify instructor appears in list with department_id = CBA
 
 ##### Edit Instructor
+
 - Click "Edit" on instructor card
 - Modify fields
 - Click "Save Changes"
 - Verify updates
 
 ##### Delete Instructor
+
 - Click "Delete" on instructor card
 - Confirm deletion
 - Verify instructor removed
 - Verify impact on class sessions
 
 ##### Search/Filter
+
 - Search by first name, last name, or code
 - Verify only department instructors shown
 
 ##### Permission Boundaries
+
 - Verify cannot edit CECE or CTELAN instructors
 - Verify cannot see instructors from other departments in list
 - Attempt direct API manipulation → Should be blocked by RLS
 
 ##### Error Cases
+
 - Empty first name → Verify validation
 - Empty last name → Verify validation
 - Duplicate code within department → Verify error
 - Invalid email format → Verify validation
 
 ##### Edge Cases
+
 - Create instructor without email/phone → Should be allowed
 - Create instructor without prefix/suffix → Should be allowed
 - Instructor with multiple degrees in suffix
@@ -528,6 +595,7 @@ For each role (admin, department_head, program_head):
 - Special characters in names
 
 **Interactive Elements:**
+
 - "Add Instructor" button
 - First Name input
 - Last Name input
@@ -547,11 +615,13 @@ For each role (admin, department_head, program_head):
 **File:** `request-approvals.cy.ts`
 
 ##### Setup
+
 - Create pending cross-department request as program_head
 - Login as department_head
 - Navigate to timetable or notification center
 
 ##### View Pending Requests
+
 - Verify bell icon shows notification count badge
 - Click bell icon
 - Verify "Pending Requests" panel opens
@@ -564,6 +634,7 @@ For each role (admin, department_head, program_head):
   - Timestamp
 
 ##### Approve Request (Happy Path)
+
 - Click "Approve" button on pending request
 - Verify confirmation modal (if implemented)
 - Confirm approval
@@ -573,6 +644,7 @@ For each role (admin, department_head, program_head):
 - Verify program head can now drag the session
 
 ##### Reject Request (Happy Path)
+
 - Click "Reject" button on pending request
 - Verify rejection dialog opens
 - Rejection message textarea is empty
@@ -584,17 +656,20 @@ For each role (admin, department_head, program_head):
 - Verify class session restored to original position or removed from timetable
 
 ##### Dismiss Reviewed Request
+
 - After approving/rejecting request
 - Request moves to "reviewed" state
 - Click "Dismiss" button
 - Verify request removed from notification list
 
 ##### Error Cases
+
 - Approve request that was already rejected by another admin → Verify error handling
 - Reject without message → Verify validation
 - Network error during approval → Verify retry or error message
 
 ##### Edge Cases
+
 - Multiple pending requests from same program
 - Concurrent approval by admin while dept head reviewing
 - Approve request then immediately try to reject → Should prevent
@@ -602,6 +677,7 @@ For each role (admin, department_head, program_head):
 - Very long rejection messages (1000+ chars) → Verify max length
 
 **Interactive Elements:**
+
 - Bell icon with notification badge (header)
 - "Pending Requests" panel toggle
 - "Approve" button on each request card
@@ -617,16 +693,19 @@ For each role (admin, department_head, program_head):
 **File:** `dept-instructor-reports.cy.ts`
 
 ##### Setup
+
 - Login as department_head
 - Navigate to `/reports/instructors`
 
 ##### View Available Instructors
+
 - Verify instructor dropdown shows only CBA instructors
 - Verify CECE instructors NOT in dropdown
 - Verify CTELAN instructors NOT in dropdown
 - Verify dropdown count matches department instructor count
 
 ##### Generate Report (Happy Path)
+
 - Select instructor from dropdown
 - Click "Generate Report" button
 - Verify loading state
@@ -639,29 +718,34 @@ For each role (admin, department_head, program_head):
 - Verify "Export to Excel" button enabled
 
 ##### Export to PDF
+
 - Generate report first
 - Click "Export to PDF" button
 - Verify PDF download initiated
 - Verify filename format includes instructor name and date
 
 ##### Export to Excel
+
 - Generate report first
 - Click "Export to Excel" button
 - Verify Excel download initiated
 - Verify filename format
 
 ##### Error Cases
+
 - No instructor selected → "Generate Report" should be disabled
 - No class sessions for instructor → Verify "No schedule data" message
 - Network error during report generation → Verify error message
 
 ##### Edge Cases
+
 - Instructor with 0 sessions → Should show empty report
 - Instructor with overloaded schedule → Verify status shows "Overloaded"
 - Instructor with underloaded schedule → Verify status shows appropriate message
 - Very long instructor names in export filenames
 
 **Interactive Elements:**
+
 - Instructor Select dropdown (filtered by department)
 - "Generate Report" button
 - "Export to PDF" button
@@ -678,10 +762,12 @@ For each role (admin, department_head, program_head):
 **File:** `resource-browsing.cy.ts`
 
 ##### Setup
-- Login as program_head (cs.head@gmail.com)
+
+- Login as program_head (<cs.head@gmail.com>)
 - CS program belongs to CECE department
 
 ##### Browse Instructors
+
 - Navigate to `/resources/instructors/browse`
 - Verify page title "Browse Instructors"
 - Verify no "Create" button visible
@@ -691,17 +777,20 @@ For each role (admin, department_head, program_head):
 - Verify instructor cards display name, code, department, contract type
 
 ##### Search Instructors
+
 - Enter search term in search box
 - Verify results filter correctly
 - Verify search works across all departments
 
 ##### Three-Way Department Grouping (Key Feature)
+
 - Verify instructors grouped in selector modals:
   1. **"From Your Department (CECE)"** - Shown first, highlighted
   2. **"Available"** - No department assignment
   3. **"From Other Departments"** - CBA and CTELAN instructors
 
 ##### Browse Classrooms (Implicit via Class Session Creation)
+
 - Navigate to `/class-sessions`
 - Click "Add Class Session"
 - Open classroom selector
@@ -710,13 +799,16 @@ For each role (admin, department_head, program_head):
 - Verify no create/edit/delete options in selector
 
 ##### Error Cases
+
 - Attempt to navigate to `/resources/instructors` (admin route) → Verify redirect/403
 
 ##### Edge Cases
+
 - Instructor with no department → Should appear in "Available" group
 - Classroom with no preferred department → Should appear in "Available" group
 
 **Interactive Elements:**
+
 - Search input (read-only page)
 - Instructor cards (display only, no buttons)
 - No interactive create/edit/delete elements
@@ -726,15 +818,18 @@ For each role (admin, department_head, program_head):
 **File:** `course-management.cy.ts`
 
 ##### Setup
-- Login as program_head (cs.head@gmail.com)
+
+- Login as program_head (<cs.head@gmail.com>)
 - Navigate to `/resources/courses`
 
 ##### View Own Program Courses
+
 - Verify only BSCS courses displayed
 - Verify cannot see BSCpE, BSCE, BSA, BSN, etc. courses
 - Verify course count matches database for BSCS
 
 ##### Create Course (Happy Path)
+
 - Click "Create" button
 - Fill "Course Name" (e.g., "Machine Learning")
 - Fill "Course Code" (e.g., "CS401")
@@ -746,37 +841,44 @@ For each role (admin, department_head, program_head):
 - Verify course appears in list with program_id = BSCS
 
 ##### Edit Course
+
 - Click "Edit" on course card
 - Modify fields
 - Click "Save Changes"
 - Verify updates
 
 ##### Delete Course
+
 - Click "Delete" on course card
 - Confirm deletion
 - Verify course removed
 - Verify impact on class sessions
 
 ##### Search Courses
+
 - Search by course name or code
 - Verify only own program courses searched
 
 ##### Permission Boundaries
+
 - Attempt to edit course from different program via API → Verify RLS blocks
 - Verify cannot see other programs' courses in list
 
 ##### Error Cases
+
 - Empty course name → Verify validation
 - Empty course code → Verify validation
 - Negative units → Verify validation
 - Non-numeric units → Verify validation
 
 ##### Edge Cases
+
 - Course with 0 lab hours → Should be allowed
 - Course with fractional units (e.g., 2.5) → Verify accepted
 - Delete course in use by class session → Verify warning/prevention
 
 **Interactive Elements:**
+
 - "Create" button
 - Course Name input
 - Course Code input
@@ -793,14 +895,17 @@ For each role (admin, department_head, program_head):
 **File:** `class-group-management.cy.ts`
 
 ##### Setup
+
 - Login as program_head
 - Navigate to `/resources/groups`
 
 ##### View Own Program Class Groups
+
 - Verify only BSCS class groups displayed
 - Verify cannot see other programs' groups
 
 ##### Create Class Group (Happy Path)
+
 - Click "Create" button
 - Fill "Group Name" (e.g., "BSCS 3-A")
 - Fill "Code" (e.g., "3A")
@@ -810,18 +915,22 @@ For each role (admin, department_head, program_head):
 - Verify group appears with program_id = BSCS
 
 ##### Edit/Delete Class Group
+
 - Follow similar patterns to course management
 
 ##### Error Cases
+
 - Empty name → Validation
 - Negative student count → Validation
 - Student count = 0 → Should allow or validate minimum
 
 ##### Edge Cases
+
 - Very large student count (200+) → Should accept
 - Class group with special characters in code
 
 **Interactive Elements:**
+
 - Create button
 - Name/Code inputs
 - Student Count input (number)
@@ -835,14 +944,17 @@ For each role (admin, department_head, program_head):
 This is a **critical workflow** involving the three-way department grouping feature.
 
 ##### Setup
-- Login as program_head (cs.head@gmail.com)
+
+- Login as program_head (<cs.head@gmail.com>)
 - Navigate to `/class-sessions`
 
 ##### Create Class Session (Happy Path)
+
 - Click "Add Class Session" button
 - Verify form fields displayed
 
 ##### Select Course (Own Program Only)
+
 - Click "Select Course" button
 - Verify modal opens with course list
 - Verify only BSCS courses shown
@@ -851,6 +963,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify course name displayed in form
 
 ##### Select Class Group (Own Program Only)
+
 - Click "Select Class Group" button
 - Verify modal opens
 - Verify only BSCS class groups shown
@@ -858,6 +971,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify selection displayed
 
 ##### Select Instructor (Three-Way Grouping)
+
 - Click "Select Instructor" button
 - Verify modal opens with three sections:
   1. **"From Your Department (CECE)"** - Listed first
@@ -872,6 +986,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - OR select instructor from CBA/CTELAN (cross-dept) → Will require approval when plotted
 
 ##### Select Classroom (Three-Way Grouping)
+
 - Click "Select Classroom" button
 - Verify modal opens with three sections:
   1. **"From Your Department (CECE)"** - Listed first
@@ -880,15 +995,18 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Select classroom
 
 ##### Set Period Count
+
 - Fill "Period Count" input (e.g., "2" for a 90-min class × 2 = 180 min)
 
 ##### Submit Class Session
+
 - Click "Create Session" button
 - Verify class session created
 - Verify appears in session list
 - Verify NOT yet on timetable (needs to be dragged from drawer)
 
 ##### Error Cases
+
 - Submit without selecting course → Verify validation "Course is required"
 - Submit without class group → Verify validation
 - Submit without instructor → Verify validation
@@ -897,6 +1015,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Negative period count → Verify validation
 
 ##### Edge Cases
+
 - Select cross-department instructor + cross-department classroom → Creates 2 separate requests when plotted
 - Very large period count (10+) → Should accept but warn about schedule fit
 - Cancel form partway through → Verify data not saved
@@ -904,6 +1023,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Select instructor then change course (should retain instructor)
 
 **Interactive Elements:**
+
 - "Add Class Session" button
 - "Select Course" button → Opens modal
 - "Select Class Group" button → Opens modal
@@ -921,16 +1041,19 @@ This is a **critical workflow** involving the three-way department grouping feat
 **File:** `timetable-program-head.cy.ts`
 
 ##### Setup
+
 - Login as program_head
 - Create class sessions first (see 4.4)
 - Navigate to `/timetable`
 
 ##### View Selector
+
 - Verify "View Selector" dropdown at top
 - Verify options: "Class Group View", "Classroom View", "Instructor View"
 - Default view: "Class Group View"
 
 ##### Class Group View (Default)
+
 - Verify only BSCS class groups shown in view selector dropdown
 - Cannot see BSCpE, BSCE, etc. groups
 - Select a BSCS class group (e.g., "BSCS 2-A")
@@ -938,6 +1061,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify drawer at bottom shows unassigned class sessions for BSCS program
 
 ##### Drag Session from Drawer to Timetable (Same Department Resource)
+
 - Drag a class session pill from drawer
 - Drop onto a timetable cell (e.g., Monday, Period 0)
 - If resources are same-department (CECE):
@@ -947,6 +1071,7 @@ This is a **critical workflow** involving the three-way department grouping feat
   - Verify no approval notification
 
 ##### Drag Session from Drawer (Cross-Department Resource)
+
 - Drag class session with CBA instructor or classroom
 - Drop onto timetable cell
 - Verify confirmation modal appears:
@@ -962,12 +1087,14 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify session cannot be moved until approved
 
 ##### Move Confirmed Session Within Timetable (Same Department)
+
 - Drag a confirmed (same-dept) session from one cell to another
 - Verify moves immediately
 - Verify no approval needed
 - Verify conflict detection (if dropping on occupied cell)
 
 ##### Move Confirmed Session to Cross-Department Slot
+
 - Drag confirmed session to new location
 - If new slot creates cross-dept conflict:
   - Verify confirmation modal
@@ -977,6 +1104,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify request created
 
 ##### Remove Session from Timetable (Drop on Drawer)
+
 - Drag session from timetable cell
 - Drop onto drawer area at bottom
 - Verify session removed from timetable
@@ -984,6 +1112,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - If session was pending approval → Verify request cancelled
 
 ##### Cancel Pending Request
+
 - Navigate to `/requests` (Program Head Request Page)
 - View pending requests initiated by self
 - Click "Cancel" button on a pending request
@@ -994,11 +1123,13 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify session restored to original position or moved to drawer
 
 ##### Conflict Detection
+
 - Attempt to drop session on cell already occupied → Verify error/warning
 - Attempt to create instructor time conflict → Verify warning
 - Attempt to create classroom conflict → Verify warning
 
 ##### Classroom View
+
 - Switch to "Classroom View"
 - Verify dropdown shows all classrooms (CECE first, then Available, then Others)
 - Select classroom
@@ -1007,6 +1138,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify can only drag own program sessions
 
 ##### Instructor View
+
 - Switch to "Instructor View"
 - Verify dropdown shows all instructors (CECE first, etc.)
 - Select instructor
@@ -1015,15 +1147,18 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify can only drag own program sessions
 
 ##### Permission Boundaries
+
 - Attempt to drag another program's session → Verify prevented
 - Verify cannot delete other program's sessions
 
 ##### Error Cases
+
 - Drop session on invalid cell → Verify rejected
 - Network error during drag operation → Verify rollback
 - Drop pending session → Verify prevented (not draggable)
 
 ##### Edge Cases
+
 - Drag very long session (5+ periods) → Verify extends across cells correctly
 - Drop session that extends beyond grid boundary → Verify validation
 - Drop on last available slot → Should work
@@ -1032,6 +1167,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Browser refresh with pending session → Verify state persists
 
 **Interactive Elements:**
+
 - View type Select dropdown (Class Group/Classroom/Instructor)
 - Resource Select dropdown (filtered by view type)
 - Timetable grid cells (droppable zones)
@@ -1046,11 +1182,13 @@ This is a **critical workflow** involving the three-way department grouping feat
 **File:** `request-management.cy.ts`
 
 ##### Setup
+
 - Login as program_head
 - Create pending cross-dept requests (via timetable drag)
 - Navigate to `/requests`
 
 ##### View Own Requests
+
 - Verify list of all requests initiated by this program head
 - Verify shows pending, approved, and rejected requests
 - Each request displays:
@@ -1060,6 +1198,7 @@ This is a **critical workflow** involving the three-way department grouping feat
   - Request timestamp
 
 ##### Cancel Pending Request
+
 - Click "Cancel" on pending request
 - Verify confirmation modal
 - Confirm cancellation
@@ -1067,20 +1206,24 @@ This is a **critical workflow** involving the three-way department grouping feat
 - Verify notification to dept head
 
 ##### View Rejection Message
+
 - For rejected requests
 - Verify rejection message displayed
 - Verify message from department head shown
 - Verify "Dismiss" button available
 
 ##### Dismiss Reviewed Request
+
 - Click "Dismiss" on approved/rejected request
 - Verify request removed from list
 
 ##### Error Cases
+
 - Attempt to cancel already approved request → Verify prevented
 - Attempt to cancel already rejected request → Verify prevented
 
 **Interactive Elements:**
+
 - Request list/cards
 - "Cancel" button (pending requests only)
 - "Dismiss" button (reviewed requests)
@@ -1099,6 +1242,7 @@ This is a **critical workflow** involving the three-way department grouping feat
 Covers all three view modes for all roles with appropriate permissions.
 
 ##### Admin - Full Access
+
 - Login as admin
 - Switch between all three view types
 - Select any class group, classroom, or instructor
@@ -1106,6 +1250,7 @@ Covers all three view modes for all roles with appropriate permissions.
 - Verify can delete any session
 
 ##### Department Head - Department Programs Only
+
 - Login as department_head (CBA)
 - Switch to Class Group View
 - Verify dropdown shows only CBA program class groups (BSA)
@@ -1116,9 +1261,11 @@ Covers all three view modes for all roles with appropriate permissions.
 - Verify can see all instructors but can only drag sessions from CBA programs
 
 ##### Program Head - Own Program Only
+
 - Tested in 4.5 above
 
 **Interactive Elements:**
+
 - View type dropdown
 - Resource dropdown (filtered by role/permissions)
 
@@ -1127,20 +1274,24 @@ Covers all three view modes for all roles with appropriate permissions.
 **File:** `drag-and-drop.cy.ts`
 
 ##### Test Draggable Elements
+
 - Confirmed sessions in timetable cells
 - Session pills in drawer
 
 ##### Test Droppable Zones
+
 - Empty timetable cells
 - Occupied cells (should prevent or merge - verify behavior)
 - Drawer area (to unassign)
 
 ##### Visual Feedback
+
 - Verify drag preview appears during drag
 - Verify drop zone highlighting on hover
 - Verify cursor changes during drag
 
 ##### Edge Cases
+
 - Start drag and cancel (press Esc or drop outside valid zone)
 - Drag over sidebar or header → Verify invalid drop
 - Drag session to same cell → Verify no-op
@@ -1151,21 +1302,25 @@ Covers all three view modes for all roles with appropriate permissions.
 **File:** `conflict-detection.cy.ts`
 
 ##### Instructor Time Conflicts
+
 - Create two sessions with same instructor
 - Drag both to same time slot (different class groups)
 - Verify conflict warning modal
 - Options: Force/Cancel
 
 ##### Classroom Conflicts
+
 - Create two sessions with same classroom
 - Drag to same slot
 - Verify conflict warning
 
 ##### Class Group Conflicts
+
 - Attempt to assign two sessions to same class group at same time
 - Verify prevented
 
 **Interactive Elements:**
+
 - Conflict warning modal
 - Force/Cancel buttons
 
@@ -1182,6 +1337,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 **File:** `request-creation.cy.ts`
 
 ##### Initial Plot (New Session)
+
 - Program head drags session with cross-dept resource from drawer to timetable
 - Verify confirmation modal
 - Confirm → Verify request created with:
@@ -1190,6 +1346,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
   - status = 'pending'
 
 ##### Move Confirmed Session (Creates New Request)
+
 - Program head drags confirmed session to new slot with cross-dept resource
 - Verify confirmation modal
 - Confirm → Verify request created with:
@@ -1198,6 +1355,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
   - status = 'pending'
 
 **Interactive Elements:**
+
 - Confirmation modal
 - Confirm/Cancel buttons
 
@@ -1206,6 +1364,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 **File:** `approval-workflow.cy.ts`
 
 ##### Department Head Approves Request
+
 - Login as department_head
 - Open pending requests panel
 - Click "Approve" on request
@@ -1215,10 +1374,12 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 - Verify notification to program head (if implemented)
 
 ##### Admin Approves Request
+
 - Login as admin
 - Same workflow as dept head
 
 **Interactive Elements:**
+
 - "Approve" button
 - Notification panel
 
@@ -1227,6 +1388,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 **File:** `rejection-workflow.cy.ts`
 
 ##### Rejection with Message (Required)
+
 - Department head clicks "Reject"
 - Verify rejection dialog opens
 - Leave message empty → Click "Reject"
@@ -1239,12 +1401,14 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 - Verify notification sent to program head with rejection message
 
 ##### Program Head Views Rejection
+
 - Login as program_head
 - Check notifications or requests page
 - Verify rejection message displayed
 - Click "Dismiss" to acknowledge
 
 **Interactive Elements:**
+
 - "Reject" button
 - Rejection message textarea (required field)
 - "Reject" confirm button in dialog
@@ -1256,6 +1420,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 **File:** `cancellation-workflow.cy.ts`
 
 ##### Program Head Cancels Pending Request
+
 - Login as program_head
 - Navigate to requests page or timetable
 - Click "Cancel" on pending request
@@ -1265,15 +1430,18 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 - Verify notification to dept head
 
 ##### Program Head Cancels Approved Request
+
 - Request that was approved
 - Program head decides to cancel
 - Click "Cancel"
 - Verify restoration logic
 
 ##### Error Cases
+
 - Cannot cancel already rejected request
 
 **Interactive Elements:**
+
 - "Cancel" button on request
 - Confirmation modal
 
@@ -1288,6 +1456,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 **File:** `instructor-reports.cy.ts`
 
 ##### Admin - All Instructors
+
 - Login as admin
 - Navigate to `/reports/instructors`
 - Verify instructor dropdown shows ALL instructors from all departments
@@ -1298,6 +1467,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 - Export to Excel
 
 ##### Department Head - Department Instructors Only
+
 - Login as department_head (CBA)
 - Verify dropdown shows only CBA instructors
 - Select instructor
@@ -1305,6 +1475,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 - Verify accurate load calculation for CBA instructor
 
 ##### Program Head - Program's Instructors Only
+
 - Login as program_head (BSCS)
 - Verify dropdown shows instructors assigned to BSCS class sessions
 - May include cross-dept instructors if used by program
@@ -1312,6 +1483,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 - Verify load calculation
 
 ##### Load Calculation Validation
+
 - Verify "Total Load" displays correctly based on course units
 - Verify "Standard Load" configured value (e.g., 7.0)
 - Verify status:
@@ -1320,16 +1492,19 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
   - "Overloaded" if total > standard
 
 ##### Empty State
+
 - Select instructor with 0 assigned sessions
 - Verify "No schedule data" message
 - Verify export buttons disabled or show empty report
 
 ##### Edge Cases
+
 - Instructor teaching merged sessions → Verify counted correctly
 - Instructor with sessions across multiple programs → Verify all shown
 - Very long instructor names in export filename → Verify truncation
 
 **Interactive Elements:**
+
 - Instructor Select dropdown (role-filtered)
 - "Generate Report" button
 - "Export to PDF" button
@@ -1350,6 +1525,7 @@ Comprehensive testing of the request/approval/rejection/cancellation lifecycle.
 Test all input types and validation rules across the application.
 
 ##### Text Inputs
+
 - Empty required fields → Specific error messages
 - Max length validation (e.g., 255 chars for names)
 - Special characters handling
@@ -1357,6 +1533,7 @@ Test all input types and validation rules across the application.
 - Script injection attempts (XSS prevention)
 
 ##### Numeric Inputs
+
 - Non-numeric input → Validation error
 - Negative numbers where not allowed
 - Zero values (test each field for 0 acceptance)
@@ -1364,23 +1541,28 @@ Test all input types and validation rules across the application.
 - Very large numbers (999999+)
 
 ##### Email Inputs
+
 - Invalid formats (no @, multiple @, no domain)
 - Valid formats (standard email patterns)
 - Case sensitivity (should normalize)
 
 ##### Select Dropdowns
+
 - No selection made → Validation
 - Selecting placeholder/disabled option
 
 ##### Textareas (Rejection Messages)
+
 - Empty when required → Validation
 - Max length (e.g., 1000 chars)
 
 ##### Color Pickers
+
 - Invalid hex codes
 - Random color button functionality
 
 ##### Date/Time Inputs
+
 - Invalid date formats
 - Past dates where future required
 - Time format validation
@@ -1392,24 +1574,29 @@ Test all input types and validation rules across the application.
 **File:** `empty-states.cy.ts`
 
 ##### No Departments
+
 - Admin deletes all departments
 - Verify empty state message
 - Verify create button still accessible
 
 ##### No Programs
+
 - Verify empty state in program list
 - Verify impact on user creation (cannot assign program head)
 
 ##### No Instructors
+
 - Department head with no instructors
 - Verify empty state message
 
 ##### No Class Sessions
+
 - Program head with no sessions
 - Verify drawer empty message
 - Verify timetable empty
 
 ##### No Search Results
+
 - Search with term that matches nothing
 - Verify "No results found" message
 
@@ -1418,17 +1605,20 @@ Test all input types and validation rules across the application.
 **File:** `network-errors.cy.ts`
 
 ##### API Timeout
+
 - Simulate slow network
 - Verify loading states
 - Verify timeout error messages
 
 ##### Failed Mutations
+
 - Simulate 500 error during create
 - Verify error toast/notification
 - Verify form data preserved (not lost)
 - Verify retry option
 
 ##### Failed Queries
+
 - Simulate failed data fetch
 - Verify error message component
 - Verify retry button works
@@ -1438,15 +1628,18 @@ Test all input types and validation rules across the application.
 **File:** `permission-violations.cy.ts`
 
 ##### Direct URL Navigation
+
 - Program head navigates to `/departments` (admin only)
 - Verify redirect to login or 403 page
 
 ##### API Manipulation
+
 - Program head attempts to edit another program's course via browser DevTools
 - Verify RLS blocks the action
 - Verify error message
 
 ##### Session Expiration
+
 - Wait for session to expire (or simulate)
 - Attempt action
 - Verify redirect to login
@@ -1457,16 +1650,19 @@ Test all input types and validation rules across the application.
 **File:** `concurrent-operations.cy.ts`
 
 ##### Same User, Multiple Tabs
+
 - Login in two browser tabs
 - Perform action in tab 1
 - Verify real-time update in tab 2 (if implemented)
 
 ##### Multiple Users Editing Same Resource
+
 - Admin edits department in one session
 - Department head views same department in another
 - Verify conflict handling or last-write-wins
 
 ##### Race Conditions
+
 - Submit form twice rapidly (double-click submit)
 - Verify duplicate prevention
 
@@ -1475,15 +1671,18 @@ Test all input types and validation rules across the application.
 **File:** `data-integrity.cy.ts`
 
 ##### Cascade Deletions
+
 - Delete department with programs → Verify programs.department_id → NULL
 - Delete program with class sessions → Verify cascade or prevention
 - Delete instructor assigned to sessions → Verify behavior
 
 ##### Orphaned Records
+
 - Create class session, delete instructor
 - Verify session handling
 
 ##### Invalid References
+
 - Attempt to create class session with non-existent course_id
 - Verify validation
 
@@ -1492,24 +1691,29 @@ Test all input types and validation rules across the application.
 **File:** `ui-edge-cases.cy.ts`
 
 ##### Very Long Text
+
 - Create department with 100-character name
 - Verify UI doesn't break (ellipsis, wrapping)
 
 ##### Special Characters
+
 - Department name: "Math & Science (STEM)"
 - Verify displays correctly
 - Verify doesn't break JSON/SQL
 
 ##### Color Contrast
+
 - Pick very light color for session
 - Verify text still readable (contrast check)
 
 ##### Mobile Responsiveness (If Tested)
+
 - Resize viewport to mobile
 - Verify sidebar collapses
 - Verify modals responsive
 
 ##### Sidebar Collapse Persistence
+
 - Toggle sidebar collapsed
 - Navigate to different page
 - Verify state persists (localStorage)
@@ -1519,12 +1723,14 @@ Test all input types and validation rules across the application.
 **File:** `browser-compatibility.cy.ts`
 
 Run critical workflows in:
+
 - Chrome
 - Firefox
 - Safari (if possible)
 - Edge
 
 Verify:
+
 - Drag and drop works
 - Modals display correctly
 - Forms submit correctly
@@ -1540,22 +1746,26 @@ Verify:
 **File:** `keyboard-navigation.cy.ts`
 
 ##### Tab Order
+
 - Press Tab repeatedly through entire page
 - Verify logical tab order
 - Verify all interactive elements focusable
 - Verify skip links (if implemented)
 
 ##### Enter Key Submits Forms
+
 - Focus on form input
 - Press Enter
 - Verify form submits
 
 ##### Escape Closes Modals
+
 - Open modal
 - Press Escape
 - Verify modal closes
 
 ##### Arrow Keys in Dropdowns
+
 - Open Select dropdown
 - Use arrow keys to navigate
 - Press Enter to select
@@ -1566,15 +1776,18 @@ Verify:
 **File:** `screen-reader.cy.ts`
 
 ##### ARIA Labels
+
 - Verify all buttons have aria-label or accessible text
 - Verify form inputs have associated labels
 - Verify error messages have aria-live regions
 
 ##### Focus Management
+
 - Open modal → Verify focus moved to modal
 - Close modal → Verify focus returned to trigger element
 
 ##### Landmarks
+
 - Verify header, main, nav, footer landmarks
 - Verify heading hierarchy (h1, h2, h3 in order)
 
@@ -1583,15 +1796,18 @@ Verify:
 **File:** `mobile-responsiveness.cy.ts`
 
 ##### Viewport Sizes
+
 - Test at 320px (small mobile)
 - Test at 768px (tablet)
 - Test at 1024px (desktop)
 
 ##### Touch Interactions
+
 - Verify buttons large enough for touch (min 44x44px)
 - Verify drag and drop works on touch devices (if supported)
 
 ##### Sidebar Behavior
+
 - On mobile, sidebar should collapse
 - Hamburger menu toggle
 - Verify overlay behavior
@@ -1678,6 +1894,7 @@ Cypress.Commands.add('dragSessionToCell', (sessionId, cellSelector) => { ... });
 To ensure Cypress errors are useful for AI comprehension:
 
 1. **Use Descriptive Selectors:**
+
    ```typescript
    // ❌ Bad
    cy.get('.btn-123').click();
@@ -1689,6 +1906,7 @@ To ensure Cypress errors are useful for AI comprehension:
 
 2. **Add data-cy Attributes:**
    Update codebase to include `data-cy` attributes on key interactive elements:
+
    ```tsx
    <Button data-cy="approve-request-button" onClick={handleApprove}>
      Approve
@@ -1696,6 +1914,7 @@ To ensure Cypress errors are useful for AI comprehension:
    ```
 
 3. **Meaningful Assertions:**
+
    ```typescript
    // ❌ Bad
    cy.get('.item').should('exist');
@@ -1708,6 +1927,7 @@ To ensure Cypress errors are useful for AI comprehension:
    ```
 
 4. **Custom Error Messages:**
+
    ```typescript
    cy.get('[data-cy="instructor-dropdown"]')
      .should('have.length.greaterThan', 0, 'Expected at least one instructor in dropdown for department head')
@@ -1715,6 +1935,7 @@ To ensure Cypress errors are useful for AI comprehension:
    ```
 
 5. **Screenshot on Failure:**
+
    ```typescript
    afterEach(function() {
      if (this.currentTest.state === 'failed') {
@@ -1754,6 +1975,7 @@ Order of preference for element selection:
 ### 11.1 Clickable Buttons by Page
 
 #### Authentication Pages
+
 - **Login Page:**
   - "Sign In" button (type: submit)
   - "Forgot Password?" link
@@ -1770,6 +1992,7 @@ Order of preference for element selection:
   - "Complete Registration" button (type: submit)
 
 #### Admin Pages
+
 - **Department Management:**
   - "Create" button (form submit)
   - "Save Changes" button (edit mode)
@@ -1812,6 +2035,7 @@ Order of preference for element selection:
   - Confirmation modal buttons
 
 #### Department Head Pages
+
 - **Department Dashboard:**
   - "Add Instructor" button
   - "Create" button (form submit)
@@ -1831,6 +2055,7 @@ Order of preference for element selection:
   - Close panel button (X icon)
 
 #### Program Head Pages
+
 - **Resource Browsing:**
   - (No action buttons - read-only)
 
@@ -1874,6 +2099,7 @@ Order of preference for element selection:
   - Confirmation modal buttons
 
 #### Shared Pages (All Roles)
+
 - **Header:**
   - Hamburger menu button (toggle sidebar)
   - User avatar button (opens dropdown)
@@ -1906,6 +2132,7 @@ Order of preference for element selection:
 ### 11.4 Input Fields (All Types)
 
 #### Text Inputs
+
 - Department name
 - Department code
 - Program name
@@ -1932,6 +2159,7 @@ Order of preference for element selection:
 - Search inputs (various pages)
 
 #### Numeric Inputs
+
 - Classroom capacity
 - Course units
 - Course lecture hours
@@ -1944,6 +2172,7 @@ Order of preference for element selection:
 - Year in semester dates
 
 #### Select Dropdowns
+
 - User role (admin/department_head/program_head)
 - User program (conditional)
 - User department (conditional)
@@ -1955,11 +2184,13 @@ Order of preference for element selection:
 - Instructor selector (reports)
 
 #### Date/Time Inputs
+
 - Semester start date
 - Semester end date
 - Schedule start time
 
 #### Color Pickers
+
 - Department color (if implemented)
 - Program color (if implemented)
 - Instructor color
@@ -1968,12 +2199,14 @@ Order of preference for element selection:
 - Class group color
 
 #### Checkboxes
+
 - Semester is_active toggle
 - (Any other checkboxes in forms)
 
 ### 11.5 Modal/Dialog Interactions
 
 #### Modals That Appear
+
 1. **Confirmation Modal** (generic)
    - Appears on: Delete actions, risky operations
    - Buttons: Confirm (destructive), Cancel
@@ -2029,6 +2262,7 @@ Tests can be run in parallel within each suite (01, 02, etc.) but cross-suite de
 ### 12.3 Database State Management
 
 **Before Each Test Suite:**
+
 ```typescript
 before(() => {
   cy.task('db:seed'); // Seed with fixture data
@@ -2045,6 +2279,7 @@ Each test should create its own test data or use unique identifiers to avoid con
 ### 12.4 Smoke Tests
 
 Identify critical paths for smoke testing:
+
 - Login as each role
 - Create department, program, user (admin)
 - Create instructor (dept head)
@@ -2056,6 +2291,7 @@ Identify critical paths for smoke testing:
 ### 12.5 Regression Suite
 
 Full test suite should be run:
+
 - Before each production deployment
 - After major refactoring
 - Weekly scheduled runs
@@ -2094,6 +2330,7 @@ Full test suite should be run:
 Based on Supabase scan:
 
 ### Tables
+
 - `departments` (3 rows: CECE, CBA, CTELAN)
 - `programs` (7 rows: BSCS, BSCpE, BSCE, BSECE, BSIT, BSA, BSN)
 - `instructors` (20+ rows, distributed across departments)
@@ -2111,6 +2348,7 @@ Based on Supabase scan:
 - `teaching_load_config` (unknown count)
 
 ### Key Relationships
+
 - `programs.department_id` → `departments.id` (ON DELETE SET NULL)
 - `instructors.department_id` → `departments.id`
 - `classrooms.preferred_department_id` → `departments.id` (nullable)
@@ -2177,6 +2415,7 @@ describe('Feature: Department Management (Admin)', () => {
 ## Appendix C: Recommended data-cy Attributes to Add
 
 ### Priority 1 (Critical Paths)
+
 - `data-cy="login-email-input"`
 - `data-cy="login-password-input"`
 - `data-cy="login-submit-button"`
@@ -2191,6 +2430,7 @@ describe('Feature: Department Management (Admin)', () => {
 - `data-cy="drawer-session-pill-{sessionId}"`
 
 ### Priority 2 (Forms)
+
 - `data-cy="create-{resource}-button"`
 - `data-cy="save-{resource}-button"`
 - `data-cy="cancel-{resource}-button"`
@@ -2200,6 +2440,7 @@ describe('Feature: Department Management (Admin)', () => {
 - `data-cy="{resource}-code-input"`
 
 ### Priority 3 (Modals)
+
 - `data-cy="modal-close-button"`
 - `data-cy="modal-confirm-button"`
 - `data-cy="modal-cancel-button"`
