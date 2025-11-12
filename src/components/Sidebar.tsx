@@ -9,8 +9,6 @@ import {
   Blocks,
   Building2,
   Users,
-  Search,
-  Send,
   FileText,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -43,8 +41,6 @@ const programHeadNavLinks = [
   { to: '/component-management', icon: Blocks, label: 'Manage Class Components' },
   { to: '/class-sessions', icon: BookOpenCheck, label: 'Manage Classes' },
   { to: '/scheduler', icon: LayoutGrid, label: 'Timetable' },
-  { to: '/browse/instructors', icon: Search, label: 'Browse Instructors' },
-  { to: '/requests/instructor', icon: Send, label: 'Request Instructor' },
   { to: '/reports/instructors', icon: FileText, label: 'Instructor Reports' },
 ];
 

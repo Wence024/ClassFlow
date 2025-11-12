@@ -95,27 +95,3 @@ export function useInstructors() {
   };
 }
 
-/**
- * Custom hook to fetch instructors filtered by department.
- *
- * This hook is useful for Program Heads or Admins who need to browse instructors
- * from specific departments. The query is only enabled when a departmentId is provided.
- *
- * @param departmentId Optional department ID to filter instructors.
- * @returns React Query object containing instructors data for the specified department.
- */
-export function useInstructorsByDepartment(departmentId?: string) {
-  const { user } = useAuth();
-
-  const listQuery = useQuery({
-    queryKey: ['instructors', 'by-dept', departmentId],
-    queryFn: async () => {
-      if (!departmentId) return [];
-      // Admins/Dept heads can see by specific department
-      return instructorsService.getInstructors({ department_id: departmentId, role: user?.role });
-    },
-    enabled: !!departmentId,
-  });
-
-  return listQuery;
-}

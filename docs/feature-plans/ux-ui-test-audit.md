@@ -184,13 +184,11 @@ For each role (admin, department_head, program_head):
 - ❌ `/users` (should redirect/show error)
 - ❌ `/resources/classrooms` (should redirect/show error)
 - ❌ `/departments/head-dashboard` (should redirect/show error)
-- ✅ `/resources/instructors/browse` (Program Head Instructors - read-only)
 - ✅ `/resources/courses` (Course Tab - own program only)
 - ✅ `/resources/groups` (Class Group Tab - own program only)
 - ✅ `/timetable` (Timetable - own program only)
 - ✅ `/class-sessions` (Class Sessions - own program only)
 - ✅ `/reports/instructors` (Instructor Reports - own program instructors)
-- ✅ `/requests` (Program Head Request Page)
 - ❌ `/schedule-config` (should redirect/show error)
 
 ##### Edge Cases
