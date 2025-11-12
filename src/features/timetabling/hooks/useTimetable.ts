@@ -18,7 +18,6 @@ import * as classroomsService from '../../classSessionComponents/services/classr
 import * as instructorsService from '../../classSessionComponents/services/instructorsService';
 import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
 import { usePrograms } from '../../programs/hooks/usePrograms';
-import { toast } from 'sonner';
 import { Semester } from '../../scheduleConfig/types/semesters';
 
 const getTargetRowIdForCheck = (
@@ -68,7 +67,7 @@ const handleCrossDepartmentMove = async (
   }
 
   console.log('Cross-department move request created:', result);
-  toast.success('Session moved - requires department head approval');
+  // Single, clear toast message (removed duplicate toast from mutation)
 };
 
 /**

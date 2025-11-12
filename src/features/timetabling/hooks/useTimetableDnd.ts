@@ -470,14 +470,14 @@ export const useTimetableDnd = (
                 '../../resourceRequests/services/resourceRequestService'
               );
               try {
+                // Cancel active requests and notify department head
                 await cancelActiveRequestsForClassSession(session.id);
+                await removeClassSession(source.class_group_id, source.period_index);
                 toast.success('Session removed and department head notified');
               } catch (err) {
                 console.error('Failed to cancel resource requests:', err);
-                toast.error('Failed to notify department head');
+                toast.error('Failed to remove session');
               }
-
-              await removeClassSession(source.class_group_id, source.period_index);
             });
             cleanupDragState();
             return;

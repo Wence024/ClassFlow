@@ -332,7 +332,7 @@ const TimetablePage: React.FC = () => {
   const isInitialLoading = (loadingTimetable || isLoadingSessions) && timetable.size === 0;
 
   return (
-    <div className="relative flex flex-col h-full">
+    <div className="relative flex flex-col h-full" data-cy="timetable-page">
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
       <div className="flex-1 space-y-6 min-w-0 overflow-auto">
         <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
