@@ -56,18 +56,18 @@ describe('Program Head Workflow', () => {
       cy.get('[role="dialog"]').within(() => {
         cy.contains('h3', 'From Your Department').should('be.visible');
         // This assumes seed data exists for "B-205" in the program head's dept
-        cy.contains('div', 'B-205').click();
+        cy.contains('div', 'B205').click();
       });
-      cy.get('button#classroom_id').should('contain.text', 'B-205');
+      cy.get('button#classroom_id').should('contain.text', 'B205');
 
       // --- 2. Test Instructor Selector ---
       cy.get('button#instructor_id').click();
       cy.get('[role="dialog"]').within(() => {
         cy.contains('h3', 'From Your Department').should('be.visible');
         // This assumes seed data exists for a "CECE Instructor"
-        cy.contains('div', 'Instructor 1 CECE').click();
+        cy.contains('div', 'Daffodelle Lucena').click();
       });
-      cy.get('button#instructor_id').should('contain.text', 'Instructor 1 CECE');
+      cy.get('button#instructor_id').should('contain.text', 'Daffodelle Lucena');
 
       // --- 3. Test Course Selector ---
       cy.get('button#course_id').click();
@@ -75,14 +75,14 @@ describe('Program Head Workflow', () => {
         // Courses are prioritized by program, which corresponds to "From Your Department"
         cy.contains('h3', 'From Your Department').should('be.visible');
         // This assumes a course named "Advanced Programming" exists in the program
-        cy.contains('div', 'CS Course 1').click();
+        cy.contains('div', 'Science, Technology, and Society').click();
       });
-      cy.get('button#course_id').should('contain.text', 'CS Course 1');
+      cy.get('button#course_id').should('contain.text', 'Science, Technology, and Society');
 
       // --- 4. Fill remaining fields and submit ---
       // (Selector for Class Group would follow the same pattern)
       cy.get('button#class_group_id').click();
-      cy.get('[role="dialog"]').contains('div', 'CS Class 1').click();
+      cy.get('[role="dialog"]').contains('div', 'BSCS 2nd Year').click();
 
       cy.get('input#period_count').type('2{leftArrow}{backspace}');
       cy.contains('button', 'Add Class Session').click();
