@@ -18,8 +18,9 @@ describe('Admin: Department Management', () => {
 
     it('should display department details on cards', () => {
       cy.get('[data-testid="item-card"]').first().within(() => {
-        // Should show name and code
+        // Should show name in h3 and code
         cy.get('h3').should('exist');
+        cy.contains(/CBA|CECE|CETLE/i).should('be.visible');
       });
     });
   });

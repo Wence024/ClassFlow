@@ -60,8 +60,9 @@ describe('Authentication: Role-Based Routing', () => {
 
       deniedRoutes.forEach(route => {
         cy.visit(route, { failOnStatusCode: false });
-        // Should redirect or show 403/404
+        // Should redirect to /scheduler instead of staying on denied page
         cy.url().should('not.include', route);
+        cy.url().should('include', '/scheduler');
       });
     });
   });
@@ -98,7 +99,9 @@ describe('Authentication: Role-Based Routing', () => {
 
       deniedRoutes.forEach(route => {
         cy.visit(route, { failOnStatusCode: false });
+        // Should redirect to /scheduler instead of staying on denied page
         cy.url().should('not.include', route);
+        cy.url().should('include', '/scheduler');
       });
     });
   });
