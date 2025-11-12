@@ -181,7 +181,10 @@ export default function RequestNotifications() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
+        <button 
+          data-cy="notification-bell-icon"
+          className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
           <Bell className="w-5 h-5" />
           {hasNotifications && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -190,7 +193,7 @@ export default function RequestNotifications() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-80 p-0" data-cy="pending-requests-panel">
         <div className="p-3 border-b">
           <h3 className="font-semibold">Resource Requests</h3>
           <p className="text-sm text-gray-600">
@@ -245,6 +248,7 @@ export default function RequestNotifications() {
 
                   <div className="flex items-center gap-1 flex-wrap">
                     <Button
+                      data-cy={`approve-request-button-${request.id}`}
                       size="sm"
                       variant="secondary"
                       className="text-xs px-2 py-1 h-7"
@@ -258,6 +262,7 @@ export default function RequestNotifications() {
                       {approvingId === request.id ? 'Approving...' : 'Approve'}
                     </Button>
                     <Button
+                      data-cy={`reject-request-button-${request.id}`}
                       size="sm"
                       variant="destructive"
                       className="text-xs px-2 py-1 h-7"

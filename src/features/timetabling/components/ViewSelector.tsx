@@ -23,10 +23,11 @@ export const ViewSelector: React.FC<ViewSelectorProps> = ({ viewMode, onViewMode
   ];
 
   return (
-    <div className="flex gap-2 mb-6 p-1 bg-muted rounded-lg w-fit">
+    <div className="flex gap-2 mb-6 p-1 bg-muted rounded-lg w-fit" data-cy="timetable-view-selector">
       {views.map((view) => (
         <button
           key={view.mode}
+          data-cy={`view-mode-${view.mode}`}
           onClick={() => onViewModeChange(view.mode)}
           className={`
             flex items-center gap-2 px-4 py-2 rounded-md transition-all

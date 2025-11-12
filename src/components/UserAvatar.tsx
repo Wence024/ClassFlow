@@ -26,7 +26,10 @@ export default function UserAvatar() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
+        <button 
+          data-cy="user-avatar"
+          className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold"
+        >
           {initials}
         </button>
       </PopoverTrigger>
