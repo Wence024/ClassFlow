@@ -15,8 +15,6 @@ import ScheduleConfigPage from './features/scheduleConfig/pages/ScheduleConfigPa
 import DepartmentManagementPage from './features/departments/pages/DepartmentManagementPage';
 import UserProfilePage from './features/auth/pages/UserProfilePage';
 import DepartmentHeadDashboard from './features/departments/pages/DepartmentHeadDashboard';
-import ProgramHeadInstructors from './features/classSessionComponents/pages/ProgramHeadInstructors';
-import ProgramHeadRequestPage from './features/resourceRequests/pages/ProgramHeadRequestPage';
 import ProgramManagementPage from './features/programs/pages/ProgramManagementPage';
 import UserManagementPage from './features/users/pages/UserManagementPage';
 import InstructorReportsPage from './features/reports/pages/InstructorReportsPage';
@@ -88,8 +86,6 @@ function App() {
                         </RoleGuardedPage>
                       } 
                     />
-                    <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
-                    <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
                     <Route path="/reports/instructors" element={<InstructorReportsPage />} />
                     <Route path="/profile" element={<UserProfilePage />} />
                   </Route>

@@ -77,8 +77,7 @@ describe('Authentication: Role-Based Routing', () => {
         '/component-management',
         '/scheduler',
         '/class-sessions',
-        '/reports/instructors',
-        '/requests/instructor'
+        '/reports/instructors'
       ];
 
       allowedRoutes.forEach(route => {

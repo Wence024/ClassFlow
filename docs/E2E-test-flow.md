@@ -95,19 +95,6 @@ This flow is divided into phases, each corresponding to a major step in the over
     * **Action**: Drag the "CS101" session from the grid and drop it back into the "Available Classes" drawer area.
     * **Expected Result**: The session is removed from the grid, and the pill for "Introduction to Programming - Section A" reappears in the drawer.
 
-## Phase 5: Collaborative Resource Request (Testing the "On Hold" Feature)
-
-**Goal**: To test the existing (but paused) UI for cross-departmental resource requests.
-
-1. **Program Head - Initiate Request**:
-    * Login as the **Program Head User**.
-    * Navigate to the **Request Instructor** page (`/requests/instructor`).
-    * **Action**: Select the "Mathematics" department from the dropdown. The instructor list should populate. Select an instructor. Click "Submit Request".
-    * **Expected Result**: The request is submitted without error.
-2. **Department Head - Verify Notification**:
-    * Login as the **Department Head User** for the "Mathematics" department (this may require a separate user account).
-    * **Expected Result**: A notification bell icon with a red badge should be visible in the header. Clicking the bell opens a popover showing the pending request from the Program Head, with "Approve" and "Reject" buttons. This confirms the notification flow is wired up.
-
 ---
 
 ## Final Success Criteria
