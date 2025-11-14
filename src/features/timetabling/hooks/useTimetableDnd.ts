@@ -442,6 +442,7 @@ export const useTimetableDnd = (
       allClassSessions,
       cleanupDragState,
       user,
+      userDepartmentId,
       viewMode,
       executeDropMutation,
       pendingPlacementInfo,
@@ -491,7 +492,7 @@ export const useTimetableDnd = (
 
       cleanupDragState();
     },
-    [removeClassSession, cleanupDragState, allClassSessions, user]
+    [removeClassSession, cleanupDragState, allClassSessions, user, userDepartmentId]
   );
 
   return {

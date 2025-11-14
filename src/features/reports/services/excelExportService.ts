@@ -25,13 +25,20 @@ export function generateInstructorReportExcel(report: InstructorReport): void {
   XLSX.writeFile(workbook, fileName);
 }
 
+/**
+ * Builds the Excel filename for the instructor report.
+ *
+ * @param report - The instructor report data.
+ * @returns The formatted filename string.
+ */
 export function buildExcelFilename(report: InstructorReport): string {
   return `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.xlsx`;
 }
 
 /**
  * Builds the worksheet data as an array of arrays for export.
- * @param report The instructor report data.
+ *
+ * @param report - The instructor report data.
  * @returns Array of worksheet rows for Excel export.
  */
 function buildWorksheetData(report: InstructorReport): (string | number)[][] {

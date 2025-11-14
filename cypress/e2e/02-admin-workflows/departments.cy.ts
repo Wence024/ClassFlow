@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * Admin Workflow Test Suite - Department Management
- * Tests CRUD operations for departments
+ * Admin Workflow Test Suite - Department Management.
+ *
+ * Tests CRUD operations for departments.
  */
 describe('Admin: Department Management', () => {
   beforeEach(() => {

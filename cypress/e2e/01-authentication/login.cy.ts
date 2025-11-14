@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * Authentication Test Suite - Login Workflows
- * Tests all login scenarios including happy paths, error cases, and edge cases
+ * Authentication Test Suite - Login Workflows.
+ *
+ * Tests all login scenarios including happy paths, error cases, and edge cases.
  */
 describe('Authentication: Login', () => {
   beforeEach(() => {
