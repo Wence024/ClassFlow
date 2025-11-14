@@ -69,15 +69,45 @@ export default function UserInfo() {
           </div>
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-40 p-2 space-y-1">
-        <Link to="/profile" className="block">
-          <Button variant="secondary" className="w-full justify-start">
-            My Profile
+      <PopoverContent align="end" className="w-72 p-0">
+        {/* User Info Header */}
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-base font-semibold flex-shrink-0"
+              aria-hidden="true"
+            >
+              {initials}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate">
+                {user?.name || 'User'}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {formattedRole}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="p-2 space-y-1">
+          <Link to="/profile" className="block">
+            <Button variant="ghost" className="w-full justify-start">
+              My Profile
+            </Button>
+          </Link>
+          <Button
+            variant="ghost"
+            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={logout}
+          >
+            Logout
           </Button>
-        </Link>
-        <Button variant="destructive" className="w-full justify-start" onClick={logout}>
-          Logout
-        </Button>
+        </div>
       </PopoverContent>
     </Popover>
   );
