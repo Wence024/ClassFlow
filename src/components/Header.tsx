@@ -4,7 +4,7 @@
  */
 import { Link } from 'react-router-dom';
 import { PanelLeftClose, Menu } from 'lucide-react';
-import UserAvatar from './UserAvatar';
+import UserInfo from './UserInfo';
 import RequestNotifications from './RequestNotifications';
 import PendingRequestsNotification from './PendingRequestsNotification';
 import PendingRequestsPanel from './PendingRequestsPanel';
@@ -50,7 +50,7 @@ const Header = () => {
             <PendingRequestsPanel />
             <PendingRequestsNotification />
             <RequestNotifications />
-            <UserAvatar />
+            <UserInfo />
           </div>
         </div>
       </div>
