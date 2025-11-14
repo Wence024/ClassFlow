@@ -13,6 +13,9 @@ import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
 import { ViewSelector } from '../components/ViewSelector';
 import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
 import { supabase } from '../../../lib/supabase';
+import { useAuth } from '../../auth/hooks/useAuth';
+import { useDepartmentId } from '../../auth/hooks/useDepartmentId';
+import { usePrograms } from '../../programs/hooks/usePrograms';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
@@ -35,6 +38,9 @@ interface TooltipState {
  * @returns The rendered Timetable page component.
  */
 const TimetablePage: React.FC = () => {
+  const { user } = useAuth();
+  const userDepartmentId = useDepartmentId();
+  const { listQuery: programsQuery } = usePrograms();
   const { viewMode, setViewMode } = useTimetableViewMode();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -257,6 +263,7 @@ const TimetablePage: React.FC = () => {
 
   // Memoized calculation for the sessions to show in the drawer.
   // Use DB assignments (source of truth) instead of view-dependent grid.
+  // Filter by program/department based on user role.
   const unassignedClassSessions = useMemo(() => {
     const assignedIds = new Set<string>();
 
@@ -267,10 +274,25 @@ const TimetablePage: React.FC = () => {
       }
     }
 
-    const allUnassigned = allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
+    let filtered = allClassSessions.filter((cs: ClassSession) => !assignedIds.has(cs.id));
+
+    // Filter by program ownership for non-admins (drawer scoping)
+    if (user && user.role !== 'admin') {
+      if (user.role === 'program_head' && user.program_id) {
+        // Program heads: only their program's sessions
+        filtered = filtered.filter((cs) => cs.program_id === user.program_id);
+      } else if (user.role === 'department_head' && userDepartmentId) {
+        // Department heads: sessions from programs in their department
+        const programs = programsQuery.data || [];
+        const departmentProgramIds = new Set(
+          programs.filter((p) => p.department_id === userDepartmentId).map((p) => p.id)
+        );
+        filtered = filtered.filter((cs) => cs.program_id && departmentProgramIds.has(cs.program_id));
+      }
+    }
 
     // Defensive filtering to prevent crashes from orphaned data
-    const validUnassigned = allUnassigned.filter((session) => {
+    const validUnassigned = filtered.filter((session) => {
       if (!session.course || !session.group) {
         console.warn(
           'Filtered out an invalid class session with missing course or group data. Session ID:',
@@ -282,7 +304,7 @@ const TimetablePage: React.FC = () => {
     });
 
     return validUnassigned;
-  }, [assignments, allClassSessions]);
+  }, [assignments, allClassSessions, user, userDepartmentId, programsQuery.data]);
 
   const drawerClassSessions = unassignedClassSessions.map((cs: ClassSession) => ({
     id: cs.id,
