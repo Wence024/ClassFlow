@@ -93,7 +93,14 @@ function App() {
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
-              <Toaster />
+              <Toaster 
+                position="top-center"
+                expand={false}
+                richColors
+                closeButton
+                visibleToasts={3}
+                offset="20px"
+              />
             </TooltipProvider>
           </RealtimeProvider>
         </AuthProvider>
