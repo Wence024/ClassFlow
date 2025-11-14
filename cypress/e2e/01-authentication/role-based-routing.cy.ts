@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * Authentication Test Suite - Role-Based Routing
- * Tests access control and route permissions for different user roles
+ * Authentication Test Suite - Role-Based Routing.
+ *
+ * Tests access control and route permissions for different user roles.
  */
 describe('Authentication: Role-Based Routing', () => {
   

@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * Authentication Test Suite - Logout Workflows
- * Tests logout functionality and session clearing
+ * Authentication Test Suite - Logout Workflows.
+ *
+ * Tests logout functionality and session clearing.
  */
 describe('Authentication: Logout', () => {
   beforeEach(() => {

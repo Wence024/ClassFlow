@@ -25,13 +25,14 @@ describe('Move Confirmed Cross-Department Session Workflow', () => {
       id: 'session-1',
       instructor: {
         id: 'instructor-1',
-        department_id: 'dept-business', // Different from program's dept
+        department_id: 'dept-business', // Different from user's dept
       },
       program_id: 'program-cs',
     };
 
+    const userDepartmentId = 'dept-cs'; // User's department
     const isCurrentlyConfirmed = mockAssignment.status === 'confirmed';
-    const hasCrossDeptResource = mockSession.instructor.department_id !== 'dept-cs';
+    const hasCrossDeptResource = mockSession.instructor.department_id !== userDepartmentId;
 
     expect(isCurrentlyConfirmed && hasCrossDeptResource).toBe(true);
   });

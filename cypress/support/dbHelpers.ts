@@ -16,6 +16,11 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
  * Creates a test department and returns its ID.
+ *
+ * @param data - Department data object.
+ * @param data.name - The department name.
+ * @param data.code - The department code.
+ * @returns Promise resolving to the created department ID.
  */
 export const createTestDepartment = async (data: { name: string; code: string }) => {
   const { data: dept, error } = await supabase
@@ -30,6 +35,12 @@ export const createTestDepartment = async (data: { name: string; code: string })
 
 /**
  * Creates a test program and returns its ID.
+ *
+ * @param data - Program data object.
+ * @param data.name - The program name.
+ * @param data.code - The program code.
+ * @param data.department_id - The department ID to associate with.
+ * @returns Promise resolving to the created program ID.
  */
 export const createTestProgram = async (data: {
   name: string;
@@ -48,6 +59,15 @@ export const createTestProgram = async (data: {
 
 /**
  * Creates a test user via Supabase auth and profile.
+ *
+ * @param data - User data object.
+ * @param data.email - The user email.
+ * @param data.password - The user password.
+ * @param data.name - The user's full name.
+ * @param data.role - The user's role.
+ * @param data.department_id - Optional department ID assignment.
+ * @param data.program_id - Optional program ID assignment.
+ * @returns Promise resolving to the created user object with ID.
  */
 export const createTestUser = async (data: {
   email: string;
@@ -86,6 +106,10 @@ export const cleanupTestData = async () => {
 
 /**
  * Gets a specific resource by ID.
+ *
+ * @param table - The table name to query.
+ * @param id - The resource ID to fetch.
+ * @returns Promise resolving to the resource data.
  */
 export const getResourceById = async (table: string, id: string) => {
   const { data, error } = await supabase.from(table).select('*').eq('id', id).single();
@@ -95,6 +119,10 @@ export const getResourceById = async (table: string, id: string) => {
 
 /**
  * Checks if a resource exists.
+ *
+ * @param table - The table name to check.
+ * @param id - The resource ID to verify.
+ * @returns Promise resolving to true if the resource exists, false otherwise.
  */
 export const resourceExists = async (table: string, id: string): Promise<boolean> => {
   const { data } = await supabase.from(table).select('id').eq('id', id).maybeSingle();
@@ -103,6 +131,10 @@ export const resourceExists = async (table: string, id: string): Promise<boolean
 
 /**
  * Backs up production data before tests (optional safety measure).
+ *
+ * @param table - The table name to back up.
+ * @param filter - Optional filter criteria as key-value pairs.
+ * @returns Promise resolving to the backed up data array.
  */
 export const backupProductionData = async (table: string, filter?: Record<string, unknown>) => {
   let query = supabase.from(table).select('*');
@@ -122,6 +154,10 @@ export const backupProductionData = async (table: string, filter?: Record<string
 
 /**
  * Restores production data after tests.
+ *
+ * @param table - The table name to restore data to.
+ * @param data - The data array to restore.
+ * @returns Promise that resolves when restoration is complete.
  */
 export const restoreProductionData = async (table: string, data: unknown[]) => {
   if (!data || data.length === 0) return;

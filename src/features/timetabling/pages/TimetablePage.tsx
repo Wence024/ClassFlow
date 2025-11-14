@@ -187,7 +187,7 @@ const TimetablePage: React.FC = () => {
     localStorage.removeItem('pendingCrossDeptSession');
   }, [searchParams]);
 
-  const dnd = useTimetableDnd(allClassSessions, viewMode, assignments, {
+  const dnd = useTimetableDnd(allClassSessions, viewMode, userDepartmentId, assignments, {
     pendingSessionId: pendingSessionId || undefined,
     resourceType: resourceType || undefined,
     resourceId: resourceId || undefined,

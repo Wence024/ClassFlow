@@ -23,8 +23,8 @@ describe('Remove to Drawer Workflow', () => {
       program_id: 'program-cs',
     };
 
-    const userProgramDepartment = 'dept-cs';
-    const hasCrossDeptResource = mockSession.instructor.department_id !== userProgramDepartment;
+    const userDepartmentId = 'dept-cs'; // User's department
+    const hasCrossDeptResource = mockSession.instructor.department_id !== userDepartmentId;
 
     expect(hasCrossDeptResource).toBe(true);
   });

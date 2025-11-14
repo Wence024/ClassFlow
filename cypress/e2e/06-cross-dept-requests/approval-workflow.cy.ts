@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * Cross-Department Request Test Suite - Approval Workflow
- * Tests the complete approval workflow from department head perspective
+ * Cross-Department Request Test Suite - Approval Workflow.
+ *
+ * Tests the complete approval workflow from department head perspective.
  */
 describe('Cross-Dept Requests: Approval Workflow', () => {
   
@@ -68,15 +69,7 @@ describe('Cross-Dept Requests: Approval Workflow', () => {
       cy.get('[data-cy^="reject-request-button"]').first().then($btn => {
         if ($btn.length > 0) {
           cy.wrap($btn).click();
-          
-          // Rejection dialog should open
-          cy.get('[role="dialog"]').within(() => {
-            // Try to submit without message
-            cy.contains('button', /reject/i).click();
-            
-            // Should show validation error
-            cy.contains(/required|message/i).should('be.visible');
-          });
+          verifyRejectionDialogRequiresMessage();
         }
       });
     });
@@ -85,17 +78,7 @@ describe('Cross-Dept Requests: Approval Workflow', () => {
       cy.get('[data-cy^="reject-request-button"]').first().then($btn => {
         if ($btn.length > 0) {
           cy.wrap($btn).click();
-          
-          cy.get('[role="dialog"]').within(() => {
-            // Fill rejection message
-            cy.get('textarea').type('Resource is unavailable at this time');
-            
-            // Submit rejection
-            cy.contains('button', /reject/i).click();
-          });
-          
-          // Verify rejection
-          cy.contains(/rejected|success/i).should('be.visible');
+          submitRejectionWithMessage('Resource is unavailable at this time');
         }
       });
     });
@@ -115,3 +98,26 @@ describe('Cross-Dept Requests: Approval Workflow', () => {
     });
   });
 });
+
+/**
+ * Helper function to verify rejection dialog requires a message.
+ */
+function verifyRejectionDialogRequiresMessage() {
+  cy.get('[role="dialog"]').within(() => {
+    cy.contains('button', /reject/i).click();
+    cy.contains(/required|message/i).should('be.visible');
+  });
+}
+
+/**
+ * Helper function to submit rejection with a message.
+ *
+ * @param message - The rejection message to submit.
+ */
+function submitRejectionWithMessage(message: string) {
+  cy.get('[role="dialog"]').within(() => {
+    cy.get('textarea').type(message);
+    cy.contains('button', /reject/i).click();
+  });
+  cy.contains(/rejected|success/i).should('be.visible');
+}

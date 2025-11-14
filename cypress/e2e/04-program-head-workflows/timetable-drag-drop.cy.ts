@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
 /**
- * Program Head Workflow Test Suite - Timetable Drag and Drop
- * Tests timetable interactions, drag-drop operations, and cross-department requests
+ * Program Head Workflow Test Suite - Timetable Drag and Drop.
+ *
+ * Tests timetable interactions, drag-drop operations, and cross-department requests.
  */
 describe('Program Head: Timetable Drag and Drop', () => {
   beforeEach(() => {

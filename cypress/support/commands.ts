@@ -54,6 +54,7 @@ afterEach(() => {
 });
 
 // Add the command to Cypress's global namespace for TypeScript support
+// eslint-disable-next-line @typescript-eslint/no-namespace -- Cypress augmentation pattern
 declare global {
   namespace Cypress {
     interface Chainable {
