@@ -212,20 +212,28 @@ describe('TimetablePage Integration Tests', () => {
     });
   });
 
-  it('should display unassigned class sessions from all programs in the drawer', async () => {
-    const unassignedOtherSession: ClassSession = {
+  it('should only display unassigned class sessions from the program head\'s program in the drawer', async () => {
+    const unassignedOwnSession: ClassSession = {
       ...mockOwnedSession,
       id: 's2',
-      program_id: MOCK_OTHER_PROGRAM_ID,
-      course: { ...mockOwnedSession.course, id: 'c2', name: 'Other Course' },
+      program_id: MOCK_PROGRAM_ID, // Same program
+      course: { ...mockOwnedSession.course, id: 'c2', name: 'Own Unassigned Course' },
+      group: mockMyGroup,
+    };
+
+    const unassignedOtherSession: ClassSession = {
+      ...mockOwnedSession,
+      id: 's3',
+      program_id: MOCK_OTHER_PROGRAM_ID, // Different program
+      course: { ...mockOwnedSession.course, id: 'c3', name: 'Other Course' },
       group: mockOtherGroup,
     };
 
-    // `mockOwnedSession` is assigned, `unassignedOtherSession` is not.
+    // `mockOwnedSession` is assigned, others are not
     useTimetableSpy.mockReturnValue({
       groups: [mockMyGroup, mockOtherGroup],
       timetable: new Map([['g1', [[mockOwnedSession]]]]),
-      assignments: [{ class_session: mockOwnedSession }], // Mock assignment for assigned session
+      assignments: [{ class_session: mockOwnedSession }],
       loading: false,
       error: null,
     } as ReturnType<typeof useTimetableHook.useTimetable>);
@@ -233,6 +241,7 @@ describe('TimetablePage Integration Tests', () => {
     // Mock the service that populates the drawer
     vi.spyOn(classSessionsService, 'getAllClassSessions').mockResolvedValue([
       mockOwnedSession,
+      unassignedOwnSession,
       unassignedOtherSession,
     ]);
 
@@ -243,8 +252,12 @@ describe('TimetablePage Integration Tests', () => {
 
     // The assigned session should NOT be in the drawer
     expect(screen.queryByText('Owned Course - My Group 1')).not.toBeInTheDocument();
-    // The unassigned session (even from another program) SHOULD be in the drawer
-    expect(screen.getByText('Other Course - Other Group 1')).toBeInTheDocument();
+    
+    // The unassigned session from the SAME program SHOULD be in the drawer
+    expect(screen.getByText('Own Unassigned Course - My Group 1')).toBeInTheDocument();
+    
+    // The unassigned session from OTHER program should NOT be in the drawer (filtered out)
+    expect(screen.queryByText('Other Course - Other Group 1')).not.toBeInTheDocument();
   });
 
   it('should not crash when dragging a session from the grid and dropping it on an empty cell', async () => {

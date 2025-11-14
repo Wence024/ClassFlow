@@ -129,6 +129,7 @@ const Timetable: React.FC<TimetableProps> = ({
 
   return (
     <div
+      data-cy="timetable-grid"
       className="bg-white rounded-lg shadow-sm border border-gray-200"
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -146,13 +147,13 @@ const Timetable: React.FC<TimetableProps> = ({
         )}
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full table-fixed border-collapse">
+        <table className="min-w-full table-fixed border-collapse" role="table" data-cy="timetable-table">
           <TimetableHeader
             dayHeaders={dayHeaders}
             timeHeaders={timeHeaders}
             periodsPerDay={periodsPerDay}
           />
-          <tbody>
+          <tbody data-cy="timetable-body">
             {/* Render the user's own department resources first */}
             {myResources.map((resource) => (
               <TimetableRow

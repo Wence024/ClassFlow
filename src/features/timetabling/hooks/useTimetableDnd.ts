@@ -96,7 +96,7 @@ const needsReapproval = (
   source: DragSource,
   classSessionToDrop: ClassSession,
   assignments: HydratedTimetableAssignment[] | undefined,
-  user: User | null
+  userDepartmentId: string | null
 ): boolean => {
   if (source.from !== 'timetable') {
     return false;
@@ -112,9 +112,9 @@ const needsReapproval = (
   const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
   const hasCrossDeptResource = Boolean(
     (classSessionToDrop.instructor.department_id &&
-      classSessionToDrop.instructor.department_id !== user?.program_id) ||
+      classSessionToDrop.instructor.department_id !== userDepartmentId) ||
       (classSessionToDrop.classroom.preferred_department_id &&
-        classSessionToDrop.classroom.preferred_department_id !== user?.program_id)
+        classSessionToDrop.classroom.preferred_department_id !== userDepartmentId)
   );
 
   return hasCrossDeptResource && isCurrentlyConfirmed;
@@ -127,6 +127,7 @@ const needsReapproval = (
  *
  * @param allClassSessions - All class sessions visible to the user (not just their own).
  * @param viewMode - The current timetable view mode for validation.
+ * @param userDepartmentId - The user's department ID for cross-department validation.
  * @param assignments - Current timetable assignments for checking confirmation status.
  * @param pendingPlacementInfo - Optional info about a session awaiting cross-dept placement.
  * @param pendingPlacementInfo.pendingSessionId - Pending session ID for placement.
@@ -139,6 +140,7 @@ const needsReapproval = (
 export const useTimetableDnd = (
   allClassSessions: ClassSession[],
   viewMode: TimetableViewMode = 'class-group',
+  userDepartmentId: string | null = null,
   assignments?: HydratedTimetableAssignment[],
   pendingPlacementInfo?: {
     pendingSessionId?: string;
@@ -404,7 +406,7 @@ export const useTimetableDnd = (
       const dbTargetGroupId =
         viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
 
-      if (onConfirmMove && needsReapproval(source, classSessionToDrop, assignments, user)) {
+      if (onConfirmMove && needsReapproval(source, classSessionToDrop, assignments, userDepartmentId)) {
         handleReapproval(
           source,
           classSessionToDrop,
@@ -440,6 +442,7 @@ export const useTimetableDnd = (
       allClassSessions,
       cleanupDragState,
       user,
+      userDepartmentId,
       viewMode,
       executeDropMutation,
       pendingPlacementInfo,
@@ -460,9 +463,9 @@ export const useTimetableDnd = (
         if (session && onConfirm) {
           const hasCrossDeptResource =
             (session.instructor.department_id &&
-              session.instructor.department_id !== user?.program_id) ||
+              session.instructor.department_id !== userDepartmentId) ||
             (session.classroom.preferred_department_id &&
-              session.classroom.preferred_department_id !== user?.program_id);
+              session.classroom.preferred_department_id !== userDepartmentId);
 
           if (hasCrossDeptResource) {
             onConfirm(async () => {
@@ -470,14 +473,14 @@ export const useTimetableDnd = (
                 '../../resourceRequests/services/resourceRequestService'
               );
               try {
+                // Cancel active requests and notify department head
                 await cancelActiveRequestsForClassSession(session.id);
+                await removeClassSession(source.class_group_id, source.period_index);
                 toast.success('Session removed and department head notified');
               } catch (err) {
                 console.error('Failed to cancel resource requests:', err);
-                toast.error('Failed to notify department head');
+                toast.error('Failed to remove session');
               }
-
-              await removeClassSession(source.class_group_id, source.period_index);
             });
             cleanupDragState();
             return;
@@ -489,7 +492,7 @@ export const useTimetableDnd = (
 
       cleanupDragState();
     },
-    [removeClassSession, cleanupDragState, allClassSessions, user]
+    [removeClassSession, cleanupDragState, allClassSessions, user, userDepartmentId]
   );
 
   return {

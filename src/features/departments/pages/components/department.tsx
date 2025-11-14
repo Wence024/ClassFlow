@@ -75,9 +75,9 @@ type DepartmentCardProps = {
  */
 export const DepartmentCard: React.FC<DepartmentCardProps> = ({ department, onEdit, onDelete }) => {
   return (
-    <Card className="p-4 flex items-center gap-2">
+    <Card className="p-4 flex items-center gap-2" data-testid="item-card">
       <div className="flex-1">
-        <div className="font-medium">{department.name}</div>
+        <h3 className="font-medium">{department.name}</h3>
         <div className="text-sm text-gray-500">{department.code}</div>
       </div>
       <Button variant="secondary" onClick={() => onEdit(department)}>

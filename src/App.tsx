@@ -6,6 +6,7 @@ import { AuthRoutes } from './routes/AuthRoutes';
 import { AuthProvider } from './features/auth/contexts/AuthProvider';
 import { RealtimeProvider } from './contexts/RealtimeProvider';
 import PrivateRoute from './features/auth/components/PrivateRoute';
+import RoleGuardedPage from './components/layout/RoleGuardedPage';
 import AppLayout from './components/layout/AppLayout';
 import ClassSessions from './features/classSessions/pages/ClassSessionsPage'; // Import pages here
 import TimetablePage from './features/timetabling/pages/TimetablePage';
@@ -14,8 +15,6 @@ import ScheduleConfigPage from './features/scheduleConfig/pages/ScheduleConfigPa
 import DepartmentManagementPage from './features/departments/pages/DepartmentManagementPage';
 import UserProfilePage from './features/auth/pages/UserProfilePage';
 import DepartmentHeadDashboard from './features/departments/pages/DepartmentHeadDashboard';
-import ProgramHeadInstructors from './features/classSessionComponents/pages/ProgramHeadInstructors';
-import ProgramHeadRequestPage from './features/resourceRequests/pages/ProgramHeadRequestPage';
 import ProgramManagementPage from './features/programs/pages/ProgramManagementPage';
 import UserManagementPage from './features/users/pages/UserManagementPage';
 import InstructorReportsPage from './features/reports/pages/InstructorReportsPage';
@@ -47,13 +46,46 @@ function App() {
                     <Route path="/class-sessions" element={<ClassSessions />} />
                     <Route path="/scheduler" element={<TimetablePage />} />
                     <Route path="/component-management" element={<ComponentManagement />} />
-                    <Route path="/schedule-configuration" element={<ScheduleConfigPage />} />
-                    <Route path="/departments" element={<DepartmentManagementPage />} />
-                    <Route path="/programs" element={<ProgramManagementPage />} />
-                    <Route path="/user-management" element={<UserManagementPage />} />
-                    <Route path="/department-head" element={<DepartmentHeadDashboard />} />
-                    <Route path="/browse/instructors" element={<ProgramHeadInstructors />} />
-                    <Route path="/requests/instructor" element={<ProgramHeadRequestPage />} />
+                    <Route 
+                      path="/schedule-configuration" 
+                      element={
+                        <RoleGuardedPage requiresAdmin>
+                          <ScheduleConfigPage />
+                        </RoleGuardedPage>
+                      } 
+                    />
+                    <Route 
+                      path="/departments" 
+                      element={
+                        <RoleGuardedPage requiresAdmin>
+                          <DepartmentManagementPage />
+                        </RoleGuardedPage>
+                      } 
+                    />
+                    <Route 
+                      path="/programs" 
+                      element={
+                        <RoleGuardedPage requiresAdmin>
+                          <ProgramManagementPage />
+                        </RoleGuardedPage>
+                      } 
+                    />
+                    <Route 
+                      path="/user-management" 
+                      element={
+                        <RoleGuardedPage requiresAdmin>
+                          <UserManagementPage />
+                        </RoleGuardedPage>
+                      } 
+                    />
+                    <Route 
+                      path="/department-head" 
+                      element={
+                        <RoleGuardedPage requiresDeptHead>
+                          <DepartmentHeadDashboard />
+                        </RoleGuardedPage>
+                      } 
+                    />
                     <Route path="/reports/instructors" element={<InstructorReportsPage />} />
                     <Route path="/profile" element={<UserProfilePage />} />
                   </Route>

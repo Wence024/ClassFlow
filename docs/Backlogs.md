@@ -55,17 +55,6 @@ Here is a rearranged, consolidated, and prioritized to-do list.
     * **Action:** In `Timetable.tsx`, use the `onDragOver` event to call the conflict detection logic and conditionally apply a class to the target cell for instant feedback.
 
 4. [x] **[Data Integrity] Restrict Invalid Timetabling Moves**
-5. **[RBAC/UI] Add protected navigation links**
-    * **Task:** Add nav links to `/department-head` and `/browse/instructors` for authorized roles only.
-    * **Status:** Pending
-
-6. **[UX] Improve ProgramHeadInstructors selection UX**
-    * **Task:** Replace generic `FormField` with `Select` component, add empty state guidance.
-    * **Status:** Pending
-
-7. **[Tests] Add integration tests for new pages**
-    * **Task:** Create tests for DepartmentHeadDashboard and ProgramHeadInstructors.
-    * **Status:** Pending
 
     * **Task:** `Timetabling: Restrict moving Class sessions to other unintended class groups`
     * **Action:** In the `onDropToGrid` handler within `useTimetableDnd.ts`, check if the dragged `ClassSession`'s `group.id` matches the target `groupId`. If they don't match, show a notification and abort the update.
@@ -144,9 +133,10 @@ Here is a rearranged, consolidated, and prioritized to-do list.
   * Majors vs general subjects
   * Teachers in program/department vs other programs/departments
 * [x] The prop drilling issue is very rampant for `timetable/index.tsx`. Perhaps a local context-based usage is effective on some of the variables.
-* [x] Major feature: multi-user workflow
+  * [x] Major feature: multi-user workflow
   * [x] Data models: user attributes as program head role and assigned workflow
   * [x] Prerequisite: Role access and admin schedule config controls
+  * [x] Browse/request instructor features consolidated into InstructorTab
 
 Refactor backlogs:
 

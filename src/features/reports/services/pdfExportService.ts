@@ -50,16 +50,23 @@ export function generateInstructorReportPDF(report: InstructorReport): void {
   doc.save(fileName);
 }
 
+/**
+ * Builds the PDF filename for the instructor report.
+ *
+ * @param report - The instructor report data.
+ * @returns The formatted filename string.
+ */
 export function buildPdfFilename(report: InstructorReport): string {
   return `${report.instructor.code || 'instructor'}_${report.semester.name.replace(/\s+/g, '_')}_Schedule.pdf`;
 }
 
 /**
  * Adds an elegant header section to the PDF report document.
- * @param doc The jsPDF document.
- * @param report The instructor report for context.
- * @param primaryColor RGB tuple main header bg.
- * @param darkGray RGB text color.
+ *
+ * @param doc - The jsPDF document.
+ * @param report - The instructor report for context.
+ * @param primaryColor - RGB tuple main header bg.
+ * @param darkGray - RGB text color.
  */
 function addHeaderSection(
   doc: jsPDF,

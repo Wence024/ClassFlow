@@ -49,7 +49,7 @@ export async function getInstructors(params?: {
  * **Use this for:**
  * - ClassSessionForm (selecting instructors for class sessions)
  * - TimetablePage (drag-and-drop instructor assignment)
- * - ProgramHeadInstructors (browsing all instructors by department)
+ * - InstructorTab (browsing all instructors - read-only for program heads)
  * - Any interface where users need to SELECT from all available instructors.
  *
  * **Key differences from `getInstructors()`:**
