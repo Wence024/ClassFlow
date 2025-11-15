@@ -1,4 +1,3 @@
-import { Clock, RefreshCw } from 'lucide-react';
 import React, { useMemo, type JSX } from 'react';
 import { LoadingSpinner } from '../../../../../components/ui';
 import type { ClassGroup, Classroom, Instructor } from '../../../../classSessionComponents/types';
@@ -18,7 +17,6 @@ interface TimetableProps {
   groups: ClassGroup[];
   resources: TimetableRowResource[];
   timetable: Map<string, (ClassSession[] | null)[]>;
-  isLoading: boolean;
 }
 
 /**
@@ -41,7 +39,6 @@ const Timetable: React.FC<TimetableProps> = ({
   groups,
   resources,
   timetable,
-  isLoading,
 }: TimetableProps): JSX.Element => {
   const { user } = useAuth();
   const userDepartmentId = useDepartmentId();
@@ -134,19 +131,7 @@ const Timetable: React.FC<TimetableProps> = ({
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
     >
-      <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-          <Clock className="w-5 h-5" />
-          Timetable Grid
-        </h3>
-        {isLoading && (
-          <div className="flex items-center gap-2 text-sm text-gray-500 animate-pulse">
-            <RefreshCw className="w-4 h-4 animate-spin" />
-            <span>Syncing...</span>
-          </div>
-        )}
-      </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[calc(100vh-300px)]">
         <table className="min-w-full table-fixed border-collapse" role="table" data-cy="timetable-table">
           <TimetableHeader
             dayHeaders={dayHeaders}

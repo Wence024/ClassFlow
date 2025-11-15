@@ -370,7 +370,6 @@ const TimetablePage: React.FC = () => {
               groups={groups}
               resources={resources}
               timetable={timetable}
-              isLoading={isInitialLoading}
             />
             <Drawer
               drawerClassSessions={drawerClassSessions}

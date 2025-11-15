@@ -48,10 +48,10 @@ const TimetableHeader: React.FC<TimetableHeaderProps> = ({
   };
 
   return (
-    <thead className="sticky top-0 z-20 bg-gray-50">
+    <thead className="sticky top-[48px] z-30 bg-gray-50">
       {/* Day Headers */}
       <tr>
-        <th className="p-1 text-left text-xs font-medium text-gray-500 min-w-[120px] sticky left-0 bg-gray-50 z-30">
+        <th className="p-1 pb-2 text-center text-xs font-medium text-gray-500 min-w-[120px] sticky left-0 bg-gray-50 z-30">
           Group
         </th>
         {dayHeaders.map((day, dayIndex) => (

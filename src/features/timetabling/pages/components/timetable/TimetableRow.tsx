@@ -7,6 +7,16 @@ import EmptyCell from './EmptyCell';
 import SessionCell from './SessionCell';
 
 /**
+ * Z-index hierarchy for timetable components:
+ * - Toolbar (sticky top): z-40
+ * - Column headers (sticky top): z-30 (thead and left corner cell)
+ * - Row headers (sticky left): z-20
+ * - Session warnings: z-20
+ * - Session pending badges: z-30
+ * - Session content: z-10
+ */
+
+/**
  * Determines if a period is the last period in a day.
  *
  * @param periodIndex - The index of the period.
@@ -225,7 +235,7 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
 
   return (
     <tr className="border-b border-gray-200">
-      <td className="p-2 text-sm font-medium text-gray-800 border-r border-gray-200 sticky left-0 bg-white z-10 min-w-[120px]">
+      <td className="p-2 text-sm font-medium text-gray-800 border-r border-gray-200 sticky left-0 bg-white z-20 min-w-[120px]">
         {resourceLabel}
       </td>
       {cells}
