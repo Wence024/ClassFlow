@@ -258,7 +258,7 @@ const ClassSessionsPage: React.FC = () => {
     try {
       await updateClassSession(editingSession.id, data);
       setEditingSession(null);
-      toast('Success', { description: 'Class session updated successfully!' });
+      toast.success('Class session updated successfully!');
     } catch (error) {
       console.error('Error updating class session:', error);
       toast.error('Failed to update class session');
@@ -273,7 +273,7 @@ const ClassSessionsPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (!sessionToDelete) return;
     await removeClassSession(sessionToDelete.id);
-    toast('Success', { description: 'Class session removed successfully.' });
+    toast.success('Class session removed successfully.');
     setSessionToDelete(null);
     if (editingSession?.id === sessionToDelete.id) {
       setEditingSession(null);

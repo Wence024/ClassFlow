@@ -130,9 +130,7 @@ const CourseManagement: React.FC = () => {
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
     if (!user.program_id) {
-      toast.error('Program assignment required', {
-        description: 'You must be assigned to a program before creating courses.',
-      });
+      toast.error('You must be assigned to a program before creating courses.');
       return;
     }
     try {
@@ -158,7 +156,7 @@ const CourseManagement: React.FC = () => {
     if (!editingCourse) return;
     await updateCourse(editingCourse.id, data);
     setEditingCourse(null);
-    toast('Success', { description: 'Course updated successfully!' });
+    toast.success('Course updated successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -174,14 +172,12 @@ const CourseManagement: React.FC = () => {
     if (!courseToDelete) return;
     const isUsed = classSessions.some((session) => session.course?.id === courseToDelete.id);
     if (isUsed) {
-      toast('Error', {
-        description: `Cannot delete "${courseToDelete.name}". It is used in one or more classes.`,
-      });
+      toast.error(`Cannot delete "${courseToDelete.name}". It is used in one or more classes.`);
       setCourseToDelete(null);
       return;
     }
     await removeCourse(courseToDelete.id);
-    toast('Success', { description: 'Course removed successfully.' });
+    toast.success('Course removed successfully.');
     setCourseToDelete(null);
     if (editingCourse?.id === courseToDelete.id) {
       setEditingCourse(null);

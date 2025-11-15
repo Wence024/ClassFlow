@@ -21,7 +21,7 @@ const parseDragData = (e: React.DragEvent): DragSource | null => {
     return JSON.parse(rawData);
   } catch (err) {
     console.error('[TimetableDnd] Failed to parse drag data', err);
-    toast('Error', { description: 'Invalid drag data' });
+    toast.error('Invalid drag data');
     return null;
   }
 };
@@ -69,12 +69,12 @@ const validateDrop = (
   const classSessionToDrop = allClassSessions.find((cs) => cs.id === source.class_session_id);
 
   if (!classSessionToDrop) {
-    toast('Error', { description: 'Could not find the class session to drop.' });
+    toast.error('Could not find the class session to drop.');
     return [null, null];
   }
 
   if (source.from === 'timetable' && classSessionToDrop.program_id !== user?.program_id) {
-    toast('Error', { description: 'You can only move sessions that belong to your own program.' });
+    toast.error('You can only move sessions that belong to your own program.');
     return [null, null];
   }
 
@@ -85,7 +85,7 @@ const validateDrop = (
     targetClassGroupId
   );
   if (resourceMismatchError) {
-    toast('Move Restricted', { description: resourceMismatchError });
+    toast.warning(resourceMismatchError);
     return [null, null];
   }
 
@@ -367,11 +367,11 @@ export const useTimetableDnd = (
             targetPeriodIndex
           );
           if (error) {
-            toast('Error', { description: error });
+            toast.error(error);
           }
         } catch (err) {
           const errorMsg = err instanceof Error ? err.message : String(err);
-          toast('Error', { description: errorMsg });
+          toast.error(errorMsg);
         } finally {
           cleanupDragState();
         }
@@ -427,13 +427,13 @@ export const useTimetableDnd = (
           targetPeriodIndex
         );
         if (error) {
-          toast('Error', { description: error });
+          toast.error(error);
         } else if (isPendingPlacement) {
           await handlePendingPlacement(classSessionToDrop);
         }
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
-        toast('Error', { description: errorMsg });
+        toast.error(errorMsg);
       } finally {
         cleanupDragState();
       }

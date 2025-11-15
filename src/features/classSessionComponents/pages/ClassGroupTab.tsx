@@ -76,7 +76,7 @@ const ClassGroupManagement: React.FC = () => {
     if (!user) return;
     await addClassGroup(data);
     formMethods.reset();
-    toast('Success', { description: 'Class group created successfully!' });
+    toast.success('Class group created successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -84,7 +84,7 @@ const ClassGroupManagement: React.FC = () => {
     if (!editingGroup) return;
     await updateClassGroup(editingGroup.id, data);
     setEditingGroup(null);
-    toast('Success', { description: 'Class group updated successfully!' });
+    toast.success('Class group updated successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -100,14 +100,12 @@ const ClassGroupManagement: React.FC = () => {
     if (!groupToDelete) return;
     const isUsed = classSessions.some((session) => session.group?.id === groupToDelete.id);
     if (isUsed) {
-      toast('Error', {
-        description: `Cannot delete "${groupToDelete.name}". It is used in one or more classes.`,
-      });
+      toast.error(`Cannot delete "${groupToDelete.name}". It is used in one or more classes.`);
       setGroupToDelete(null);
       return;
     }
     await removeClassGroup(groupToDelete.id);
-    toast('Success', { description: 'Class group removed successfully.' });
+    toast.success('Class group removed successfully.');
     setGroupToDelete(null);
     if (editingGroup?.id === groupToDelete.id) {
       setEditingGroup(null);
