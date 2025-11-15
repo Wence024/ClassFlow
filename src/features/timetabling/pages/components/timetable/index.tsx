@@ -131,12 +131,13 @@ const Timetable: React.FC<TimetableProps> = ({
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
     >
-      <div className="overflow-auto max-h-[calc(100vh-300px)]">
+      <div className="overflow-auto">
         <table className="min-w-full table-fixed border-collapse" role="table" data-cy="timetable-table">
           <TimetableHeader
             dayHeaders={dayHeaders}
             timeHeaders={timeHeaders}
             periodsPerDay={periodsPerDay}
+            viewMode={viewMode}
           />
           <tbody data-cy="timetable-body">
             {/* Render the user's own department resources first */}
