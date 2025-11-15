@@ -435,7 +435,7 @@ describe('Timetable - Resource Filtering', () => {
       expect(screen.getByText('Loading configuration...')).toBeInTheDocument();
     });
 
-    it('should show syncing indicator when timetable is loading', async () => {
+    it('should render without errors when timetable is loading', async () => {
       vi.spyOn(useDepartmentIdHook, 'useDepartmentId').mockReturnValue('dept-1');
 
       const authContext: Partial<AuthContextType> = {
@@ -462,8 +462,10 @@ describe('Timetable - Resource Filtering', () => {
         mockTimetableContext
       );
 
+      // The sync indicator is now in the Header component, not in Timetable
+      // This test just verifies the component renders without errors during loading
       await waitFor(() => {
-        expect(screen.getByText('Syncing...')).toBeInTheDocument();
+        expect(screen.queryByRole('table')).toBeInTheDocument();
       });
     });
   });
