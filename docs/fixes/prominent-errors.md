@@ -1,12 +1,24 @@
 # Prominent Error Toast Messages with Rich Colors
 
 ## Issue
-Error toast messages were appearing in the default bottom-right position, which made them easy to miss during workflows, especially in the timetabling interface where users need immediate feedback on conflicts or errors. Additionally, the custom Sonner component styling was **completely overriding** the `richColors` feature by applying `bg-background` and other Tailwind classes that prevented Sonner's inline color styles from showing through.
+Error toast messages were appearing in the default bottom-right position, which made them easy to miss during workflows, especially in the timetabling interface where users need immediate feedback on conflicts or errors. Additionally, there were **two critical issues** preventing rich colors from displaying:
+
+1. **Missing Sonner CSS import** - The Sonner library's stylesheet was not being imported, which provides the base styles for `richColors` feature
+2. **Custom styling overrides** - The custom Sonner component styling was applying `bg-background` and other Tailwind classes that completely overrode Sonner's inline color styles
 
 ## Solution
-Two-part fix to make error messages more prominent and visually distinct:
+Three-part fix to make error messages more prominent and visually distinct:
 
-### 1. Toaster Configuration (src/App.tsx)
+### 1. Import Sonner Styles (src/main.tsx) ⭐ CRITICAL
+Added the required Sonner CSS import at the top of the application entry point:
+
+```tsx
+import 'sonner/dist/styles.css';
+```
+
+**Why this is critical:** Without this import, Sonner's built-in `richColors` feature cannot apply colored backgrounds. The library relies on its own CSS to handle the visual styling for different toast types (error, success, warning, info).
+
+### 2. Toaster Configuration (src/App.tsx)
 Updated the Sonner `Toaster` component configuration to make error messages more prominent while minimizing workflow interruption.
 
 ### Configuration Changes
@@ -29,7 +41,7 @@ Updated the Sonner `Toaster` component configuration to make error messages more
 - **`visibleToasts={3}`**: Limits the number of stacked toasts to prevent screen clutter
 - **`offset="20px"`**: Adds spacing from the top edge for better positioning
 
-### 2. Sonner Component Styling Fix (src/components/ui/sonner.tsx)
+### 3. Sonner Component Styling Fix (src/components/ui/sonner.tsx)
 **Root Cause:** The `toastOptions.classNames` configuration was applying Tailwind utility classes that **completely overrode** Sonner's inline styles for rich colors. The `bg-background`, `text-foreground`, and other classes prevented the colored backgrounds from showing.
 
 **Solution:** Minimized the `classNames` configuration to only style elements that don't interfere with Sonner's built-in `richColors` feature.
@@ -109,6 +121,32 @@ Consider creating timetabling-specific toast helpers in `src/features/timetablin
 - Conflict-specific error messages with context
 - Important flag for critical errors that require immediate attention
 
+## Deep Dive: Investigation Results
+
+### CSS Override Search
+Searched all CSS files for potential conflicts with patterns:
+- `data-sonner-toast` selectors
+- `.toast` class definitions
+- `.toaster` class definitions
+
+**Result:** ✅ No CSS overrides found - clean slate for Sonner styles to apply
+
+### Tailwind Configuration
+Verified `tailwind.config.ts` uses proper HSL color definitions:
+- All semantic tokens properly defined with `hsl(var(--token-name))` format
+- No direct color values that could conflict
+- Design system follows best practices
+
+**Result:** ✅ Tailwind config is correctly structured with HSL colors
+
+### Toast Usage Analysis
+Scanned entire codebase for toast usage:
+- **55 toast calls** across **19 files**
+- Types used: `toast.error()`, `toast.success()`, `toast.warning()`, `toast.info()`
+- All follow consistent patterns - no custom styling overrides
+
+**Result:** ✅ All toast calls are standard and will automatically benefit from rich colors
+
 ## Troubleshooting
 
 If rich colors still don't appear after these changes:
@@ -134,5 +172,18 @@ If rich colors still don't appear after these changes:
 
 5. **Clear browser cache**: Sometimes cached CSS can interfere with style updates
 
-## Date Implemented
-2025-11-14
+## Files Modified
+
+### Core Changes
+1. **src/main.tsx** - Added Sonner CSS import
+2. **src/App.tsx** - Configured Toaster component with richColors
+3. **src/components/ui/sonner.tsx** - Removed conflicting Tailwind classes
+
+### Supporting Files
+4. **src/components/ui/tests/sonner.test.tsx** - Created comprehensive tests
+5. **docs/fixes/prominent-errors.md** - Documentation (this file)
+
+## Implementation Timeline
+- **Initial Implementation:** 2025-11-14
+- **CSS Import Fix:** 2025-11-15 (after discovering missing stylesheet)
+- **Final Verification:** 2025-11-15
