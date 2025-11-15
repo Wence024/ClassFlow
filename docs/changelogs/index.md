@@ -4,6 +4,10 @@
 
 ### Fixes
 - [Fix: Freeze Panes with UI Improvements](./fix-freeze-panes-ui-improvements.md) - 2025-11-15
+  - Fixed sticky headers by restructuring scroll container architecture
+  - Removed nested scroll containers that prevented proper sticky positioning
+  - Added dynamic corner labels based on view mode
+  - Improved header placement and visual consistency
 
 ---
 

@@ -356,7 +356,7 @@ const TimetablePage: React.FC = () => {
   return (
     <div className="relative flex flex-col h-full" data-cy="timetable-page">
       {tooltip && <CustomTooltip content={tooltip.content} position={tooltip.position} />}
-      <div className="flex-1 space-y-6 min-w-0 overflow-auto">
+      <div className="flex-1 space-y-6 min-w-0">
         <ViewSelector viewMode={viewMode} onViewModeChange={setViewMode} />
 
         {isInitialLoading ? (

@@ -127,12 +127,11 @@ const Timetable: React.FC<TimetableProps> = ({
   return (
     <div
       data-cy="timetable-grid"
-      className="bg-white rounded-lg shadow-sm border border-gray-200"
+      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto max-h-[calc(100vh-240px)]"
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
     >
-      <div className="overflow-auto">
-        <table className="min-w-full table-fixed border-collapse" role="table" data-cy="timetable-table">
+      <table className="min-w-full table-fixed border-collapse" role="table" data-cy="timetable-table">
           <TimetableHeader
             dayHeaders={dayHeaders}
             timeHeaders={timeHeaders}
@@ -201,7 +200,6 @@ const Timetable: React.FC<TimetableProps> = ({
             )}
           </tbody>
         </table>
-      </div>
     </div>
   );
 };
