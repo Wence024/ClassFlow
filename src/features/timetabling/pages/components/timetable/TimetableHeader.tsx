@@ -1,4 +1,5 @@
 import React from 'react';
+import type { TimetableViewMode } from '../../../types/timetable';
 
 /**
  * Props for the TimetableHeader component.
@@ -7,6 +8,7 @@ interface TimetableHeaderProps {
   dayHeaders: { label: string; date: string }[];
   timeHeaders: { label: string; start: string; end: string }[];
   periodsPerDay: number;
+  viewMode: TimetableViewMode;
 }
 
 /**
@@ -22,7 +24,18 @@ const TimetableHeader: React.FC<TimetableHeaderProps> = ({
   dayHeaders,
   timeHeaders,
   periodsPerDay,
+  viewMode,
 }) => {
+  const getCornerLabel = () => {
+    switch (viewMode) {
+      case 'classroom':
+        return 'Classroom';
+      case 'instructor':
+        return 'Instructor';
+      default:
+        return 'Group';
+    }
+  };
   /**
    * Renders the table header cells for time periods for a specific day.
    *
@@ -48,11 +61,14 @@ const TimetableHeader: React.FC<TimetableHeaderProps> = ({
   };
 
   return (
-    <thead className="sticky top-0 z-20 bg-gray-50">
+    <thead className="sticky top-0 z-30 bg-gray-50">
       {/* Day Headers */}
       <tr>
-        <th className="p-1 text-left text-xs font-medium text-gray-500 min-w-[120px] sticky left-0 bg-gray-50 z-30">
-          Group
+        <th 
+          rowSpan={2}
+          className="p-1 text-center text-xs font-medium text-gray-500 min-w-[120px] sticky left-0 bg-gray-50 z-30 align-middle border-r border-gray-200"
+        >
+          {getCornerLabel()}
         </th>
         {dayHeaders.map((day, dayIndex) => (
           <th
@@ -68,7 +84,6 @@ const TimetableHeader: React.FC<TimetableHeaderProps> = ({
       </tr>
       {/* Time Headers */}
       <tr>
-        <th className="p-1 text-xs font-medium text-gray-500 min-w-[120px] sticky left-0 bg-gray-50 z-30" />
         {dayHeaders.map((_, dayIndex) => renderTimeHeaders(dayIndex))}
       </tr>
     </thead>
