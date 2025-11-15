@@ -258,7 +258,7 @@ const ClassSessionsPage: React.FC = () => {
     try {
       await updateClassSession(editingSession.id, data);
       setEditingSession(null);
-      toast('Success', { description: 'Class session updated successfully!' });
+      toast.success('Class session updated successfully!');
     } catch (error) {
       console.error('Error updating class session:', error);
       toast.error('Failed to update class session');

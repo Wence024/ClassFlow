@@ -172,14 +172,12 @@ const CourseManagement: React.FC = () => {
     if (!courseToDelete) return;
     const isUsed = classSessions.some((session) => session.course?.id === courseToDelete.id);
     if (isUsed) {
-      toast('Error', {
-        description: `Cannot delete "${courseToDelete.name}". It is used in one or more classes.`,
-      });
+      toast.error(`Cannot delete "${courseToDelete.name}". It is used in one or more classes.`);
       setCourseToDelete(null);
       return;
     }
     await removeCourse(courseToDelete.id);
-    toast('Success', { description: 'Course removed successfully.' });
+    toast.success('Course removed successfully.');
     setCourseToDelete(null);
     if (editingCourse?.id === courseToDelete.id) {
       setEditingCourse(null);
