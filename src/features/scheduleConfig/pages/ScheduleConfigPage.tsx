@@ -51,15 +51,15 @@ const ScheduleConfigPage: React.FC = () => {
 
     try {
       await updateSettings(formData);
-      toast('Success', { description: 'Settings saved successfully!' });
+      toast.success('Settings saved successfully!');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred.';
 
       if (errorMessage.includes('Cannot save')) {
         setConflictError(errorMessage);
-        toast('Action Blocked', { description: 'Please resolve the conflicts shown on the page.' });
+        toast.warning('Please resolve the conflicts shown on the page.');
       } else {
-        toast('Error', { description: 'Failed to save settings.' });
+        toast.error('Failed to save settings.');
       }
     }
   };

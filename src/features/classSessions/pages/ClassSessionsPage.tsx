@@ -273,7 +273,7 @@ const ClassSessionsPage: React.FC = () => {
   const handleConfirmDelete = async () => {
     if (!sessionToDelete) return;
     await removeClassSession(sessionToDelete.id);
-    toast('Success', { description: 'Class session removed successfully.' });
+    toast.success('Class session removed successfully.');
     setSessionToDelete(null);
     if (editingSession?.id === sessionToDelete.id) {
       setEditingSession(null);

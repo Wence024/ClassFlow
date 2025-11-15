@@ -36,10 +36,10 @@ export default function UserProfilePage() {
   const onSave = async () => {
     try {
       await updateMyProfile({ name });
-      toast('Success', { description: 'Profile updated successfully.' });
+      toast.success('Profile updated successfully.');
     } catch (e) {
       console.error('Failed to update profile:', e);
-      toast('Error', { description: error || 'Failed to update profile.' });
+      toast.error(error || 'Failed to update profile.');
     }
   };
 

@@ -129,7 +129,7 @@ const InstructorManagement: React.FC = () => {
     if (!editingInstructor) return;
     await updateInstructor(editingInstructor.id, data);
     setEditingInstructor(null);
-    toast('Success', { description: 'Instructor updated successfully!' });
+    toast.success('Instructor updated successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -147,14 +147,14 @@ const InstructorManagement: React.FC = () => {
       (session) => session.instructor?.id === instructorToDelete.id
     );
     if (isUsed) {
-      toast('Error', {
-        description: `Cannot delete "${instructorToDelete.first_name} ${instructorToDelete.last_name}". They are assigned to one or more classes.`,
-      });
+      toast.error(
+        `Cannot delete "${instructorToDelete.first_name} ${instructorToDelete.last_name}". They are assigned to one or more classes.`
+      );
       setInstructorToDelete(null);
       return;
     }
     await removeInstructor(instructorToDelete.id);
-    toast('Success', { description: 'Instructor removed successfully.' });
+    toast.success('Instructor removed successfully.');
     setInstructorToDelete(null);
     if (editingInstructor?.id === instructorToDelete.id) {
       setEditingInstructor(null);

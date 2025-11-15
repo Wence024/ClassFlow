@@ -1,10 +1,11 @@
 # Prominent Error Toast Messages with Rich Colors
 
 ## Issue
-Error toast messages were appearing in the default bottom-right position, which made them easy to miss during workflows, especially in the timetabling interface where users need immediate feedback on conflicts or errors. Additionally, there were **two critical issues** preventing rich colors from displaying:
+Error toast messages were appearing in the default bottom-right position, which made them easy to miss during workflows, especially in the timetabling interface where users need immediate feedback on conflicts or errors. Additionally, there were **three critical issues** preventing rich colors from displaying:
 
 1. **Missing Sonner CSS import** - The Sonner library's stylesheet was not being imported, which provides the base styles for `richColors` feature
 2. **Custom styling overrides** - The custom Sonner component styling was applying `bg-background` and other Tailwind classes that completely overrode Sonner's inline color styles
+3. **Generic toast API usage** - 32 instances across 9 files were using the generic `toast('Title', { description: '...' })` API instead of type-specific methods like `toast.error()`, which is required for rich colors to work
 
 ## Solution
 Three-part fix to make error messages more prominent and visually distinct:

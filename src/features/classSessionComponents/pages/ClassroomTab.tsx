@@ -102,7 +102,7 @@ const ClassroomManagement: React.FC = () => {
       // created_by handled by DB; admin-only manage enforced by RLS
     } as ClassroomInsert);
     formMethods.reset();
-    toast('Success', { description: 'Classroom created successfully!' });
+    toast.success('Classroom created successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -110,7 +110,7 @@ const ClassroomManagement: React.FC = () => {
     if (!editingClassroom) return;
     await updateClassroom(editingClassroom.id, data);
     setEditingClassroom(null);
-    toast('Success', { description: 'Classroom updated successfully!' });
+    toast.success('Classroom updated successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
@@ -126,14 +126,14 @@ const ClassroomManagement: React.FC = () => {
     if (!classroomToDelete) return;
     const isUsed = classSessions.some((session) => session.classroom?.id === classroomToDelete.id);
     if (isUsed) {
-      toast('Error', {
-        description: `Cannot delete "${classroomToDelete.name}". It is used in one or more classes.`,
-      });
+      toast.error(
+        `Cannot delete "${classroomToDelete.name}". It is used in one or more classes.`
+      );
       setClassroomToDelete(null);
       return;
     }
     await removeClassroom(classroomToDelete.id);
-    toast('Success', { description: 'Classroom removed successfully.' });
+    toast.success('Classroom removed successfully.');
     setClassroomToDelete(null);
     if (editingClassroom?.id === classroomToDelete.id) {
       setEditingClassroom(null);

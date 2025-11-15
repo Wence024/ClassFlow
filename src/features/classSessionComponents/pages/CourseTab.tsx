@@ -130,9 +130,7 @@ const CourseManagement: React.FC = () => {
   const handleAdd = async (data: CourseFormData) => {
     if (!user) return;
     if (!user.program_id) {
-      toast.error('Program assignment required', {
-        description: 'You must be assigned to a program before creating courses.',
-      });
+      toast.error('You must be assigned to a program before creating courses.');
       return;
     }
     try {
@@ -158,7 +156,7 @@ const CourseManagement: React.FC = () => {
     if (!editingCourse) return;
     await updateCourse(editingCourse.id, data);
     setEditingCourse(null);
-    toast('Success', { description: 'Course updated successfully!' });
+    toast.success('Course updated successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
