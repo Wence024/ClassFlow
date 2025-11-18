@@ -26,4 +26,5 @@ jobs:
          BRANCH: build
          FOLDER: dist
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
          MESSAGE: "Build: ({sha}) {msg}"
