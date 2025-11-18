@@ -129,12 +129,12 @@ git commit -m "feat(db): add new table"
 ### Production Deployment (Hostinger)
 
 1. **Environment**: Production Supabase
-2. **Trigger**: Push to `main` branch
+2. **Trigger**: Push to `master` branch
 3. **Build Command**: `npm run build:prod` (Hostinger auto-build)
-4. **Domain**: Production domain (e.g., `classflow.edu.ph`)
+4. **Domain**: Production domain (e.g., `classflowapp.com`)
 
 **Hostinger Git Integration**:
-- Monitors `main` branch
+- Monitors `master` branch
 - Auto-builds on push
 - Reads `.env.production` from repository
 
@@ -256,7 +256,7 @@ VITE_APP_ENV=production
 - **Environment**: Staging
 
 **Production Branch** (Optional Mirror):
-- **Branch**: `main`
+- **Branch**: `master`
 - **Auto-Deploy**: Enabled
 - **Environment**: Production Preview
 
@@ -283,7 +283,7 @@ Vercel automatically reads environment variables from `.env.staging` during buil
 ### Step 2: Configure Git Repository
 
 1. **Repository URL**: Your Git repository (GitHub/GitLab)
-2. **Branch**: `main`
+2. **Branch**: `master`
 3. **Deploy Path**: `/public_html` (or your web root)
 4. **Build Command**: `npm run build:prod`
 5. **Output Directory**: `dist`
@@ -291,7 +291,7 @@ Vercel automatically reads environment variables from `.env.staging` during buil
 ### Step 3: Auto-Deploy Settings
 
 - **Auto-Deploy**: Enabled
-- **Trigger**: Push to `main` branch
+- **Trigger**: Push to `master` branch
 - **Environment**: Production
 
 **Build Process**:
