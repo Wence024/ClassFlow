@@ -1,18 +1,44 @@
+/**
+ * Primary Supabase client for the entire application.
+ * 
+ * This is the SINGLE SOURCE OF TRUTH for Supabase connections.
+ * Dynamically selects the correct Supabase project based on environment:
+ * - Development: dqsegqxnnhowqjxifhej.supabase.co
+ * - Staging: pnmzjmcfeekculqyirpr.supabase.co
+ * - Production: wkfgcroybuuefaulqsru.supabase.co
+ * 
+ * Environment is determined by VITE_APP_ENV variable in:
+ * - .env.development (default for `npm run dev`)
+ * - .env.staging (used by Vercel)
+ * - .env.production (used by Hostinger)
+ */
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './supabase.types'; // Assuming types are in the same lib folder
+import type { Database } from './supabase.types';
 
-const supabaseUrl = 'https://dqsegqxnnhowqjxifhej.supabase.co';
-const supabaseAnonKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc2VncXhubmhvd3FqeGlmaGVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzc1MzIsImV4cCI6MjA3NzgxMzUzMn0.hJKw731wyZHI8Py4LU0AgT2JKI5shenczB83jo4paT0';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const appEnv = import.meta.env.VITE_APP_ENV || 'development';
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+  throw new Error(
+    `Missing Supabase environment variables for ${appEnv} environment. ` +
+    `Please check your .env.${appEnv} file.`
+  );
 }
 
-// This is now the single, correctly configured client for the entire application.
+// Log environment info in non-production builds for debugging
+if (appEnv !== 'production') {
+  console.log(`[Supabase Client] Environment: ${appEnv}`);
+  console.log(`[Supabase Client] Project URL: ${supabaseUrl}`);
+}
+
+/**
+ * Single, environment-aware Supabase client instance.
+ * Use this client throughout the application via:
+ * `import { supabase } from '@/lib/supabase';`
+ */
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    // Use localStorage to persist the user's session (only in browser environment)
     storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
