@@ -5,6 +5,7 @@ import queryClient from './lib/reactQueryClient';
 import { AuthRoutes } from './routes/AuthRoutes';
 import { AuthProvider } from './features/auth/contexts/AuthProvider';
 import { RealtimeProvider } from './contexts/RealtimeProvider';
+import { EnvironmentIndicator } from './components/EnvironmentIndicator';
 import PrivateRoute from './features/auth/components/PrivateRoute';
 import RoleGuardedPage from './components/layout/RoleGuardedPage';
 import AppLayout from './components/layout/AppLayout';
@@ -101,6 +102,7 @@ function App() {
                 visibleToasts={3}
                 offset="20px"
               />
+              <EnvironmentIndicator />
             </TooltipProvider>
           </RealtimeProvider>
         </AuthProvider>
