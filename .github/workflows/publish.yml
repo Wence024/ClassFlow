@@ -1,23 +1,29 @@
 name: Deploy to Hostinger
+
 on:
  push:
    branches:
-     - main
+     - master
+
 jobs:
  build:
    runs-on: ubuntu-latest
+
    steps:
      - name: Checkout code
        uses: actions/checkout@v3
+
      - name: Install dependencies
        run: npm install
+
      - name: Build project
-       run: npm run build:prod
+       run: npm run build
+
      - name: Deploy to Hostinger
        uses: s0/git-publish-subdir-action@develop
        env:
          REPO: https://github.com/Wence024/ClassFlow/
-         BRANCH: master
-         FOLDER: /dist
+         BRANCH: build
+         FOLDER: dist
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          MESSAGE: "Build: ({sha}) {msg}"
