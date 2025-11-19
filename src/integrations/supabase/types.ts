@@ -58,7 +58,7 @@ export type Database = {
       class_sessions: {
         Row: {
           class_group_id: string
-          classroom_id: string
+          classroom_id: string | null
           course_id: string
           created_at: string | null
           id: string
@@ -69,7 +69,7 @@ export type Database = {
         }
         Insert: {
           class_group_id: string
-          classroom_id: string
+          classroom_id?: string | null
           course_id: string
           created_at?: string | null
           id?: string
@@ -80,7 +80,7 @@ export type Database = {
         }
         Update: {
           class_group_id?: string
-          classroom_id?: string
+          classroom_id?: string | null
           course_id?: string
           created_at?: string | null
           id?: string

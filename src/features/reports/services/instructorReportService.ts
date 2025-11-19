@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import type { InstructorReport, InstructorScheduleEntry } from '../types/instructorReport';
 import { getLoadConfig, calculateInstructorLoad } from './loadCalculationService';
 

@@ -12,7 +12,7 @@ import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useAllInstructors } from '@/features/classSessionComponents/hooks';
 import type { Instructor } from '@/features/classSessionComponents/types/instructor';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useInstructorReport } from '../hooks/useInstructorReport';
 import { useReportExport } from '../hooks/useReportExport';
 import { InstructorSchedulePreview } from '../components/InstructorSchedulePreview';

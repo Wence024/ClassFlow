@@ -3,14 +3,14 @@
  * 
  * This is the SINGLE SOURCE OF TRUTH for Supabase connections.
  * Dynamically selects the correct Supabase project based on environment:
- * - Development: dqsegqxnnhowqjxifhej.supabase.co
- * - Staging: pnmzjmcfeekculqyirpr.supabase.co
- * - Production: wkfgcroybuuefaulqsru.supabase.co
+ * - Development: wkfgcroybuuefaulqsru.supabase.co (Lovable/local dev)
+ * - Staging: pnmzjmcfeekculqyirpr.supabase.co (Vercel staging)
+ * - Production: dqsegqxnnhowqjxifhej.supabase.co (Hostinger production)
  * 
  * Environment is determined by VITE_APP_ENV variable in:
  * - .env.development (default for `npm run dev`)
  * - .env.staging (used by Vercel)
- * - .env.production (used by Hostinger)
+ * - .env.production (used by Hostinger via GitHub Actions)
  */
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './supabase.types';

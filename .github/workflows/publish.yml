@@ -16,8 +16,11 @@ jobs:
      - name: Install dependencies
        run: npm install
 
-     - name: Build project
-       run: npm run build
+      - name: Build project
+        run: npm run build:prod
+      
+      - name: Verify production build
+        run: node scripts/verify-build.js production
 
      - name: Deploy to Hostinger
        uses: s0/git-publish-subdir-action@develop
