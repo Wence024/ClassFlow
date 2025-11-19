@@ -59,7 +59,14 @@ Extracted all domain types to `src/types/`:
     * Multi-view mode support (class-group, classroom, instructor)
   - Demonstrates separation of complex business logic from presentation
   
-- ⏳ 2.3 Request Cross-Department Resource
+- ✅ 2.3 Request Cross-Department Resource (COMPLETED)
+  - Created vertical slice: `src/features/program-head/request-cross-dept-resource/`
+  - Encapsulates cross-department resource request workflow including:
+    * Resource eligibility checking via DB function
+    * Request confirmation modal
+    * Navigation to scheduler for assignment
+  - Separates cross-dept request logic from class session creation
+  
 - ⏳ 2.4 View Pending Requests
 - ⏳ 2.5 Manage Sessions
 
