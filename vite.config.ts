@@ -1,6 +1,27 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { writeFileSync } from 'fs';
+
+/**
+ * Vite plugin to generate build-info.json for production verification
+ */
+function buildInfoPlugin(env: Record<string, string>): Plugin {
+  return {
+    name: 'build-info-generator',
+    closeBundle() {
+      const buildInfo = {
+        env: env.VITE_APP_ENV || 'unknown',
+        supabaseProjectId: env.VITE_SUPABASE_PROJECT_ID || 'unknown',
+        buildTime: new Date().toISOString(),
+      };
+      
+      const distPath = path.resolve(__dirname, 'dist', 'build-info.json');
+      writeFileSync(distPath, JSON.stringify(buildInfo, null, 2));
+      console.log(`✅ Generated build-info.json: ${buildInfo.env} (${buildInfo.supabaseProjectId})`);
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
@@ -13,7 +34,7 @@ export default defineConfig(({ mode }) => {
   console.log(`[Vite Build] VITE_SUPABASE_URL: ${env.VITE_SUPABASE_URL?.substring(0, 40)}...`);
 
   return {
-    plugins: [react()],
+    plugins: [react(), buildInfoPlugin(env)],
     server: {
       host: '::',
       port: 8080,

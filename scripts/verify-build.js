@@ -1,11 +1,11 @@
 /**
- * Build verification script to ensure correct Supabase environment is embedded.
- * Run after build to validate the built files contain the expected project ID.
+ * Build verification script using build-info.json metadata file.
+ * Verifies that the correct Supabase environment was used during build.
  * 
  * Usage: node scripts/verify-build.js [environment]
  * Example: node scripts/verify-build.js production
  */
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -21,51 +21,48 @@ const expectedEnvs = {
 
 try {
   const distPath = join(__dirname, '..', 'dist');
+  const buildInfoPath = join(distPath, 'build-info.json');
   
   console.log(`\n🔍 Verifying build for environment: ${mode}`);
-  console.log(`📁 Checking: ${distPath}`);
+  console.log(`📁 Checking: ${buildInfoPath}`);
   
-  // Check if dist folder exists
-  const distFiles = readdirSync(distPath);
-  console.log(`📦 Found ${distFiles.length} files/folders in dist/`);
-
-  // Read all JS files from dist/assets
-  const assetsPath = join(distPath, 'assets');
-  let allBundleContent = '';
-
+  // Read build-info.json
+  let buildInfo;
   try {
-    const assetFiles = readdirSync(assetsPath);
-    const jsFiles = assetFiles.filter(f => f.endsWith('.js'));
-    
-    console.log(`📜 Checking ${jsFiles.length} JavaScript bundles...`);
-    
-    jsFiles.forEach(file => {
-      const filePath = join(assetsPath, file);
-      const content = readFileSync(filePath, 'utf-8');
-      allBundleContent += content;
-    });
+    const buildInfoContent = readFileSync(buildInfoPath, 'utf-8');
+    buildInfo = JSON.parse(buildInfoContent);
   } catch (err) {
-    console.error(`❌ Error reading bundle files: ${err.message}`);
+    console.error(`❌ Error reading build-info.json: ${err.message}`);
+    console.error(`\n💡 Troubleshooting steps:`);
+    console.error(`   1. Ensure build completed successfully`);
+    console.error(`   2. Check that vite.config.ts has buildInfoPlugin enabled`);
+    console.error(`   3. Rebuild: npm run build:${mode === 'production' ? 'prod' : mode}`);
     process.exit(1);
   }
+
+  console.log(`📦 Build Info:`);
+  console.log(`   Environment: ${buildInfo.env}`);
+  console.log(`   Project ID: ${buildInfo.supabaseProjectId}`);
+  console.log(`   Build Time: ${buildInfo.buildTime}`);
 
   const expectedProjectId = expectedEnvs[mode];
 
   if (!expectedProjectId) {
-    console.error(`❌ Unknown environment: ${mode}`);
+    console.error(`\n❌ Unknown environment: ${mode}`);
     console.error(`Valid environments: ${Object.keys(expectedEnvs).join(', ')}`);
     process.exit(1);
   }
 
-  // Check for the expected project ID in all bundles
-  if (!allBundleContent.includes(expectedProjectId)) {
+  // Verify the project ID matches
+  if (buildInfo.supabaseProjectId !== expectedProjectId) {
     console.error(`\n❌ Build verification failed!`);
     console.error(`Expected ${mode} to use project: ${expectedProjectId}`);
+    console.error(`Actually using project: ${buildInfo.supabaseProjectId}`);
     
-    // Check which project IDs are actually in the build
+    // Check which environment this project ID belongs to
     Object.entries(expectedEnvs).forEach(([env, projectId]) => {
-      if (allBundleContent.includes(projectId)) {
-        console.error(`⚠️  Found ${env} project ID instead: ${projectId}`);
+      if (buildInfo.supabaseProjectId === projectId) {
+        console.error(`⚠️  Build used ${env} environment instead of ${mode}`);
       }
     });
     
@@ -78,8 +75,14 @@ try {
     process.exit(1);
   }
 
-  console.log(`✅ Build verification passed for ${mode}`);
-  console.log(`✅ Using correct Supabase project: ${expectedProjectId}\n`);
+  // Verify environment name matches
+  if (buildInfo.env !== mode) {
+    console.warn(`⚠️  Warning: VITE_APP_ENV is "${buildInfo.env}" but expected "${mode}"`);
+  }
+
+  console.log(`\n✅ Build verification passed!`);
+  console.log(`✅ Environment: ${mode}`);
+  console.log(`✅ Project ID: ${expectedProjectId}\n`);
 } catch (error) {
   console.error(`\n❌ Build verification error: ${error.message}`);
   console.error(`Stack trace:`, error.stack);
