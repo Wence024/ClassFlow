@@ -13,17 +13,17 @@ jobs:
      - name: Checkout code
        uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm install
+     - name: Install dependencies
+       run: npm install
 
-      - name: Remove root .env file (if exists)
-        run: rm -f .env
+     - name: Remove root .env file (if exists)
+       run: rm -f .env
 
-      - name: Build project
-        run: npm run build:prod
+     - name: Build project
+       run: npm run build:prod
 
-      - name: Verify production build
-        run: node scripts/verify-build.js production
+     - name: Verify production build
+       run: node scripts/verify-build.js production
 
      - name: Deploy to Hostinger
        uses: s0/git-publish-subdir-action@develop
