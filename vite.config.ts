@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
       'import.meta.env.VITE_APP_ENV': JSON.stringify(env.VITE_APP_ENV),
       'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY),
+      'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(env.VITE_SUPABASE_PROJECT_ID),
     },
     test: {
       globals: true,
