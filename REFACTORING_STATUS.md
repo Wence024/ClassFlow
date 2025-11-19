@@ -91,19 +91,38 @@ Extracted all domain types to `src/types/`:
 - Types provide use-case specific contracts
 - Pattern scales well even for complex features (timetabling with drag-and-drop)
 
-## 🔄 Phase 3: Department Head Feature Migration (PENDING)
+## 🔄 Phase 3: Department Head Feature Migration (IN PROGRESS)
 
 ### Use Cases to Migrate:
-- ⏳ 3.1 Approve Cross-Department Request
-- ⏳ 3.2 Reject Cross-Department Request
+- ✅ 3.1 Approve Cross-Department Request (COMPLETED)
+  - Created vertical slice: `src/features/department-head/approve-request/`
+  - Encapsulates approval workflow using DB function
+  - Hook handles loading states and toast notifications
+  
+- ✅ 3.2 Reject Cross-Department Request (COMPLETED)
+  - Created vertical slice: `src/features/department-head/reject-request/`
+  - Includes rejection message validation
+  - Uses DB function for atomic rejection and restoration
+  
 - ⏳ 3.3 Manage Instructors
-- ⏳ 3.4 View Department Requests
+- ✅ 3.4 View Department Requests (COMPLETED)
+  - Created vertical slice: `src/features/department-head/view-department-requests/`
+  - Fetches requests for department with filtering
+  - Supports status and resource type filters
 
-## 🔄 Phase 4: Admin Feature Migration (PENDING)
+## 🔄 Phase 4: Admin Feature Migration (IN PROGRESS)
 
 ### Use Cases to Migrate:
-- ⏳ 4.1 Manage Users
-- ⏳ 4.2 Manage Departments
+- ✅ 4.1 Manage Users (COMPLETED)
+  - Created vertical slice: `src/features/admin/manage-users/`
+  - Encapsulates user CRUD operations with filtering
+  - Uses infrastructure services for user management
+  
+- ✅ 4.2 Manage Departments (COMPLETED)
+  - Created vertical slice: `src/features/admin/manage-departments/`
+  - Full CRUD operations for departments
+  - Integrates with department service layer
+  
 - ⏳ 4.3 System Configuration
 - ⏳ 4.4 Manage Classrooms
 
