@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import * as classroomsService from '../services/classroomsService';
 import type { Classroom } from '../types/classroom';
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import * as timetableService from '../services/timetableService';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import {

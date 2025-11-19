@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useClassGroups } from '../hooks';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
 import { ClassGroupFields, ClassGroupCard } from './components/classGroup';

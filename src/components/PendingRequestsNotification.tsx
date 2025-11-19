@@ -1,5 +1,5 @@
 import { Bell, CheckCircle, XCircle } from 'lucide-react';
-import { useAuth } from '../features/auth/hooks/useAuth';
+import { useAuth } from '../features/shared/auth/hooks/useAuth';
 import { Popover, PopoverTrigger, PopoverContent } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';

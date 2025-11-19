@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useUsers } from '../hooks/useUsers';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { useDepartments } from '../../departments/hooks/useDepartments';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import {
   Card,
   ErrorMessage,

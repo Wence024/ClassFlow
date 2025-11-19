@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LoadingSpinner } from '../../../components/ui';
+import { LoadingSpinner } from '@/components/ui';
 
 /**
  * A route guard that protects a set of child routes.

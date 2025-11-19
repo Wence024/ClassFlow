@@ -12,7 +12,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '../features/auth/hooks/useAuth';
+import { useAuth } from '../features/shared/auth/hooks/useAuth';
 import { useLayout } from '../contexts/hooks/useLayout';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '../lib/utils';

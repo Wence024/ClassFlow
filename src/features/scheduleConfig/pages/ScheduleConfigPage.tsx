@@ -1,5 +1,5 @@
 // In ScheduleConfigPage.tsx
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 
 import React, { useEffect, useState } from 'react';
 import { useScheduleConfig } from '../hooks/useScheduleConfig';

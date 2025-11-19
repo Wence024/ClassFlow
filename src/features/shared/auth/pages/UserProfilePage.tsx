@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { usePrograms } from '../../programs/hooks/usePrograms';
-import { useDepartments } from '../../departments/hooks/useDepartments';
-import { Card } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Alert } from '../../../components/ui/alert';
-import LoadingSpinner from '../../../components/ui/custom/loading-spinner';
+import { usePrograms } from '@/features/programs/hooks/usePrograms';
+import { useDepartments } from '@/features/departments/hooks/useDepartments';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Alert } from '@/components/ui/alert';
+import LoadingSpinner from '@/components/ui/custom/loading-spinner';
 import { toast } from 'sonner';
 
 /**

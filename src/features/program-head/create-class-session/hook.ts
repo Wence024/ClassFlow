@@ -7,7 +7,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import * as service from './service';
 import type { CreateClassSessionFormData, CrossDepartmentInfo } from './types';
 

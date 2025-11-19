@@ -4,7 +4,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/instructor';
 import {
   fetchInstructors,

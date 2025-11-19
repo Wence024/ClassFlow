@@ -1,4 +1,4 @@
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { Alert, Card } from '../../../components/ui';
 import AdminInstructorManagement from '../../classSessionComponents/pages/AdminInstructorManagement';
 

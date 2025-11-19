@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from './__supabaseClient__';
-import { useAuth } from '../features/auth/hooks/useAuth';
+import { useAuth } from '../features/shared/auth/hooks/useAuth';
 
 /**
  * Centralized real-time subscription provider.

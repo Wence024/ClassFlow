@@ -1,10 +1,10 @@
 import { Outlet, Route } from 'react-router-dom';
 import { ErrorBoundary } from '../components/ui';
-import { PublicRoute } from '../features/auth/components/PublicRoute';
-import LoginPage from '../features/auth/pages/LoginPage';
-import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
-import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
-import CompleteRegistrationPage from '../features/auth/pages/CompleteRegistrationPage';
+import { PublicRoute } from '../features/shared/auth/components/PublicRoute';
+import LoginPage from '../features/shared/auth/pages/LoginPage';
+import ForgotPasswordPage from '../features/shared/auth/pages/ForgotPasswordPage';
+import ResetPasswordPage from '../features/shared/auth/pages/ResetPasswordPage';
+import CompleteRegistrationPage from '../features/shared/auth/pages/CompleteRegistrationPage';
 
 /**
  * Routes for authentication-related pages.

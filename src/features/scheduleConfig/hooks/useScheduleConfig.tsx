@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import * as scheduleConfigService from '../services/scheduleConfigService';
 import type { ScheduleConfigUpdate, ScheduleConfig } from '../types/scheduleConfig';
 

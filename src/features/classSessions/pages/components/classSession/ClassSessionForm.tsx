@@ -11,7 +11,7 @@ import type {
 } from '../../../../classSessionComponents/types';
 import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
-import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useAuth } from '../../../../shared/auth/hooks/useAuth';
 import type { Program } from '../../../../programs/types/program';
 import {
   CourseSelector,
@@ -20,7 +20,7 @@ import {
   ClassroomSelector,
   ProgramSelector,
 } from './selectors';
-import { useDepartmentId } from '@/features/auth/hooks/useDepartmentId';
+import { useDepartmentId } from '@/features/shared/auth/hooks/useDepartmentId';
 
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;
 

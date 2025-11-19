@@ -5,7 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '@/types/classroom';
 import {
   fetchAllClassrooms,

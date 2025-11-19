@@ -3,7 +3,7 @@ import { Controller, useFormContext, type Control, type FieldErrors } from 'reac
 import { z } from 'zod';
 import { ColorPicker, FormField } from '../../../../../components/ui';
 import { componentSchemas } from '../../../types/validation';
-import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useAuth } from '../../../../shared/auth/hooks/useAuth';
 import { useDepartments } from '../../../../departments/hooks/useDepartments';
 import type { Department } from '../../../../departments/types/department';
 

@@ -1,4 +1,4 @@
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useClassrooms } from './useClassrooms';
 import { useAllClassrooms } from './useAllClassrooms';
 import type { ClassroomInsert, ClassroomUpdate } from '../types/classroom';
