@@ -67,8 +67,21 @@ Extracted all domain types to `src/types/`:
     * Navigation to scheduler for assignment
   - Separates cross-dept request logic from class session creation
   
-- ⏳ 2.4 View Pending Requests
-- ⏳ 2.5 Manage Sessions
+- ✅ 2.4 View Pending Requests (COMPLETED)
+  - Created vertical slice: `src/features/program-head/view-pending-requests/`
+  - Encapsulates viewing and managing outgoing resource requests including:
+    * Fetching user's own requests
+    * Dismissing reviewed requests
+    * Cancelling pending/approved requests
+    * Request status filtering and display
+  
+- ✅ 2.5 Manage Sessions (COMPLETED)
+  - Created vertical slice: `src/features/program-head/manage-sessions/`
+  - Encapsulates class session management including:
+    * List view with filtering
+    * Edit session details
+    * Delete sessions with cascade handling
+    * Search and filter capabilities
 
 ### Pilot Learnings:
 - Vertical slice pattern successfully separates concerns
