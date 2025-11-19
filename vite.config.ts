@@ -4,7 +4,13 @@ import path from 'path';
 
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  const env = loadEnv(mode, process.cwd(), '');
+  // Only load variables prefixed with VITE_
+  const env = loadEnv(mode, process.cwd(), 'VITE_');
+
+  // Debug logging to verify correct environment is loaded during build
+  console.log(`[Vite Build] Mode: ${mode}`);
+  console.log(`[Vite Build] VITE_APP_ENV: ${env.VITE_APP_ENV}`);
+  console.log(`[Vite Build] VITE_SUPABASE_URL: ${env.VITE_SUPABASE_URL?.substring(0, 40)}...`);
 
   return {
     plugins: [react()],

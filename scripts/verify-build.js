@@ -5,7 +5,7 @@
  * Usage: node scripts/verify-build.js [environment]
  * Example: node scripts/verify-build.js production
  */
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -20,28 +20,52 @@ const expectedEnvs = {
 };
 
 try {
-  // Read built index.html to check which Supabase URL is embedded
-  const indexPath = join(__dirname, '..', 'dist', 'index.html');
+  const distPath = join(__dirname, '..', 'dist');
+  const indexPath = join(distPath, 'index.html');
+  
+  console.log(`\n🔍 Verifying build for environment: ${mode}`);
+  console.log(`📁 Checking: ${distPath}`);
+  
+  // Check if dist folder exists
+  const distFiles = readdirSync(distPath);
+  console.log(`📦 Found ${distFiles.length} files/folders in dist/`);
+
+  // Read index.html
   const indexContent = readFileSync(indexPath, 'utf-8');
-
+  
   const expectedProjectId = expectedEnvs[mode];
-
+  
   if (!expectedProjectId) {
     console.error(`❌ Unknown environment: ${mode}`);
     console.error(`Valid environments: ${Object.keys(expectedEnvs).join(', ')}`);
     process.exit(1);
   }
 
+  // Check for the expected project ID
   if (!indexContent.includes(expectedProjectId)) {
-    console.error(`❌ Build verification failed!`);
+    console.error(`\n❌ Build verification failed!`);
     console.error(`Expected ${mode} to use project: ${expectedProjectId}`);
-    console.error(`Check your .env.${mode} file and vite.config.ts`);
+    
+    // Check which project IDs are actually in the build
+    Object.entries(expectedEnvs).forEach(([env, projectId]) => {
+      if (indexContent.includes(projectId)) {
+        console.error(`⚠️  Found ${env} project ID instead: ${projectId}`);
+      }
+    });
+    
+    console.error(`\n💡 Troubleshooting steps:`);
+    console.error(`   1. Delete the root .env file if it exists: rm -f .env`);
+    console.error(`   2. Clear build cache: rm -rf dist node_modules/.vite`);
+    console.error(`   3. Check .env.${mode} file has correct values`);
+    console.error(`   4. Rebuild: npm run build:${mode === 'production' ? 'prod' : mode}`);
+    
     process.exit(1);
   }
 
   console.log(`✅ Build verification passed for ${mode}`);
-  console.log(`Using correct Supabase project: ${expectedProjectId}`);
+  console.log(`✅ Using correct Supabase project: ${expectedProjectId}\n`);
 } catch (error) {
-  console.error('❌ Build verification error:', error.message);
+  console.error(`\n❌ Build verification error: ${error.message}`);
+  console.error(`Stack trace:`, error.stack);
   process.exit(1);
 }
