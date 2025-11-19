@@ -27,7 +27,6 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "migrate-repository": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-overwrite-to-new-git-repo.ps1",
     "precommit": "npm run format && npm run prep-commit-msg",
     "pcm": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
     "premerge": "npm run lint && npm run type-check && npm run test && npm run format",
@@ -37,7 +36,10 @@
     "test:unit": "vitest run -c vitest.unit.config.ts",
     "test:integration": "vitest run -c vitest.integration.config.ts",
     "type-check": "npx tsc --noEmit --project tsconfig.app.json",
-    "update-schema": "npx supabase gen types typescript --project-id \"rjdznnrzeiqajuaqathd\" --schema public > src/lib/supabase.types.ts"
+    "update-schema": "npx supabase gen types typescript --project-id \"rjdznnrzeiqajuaqathd\" --schema public > src/lib/supabase.types.ts",
+    
+    "migrate-repository": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-overwrite-to-new-git-repo.ps1",
+    "migrate-repository:safe": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-safe-to-new-git-repo.ps1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
