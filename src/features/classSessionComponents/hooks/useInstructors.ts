@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import * as instructorsService from '../services/instructorsService';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
 

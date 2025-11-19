@@ -18,8 +18,8 @@ import { useReportExport } from '../hooks/useReportExport';
 import { InstructorSchedulePreview } from '../components/InstructorSchedulePreview';
 import { LoadSummaryWidget } from '../components/LoadSummaryWidget';
 import LoadingSpinner from '@/components/ui/custom/loading-spinner';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { useDepartmentId } from '@/features/auth/hooks/useDepartmentId';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
+import { useDepartmentId } from '@/features/shared/auth/hooks/useDepartmentId';
 
 /**
  * Page for generating and exporting instructor schedule reports.

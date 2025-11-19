@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { loginSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
-import { Button, FormField, ErrorMessage } from '../../../components/ui';
+import { Button, FormField, ErrorMessage } from '@/components/ui';
 
 /**
  * A page component for user login.

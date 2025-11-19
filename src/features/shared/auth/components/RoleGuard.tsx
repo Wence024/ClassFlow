@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LoadingSpinner } from '../../../components/ui';
+import { LoadingSpinner } from '@/components/ui';
 import { ReactNode } from 'react';
 
 interface RoleGuardProps {

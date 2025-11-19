@@ -4,8 +4,8 @@ import type { ClassGroup, Classroom, Instructor } from '../../../../classSession
 import type { ClassSession } from '../../../../classSessions/types/classSession';
 import { useScheduleConfig } from '../../../../scheduleConfig/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
-import { useAuth } from '../../../../auth/hooks/useAuth';
-import { useDepartmentId } from '../../../../auth/hooks/useDepartmentId';
+import { useAuth } from '../../../../shared/auth/hooks/useAuth';
+import { useDepartmentId } from '../../../../shared/auth/hooks/useDepartmentId';
 import type { TimetableViewMode } from '../../../types/timetable';
 import type { TimetableRowResource } from '../../../utils/timetableLogic';
 import TimetableHeader from './TimetableHeader';

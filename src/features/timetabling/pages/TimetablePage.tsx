@@ -13,8 +13,8 @@ import { useTimetableViewMode } from '../hooks/useTimetableViewMode';
 import { ViewSelector } from '../components/ViewSelector';
 import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
 import { supabase } from '../../../lib/supabase';
-import { useAuth } from '../../auth/hooks/useAuth';
-import { useDepartmentId } from '../../auth/hooks/useDepartmentId';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
+import { useDepartmentId } from '../../shared/auth/hooks/useDepartmentId';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 
 /** Represents the state of the tooltip. */

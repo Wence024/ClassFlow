@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useDepartments } from '../hooks/useDepartments';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { Button, Card, ConfirmModal, ErrorMessage, LoadingSpinner, Alert } from '@/components/ui';
 import type { Department } from '../types/department';
 import { useForm, FormProvider } from 'react-hook-form';

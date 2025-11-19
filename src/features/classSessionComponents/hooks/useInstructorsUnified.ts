@@ -1,4 +1,4 @@
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useInstructors } from './useInstructors';
 import { useAllInstructors } from './useAllInstructors';
 import type { InstructorInsert, InstructorUpdate } from '../types/instructor';

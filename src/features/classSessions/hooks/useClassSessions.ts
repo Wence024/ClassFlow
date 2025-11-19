@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import * as classSessionsService from '../services/classSessionsService';
 import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../types/classSession';
 

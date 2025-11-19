@@ -3,9 +3,9 @@
  * This service abstracts the Supabase API calls, making the rest of the application
  * independent of the specific authentication provider. It also standardizes error handling.
  */
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '@/lib/supabase';
 import type { AuthResponse, User } from '../types/auth';
-import { UserRole } from '../../users/types/user';
+import { UserRole } from '@/features/users/types/user';
 
 /**
  * Logs in a user using their email and password.

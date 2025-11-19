@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { useFormPersistence } from '../hooks/useFormPersistence';
 
 // Import hooks for fetching data
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useClassSessions, checkCrossDepartmentResources } from '../hooks/useClassSessions';
 
 // FIXED: Corrected import paths for the refactored components

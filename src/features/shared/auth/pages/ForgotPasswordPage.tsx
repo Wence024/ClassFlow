@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { forgotPasswordSchema } from '../types/validation';
 import { Link, useSearchParams } from 'react-router-dom';
-import { supabase } from '../../../lib/supabase';
-import { FormField, Button, ErrorMessage } from '../../../components/ui';
+import { supabase } from '@/lib/supabase';
+import { FormField, Button, ErrorMessage } from '@/components/ui';
 
 /**
  * A page component that allows users to request a password reset link.

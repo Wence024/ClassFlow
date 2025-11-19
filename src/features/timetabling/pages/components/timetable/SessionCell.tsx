@@ -7,7 +7,7 @@ import {
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../lib/colorUtils';
-import { useAuth } from '../../../../auth/hooks/useAuth';
+import { useAuth } from '../../../../shared/auth/hooks/useAuth';
 import { AlertTriangle, Users, Clock } from 'lucide-react';
 import { useMemo } from 'react';
 import { checkCellSoftConflicts } from '../../../utils/checkConflicts';

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { resetPasswordSchema } from '../types/validation';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../../lib/supabase';
-import { Button, FormField, ErrorMessage } from '../../../components/ui';
+import { supabase } from '@/lib/supabase';
+import { Button, FormField, ErrorMessage } from '@/components/ui';
 
 /**
  * A page component for users to set a new password.
