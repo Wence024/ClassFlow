@@ -18,8 +18,9 @@ const LoginPage: React.FC = () => {
   const { login, loading, error: apiError, clearError } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  
+  const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI';
+  const { isLoaded, executeRecaptcha } = useRecaptcha(siteKey);
   const clearErrorRef = useRef(clearError);
 
   // Ensure the ref always has the latest version of the clearError function.
