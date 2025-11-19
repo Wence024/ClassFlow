@@ -47,6 +47,7 @@ try {
 
   const expectedProjectId = expectedEnvs[mode];
 
+
   if (!expectedProjectId) {
     console.error(`\n❌ Unknown environment: ${mode}`);
     console.error(`Valid environments: ${Object.keys(expectedEnvs).join(', ')}`);
@@ -67,6 +68,7 @@ try {
     });
     
     console.error(`\n💡 Troubleshooting steps:`);
+    console.error(`   1. Verify .env is not committed: git ls-files .env`);
     console.error(`   1. Verify .env is not committed: git ls-files .env`);
     console.error(`   2. Clear build cache: rm -rf dist node_modules/.vite`);
     console.error(`   3. Check .env.${mode} file has correct values`);
