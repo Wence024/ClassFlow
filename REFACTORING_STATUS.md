@@ -91,7 +91,7 @@ Extracted all domain types to `src/types/`:
 - Types provide use-case specific contracts
 - Pattern scales well even for complex features (timetabling with drag-and-drop)
 
-## 🔄 Phase 3: Department Head Feature Migration (IN PROGRESS)
+## ✅ Phase 3: Department Head Feature Migration (COMPLETED)
 
 ### Use Cases to Migrate:
 - ✅ 3.1 Approve Cross-Department Request (COMPLETED)
@@ -104,15 +104,19 @@ Extracted all domain types to `src/types/`:
   - Includes rejection message validation
   - Uses DB function for atomic rejection and restoration
   
-- ⏳ 3.3 Manage Instructors
+- ✅ 3.3 Manage Instructors (COMPLETED)
+  - Created vertical slice: `src/features/department-head/manage-instructors/`
+  - Encapsulates instructor CRUD operations with department scoping
+  - Migrated from AdminInstructorManagement.tsx
+  - Supports both admin (cross-department) and department head views
 - ✅ 3.4 View Department Requests (COMPLETED)
   - Created vertical slice: `src/features/department-head/view-department-requests/`
   - Fetches requests for department with filtering
   - Supports status and resource type filters
 
-## 🔄 Phase 4: Admin Feature Migration (IN PROGRESS)
+## ✅ Phase 4: Admin Feature Migration (COMPLETED)
 
-### Use Cases to Migrate:
+### Use Cases Migrated:
 - ✅ 4.1 Manage Users (COMPLETED)
   - Created vertical slice: `src/features/admin/manage-users/`
   - Encapsulates user CRUD operations with filtering
@@ -122,9 +126,15 @@ Extracted all domain types to `src/types/`:
   - Created vertical slice: `src/features/admin/manage-departments/`
   - Full CRUD operations for departments
   - Integrates with department service layer
+
+- ✅ 4.4 Manage Classrooms (COMPLETED)
+  - Created vertical slice: `src/features/admin/manage-classrooms/`
+  - Encapsulates classroom CRUD operations for admins
+  - Migrated from ClassroomTab.tsx
+  - Includes department preference prioritization
   
-- ⏳ 4.3 System Configuration
-- ⏳ 4.4 Manage Classrooms
+- ⏳ 4.3 System Configuration (DEFERRED)
+  - To be addressed when specific configuration requirements are defined
 
 ## 🔄 Phase 5: Shared Features Migration (PENDING)
 
