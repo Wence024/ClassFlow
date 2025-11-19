@@ -12,14 +12,30 @@ import { UserRole } from '../../users/types/user';
  *
  * @param email - The user's email address.
  * @param password - The user's password.
+ * @param captchaToken - Optional reCAPTCHA token for bot protection.
  * @returns A promise that resolves to an object containing the user and session token.
  * @throws {Error} Throws a user-friendly error message if login fails.
  */
-export async function login(email: string, password: string): Promise<AuthResponse> {
-  const { data, error } = await supabase.auth.signInWithPassword({
+export async function login(
+  email: string,
+  password: string,
+  captchaToken?: string
+): Promise<AuthResponse> {
+  const signInOptions: {
+    email: string;
+    password: string;
+    options?: { captchaToken?: string };
+  } = {
     email,
     password,
-  });
+  };
+
+  // Include CAPTCHA token if provided
+  if (captchaToken) {
+    signInOptions.options = { captchaToken };
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword(signInOptions);
 
   if (error) {
     let userFriendlyMessage = 'Login failed. Please try again.';

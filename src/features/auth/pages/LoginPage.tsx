@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { loginSchema } from '../types/validation';
 import { useAuth } from '../hooks/useAuth';
 import { Link } from 'react-router-dom';
@@ -17,6 +18,8 @@ const LoginPage: React.FC = () => {
   const { login, loading, error: apiError, clearError } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const clearErrorRef = useRef(clearError);
 
   // Ensure the ref always has the latest version of the clearError function.
@@ -42,7 +45,13 @@ const LoginPage: React.FC = () => {
     setFormErrors({});
     clearError();
 
-    // 1. Validate form data using Zod schema.
+    // 1. Validate CAPTCHA first
+    if (!captchaToken) {
+      setFormErrors({ captcha: 'Please complete the CAPTCHA verification' });
+      return;
+    }
+
+    // 2. Validate form data using Zod schema.
     const validationResult = loginSchema.safeParse(formData);
     if (!validationResult.success) {
       const errors: Record<string, string> = {};
@@ -54,8 +63,12 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    // 2. Call the login function from the auth context.
-    await login(validationResult.data.email, validationResult.data.password);
+    // 3. Call the login function from the auth context with CAPTCHA token.
+    await login(validationResult.data.email, validationResult.data.password, captchaToken);
+
+    // 4. Reset CAPTCHA after attempt
+    recaptchaRef.current?.reset();
+    setCaptchaToken(null);
   };
 
   /**
@@ -93,6 +106,24 @@ const LoginPage: React.FC = () => {
             required
             autoComplete="current-password"
           />
+
+          {/* reCAPTCHA Widget */}
+          <div className="flex flex-col items-center space-y-2">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={
+                import.meta.env.VITE_RECAPTCHA_SITE_KEY ||
+                '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+              }
+              onChange={(token) => setCaptchaToken(token)}
+              onExpired={() => setCaptchaToken(null)}
+              onErrored={() => setCaptchaToken(null)}
+            />
+            {formErrors.captcha && (
+              <p className="text-sm text-destructive">{formErrors.captcha}</p>
+            )}
+          </div>
+
           <Button type="submit" loading={loading} className="w-full">
             Login
           </Button>

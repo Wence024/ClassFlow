@@ -28,7 +28,7 @@ export type AuthContextType = {
   role: string | null;
   /** Convenience accessor for the current user's department id. */
   departmentId: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, captchaToken?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
   error: string | null;

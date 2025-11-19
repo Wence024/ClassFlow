@@ -70,13 +70,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
    *
    * @param email - The user's email address.
    * @param password - The user's password.
+   * @param captchaToken - Optional reCAPTCHA token for bot protection.
    * @returns A Promise that resolves on successful login or rejects on failure.
    */
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, captchaToken?: string) => {
     setLoading(true);
     setError(null);
     try {
-      const { user } = await authService.login(email, password);
+      const { user } = await authService.login(email, password, captchaToken);
       setUser(user);
 
       // Role-based redirect after login
