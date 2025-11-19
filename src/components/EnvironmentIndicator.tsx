@@ -1,17 +1,16 @@
 /**
  * Environment indicator badge displayed in non-production builds.
- * Helps developers quickly identify which Supabase environment they're connected to.
  */
 import { useEffect, useState } from 'react';
+import { config } from '@/lib/supabase';
 
 export function EnvironmentIndicator() {
   const [env, setEnv] = useState<string | null>(null);
 
   useEffect(() => {
-    const appEnv = import.meta.env.VITE_APP_ENV;
     // Only show in development and staging
-    if (appEnv === 'development' || appEnv === 'staging') {
-      setEnv(appEnv);
+    if (config.APP_ENV === 'development' || config.APP_ENV === 'staging') {
+      setEnv(config.APP_ENV);
     }
   }, []);
 

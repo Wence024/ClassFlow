@@ -1,46 +1,41 @@
 /**
  * Primary Supabase client for the entire application.
  * 
- * This is the SINGLE SOURCE OF TRUTH for Supabase connections.
- * Dynamically selects the correct Supabase project based on environment:
- * - Development: wkfgcroybuuefaulqsru.supabase.co (Lovable/local dev)
- * - Staging: pnmzjmcfeekculqyirpr.supabase.co (Vercel staging)
- * - Production: dqsegqxnnhowqjxifhej.supabase.co (Hostinger production)
- * 
- * Environment is determined by VITE_APP_ENV variable in:
- * - .env.development (default for `npm run dev`)
- * - .env.staging (used by Vercel)
- * - .env.production (used by Hostinger via GitHub Actions)
+ * Configuration Sources:
+ * - Production (Hostinger): Runtime config from public/config.js
+ * - Staging (Vercel): Build-time VITE_* env variables
+ * - Development (Local): Hardcoded credentials in runtimeConfig.ts
  */
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './supabase.types';
+import { getConfig, validateConfig } from './runtimeConfig';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const appEnv = import.meta.env.VITE_APP_ENV || 'development';
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    `Missing Supabase environment variables for ${appEnv} environment. ` +
-    `Please check your .env.${appEnv} file.`
-  );
-}
+// Get and validate configuration
+const config = getConfig();
+validateConfig(config);
 
 // Log environment info in non-production builds for debugging
-if (appEnv !== 'production') {
-  console.log(`[Supabase Client] Environment: ${appEnv}`);
-  console.log(`[Supabase Client] Project URL: ${supabaseUrl}`);
+if (config.APP_ENV !== 'production') {
+  console.log(`[Supabase Client] Environment: ${config.APP_ENV}`);
+  console.log(`[Supabase Client] Project URL: ${config.SUPABASE_URL}`);
+  console.log(`[Supabase Client] Project ID: ${config.SUPABASE_PROJECT_ID}`);
 }
 
 /**
  * Single, environment-aware Supabase client instance.
- * Use this client throughout the application via:
- * `import { supabase } from '@/lib/supabase';`
  */
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+export const supabase = createClient<Database>(
+  config.SUPABASE_URL,
+  config.SUPABASE_ANON_KEY,
+  {
+    auth: {
+      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  }
+);
+
+// Export config for use in other parts of the app
+export { config };
+export type { AppConfig } from './runtimeConfig';

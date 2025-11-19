@@ -2,32 +2,37 @@
 
 ## Overview
 
-This document outlines the multi-environment deployment strategy for ClassFlow, ensuring safe database migration testing and deployment across Development, Staging, and Production environments.
+This document outlines the multi-environment deployment strategy for ClassFlow. The system uses **runtime configuration** for production deployments, allowing database switching without rebuilding the application.
+
+**Key Features**:
+- **Production (Hostinger)**: Runtime config via `public/config.js` - edit directly on server, no rebuild needed
+- **Staging (Vercel)**: Build-time environment variables set in Vercel dashboard
+- **Development (Local)**: Hardcoded credentials in `src/lib/runtimeConfig.ts`
 
 ## Environment Architecture
 
 ### Three Supabase Projects
 
-1. **Development (Lovable Preview)**
+1. **Development (Lovable Preview / Local)**
    - **Purpose**: Active development and testing
    - **Project URL**: `https://wkfgcroybuuefaulqsru.supabase.co`
    - **Project ID**: `wkfgcroybuuefaulqsru`
-   - **Access**: Hardcoded in `.env.development` (committed to Git)
-   - **Usage**: Default for `npm run dev` in Lovable
+   - **Config Source**: Hardcoded in `src/lib/runtimeConfig.ts`
+   - **Usage**: Default for `npm run dev`
 
 2. **Staging (Vercel Deployment)**
-   - **Purpose**: Pre-production testing and migration validation
+   - **Purpose**: Pre-production testing and validation
    - **Project URL**: `https://pnmzjmcfeekculqyirpr.supabase.co`
    - **Project ID**: `pnmzjmcfeekculqyirpr`
-   - **Access**: Hardcoded in `.env.staging` (committed to Git)
+   - **Config Source**: Vercel Environment Variables (set in dashboard)
    - **Usage**: Vercel staging deployment for QA
 
 3. **Production (Hostinger via Git)**
    - **Purpose**: Live production environment
    - **Project URL**: `https://dqsegqxnnhowqjxifhej.supabase.co`
    - **Project ID**: `dqsegqxnnhowqjxifhej`
-   - **Access**: Hardcoded in `.env.production` (committed to Git)
-   - **Usage**: Hostinger production build
+   - **Config Source**: Runtime config (`public/config.js` on server)
+   - **Usage**: Hostinger production - **can switch databases without rebuild**
 
 ## Security Model
 
@@ -36,8 +41,9 @@ This document outlines the multi-environment deployment strategy for ClassFlow, 
 ✅ **Committed to Git** (Public-Safe):
 
 - Supabase Project URLs
-- Supabase Anon/Public Keys
+- Supabase Anon/Public Keys  
 - Supabase Project IDs
+- Runtime config templates (`public/config.production.template.js`)
 
 **Rationale**: These credentials are designed to be public-facing. Security is enforced through:
 
@@ -52,76 +58,152 @@ This document outlines the multi-environment deployment strategy for ClassFlow, 
 - Service Role Keys (bypass RLS)
 - Database passwords
 - Private API keys
-- `.env.local` (developer overrides)
+- Active runtime config (`public/config.js` - gitignored)
 
 ## File Structure
 
 ```txt
 project-root/
-├── .env.development      # Dev Supabase (committed)
-├── .env.staging         # Staging Supabase (committed)
-├── .env.production      # Production Supabase (committed)
-├── .env.local           # Local overrides (gitignored)
-├── .env.example         # Template for reference
-└── .gitignore           # Excludes .env.local
+├── public/
+│   ├── config.js                          # Active runtime config (gitignored)
+│   └── config.production.template.js      # Template for Hostinger (committed)
+├── src/
+│   └── lib/
+│       ├── runtimeConfig.ts               # Config loader with fallbacks
+│       └── supabase.ts                    # Supabase client
+├── .env.example                           # Vercel env vars documentation
+└── .gitignore                             # Excludes public/config.js
 ```
 
-## Supabase Client Consolidation
+## Configuration System
 
-### Single Source of Truth
+### Runtime Config Hierarchy
+
+The application uses a three-tier configuration fallback system:
+
+1. **Runtime Config** (Production only)
+   - Source: `window.APP_CONFIG` from `public/config.js`
+   - Loaded via `<script>` tag in `index.html`
+   - Can be edited on server without rebuilding app
+
+2. **Build-time Environment Variables** (Staging only)
+   - Source: `import.meta.env.VITE_*` from Vercel environment variables
+   - Set in Vercel Project Settings → Environment Variables
+   - Compiled into the build at deploy time
+
+3. **Hardcoded Defaults** (Development)
+   - Source: `DEV_CONFIG` constant in `src/lib/runtimeConfig.ts`
+   - No setup needed for local development
+   - Always uses development Supabase project
+
+### Supabase Client
 
 **Primary Client**: `src/lib/supabase.ts`
 
-- Reads from environment variables
-- Used by ~45 files across the codebase
-- Dynamically selects Supabase project based on `VITE_APP_ENV`
+- Imports `getConfig()` from `src/lib/runtimeConfig.ts`
+- Automatically selects correct Supabase project based on environment
+- Used throughout the entire codebase
+- Exports `config` object for environment detection
 
-### Deprecated Client
+**Example Usage**:
+```typescript
+import { supabase, config } from '@/lib/supabase';
 
-**Legacy Client**: `src/integrations/supabase/client.ts`
+// Check environment
+if (config.APP_ENV === 'production') {
+  // Production-specific logic
+}
 
-- Auto-generated by Lovable Supabase integration
-- Marked as deprecated with console warning
-- Will be re-edited by future Lovable integration updates
-- Currently used by 4 service files (being migrated)
-
-### Migration Status
-
-**Files Updated to Use `src/lib/supabase.ts`**:
-
-- ✅ `src/contexts/__supabaseClient__.ts`
-- ✅ `src/features/auth/services/authService.ts`
-- ✅ `src/features/programs/services/programsService.ts`
-- ✅ `src/features/departments/services/departmentsService.ts`
+// Use Supabase client
+const { data } = await supabase.from('table').select();
+```
 
 ## Development Workflow
 
-### Local Development (Lovable)
+### Local Development
 
-1. **Environment**: Development Supabase
-2. **Command**: `npm run dev` (default)
-3. **Preview**: Lovable's live preview pane
-4. **Database**: Direct connection to Dev Supabase project
+1. **Environment**: Development Supabase (hardcoded)
+2. **Command**: `npm run dev`
+3. **Preview**: Lovable's live preview or `http://localhost:8080`
+4. **No Setup**: Configuration is hardcoded in `src/lib/runtimeConfig.ts`
 
-**Migration Testing Flow**:
+**Migration Testing**:
 
 ```bash
-# Test migration locally
+# Develop and test locally
 npm run dev
-# Verify in Lovable preview
-# Commit migration SQL file
-git add supabase/migrations/
-git commit -m "feat(db): add new table"
+
+# Verify in browser
+# Commit changes
+git add .
+git commit -m "feat: add new feature"
 ```
 
 ### Staging Deployment (Vercel)
 
-1. **Environment**: Staging Supabase
-2. **Trigger**: Push to `staging` branch or manual deploy
-3. **Command**: `npm run build:staging`
-4. **URL**: Vercel staging URL (e.g., `classflow-staging.vercel.app`)
+**Setup** (One-time):
 
-**Purpose**:
+1. Go to Vercel Project Settings → Environment Variables
+2. Add these variables:
+   ```
+   VITE_APP_ENV=staging
+   VITE_SUPABASE_URL=https://pnmzjmcfeekculqyirpr.supabase.co
+   VITE_SUPABASE_ANON_KEY=<staging_anon_key>
+   VITE_SUPABASE_PROJECT_ID=pnmzjmcfeekculqyirpr
+   ```
+
+**Deployment**:
+
+1. Push to `staging` branch or trigger manual deploy in Vercel
+2. Vercel builds with environment variables
+3. Test at Vercel staging URL
+4. Verify database connections and functionality
+
+### Production Deployment (Hostinger)
+
+**Automatic Deployment** (via GitHub Actions):
+
+1. Push to `master` branch
+2. GitHub Actions:
+   - Runs `npm run build`
+   - Copies `public/config.production.template.js` → `dist/config.js`
+   - Pushes `dist/` to `build` branch
+3. Hostinger pulls from `build` branch to `public_html/`
+
+**Verify Deployment**:
+
+```bash
+# SSH to Hostinger
+ssh user@your-server.com
+
+# Check config exists
+cat public_html/config.js
+
+# Should show:
+# window.APP_CONFIG = {
+#   SUPABASE_URL: 'https://dqsegqxnnhowqjxifhej.supabase.co',
+#   ...
+# }
+```
+
+**Switch Production Database** (No Rebuild Needed!):
+
+```bash
+# SSH to Hostinger
+ssh user@your-server.com
+
+# Edit runtime config
+nano public_html/config.js
+
+# Update these values:
+# - SUPABASE_URL
+# - SUPABASE_ANON_KEY
+# - SUPABASE_PROJECT_ID
+
+# Save and exit (Ctrl+X, Y, Enter)
+
+# Clear browser cache and refresh - Done!
+```
 
 - QA testing with production-like environment
 - Migration validation before production
@@ -198,125 +280,135 @@ npx supabase db push --db-url "postgresql://postgres.wkfgcroybuuefaulqsru:[passw
 
 ## NPM Scripts
 
-### Development
+### Simplified Build Commands
+
+With the runtime config system, we only need one build command:
 
 ```bash
-npm run dev              # Start Vite dev server (uses .env.development)
-npm run build:dev        # Build for development environment
+# Development (local)
+npm run dev
+
+# Build (works for all environments)
+npm run build
+
+# Preview built application locally
+npm run preview
 ```
 
-### Staging
+**No more environment-specific builds** - the same build works for staging and production!
 
-```bash
-npm run build:staging    # Build for Vercel staging (uses .env.staging)
-npm run preview:staging  # Preview staging build locally
+### How It Works
+
+**Development**: Uses hardcoded config from `src/lib/runtimeConfig.ts`
+**Staging**: Vercel injects `VITE_*` env vars during build via `vite.config.ts` define block
+**Production**: Runtime config from `public/config.js` loaded at app startup
+
+## Configuration Reference
+
+### Development Config (Hardcoded)
+
+**Location**: `src/lib/runtimeConfig.ts`
+
+```typescript
+const DEV_CONFIG: AppConfig = {
+  SUPABASE_URL: 'https://wkfgcroybuuefaulqsru.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGc...',
+  SUPABASE_PROJECT_ID: 'wkfgcroybuuefaulqsru',
+  APP_ENV: 'development',
+};
 ```
 
-### Production
+**No setup needed** - just run `npm run dev`
 
-```bash
-npm run build:prod       # Build for Hostinger production (uses .env.production)
-npm run preview:prod     # Preview production build locally
+### Staging Config (Vercel Environment Variables)
+
+**Setup in Vercel Dashboard** → Project Settings → Environment Variables:
+
 ```
-
-### Database Backups
-
-```bash
-npm run backup:dev       # Backup Dev Supabase schema + data
-npm run backup:staging   # Backup Staging Supabase schema + data
-npm run backup:prod      # Backup Production Supabase schema + data
-```
-
-## Environment Variables Reference
-
-### `.env.development` (Dev Supabase)
-
-```env
-VITE_SUPABASE_URL=https://dqsegqxnnhowqjxifhej.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc2VncXhubmhvd3FqeGlmaGVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzc1MzIsImV4cCI6MjA3NzgxMzUzMn0.hJKw731wyZHI8Py4LU0AgT2JKI5shenczB83jo4paT0
-VITE_APP_ENV=development
-```
-
-### `.env.staging` (Staging Supabase)
-
-```env
+VITE_APP_ENV=staging
 VITE_SUPABASE_URL=https://pnmzjmcfeekculqyirpr.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBubXpqbWNmZWVrY3VscXlpcnByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MzQxNDQsImV4cCI6MjA3OTAxMDE0NH0.QTyH2jCzAt-wxqiNKG6xcwILo_zZUrnJknfjcsp28oo
-VITE_APP_ENV=staging
+VITE_SUPABASE_PROJECT_ID=pnmzjmcfeekculqyirpr
 ```
 
-### `.env.production` (Production Supabase)
+### Production Config (Runtime on Server)
 
-```env
-VITE_SUPABASE_URL=https://wkfgcroybuuefaulqsru.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZmdjcm95YnV1ZWZhdWxxc3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MjgxNzEsImV4cCI6MjA3OTAwNDE3MX0.OmmXnxzeGspJJgPr8r0yiYXXbwEtaIBmkT-KIZdE4Mg
-VITE_APP_ENV=production
+**Location**: `public_html/config.js` on Hostinger server
+
+```javascript
+window.APP_CONFIG = {
+  SUPABASE_URL: 'https://dqsegqxnnhowqjxifhej.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc2VncXhubmhvd3FqeGlmaGVqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMzc1MzIsImV4cCI6MjA3OTgxMzUzMn0.hJKw731wyZHI8Py4LU0AgT2JKI5shenczB83jo4paT0',
+  SUPABASE_PROJECT_ID: 'dqsegqxnnhowqjxifhej',
+  APP_ENV: 'production',
+};
 ```
+
+**Edit directly on server** - no rebuild needed!
 
 ## Vercel Deployment Setup
 
-### Step 1: Create Vercel Project
+### One-Time Setup
 
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
-2. Click "Add New" → "Project"
-3. Import your Git repository
-4. Configure:
+2. Import your Git repository
+3. Configure project:
    - **Project Name**: `classflow-staging`
-   - **Framework Preset**: Vite
-   - **Root Directory**: `./`
-   - **Build Command**: `npm run build:staging`
+   - **Framework**: Vite
+   - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 
-### Step 2: Configure Git Branches
+### Environment Variables
 
-**Staging Branch**:
+Go to Project Settings → Environment Variables and add:
 
-- **Branch**: `staging`
-- **Auto-Deploy**: Enabled
-- **Environment**: Staging
-
-**Production Branch** (Optional Mirror):
-
-- **Branch**: `master`
-- **Auto-Deploy**: Enabled
-- **Environment**: Production Preview
-
-### Step 3: Environment Variables (Auto-Read)
-
-Vercel automatically reads environment variables from `.env.staging` during build. No manual configuration needed.
-
-**Verification**:
-
-```bash
-# In Vercel build logs, you should see:
-# ✓ Loaded .env.staging
-# ✓ VITE_SUPABASE_URL: https://pnmzjmcfeekculqyirpr.supabase.co
+```
+VITE_APP_ENV=staging
+VITE_SUPABASE_URL=https://pnmzjmcfeekculqyirpr.supabase.co
+VITE_SUPABASE_ANON_KEY=<your_staging_anon_key>
+VITE_SUPABASE_PROJECT_ID=pnmzjmcfeekculqyirpr
 ```
 
-## Hostinger Deployment Setup
+### Deploy
 
-### Step 1: Enable Git Integration
+Push to `staging` branch or trigger manual deploy - Vercel will build with environment variables.
+
+## Hostinger Deployment (via GitHub Actions)
+
+### How It Works
+
+1. Push to `master` branch
+2. GitHub Actions workflow (`.github/workflows/publish.yml`):
+   - Runs `npm run build`
+   - Copies `public/config.production.template.js` to `dist/config.js`
+   - Pushes `dist/` to `build` branch
+3. Hostinger pulls from `build` branch
+
+### Hostinger Git Integration Setup
 
 1. Log in to Hostinger hPanel
-2. Navigate to your website
-3. Go to **Git** section
-4. Click "Connect to Git"
+2. Navigate to Git section
+3. Configure:
+   - **Repository**: Your GitHub repo
+   - **Branch**: `build`
+   - **Deploy Path**: `/public_html`
+   - **Auto-Deploy**: Enabled
 
-### Step 2: Configure Git Repository
+### Verify Deployment
 
-1. **Repository URL**: Your Git repository (GitHub/GitLab)
-2. **Branch**: `master`
-3. **Deploy Path**: `/public_html` (or your web root)
-4. **Build Command**: `npm run build:prod`
-5. **Output Directory**: `dist`
+SSH to your server and check:
 
-### Step 3: Auto-Deploy Settings
+```bash
+cat public_html/config.js
+```
 
-- **Auto-Deploy**: Enabled
-- **Trigger**: Push to `master` branch
-- **Environment**: Production
-
-**Build Process**:
+Should show:
+```javascript
+window.APP_CONFIG = {
+  SUPABASE_URL: 'https://dqsegqxnnhowqjxifhej.supabase.co',
+  // ...
+}
+```
 
 ```bash
 # Hostinger auto-runs on push to main:

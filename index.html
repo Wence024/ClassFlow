@@ -5,6 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ClassFlow</title>
+    <!-- Load runtime config for production (optional - won't exist in dev/staging) -->
+    <script src="/config.js" onerror="console.log('[Config] Runtime config not found - using defaults')"></script>
   </head>
   <body>
     <div id="root"></div>

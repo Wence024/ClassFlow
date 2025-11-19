@@ -13,29 +13,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Verify no .env file exists
-        run: |
-          if [ -f .env ]; then
-            echo "❌ ERROR: .env file found in repository!"
-            echo "Run: git rm --cached .env && git commit -m 'fix: remove .env from repo'"
-            exit 1
-          fi
-          echo "✅ No .env file in repository"
-
       - name: Install dependencies
         run: npm install
 
-      - name: Remove all .env files and clear cache
-        run: |
-          rm -f .env .env.local
-          rm -rf node_modules/.vite dist
-          echo "🧹 Cleaned up .env files and caches"
-
       - name: Build project
-        run: npm run build:prod
+        run: npm run build
 
-      - name: Verify production build
-        run: node scripts/verify-build.js production
+      - name: Copy production config template
+        run: |
+          cp public/config.production.template.js dist/config.js
+          echo "✅ Copied production config template to dist/"
 
       - name: Deploy to Hostinger
         uses: s0/git-publish-subdir-action@develop

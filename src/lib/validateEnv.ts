@@ -1,24 +1,23 @@
+import { getConfig, validateConfig } from './runtimeConfig';
+
 /**
- * Validates required environment variables at application startup.
- * Throws an error if critical variables are missing.
+ * Validates configuration at application startup.
+ * Now uses runtime config system instead of import.meta.env directly.
  */
 export function validateEnvironment(): void {
-  const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY', 'VITE_APP_ENV'];
-
-  const missing = required.filter((key) => !import.meta.env[key]);
-
-  if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}\n` +
-        `Current mode: ${import.meta.env.MODE}\n` +
-        `Expected environment: ${import.meta.env.VITE_APP_ENV || 'undefined'}`
-    );
-  }
-
-  // Log environment info for debugging (only in non-production)
-  if (import.meta.env.VITE_APP_ENV !== 'production') {
-    console.log('[ENV] Mode:', import.meta.env.MODE);
-    console.log('[ENV] VITE_APP_ENV:', import.meta.env.VITE_APP_ENV);
-    console.log('[ENV] Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
+  try {
+    const config = getConfig();
+    validateConfig(config);
+    
+    // Log environment info for debugging (only in non-production)
+    if (config.APP_ENV !== 'production') {
+      console.log('[ENV] Environment:', config.APP_ENV);
+      console.log('[ENV] Supabase URL:', config.SUPABASE_URL);
+      console.log('[ENV] Project ID:', config.SUPABASE_PROJECT_ID);
+      console.log('[ENV] Config Source:', window.APP_CONFIG ? 'Runtime (config.js)' : 'Build-time or hardcoded');
+    }
+  } catch (error) {
+    console.error('[ENV] Configuration validation failed:', error);
+    throw error;
   }
 }
