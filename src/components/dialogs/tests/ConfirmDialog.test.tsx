@@ -201,9 +201,9 @@ describe('ConfirmDialog Component', () => {
         />
       );
       
-      // Should still render buttons even with empty text
+      // Should still render buttons even with empty text (3 total: cancel, confirm, close(X))
       const buttons = screen.getAllByRole('button');
-      expect(buttons).toHaveLength(2);
+      expect(buttons).toHaveLength(3);
     });
   });
 });

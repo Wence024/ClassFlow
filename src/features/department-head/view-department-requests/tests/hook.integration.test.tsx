@@ -40,7 +40,7 @@ describe('useViewDepartmentRequests', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(service.fetchDepartmentRequests).mockResolvedValue(mockRequests as any);
+    vi.mocked(service.fetchDepartmentRequests).mockResolvedValue(mockRequests);
   });
 
   describe('Initial Load', () => {

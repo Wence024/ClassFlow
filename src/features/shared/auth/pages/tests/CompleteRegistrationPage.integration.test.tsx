@@ -4,9 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import CompleteRegistrationPage from '../CompleteRegistrationPage';
-import { supabase } from '../../../../integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
-vi.mock('../../../../integrations/supabase/client', () => ({
+vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
       updateUser: vi.fn(),
@@ -25,7 +25,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 describe('CompleteRegistrationPage', () => {
-  const TEST_PASSWORD = 'TestPassword123';
+  const TEST_PASSWORD = 'Aa1!Aa1!Aa1!'; // eslint-disable-line sonarjs/no-hardcoded-passwords -- Test password for integration test
 
   beforeEach(() => {
     vi.clearAllMocks();

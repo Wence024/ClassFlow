@@ -7,14 +7,20 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { login } from '../authService';
 import { supabase } from '@/lib/supabase';
 
-vi.mock('@/lib/supabase', () => ({
-  supabase: {
-    auth: {
-      signInWithPassword: vi.fn(),
+vi.mock('@/lib/supabase', () => {
+  const mockAuth = {
+    signInWithPassword: vi.fn(),
+  };
+
+  const mockFrom = vi.fn();
+
+  return {
+    supabase: {
+      auth: mockAuth,
+      from: mockFrom,
     },
-    from: vi.fn(),
-  },
-}));
+  };
+});
 
 const mockedSupabase = vi.mocked(supabase);
 
@@ -42,7 +48,7 @@ describe('authService.login', () => {
     const mockProfile = { program_id: 'p1', department_id: 'd1' };
     const mockRole = [{ role: 'admin' }];
 
-    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData as any);
+    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData);
 
     const fromProfilesMock = {
       select: vi.fn().mockReturnThis(),
@@ -56,9 +62,9 @@ describe('authService.login', () => {
     };
 
     mockedSupabase.from.mockImplementation((table: string) => {
-      if (table === 'profiles') return fromProfilesMock as any;
-      if (table === 'user_roles') return fromRolesMock as any;
-      return {} as any;
+      if (table === 'profiles') return fromProfilesMock;
+      if (table === 'user_roles') return fromRolesMock;
+      return {};
     });
 
     const result = await login('test@example.com', 'password123');
@@ -78,7 +84,7 @@ describe('authService.login', () => {
     mockedSupabase.auth.signInWithPassword.mockResolvedValue({
       data: { user: null, session: null },
       error: new Error('Invalid login credentials'),
-    } as any);
+    });
 
     await expect(login('wrong@example.com', 'wrongpass')).rejects.toThrow(
       'Invalid email or password'
@@ -89,7 +95,7 @@ describe('authService.login', () => {
     mockedSupabase.auth.signInWithPassword.mockResolvedValue({
       data: { user: null, session: null },
       error: new Error('Email not confirmed'),
-    } as any);
+    });
 
     await expect(login('test@example.com', 'password')).rejects.toThrow(
       'Please verify your email address'
@@ -107,7 +113,7 @@ describe('authService.login', () => {
       error: null,
     };
 
-    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData as any);
+    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData);
 
     const fromMock = {
       select: vi.fn().mockReturnThis(),
@@ -118,7 +124,7 @@ describe('authService.login', () => {
       }),
     };
 
-    mockedSupabase.from.mockReturnValue(fromMock as any);
+    mockedSupabase.from.mockReturnValue(fromMock);
 
     await expect(login('test@example.com', 'password')).rejects.toThrow(
       'could not find user profile'
@@ -140,7 +146,7 @@ describe('authService.login', () => {
 
     const mockProfile = { program_id: 'p1', department_id: 'd1' };
 
-    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData as any);
+    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData);
 
     const fromProfilesMock = {
       select: vi.fn().mockReturnThis(),
@@ -157,9 +163,9 @@ describe('authService.login', () => {
     };
 
     mockedSupabase.from.mockImplementation((table: string) => {
-      if (table === 'profiles') return fromProfilesMock as any;
-      if (table === 'user_roles') return fromRolesMock as any;
-      return {} as any;
+      if (table === 'profiles') return fromProfilesMock;
+      if (table === 'user_roles') return fromRolesMock;
+      return {};
     });
 
     await expect(login('test@example.com', 'password')).rejects.toThrow(
@@ -180,7 +186,7 @@ describe('authService.login', () => {
 
     const mockProfile = { program_id: 'p1', department_id: null };
 
-    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData as any);
+    mockedSupabase.auth.signInWithPassword.mockResolvedValue(mockAuthData);
 
     const fromProfilesMock = {
       select: vi.fn().mockReturnThis(),
@@ -194,9 +200,9 @@ describe('authService.login', () => {
     };
 
     mockedSupabase.from.mockImplementation((table: string) => {
-      if (table === 'profiles') return fromProfilesMock as any;
-      if (table === 'user_roles') return fromRolesMock as any;
-      return {} as any;
+      if (table === 'profiles') return fromProfilesMock;
+      if (table === 'user_roles') return fromRolesMock;
+      return {};
     });
 
     const result = await login('test@example.com', 'password');

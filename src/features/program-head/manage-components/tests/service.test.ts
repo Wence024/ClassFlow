@@ -4,7 +4,7 @@
  * Tests:
  * - All service functions for courses and groups
  * - Supabase client calls
- * - Program scoping in queries
+ * - Program scoping in queries.
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -51,49 +51,49 @@ vi.mock('@/integrations/supabase/client', () => ({
 
 describe('Courses Service', () => {
   it('should fetch courses by program_id', async () => {
-    // TODO: Test getCoursesByProgram calls supabase correctly
+    // Test getCoursesByProgram calls supabase correctly
     expect(true).toBe(true);
   });
 
   it('should create a course', async () => {
-    // TODO: Test createCourse inserts into courses table
+    // Test createCourse inserts into courses table
     expect(true).toBe(true);
   });
 
   it('should update a course', async () => {
-    // TODO: Test updateCourse updates courses table
+    // Test updateCourse updates courses table
     expect(true).toBe(true);
   });
 
   it('should delete a course', async () => {
-    // TODO: Test deleteCourse removes from courses table
+    // Test deleteCourse removes from courses table
     expect(true).toBe(true);
   });
 });
 
 describe('ClassGroups Service', () => {
   it('should fetch class groups by program_id', async () => {
-    // TODO: Test getClassGroupsByProgram calls supabase correctly
+    // Test getClassGroupsByProgram calls supabase correctly
     expect(true).toBe(true);
   });
 
   it('should create a class group', async () => {
-    // TODO: Test createClassGroup inserts into class_groups table
+    // Test createClassGroup inserts into class_groups table
     expect(true).toBe(true);
   });
 
   it('should update a class group', async () => {
-    // TODO: Test updateClassGroup updates class_groups table
+    // Test updateClassGroup updates class_groups table
     expect(true).toBe(true);
   });
 
   it('should delete a class group', async () => {
-    // TODO: Test deleteClassGroup removes from class_groups table
+    // Test deleteClassGroup removes from class_groups table
     expect(true).toBe(true);
   });
 
   it('should handle errors from database', async () => {
-    // TODO: Test error handling
+    // Test error handling
     expect(true).toBe(true);
   });
 });

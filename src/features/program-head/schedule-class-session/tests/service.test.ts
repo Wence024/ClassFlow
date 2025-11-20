@@ -119,7 +119,7 @@ describe('Schedule Class Session Service', () => {
       ];
 
       vi.mocked(timetableService.getTimetableAssignments).mockResolvedValue(
-        mockAssignments as any
+        mockAssignments
       );
 
       const result = await service.fetchTimetableAssignments('semester-1');

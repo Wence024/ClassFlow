@@ -5,9 +5,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as service from '../service';
-import * as infraService from '../../infrastructure/services/classSessionsService';
+import * as infraService from '../../../classSessions/services/classSessionsService';
 
-vi.mock('../../infrastructure/services/classSessionsService');
+vi.mock('../../../classSessions/services/classSessionsService');
 
 const mockedInfra = vi.mocked(infraService);
 

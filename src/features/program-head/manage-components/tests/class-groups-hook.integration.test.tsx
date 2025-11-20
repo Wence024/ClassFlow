@@ -9,7 +9,7 @@ import { useClassGroups } from '@/features/classSessionComponents/hooks/useClass
 import * as classGroupsService from '@/features/classSessionComponents/services/classGroupsService';
 import { AuthContext } from '@/features/shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '@/features/shared/auth/types/auth';
-import type { ClassGroup, ClassGroupInsert } from '@/features/classSessionComponents/types/classGroup';
+import type { ClassGroup } from '@/features/classSessionComponents/types/classGroup';
 
 vi.mock('@/features/classSessionComponents/services/classGroupsService');
 
