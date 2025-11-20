@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as coursesService from '../services/coursesService';
-import type { Course } from '../types/course';
+import * as coursesService from '@/lib/services/courseService';
+import type { Course } from '@/types/course';
 
 /**
  * Custom hook to fetch ALL courses across all programs.

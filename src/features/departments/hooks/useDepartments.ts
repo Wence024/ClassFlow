@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { Department, DepartmentInsert, DepartmentUpdate } from '../types/department';
-import * as svc from '../services/departmentsService';
+import type { Department, DepartmentInsert, DepartmentUpdate } from '@/types/department';
+import * as svc from '@/lib/services/departmentService';
 
 const qk = {
   list: ['departments', 'list'] as const,

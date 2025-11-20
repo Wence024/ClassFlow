@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as coursesService from '../services/coursesService';
-import type { Course, CourseInsert, CourseUpdate } from '../types/course';
+import * as coursesService from '@/lib/services/courseService';
+import type { Course, CourseInsert, CourseUpdate } from '@/types/course';
 
 /**
  * Custom hook to manage courses data.

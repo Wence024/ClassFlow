@@ -2,8 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as classroomsService from '../services/classroomsService';
-import type { Classroom, ClassroomInsert, ClassroomUpdate } from '../types/classroom';
+import * as classroomsService from '@/lib/services/classroomService';
+import type { Classroom, ClassroomInsert, ClassroomUpdate } from '@/types/classroom';
 
 /**
  * Custom hook to manage classrooms data.
@@ -51,7 +51,7 @@ export function useClassrooms() {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (id: string) => classroomsService.removeClassroom(id, user!.id),
+    mutationFn: (id: string) => classroomsService.removeClassroom(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
     onError: (error: Error) => {
       if (error.message.includes('foreign key') || error.message.includes('violates')) {

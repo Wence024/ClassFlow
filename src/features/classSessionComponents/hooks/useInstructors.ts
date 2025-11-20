@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as instructorsService from '../services/instructorsService';
-import type { Instructor, InstructorInsert, InstructorUpdate } from '../types/instructor';
+import * as instructorsService from '@/lib/services/instructorService';
+import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/instructor';
 
 /**
  * Custom hook to manage instructors data.
@@ -46,7 +46,7 @@ export function useInstructors() {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (id: string) => instructorsService.removeInstructor(id, user!.id),
+    mutationFn: (id: string) => instructorsService.removeInstructor(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey }),
     onError: (error: Error) => {
       if (error.message.includes('foreign key') || error.message.includes('violates')) {

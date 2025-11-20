@@ -6,10 +6,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCourses } from '@/features/classSessionComponents/hooks/useCourses';
-import * as coursesService from '@/features/classSessionComponents/services/coursesService';
+import * as coursesService from '@/lib/services/courseService';
 import { AuthContext } from '@/features/shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '@/features/shared/auth/types/auth';
-import type { Course, CourseInsert } from '@/features/classSessionComponents/types/course';
+import type { Course, CourseInsert } from '@/types/course';
 
 vi.mock('@/features/classSessionComponents/services/coursesService');
 

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as classGroupsService from '../services/classGroupsService';
-import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '../types/classGroup';
+import * as classGroupsService from '@/lib/services/classGroupService';
+import type { ClassGroup, ClassGroupInsert, ClassGroupUpdate } from '@/types/classGroup';
 
 /**
  * Custom hook to manage class groups data.

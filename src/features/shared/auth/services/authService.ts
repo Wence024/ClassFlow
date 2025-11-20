@@ -5,7 +5,7 @@
  */
 import { supabase } from '@/lib/supabase';
 import type { AuthResponse, User } from '../types/auth';
-import { UserRole } from '@/features/users/types/user';
+import { UserRole } from '@/types/user';
 
 /**
  * Logs in a user using their email and password.

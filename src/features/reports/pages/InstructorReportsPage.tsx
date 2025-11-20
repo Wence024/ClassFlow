@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { FileDown, FileSpreadsheet } from 'lucide-react';
 import { useAllInstructors } from '@/features/classSessionComponents/hooks';
-import type { Instructor } from '@/features/classSessionComponents/types/instructor';
+import type { Instructor } from '@/types/instructor';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useInstructorReport } from '../hooks/useInstructorReport';

@@ -23,7 +23,7 @@ import {
 import { usePrograms } from '@/features/programs/hooks/usePrograms';
 import { useDepartments } from '@/features/departments/hooks/useDepartments';
 import type { ClassSession } from './types';
-import type { Instructor, Classroom } from '@/features/classSessionComponents/types';
+import type { Instructor, Classroom } from '@/types';
 
 type FormData = z.infer<typeof classSessionSchema>;
 
