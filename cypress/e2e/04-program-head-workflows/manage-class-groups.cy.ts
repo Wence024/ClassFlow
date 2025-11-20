@@ -33,6 +33,7 @@ describe('Program Head: Manage Class Groups', () => {
     // Login as program head
     cy.visit('/login');
     cy.get('[data-cy="email-input"]').type(testEnv.user.email);
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     cy.get('[data-cy="password-input"]').type('TestPassword123!');
     cy.get('[data-cy="login-button"]').click();
     cy.url().should('not.include', '/login');

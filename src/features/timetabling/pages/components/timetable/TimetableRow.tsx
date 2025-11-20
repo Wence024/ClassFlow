@@ -7,13 +7,13 @@ import EmptyCell from './EmptyCell';
 import SessionCell from './SessionCell';
 
 /**
- * Z-index hierarchy for timetable components:
- * - Toolbar (sticky top): z-40
- * - Column headers (sticky top): z-30 (thead and left corner cell)
- * - Row headers (sticky left): z-20
- * - Session warnings: z-20
- * - Session pending badges: z-30
- * - Session content: z-10
+ * Z-index hierarchy for timetable components.
+ * - Toolbar (sticky top): z-40.
+ * - Column headers (sticky top): z-30 (thead and left corner cell).
+ * - Row headers (sticky left): z-20.
+ * - Session warnings: z-20.
+ * - Session pending badges: z-30.
+ * - Session content: z-10.
  */
 
 /**
