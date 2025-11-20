@@ -67,3 +67,26 @@ export async function getAllForDepartment(): Promise<RequestNotification[]> {
     created_at: d.created_at || new Date().toISOString(),
   }));
 }
+
+/**
+ * Creates a notification for a resource request.
+ * Internal helper used by the resourceRequestService.
+ *
+ * @param requestId
+ * @param targetDepartmentId
+ * @param message
+ */
+export async function createNotification(
+  requestId: string,
+  targetDepartmentId: string,
+  message: string
+): Promise<void> {
+  const { error } = await supabase.from('request_notifications').insert([
+    {
+      request_id: requestId,
+      target_department_id: targetDepartmentId,
+      message,
+    },
+  ]);
+  if (error) throw error;
+}

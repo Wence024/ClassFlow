@@ -229,3 +229,184 @@ export async function getActiveRequestsForSession(sessionId: string): Promise<Re
   if (error) throw error;
   return data || [];
 }
+
+/**
+ * Cancels all active resource requests for a class session and notifies department heads.
+ * Used when a program head drops a session back to the drawer.
+ *
+ * @param classSessionId
+ */
+export async function cancelActiveRequestsForClassSession(classSessionId: string): Promise<void> {
+  const { data: requests, error: fetchError } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('class_session_id', classSessionId)
+    .in('status', ['pending', 'approved']);
+
+  if (fetchError) throw fetchError;
+  if (!requests || requests.length === 0) return;
+
+  for (const request of requests) {
+    try {
+      await supabase.from(NOTIF_TABLE).insert([
+        {
+          request_id: request.id,
+          target_department_id: request.target_department_id,
+          message: 'Request cancelled by program head',
+        },
+      ]);
+    } catch (e) {
+      console.error('Failed to create cancellation notification', e);
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('class_session_id', classSessionId)
+    .in('status', ['pending', 'approved']);
+
+  if (deleteError) throw deleteError;
+}
+
+/**
+ * Fetches a resource request with enriched details including requester info and timetable position.
+ *
+ * @param requestId
+ */
+export async function getRequestWithDetails(requestId: string): Promise<
+  ResourceRequest & {
+    resource_name?: string;
+    requester_name?: string;
+    program_name?: string;
+    period_index?: number;
+    class_group_id?: string;
+  }
+> {
+  const { data: request, error } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('id', requestId)
+    .single();
+
+  if (error) throw error;
+
+  let resourceName = 'Unknown Resource';
+  let requesterName = 'Unknown User';
+  let programName = 'Unknown Program';
+  let periodIndex: number | undefined;
+  let classGroupId: string | undefined;
+
+  if (request.resource_type === 'instructor') {
+    const { data: instructor } = await supabase
+      .from('instructors')
+      .select('first_name, last_name')
+      .eq('id', request.resource_id)
+      .single();
+
+    if (instructor) {
+      resourceName = `${instructor.first_name} ${instructor.last_name}`;
+    }
+  } else if (request.resource_type === 'classroom') {
+    const { data: classroom } = await supabase
+      .from('classrooms')
+      .select('name')
+      .eq('id', request.resource_id)
+      .single();
+
+    if (classroom) {
+      resourceName = classroom.name;
+    }
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', request.requester_id)
+    .single();
+
+  if (profile?.full_name) {
+    requesterName = profile.full_name;
+  }
+
+  const { data: program } = await supabase
+    .from('programs')
+    .select('name')
+    .eq('id', request.requesting_program_id)
+    .single();
+
+  if (program?.name) {
+    programName = program.name;
+  }
+
+  const { data: assignment } = await supabase
+    .from('timetable_assignments')
+    .select('period_index, class_group_id')
+    .eq('class_session_id', request.class_session_id)
+    .single();
+
+  if (assignment) {
+    periodIndex = assignment.period_index;
+    classGroupId = assignment.class_group_id;
+  }
+
+  return {
+    ...request,
+    resource_name: resourceName,
+    requester_name: requesterName,
+    program_name: programName,
+    period_index: periodIndex,
+    class_group_id: classGroupId,
+  } as ResourceRequest & {
+    resource_name: string;
+    requester_name: string;
+    program_name: string;
+    period_index?: number;
+    class_group_id?: string;
+  };
+}
+
+/**
+ * Cancels all active resource requests for a specific resource (instructor or classroom).
+ * Used as an edge case handler when resources are deleted.
+ *
+ * @param resourceType
+ * @param resourceId
+ */
+export async function cancelActiveRequestsForResource(
+  resourceType: 'instructor' | 'classroom',
+  resourceId: string
+): Promise<void> {
+  const { data: requests, error: fetchError } = await supabase
+    .from(TABLE)
+    .select('*')
+    .eq('resource_type', resourceType)
+    .eq('resource_id', resourceId)
+    .in('status', ['pending', 'approved']);
+
+  if (fetchError) throw fetchError;
+  if (!requests || requests.length === 0) return;
+
+  for (const request of requests) {
+    try {
+      await supabase.from(NOTIF_TABLE).insert([
+        {
+          request_id: request.id,
+          target_department_id: request.target_department_id,
+          message: `Request cancelled - ${resourceType} was deleted`,
+        },
+      ]);
+    } catch (e) {
+      console.error('Failed to create cancellation notification', e);
+    }
+  }
+
+  const { error: deleteError } = await supabase
+    .from(TABLE)
+    .delete()
+    .eq('resource_type', resourceType)
+    .eq('resource_id', resourceId)
+    .in('status', ['pending', 'approved']);
+
+  if (deleteError) throw deleteError;
+}
