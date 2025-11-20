@@ -20,7 +20,7 @@ describe('View Pending Requests Service', () => {
         { id: 'req-2', status: 'approved' },
       ];
 
-      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests as any);
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
 
       const result = await service.fetchMyRequests();
 

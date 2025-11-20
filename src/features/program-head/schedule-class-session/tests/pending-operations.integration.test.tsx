@@ -6,18 +6,18 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useTimetable } from '../hook';
-import { getTimetableAssignments } from '../service';
-import * as classGroupsService from '../../manage-components/services/classGroupsService';
-import * as useScheduleConfigHook from '@/features/shared/schedule-config/hooks/useScheduleConfig';
-import * as useActiveSemesterHook from '@/features/shared/schedule-config/hooks/useActiveSemester';
+import { useTimetable } from '@/features/timetabling/hooks/useTimetable';
+import { getTimetableAssignments } from '@/features/timetabling/services/timetableService';
+import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
+import * as useScheduleConfigHook from '@/features/scheduleConfig/hooks/useScheduleConfig';
+import * as useActiveSemesterHook from '@/features/scheduleConfig/hooks/useActiveSemester';
 import * as useAuthHook from '@/features/shared/auth/hooks/useAuth';
-import type { ClassGroup } from '../../manage-components/types/classGroup';
-import type { ScheduleConfig } from '@/features/shared/schedule-config/types/scheduleConfig';
-import type { Semester } from '@/features/shared/schedule-config/types/semesters';
+import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
+import type { ScheduleConfig } from '@/features/scheduleConfig/types/scheduleConfig';
+import type { Semester } from '@/features/scheduleConfig/types/semesters';
 import type { User } from '@/features/shared/auth/types/auth';
 
-vi.mock('../service', () => ({
+vi.mock('@/features/timetabling/services/timetableService', () => ({
   getTimetableAssignments: vi.fn(),
 }));
 

@@ -4,10 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { userEvent } from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tantml:query';
-import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import { QueryClient } from '@tanstack/react-query';
 import type { AuthContextType } from '../../../shared/auth/types/auth';
 
 vi.mock('../hook');

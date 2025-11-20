@@ -4,19 +4,19 @@ import { MemoryRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PrivateRoute from '../PrivateRoute';
 import { AuthContext } from '../../contexts/AuthContext';
-import AppLayout from '../../../../components/layout/AppLayout';
+import AppLayout from '@/components/layout/AppLayout';
 import type { AuthContextType, User } from '../../types/auth';
 
 // Mock child components of AppLayout
-vi.mock('../../../../components/Sidebar', () => ({
+vi.mock('@/components/Sidebar', () => ({
   default: () => <div data-testid="sidebar">Sidebar</div>,
 }));
-vi.mock('../../../../components/Header', () => ({
+vi.mock('@/components/Header', () => ({
   default: () => <div data-testid="header">Header</div>,
 }));
 
 // Mocking the Notification component from the 'ui' module
-vi.mock('../../../../components/ui', async (importOriginal) => {
+vi.mock('@/components/ui', async (importOriginal) => {
   const original = await importOriginal<typeof import('../../../../components/ui')>();
   return {
     ...original,

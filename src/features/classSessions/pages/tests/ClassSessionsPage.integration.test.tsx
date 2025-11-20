@@ -54,7 +54,7 @@ const setupComponent = async (
   isLoading = false,
   error: string | null = null
 ) => {
-  const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
+  const mockUseAuth = vi.mocked(await import('../../../shared/auth/hooks/useAuth')).useAuth;
   mockUseAuth.mockReturnValue({
     user: mockUser,
     loading: false,

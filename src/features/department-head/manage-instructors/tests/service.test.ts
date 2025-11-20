@@ -19,7 +19,7 @@ describe('Instructor Service', () => {
       const mockInstructors = [
         { id: '1', first_name: 'John', last_name: 'Doe', email: 'john@test.com' },
       ];
-      vi.mocked(instructorService.getInstructors).mockResolvedValue(mockInstructors as any);
+      vi.mocked(instructorService.getInstructors).mockResolvedValue(mockInstructors);
 
       const result = await service.fetchInstructors({
         role: 'department_head',
@@ -58,7 +58,7 @@ describe('Instructor Service', () => {
       };
 
       const createdInstructor = { id: '2', ...newInstructor };
-      vi.mocked(instructorService.addInstructor).mockResolvedValue(createdInstructor as any);
+      vi.mocked(instructorService.addInstructor).mockResolvedValue(createdInstructor);
 
       const result = await service.createInstructor(newInstructor);
 
@@ -79,7 +79,7 @@ describe('Instructor Service', () => {
         last_name: 'Doe',
         email: 'john@test.com',
       };
-      vi.mocked(instructorService.updateInstructor).mockResolvedValue(updatedInstructor as any);
+      vi.mocked(instructorService.updateInstructor).mockResolvedValue(updatedInstructor);
 
       const result = await service.modifyInstructor('1', updateData);
 

@@ -13,6 +13,20 @@ vi.mock('react-router-dom', () => ({
 
 vi.mock('../service');
 
+// Helper function moved outside the test to avoid nesting
+const createDelayedResponse = () => {
+  const resolveWithTimeout = (resolve: (value: {isCrossDept: boolean; resourceType: null; resourceId: null; departmentId: null;}) => void) => {
+    setTimeout(resolve, 100);
+  };
+
+  return () => new Promise<{
+    isCrossDept: boolean;
+    resourceType: null;
+    resourceId: null;
+    departmentId: null;
+  }>(resolveWithTimeout);
+};
+
 describe('useRequestCrossDeptResource', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -71,22 +85,7 @@ describe('useRequestCrossDeptResource', () => {
     });
 
     it('should set isChecking state correctly', async () => {
-      // Helper to avoid nested Promise callback
-      const delayedResolve = () => new Promise<{
-        isCrossDept: boolean;
-        resourceType: null;
-        resourceId: null;
-        departmentId: null;
-      }>((resolve) => {
-        setTimeout(() => {
-          resolve({
-            isCrossDept: false,
-            resourceType: null,
-            resourceId: null,
-            departmentId: null,
-          });
-        }, 100);
-      });
+      const delayedResolve = createDelayedResponse();
 
       vi.mocked(service.checkCrossDepartmentResource).mockImplementation(delayedResolve);
 
@@ -102,7 +101,7 @@ describe('useRequestCrossDeptResource', () => {
   });
 
   describe('initiateCrossDeptRequest', () => {
-    it('should set pending request', () => {
+    it('should set pending request', async () => {
       const { result } = renderHook(() => useRequestCrossDeptResource());
 
       const payload = {
@@ -114,12 +113,15 @@ describe('useRequestCrossDeptResource', () => {
 
       result.current.initiateCrossDeptRequest(payload);
 
-      expect(result.current.pendingRequest).toEqual(payload);
+      // Wait for state update to complete
+      await waitFor(() => {
+        expect(result.current.pendingRequest).toEqual(payload);
+      });
     });
   });
 
   describe('cancelRequest', () => {
-    it('should clear pending request', () => {
+    it('should clear pending request', async () => {
       const { result } = renderHook(() => useRequestCrossDeptResource());
 
       const payload = {
@@ -130,10 +132,18 @@ describe('useRequestCrossDeptResource', () => {
       };
 
       result.current.initiateCrossDeptRequest(payload);
-      expect(result.current.pendingRequest).not.toBeNull();
+
+      // Wait for state update to complete
+      await waitFor(() => {
+        expect(result.current.pendingRequest).not.toBeNull();
+      });
 
       result.current.cancelRequest();
-      expect(result.current.pendingRequest).toBeNull();
+
+      // Wait for state update to complete after cancel
+      await waitFor(() => {
+        expect(result.current.pendingRequest).toBeNull();
+      });
     });
   });
 });

@@ -65,9 +65,9 @@ describe('useManageInstructors', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useAuth).mockReturnValue({
-      user: mockUser as any,
+      user: mockUser,
       isAdmin: () => false,
-    } as any);
+    } as ReturnType<typeof useAuth>);
     vi.mocked(service.fetchInstructors).mockResolvedValue(mockInstructors);
   });
 
@@ -88,9 +88,9 @@ describe('useManageInstructors', () => {
 
     it('should handle admin role', async () => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { ...mockUser, role: 'admin', department_id: null } as any,
+        user: { ...mockUser, role: 'admin', department_id: null },
         isAdmin: () => true,
-      } as any);
+      } as ReturnType<typeof useAuth>);
 
       const { result } = renderHook(() => useManageInstructors(), {
         wrapper: createWrapper(),
@@ -180,9 +180,9 @@ describe('useManageInstructors', () => {
 
     it('should handle department change for admin', async () => {
       vi.mocked(useAuth).mockReturnValue({
-        user: { ...mockUser, role: 'admin' } as any,
+        user: { ...mockUser, role: 'admin' },
         isAdmin: () => true,
-      } as any);
+      } as ReturnType<typeof useAuth>);
 
       const updateData: InstructorUpdate = {
         department_id: 'dept-2',

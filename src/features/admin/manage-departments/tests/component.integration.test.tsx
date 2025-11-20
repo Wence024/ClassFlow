@@ -4,6 +4,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { QueryClient } from '@tanstack/react-query';
+import type { AuthContextType } from '../../../../shared/auth/types/auth';
 
 vi.mock('../hook');
 

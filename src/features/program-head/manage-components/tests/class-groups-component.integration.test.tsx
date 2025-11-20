@@ -6,7 +6,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import ClassGroupManagement from '../pages/ClassGroupTab';
+import ClassGroupManagement from '../../../classSessionComponents/pages/ClassGroupTab';
 import { AuthContext } from '@/features/shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '@/features/shared/auth/types/auth';
 
@@ -63,16 +63,6 @@ const createWrapper = () => {
 
 describe('ClassGroupManagement Component', () => {
   it('should render the component', () => {
-    const { useClassGroups } = require('../hooks/useClassGroups');
-    useClassGroups.mockReturnValue({
-      classGroups: mockClassGroups,
-      isLoading: false,
-      error: null,
-      addClassGroup: vi.fn(),
-      updateClassGroup: vi.fn(),
-      removeClassGroup: vi.fn(),
-    });
-
     render(<ClassGroupManagement />, { wrapper: createWrapper() });
 
     expect(screen.getByText(/class groups/i)).toBeInTheDocument();

@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
  * - Instructor scheduling conflicts (same instructor, same time)
  * - Classroom scheduling conflicts (same room, same time)
  * - Cross-program conflicts (resources from other departments)
- * - Multi-period conflicts (sessions spanning multiple periods)
+ * - Multi-period conflicts (sessions spanning multiple periods).
  */
 
 describe('Conflict Detection - Instructor Conflicts', () => {

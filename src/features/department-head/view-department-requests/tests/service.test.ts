@@ -20,7 +20,7 @@ describe('View Department Requests Service', () => {
         { id: 'req-2', status: 'approved' },
       ];
       vi.mocked(resourceRequestService.getRequestsForDepartment).mockResolvedValue(
-        mockRequests as any
+        mockRequests
       );
 
       const result = await service.fetchDepartmentRequests('dept-1');

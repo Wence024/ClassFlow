@@ -153,7 +153,7 @@ describe('useAllInstructors Integration', () => {
   });
 
   it('should handle loading state', async () => {
-    const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
+    const mockUseAuth = vi.mocked(await import('../../../shared/auth/hooks/useAuth')).useAuth;
     mockUseAuth.mockReturnValue({
       user: mockUser,
       loading: false,
@@ -191,7 +191,7 @@ describe('useAllInstructors Integration', () => {
   });
 
   it('should handle error state', async () => {
-    const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
+    const mockUseAuth = vi.mocked(await import('../../../shared/auth/hooks/useAuth')).useAuth;
     mockUseAuth.mockReturnValue({
       user: mockUser,
       loading: false,

@@ -11,11 +11,11 @@ import { getTimetableAssignments } from '../../services/timetableService';
 import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
-import * as useAuthHook from '../../../auth/hooks/useAuth';
+import * as useAuthHook from '../../../shared/auth/hooks/useAuth';
 import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
 import type { ScheduleConfig } from '../../../scheduleConfig/types/scheduleConfig';
 import type { Semester } from '../../../scheduleConfig/types/semesters';
-import type { User } from '../../../auth/types/auth';
+import type { User } from '../../../shared/auth/types/auth';
 
 vi.mock('../../services/timetableService', () => ({
   getTimetableAssignments: vi.fn(),

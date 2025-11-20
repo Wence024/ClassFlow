@@ -8,7 +8,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import ManageClassSessionsComponent from '../component';
+import { ManageClassSessionsPage } from '../component';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { User, AuthContextType } from '../../../shared/auth/types/auth';
 
@@ -45,6 +45,10 @@ const queryClient = new QueryClient({
 
 /**
  * Sets up the component with necessary providers and mocked data.
+ *
+ * @param classSessions
+ * @param isLoading
+ * @param error
  */
 const setupComponent = async (
   classSessions = [mockClassSession],
@@ -53,14 +57,16 @@ const setupComponent = async (
 ) => {
   const mockUseManageClassSessions = vi.mocked(await import('../hook')).useManageClassSessions;
   mockUseManageClassSessions.mockReturnValue({
-    classSessions,
+    sessions: classSessions,
     isLoading,
-    isSubmitting: false,
-    isRemoving: false,
+    isCreating: false,
+    isUpdating: false,
+    isDeleting: false,
     error,
-    addClassSession: vi.fn(),
-    updateClassSession: vi.fn(),
-    removeClassSession: vi.fn(),
+    createSession: vi.fn(),
+    updateSession: vi.fn(),
+    deleteSession: vi.fn(),
+    checkCrossDepartment: vi.fn(),
   });
 
   const mockAuthContext: AuthContextType = {
@@ -87,7 +93,7 @@ const setupComponent = async (
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={mockAuthContext}>
         <MemoryRouter>
-          <ManageClassSessionsComponent />
+          <ManageClassSessionsPage />
         </MemoryRouter>
       </AuthContext.Provider>
     </QueryClientProvider>
@@ -147,14 +153,16 @@ describe('ManageClassSessions Component', () => {
     const mockRemove = vi.fn();
     const mockUseManageClassSessions = vi.mocked(await import('../hook')).useManageClassSessions;
     mockUseManageClassSessions.mockReturnValue({
-      classSessions: [mockClassSession],
+      sessions: [mockClassSession],
       isLoading: false,
-      isSubmitting: false,
-      isRemoving: false,
+      isCreating: false,
+      isUpdating: false,
+      isDeleting: false,
       error: null,
-      addClassSession: vi.fn(),
-      updateClassSession: vi.fn(),
-      removeClassSession: mockRemove,
+      createSession: vi.fn(),
+      updateSession: vi.fn(),
+      deleteSession: mockRemove,
+      checkCrossDepartment: vi.fn(),
     });
 
     const user = userEvent.setup();
