@@ -637,13 +637,366 @@ For each directory category:
 
 **Estimated Effort:** 30-40 hours remaining
 
-### Phase 9.4: Timetabling Full Migration (FUTURE)
-**Goal:** Complete migration of timetabling feature to vertical slice
+### Phase 9.4: Validation Centralization ⏳ PENDING
+**Goal:** Move all validation schemas from feature folders to `src/types/validation/`
 
-- Migrate remaining timetabling components to `program-head/schedule-class-session/`
-- Update all internal imports
-- Consolidate with existing schedule-class-session vertical slice
-- Remove old `src/features/timetabling/` directory
+**Status:** Not started
+**Estimated Effort:** 4-6 hours
+
+#### 9.4.1: Create Validation Directory Structure
+```
+src/types/validation/
+├── index.ts          # Barrel export
+├── components.ts     # From classSessionComponents/types/validation.ts
+├── classSession.ts   # From classSessions/types/validation.ts
+├── department.ts     # From departments/types/validation.ts
+└── program.ts        # From programs/types/validation.ts
+```
+
+#### 9.4.2: Migration Checklist
+- ⏳ Create `src/types/validation/` directory
+- ⏳ Move `classSessionComponents/types/validation.ts` → `validation/components.ts`
+  - Contains: courseSchema, classGroupSchema, classroomSchema, instructorSchema, componentSchemas
+- ⏳ Move `classSessions/types/validation.ts` → `validation/classSession.ts`
+  - Contains: classSessionSchema
+- ⏳ Move `departments/types/validation.ts` → `validation/department.ts`
+  - Contains: departmentSchema, DepartmentFormData
+- ⏳ Move `programs/types/validation.ts` → `validation/program.ts`
+  - Contains: programSchema, ProgramFormData
+- ⏳ Create `validation/index.ts` with barrel exports
+
+#### 9.4.3: Update Import Statements (35+ files)
+**Critical files requiring updates:**
+- `src/features/admin/manage-classrooms/component.tsx`
+- `src/features/department-head/manage-instructors/component.tsx`
+- `src/features/program-head/manage-class-sessions/component.tsx`
+- `src/features/classSessionComponents/pages/*.tsx` (5 files)
+- `src/features/classSessions/pages/*.tsx`
+- `src/features/departments/pages/*.tsx`
+- `src/features/programs/pages/*.tsx`
+- All test files importing validation
+
+**Import path changes:**
+- `@/features/classSessionComponents/types/validation` → `@/types/validation/components`
+- `@/features/classSessions/types/validation` → `@/types/validation/classSession`
+- `@/features/departments/types/validation` → `@/types/validation/department`
+- `@/features/programs/types/validation` → `@/types/validation/program`
+
+#### 9.4.4: Verification Steps
+- ⏳ Run `npm run lint` - Check for import errors
+- ⏳ Run `npm run type-check` - Verify TypeScript compilation
+- ⏳ Run `npm run test` - Ensure all tests pass
+- ⏳ Delete old validation files after verification
+
+### Phase 9.5: Migrate Admin Features ⏳ PENDING
+**Goal:** Complete migration of admin-related features to role-based structure
+
+**Status:** Not started
+**Estimated Effort:** 8-10 hours
+
+#### 9.5.1: Migrate Departments
+**Target:** `admin/manage-departments/` (merge with existing)
+
+- ⏳ Move `departments/hooks/*` → `admin/manage-departments/hooks/`
+- ⏳ Move `departments/pages/DepartmentManagementPage.tsx` → `admin/manage-departments/pages/`
+- ⏳ Move `departments/pages/components/*` → `admin/manage-departments/components/`
+- ⏳ Update route in `src/routes/AdminRoutes.tsx` (line 4)
+- ⏳ Update route in `src/routes/DepartmentHeadRoutes.tsx` (line 3)
+- ⏳ Update all imports (5 files with 5 imports)
+
+#### 9.5.2: Migrate Programs
+**Target:** `admin/manage-programs/` (new folder)
+
+- ⏳ Create `admin/manage-programs/` folder structure
+- ⏳ Move `programs/hooks/*` → `admin/manage-programs/hooks/`
+- ⏳ Move `programs/pages/ProgramManagementPage.tsx` → `admin/manage-programs/pages/`
+- ⏳ Move `programs/pages/components/*` → `admin/manage-programs/components/`
+- ⏳ Update route in `src/routes/AdminRoutes.tsx` (line 5)
+- ⏳ Update all imports
+
+#### 9.5.3: Merge Users Management
+**Target:** `admin/manage-users/` (merge with existing)
+
+- ⏳ Move `users/hooks/*` → `admin/manage-users/hooks/`
+- ⏳ Move `users/pages/UserManagementPage.tsx` → `admin/manage-users/pages/`
+- ⏳ Update route in `src/routes/AdminRoutes.tsx` (line 6)
+- ⏳ Update all imports (2 files with 2 imports)
+- ⏳ Delete `users/types/*` (duplicates exist in `src/types/user.ts`)
+
+#### 9.5.4: Migrate Schedule Configuration
+**Target:** `admin/schedule-config/` (new folder)
+
+- ⏳ Create `admin/schedule-config/` folder structure
+- ⏳ Move `scheduleConfig/hooks/*` → `admin/schedule-config/hooks/`
+- ⏳ Move `scheduleConfig/pages/ScheduleConfigPage.tsx` → `admin/schedule-config/pages/`
+- ⏳ Review `scheduleConfig/services/scheduleConfigService.ts`
+  - Check if duplicate of centralized service
+  - Move unique functionality if needed
+- ⏳ Delete `scheduleConfig/types/*` after checking for duplicates
+- ⏳ Update route in `src/routes/AdminRoutes.tsx` (line 3)
+- ⏳ Search and replace: `@/features/scheduleConfig/` → `@/features/admin/schedule-config/`
+
+### Phase 9.6: Migrate Program Head Features ⏳ PENDING
+**Goal:** Merge old feature folders into existing program-head vertical slices
+
+**Status:** Not started
+**Estimated Effort:** 12-15 hours
+
+#### 9.6.1: Merge Class Sessions
+**Target:** `program-head/manage-class-sessions/` (merge with existing)
+
+- ⏳ Move `classSessions/hooks/*` → `program-head/manage-class-sessions/hooks/`
+- ⏳ Move `classSessions/pages/components/*` → `program-head/manage-class-sessions/components/`
+- ⏳ Update imports in `program-head/manage-class-sessions/component.tsx`
+- ⏳ Update imports in `program-head/manage-class-sessions/tests/service.test.ts`
+- ⏳ Delete duplicate types (check against `src/types/`)
+
+#### 9.6.2: Merge Class Session Components
+**Target:** `program-head/manage-components/` (merge with existing)
+
+- ⏳ Move `classSessionComponents/hooks/*` → `program-head/manage-components/hooks/`
+- ⏳ Move `classSessionComponents/pages/*` → `program-head/manage-components/components/`
+  - Rename files for specificity (e.g., `CourseTab.tsx` → `CourseManagement.tsx`)
+- ⏳ Update imports in `admin/manage-classrooms/component.tsx` (line 20)
+- ⏳ Update imports in `department-head/manage-instructors/component.tsx` (line 20)
+- ⏳ Update all remaining imports (21 imports across 9 files)
+
+#### 9.6.3: Merge Timetabling Features
+**Target:** `program-head/schedule-class-session/` (merge with existing)
+
+**Critical:** `schedule-class-session` already contains timetabling logic
+
+- ⏳ Move `timetabling/pages/components/*` → `program-head/schedule-class-session/components/`
+- ⏳ Move `timetabling/hooks/*` → `program-head/schedule-class-session/hooks/`
+- ⏳ Move `timetabling/utils/*` → `program-head/schedule-class-session/utils/`
+- ⏳ Move `timetabling/pages/TimetablePage.tsx` → `program-head/schedule-class-session/pages/`
+- ⏳ Delete `timetabling/types/*` (duplicate of `src/types/timetable.ts`)
+- ⏳ Update route in `src/routes/ProgramHeadRoutes.tsx` (line 4)
+- ⏳ Search and replace: `@/features/timetabling/` → `@/features/program-head/schedule-class-session/`
+
+### Phase 9.7: Migrate Shared Features ⏳ PENDING
+**Goal:** Move cross-role features to shared folder
+
+**Status:** Not started
+**Estimated Effort:** 6-8 hours
+
+#### 9.7.1: Migrate Reports
+**Target:** `shared/reports/` (new folder)
+
+- ⏳ Create `shared/reports/` folder structure
+- ⏳ Move `reports/*` → `shared/reports/`
+- ⏳ Review `reports/services/` for unique functionality
+  - Move to `src/lib/services/reportService.ts` if needed
+  - Delete if duplicate
+- ⏳ Update route in `src/routes/SharedRoutes.tsx` (line 3)
+- ⏳ Update all imports
+
+#### 9.7.2: Analyze and Migrate Resource Requests
+
+**First, determine ownership:**
+- ⏳ Check which roles use resource requests
+- ⏳ If program-head only: → `program-head/resource-requests/`
+- ⏳ If department-head only: → `department-head/resource-requests/`
+- ⏳ If both: → `shared/resource-requests/`
+
+**Then migrate:**
+- ⏳ Create target folder based on ownership analysis
+- ⏳ Move `resourceRequests/hooks/*` → target folder
+- ⏳ Move `resourceRequests/workflows/*` → target folder (if applicable)
+- ⏳ Move `resourceRequests/tests/*` → target folder
+- ⏳ Update all imports (1 known import in test file)
+- ⏳ Verify service already centralized in `lib/services/` (completed in Phase 9.1)
+
+### Phase 9.8: Delete Old Type/Validation Duplicates ⏳ PENDING
+**Goal:** Remove duplicate type and validation files after migration
+
+**Status:** Not started
+**Estimated Effort:** 2-3 hours
+
+#### 9.8.1: Delete Old Validation Files
+**Prerequisite:** Phase 9.4 import updates complete
+
+- ⏳ Delete `classSessionComponents/types/validation.ts`
+- ⏳ Delete `classSessions/types/validation.ts`
+- ⏳ Delete `departments/types/validation.ts`
+- ⏳ Delete `programs/types/validation.ts`
+
+#### 9.8.2: Verify No Remaining Imports
+- ⏳ Search codebase for old validation imports
+- ⏳ Search codebase for old service imports
+- ⏳ Search codebase for old type imports
+- ⏳ Fix any remaining import references
+
+### Phase 9.9: Clean Up Empty Directories ⏳ PENDING
+**Goal:** Remove all old feature directories after complete migration
+
+**Status:** Not started (BLOCKED until all imports updated)
+**Estimated Effort:** 1-2 hours
+
+#### 9.9.1: Safety Verification Checklist
+Before deleting each directory, verify:
+- ✅ All files moved to new location
+- ✅ All imports updated (search returns 0 results)
+- ✅ All tests passing
+- ✅ TypeScript compilation successful
+- ✅ Manual testing confirms functionality
+
+#### 9.9.2: Directories to Delete
+1. ⏳ `src/features/classSessionComponents/`
+2. ⏳ `src/features/classSessions/`
+3. ⏳ `src/features/departments/`
+4. ⏳ `src/features/programs/`
+5. ⏳ `src/features/scheduleConfig/`
+6. ⏳ `src/features/timetabling/`
+7. ⏳ `src/features/users/`
+8. ⏳ `src/features/reports/`
+9. ⏳ `src/features/resourceRequests/`
+
+#### 9.9.3: Final Structure Verification
+**Expected structure after cleanup:**
+```
+src/features/
+├── admin/
+│   ├── manage-classrooms/
+│   ├── manage-departments/
+│   ├── manage-programs/          # NEW
+│   ├── manage-users/
+│   └── schedule-config/           # NEW
+├── department-head/
+│   ├── approve-request/
+│   ├── manage-instructors/
+│   ├── reject-request/
+│   └── view-department-requests/
+├── program-head/
+│   ├── manage-class-sessions/     # MERGED
+│   ├── manage-components/         # MERGED
+│   ├── request-cross-dept-resource/
+│   ├── schedule-class-session/    # MERGED
+│   └── view-pending-requests/
+└── shared/
+    ├── auth/
+    ├── reports/                   # NEW
+    └── (resource-requests/)       # MAYBE NEW
+```
+
+### Phase 9.10: Final Verification and Documentation ⏳ PENDING
+**Goal:** Ensure complete migration success and update documentation
+
+**Status:** Not started
+**Estimated Effort:** 4-6 hours
+
+#### 9.10.1: Run All Quality Checks
+- ⏳ Run `npm run lint` - Should pass with 0 errors
+- ⏳ Run `npm run type-check` - Should pass with 0 errors
+- ⏳ Run `npm run test` - Should pass all tests
+- ⏳ Run `npm run build` - Should build successfully
+
+#### 9.10.2: Manual Testing Checklist
+- ⏳ Test Admin workflows
+  - Departments CRUD
+  - Programs CRUD
+  - Users management
+  - Schedule configuration
+  - Classrooms management
+- ⏳ Test Department Head workflows
+  - Dashboard access
+  - Instructor management
+  - Approve/reject requests
+  - View department requests
+- ⏳ Test Program Head workflows
+  - Class sessions CRUD
+  - Components management (courses, groups)
+  - Timetable scheduling with drag-and-drop
+  - Cross-department requests
+  - View pending requests
+- ⏳ Test Shared features
+  - Authentication (login/logout)
+  - Profile management
+  - Reports generation
+
+#### 9.10.3: Search for Old Import Patterns
+```bash
+# Run these searches to find any remaining old imports
+grep -r "@/features/classSessionComponents" src/
+grep -r "@/features/classSessions" src/
+grep -r "@/features/departments" src/
+grep -r "@/features/programs" src/
+grep -r "@/features/scheduleConfig" src/
+grep -r "@/features/timetabling" src/
+grep -r "@/features/users" src/
+grep -r "@/features/reports" src/
+grep -r "@/features/resourceRequests" src/
+```
+
+**Expected result:** Zero matches for all searches
+
+#### 9.10.4: Update Documentation
+- ⏳ Update main README.md with new architecture
+- ⏳ Update this REFACTORING_STATUS.md with completion status
+- ⏳ Update VERTICAL_SLICE_ARCHITECTURE.md if needed
+- ⏳ Create migration summary document
+- ⏳ Document import path reference guide
+
+### Phase 9 Success Criteria
+
+✅ **Horizontal Slicing Complete:**
+- ✅ All services in `src/lib/services/` (Phase 9.1-9.3 COMPLETE)
+- ⏳ All types in `src/types/` (awaiting Phase 9.8)
+- ⏳ All validation in `src/types/validation/` (awaiting Phase 9.4)
+
+✅ **Vertical Slicing Complete:**
+- ⏳ Only 4 top-level folders in `src/features/`: admin, department-head, program-head, shared
+- ⏳ Hooks remain in vertical slices (decentralized)
+- ⏳ Each vertical slice is self-contained with its use case
+
+✅ **Quality Assurance:**
+- ⏳ Zero linting errors
+- ⏳ Zero TypeScript errors
+- ⏳ All tests passing
+- ⏳ Production build successful
+- ⏳ Manual testing confirms all features work
+
+✅ **Documentation:**
+- ⏳ All architectural changes documented
+- ⏳ Import path migration guide created
+- ⏳ README updated with new structure
+
+### Phase 9 Progress Tracker
+
+| Sub-Phase | Status | Files Affected | Estimated Hours | Actual Hours |
+|-----------|--------|----------------|-----------------|--------------|
+| 9.1: Service Consolidation | ✅ Complete | 16 files | 6-8 | ~6 |
+| 9.2: classSessionComponents Cleanup | ✅ Complete | 10 files | 4-6 | ~4 |
+| 9.3: Remaining Service Cleanup | ✅ Complete | 6 files | 3-4 | ~3 |
+| 9.4: Validation Centralization | ⏳ Pending | 35+ files | 4-6 | - |
+| 9.5: Migrate Admin Features | ⏳ Pending | 15+ files | 8-10 | - |
+| 9.6: Migrate Program Head Features | ⏳ Pending | 30+ files | 12-15 | - |
+| 9.7: Migrate Shared Features | ⏳ Pending | 10+ files | 6-8 | - |
+| 9.8: Delete Type Duplicates | ⏳ Pending | 10+ files | 2-3 | - |
+| 9.9: Clean Up Directories | ⏳ Pending | 9 folders | 1-2 | - |
+| 9.10: Final Verification | ⏳ Pending | All files | 4-6 | - |
+| **Total** | **30% Complete** | **~150 files** | **50-68 hrs** | **~13 hrs** |
+
+### Risk Mitigation Strategy
+
+1. **Work in Sequential Phases:** Complete and verify each phase before moving to next
+2. **Commit Frequently:** After each successful sub-phase for easy rollback
+3. **Run Tests After Each Phase:** Catch breaking changes immediately
+4. **Update Imports Immediately:** Don't accumulate broken imports
+5. **Keep Old Files Temporarily:** Delete only after 100% verification
+6. **Document Blockers:** Record any issues preventing progress
+
+### Estimated Timeline
+
+- **Phase 9.4:** 1 day (validation centralization)
+- **Phase 9.5:** 2 days (admin features migration)
+- **Phase 9.6:** 2-3 days (program head features migration)
+- **Phase 9.7:** 1-2 days (shared features migration)
+- **Phase 9.8:** 0.5 day (type cleanup)
+- **Phase 9.9:** 0.5 day (directory deletion)
+- **Phase 9.10:** 1 day (final verification)
+
+**Total Estimated:** 8-10 working days for complete migration
 
 **Phase 8 Achievements:**
 - ✅ Phase 8.1: Documentation created for all vertical slices
@@ -683,7 +1036,52 @@ For each directory category:
 - Build successful despite warnings, confirming code functionality
 ---
 
+## 📊 Migration Progress Overview
+
+### Overall Completion: 70% ✅
+
+| Major Phase | Status | Completion |
+|-------------|--------|------------|
+| Phase 1-6: Architecture Setup | ✅ Complete | 100% |
+| Phase 7: Testing Migration | ✅ Complete | 100% |
+| Phase 8: Documentation | ✅ Complete | 100% |
+| **Phase 9: Complete Migration** | **🚧 In Progress** | **30%** |
+
+### Phase 9 Detailed Progress: 30% (3/10 sub-phases complete)
+
+| Sub-Phase | Status | Completion |
+|-----------|--------|------------|
+| 9.1: Service Consolidation | ✅ Complete | 100% |
+| 9.2: Component Services Cleanup | ✅ Complete | 100% |
+| 9.3: Remaining Services Cleanup | ✅ Complete | 100% |
+| 9.4: Validation Centralization | ⏳ Pending | 0% |
+| 9.5: Migrate Admin Features | ⏳ Pending | 0% |
+| 9.6: Migrate Program Head Features | ⏳ Pending | 0% |
+| 9.7: Migrate Shared Features | ⏳ Pending | 0% |
+| 9.8: Delete Type Duplicates | ⏳ Pending | 0% |
+| 9.9: Clean Up Directories | ⏳ Pending | 0% |
+| 9.10: Final Verification | ⏳ Pending | 0% |
+
+### Key Achievements
+- ✅ **~718 lines** of duplicate service code removed
+- ✅ **All services** now centralized in `src/lib/services/`
+- ✅ **Zero service duplication** remaining
+- ✅ **60/60 test files** created with comprehensive coverage
+- ✅ **Complete documentation** (3 major docs created)
+
+### Remaining Work
+- ⏳ **~150 files** to migrate to role-based structure
+- ⏳ **35+ import statements** to update for validation
+- ⏳ **9 old directories** to remove after migration
+- ⏳ **Final verification** and testing pass
+
+### Estimated Completion
+- **Remaining effort:** ~50-68 hours (~8-10 working days)
+- **Target completion:** Based on development velocity
+
+---
+
 **Last Updated:** 2025-11-20
-**Status:** Phase 7 ✅ Complete | Phase 8 ✅ Complete | Phase 9 🚧 In Progress (55%)
-**Current Task:** Phase 9.3 ✅ Complete - All duplicate feature services removed (~718 lines cleaned)
-**Next Milestone:** Phase 9.3 - Import Update Strategy
+**Status:** Phase 7 ✅ | Phase 8 ✅ | **Phase 9 🚧 30% (3/10 complete)**
+**Current Milestone:** Phase 9.3 ✅ Complete - All duplicate services removed
+**Next Milestone:** Phase 9.4 - Validation Centralization (4-6 hours estimated)
