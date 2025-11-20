@@ -16,6 +16,14 @@ type CrossDeptRequestModalProps = {
 
 /**
  * Modal for confirming a cross-department resource request.
+ *
+ * @param root0
+ * @param root0.isOpen
+ * @param root0.requestPayload
+ * @param root0.departmentName
+ * @param root0.isLoading
+ * @param root0.onConfirm
+ * @param root0.onCancel
  */
 export function CrossDeptRequestModal({
   isOpen,

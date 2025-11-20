@@ -19,6 +19,8 @@ export async function fetchMyRequests(): Promise<ResourceRequest[]> {
 
 /**
  * Dismisses a reviewed request (approved or rejected).
+ *
+ * @param requestId
  */
 export async function dismissRequest(requestId: string): Promise<void> {
   await updateRequest(requestId, { dismissed: true });
@@ -26,6 +28,9 @@ export async function dismissRequest(requestId: string): Promise<void> {
 
 /**
  * Cancels a pending or approved request.
+ *
+ * @param requestId
+ * @param requesterId
  */
 export async function cancelMyRequest(requestId: string, requesterId: string): Promise<void> {
   await cancelResourceRequest(requestId, requesterId);

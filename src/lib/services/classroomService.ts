@@ -1,6 +1,6 @@
 /**
  * Centralized service for all classroom database operations.
- * Consolidates operations from features/classSessionComponents/services/classroomsService.ts
+ * Consolidates operations from features/classSessionComponents/services/classroomsService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -10,6 +10,10 @@ const TABLE = 'classrooms';
 
 /**
  * Fetches classrooms for CRUD/management views (admin-only access).
+ *
+ * @param params
+ * @param params.role
+ * @param params.department_id
  */
 export async function getClassrooms(params?: {
   role?: string | null;
@@ -53,6 +57,8 @@ export async function getAllClassrooms(): Promise<Classroom[]> {
 
 /**
  * Adds a new classroom to the database.
+ *
+ * @param classroom
  */
 export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
   const { data, error } = await supabase.from(TABLE).insert([classroom]).select().single();
@@ -62,6 +68,9 @@ export async function addClassroom(classroom: ClassroomInsert): Promise<Classroo
 
 /**
  * Updates an existing classroom in the database.
+ *
+ * @param id
+ * @param classroom
  */
 export async function updateClassroom(id: string, classroom: ClassroomUpdate): Promise<Classroom> {
   const { data, error } = await supabase.from(TABLE).update(classroom).eq('id', id).select().single();
@@ -71,6 +80,8 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 
 /**
  * Removes a classroom from the database.
+ *
+ * @param id
  */
 export async function removeClassroom(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);

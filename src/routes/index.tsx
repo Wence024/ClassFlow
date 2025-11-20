@@ -6,7 +6,7 @@
  * - AdminRoutes: Admin-only routes (departments, programs, users, config)
  * - DepartmentHeadRoutes: Department head routes (department dashboard)
  * - ProgramHeadRoutes: Program head routes (class sessions, scheduler, components)
- * - SharedRoutes: Routes accessible to all authenticated users (reports, profile)
+ * - SharedRoutes: Routes accessible to all authenticated users (reports, profile).
  */
 
 export { AuthRoutes } from './AuthRoutes';

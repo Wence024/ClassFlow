@@ -15,6 +15,10 @@ import type {
 
 /**
  * Assigns a class session to a specific timetable slot.
+ *
+ * @param params
+ * @param userId
+ * @param semesterId
  */
 export async function assignSession(
   params: AssignSessionParams,
@@ -34,6 +38,10 @@ export async function assignSession(
 
 /**
  * Moves a class session from one timetable slot to another.
+ *
+ * @param params
+ * @param userId
+ * @param semesterId
  */
 export async function moveSession(
   params: MoveSessionParams,
@@ -62,6 +70,9 @@ export async function moveSession(
 
 /**
  * Removes a class session from a timetable slot.
+ *
+ * @param params
+ * @param semesterId
  */
 export async function removeSession(
   params: RemoveSessionParams,
@@ -76,6 +87,8 @@ export async function removeSession(
 
 /**
  * Fetches all timetable assignments for a semester.
+ *
+ * @param semesterId
  */
 export async function fetchTimetableAssignments(semesterId: string) {
   return timetableService.getTimetableAssignments(semesterId);

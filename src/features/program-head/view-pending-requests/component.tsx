@@ -18,6 +18,13 @@ type RequestCardProps = {
 
 /**
  * Card displaying a single resource request with actions.
+ *
+ * @param root0
+ * @param root0.request
+ * @param root0.onDismiss
+ * @param root0.onCancel
+ * @param root0.isDismissing
+ * @param root0.isCancelling
  */
 export function RequestCard({
   request,
@@ -130,6 +137,13 @@ type RequestsListProps = {
 
 /**
  * List of resource request cards.
+ *
+ * @param root0
+ * @param root0.requests
+ * @param root0.onDismiss
+ * @param root0.onCancel
+ * @param root0.isDismissing
+ * @param root0.isCancelling
  */
 export function RequestsList({
   requests,

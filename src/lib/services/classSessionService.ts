@@ -1,6 +1,6 @@
 /**
  * Centralized service for all class session database operations.
- * Consolidates operations from features/classSessions/services/
+ * Consolidates operations from features/classSessions/services/.
  */
 
 import { supabase } from '../supabase';
@@ -27,6 +27,8 @@ export async function getAllClassSessions(): Promise<ClassSession[]> {
 
 /**
  * Retrieves class sessions for a specific user.
+ *
+ * @param user_id
  */
 export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
@@ -36,6 +38,8 @@ export async function getClassSessions(user_id: string): Promise<ClassSession[]>
 
 /**
  * Fetches a single, fully-hydrated class session by its ID.
+ *
+ * @param id
  */
 export async function getClassSession(id: string): Promise<ClassSession> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('id', id).single();
@@ -45,6 +49,8 @@ export async function getClassSession(id: string): Promise<ClassSession> {
 
 /**
  * Adds a new class session to the database.
+ *
+ * @param classSession
  */
 export async function addClassSession(classSession: ClassSessionInsert): Promise<ClassSession> {
   const { data, error } = await supabase
@@ -58,6 +64,9 @@ export async function addClassSession(classSession: ClassSessionInsert): Promise
 
 /**
  * Updates an existing class session in the database.
+ *
+ * @param id
+ * @param classSession
  */
 export async function updateClassSession(
   id: string,
@@ -75,6 +84,9 @@ export async function updateClassSession(
 
 /**
  * Removes a class session from the database by its ID.
+ *
+ * @param id
+ * @param user_id
  */
 export async function removeClassSession(id: string, user_id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
@@ -83,6 +95,8 @@ export async function removeClassSession(id: string, user_id: string): Promise<v
 
 /**
  * Retrieves class sessions for a specific program.
+ *
+ * @param program_id
  */
 export async function getClassSessionsByProgram(program_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase
@@ -95,6 +109,9 @@ export async function getClassSessionsByProgram(program_id: string): Promise<Cla
 
 /**
  * Checks if a class session exists in the timetable drawer (no timetable assignment).
+ *
+ * @param sessionId
+ * @param semester_id
  */
 export async function isSessionInDrawer(
   sessionId: string,
@@ -111,6 +128,9 @@ export async function isSessionInDrawer(
 
 /**
  * Fetches unassigned class sessions (in drawer) for a specific program.
+ *
+ * @param program_id
+ * @param semester_id
  */
 export async function getUnassignedSessions(
   program_id: string,

@@ -13,6 +13,8 @@ import type { Department, DepartmentInsert, DepartmentUpdate } from '@/types/dep
 
 /**
  * Fetches all departments.
+ *
+ * @returns A promise that resolves to an array of Department objects.
  */
 export async function fetchDepartments(): Promise<Department[]> {
   return listDepartments();
@@ -20,6 +22,9 @@ export async function fetchDepartments(): Promise<Department[]> {
 
 /**
  * Creates a new department.
+ *
+ * @param data The department data to create.
+ * @returns A promise that resolves to the created Department object.
  */
 export async function createNewDepartment(data: DepartmentInsert): Promise<Department> {
   return createDepartment(data);
@@ -27,6 +32,10 @@ export async function createNewDepartment(data: DepartmentInsert): Promise<Depar
 
 /**
  * Updates a department.
+ *
+ * @param departmentId The ID of the department to update.
+ * @param data The updated department data.
+ * @returns A promise that resolves to the updated Department object.
  */
 export async function updateDepartmentData(
   departmentId: string,
@@ -37,6 +46,8 @@ export async function updateDepartmentData(
 
 /**
  * Deletes a department.
+ *
+ * @param departmentId The ID of the department to delete.
  */
 export async function removeDepartment(departmentId: string): Promise<void> {
   return deleteDepartment(departmentId);

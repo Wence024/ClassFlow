@@ -22,6 +22,8 @@ import type { ClassSession } from '@/types/classSession';
 
 /**
  * Hook for managing timetable scheduling workflow.
+ *
+ * @param _viewMode
  */
 export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-group') {
   const { user } = useAuth();
@@ -102,7 +104,12 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
   /**
    * Handles drag start event.
    */
-  const handleDragStart = useCallback((session: ClassSession, source: any) => {
+  type DragSource = {
+    periodIndex: number;
+    classGroupId: string;
+  } | null;
+
+  const handleDragStart = useCallback((session: ClassSession, source: DragSource) => {
     setDragState({
       draggedSession: session,
       dragSource: source,

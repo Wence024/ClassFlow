@@ -8,6 +8,9 @@ import { toast } from 'sonner';
 import { checkCrossDepartmentResource } from './service';
 import type { CrossDeptCheckResult, CrossDeptRequestPayload } from './types';
 
+/**
+ *
+ */
 export function useRequestCrossDeptResource() {
   const navigate = useNavigate();
   const [isChecking, setIsChecking] = useState(false);
@@ -15,6 +18,10 @@ export function useRequestCrossDeptResource() {
 
   /**
    * Checks if the given resources require cross-department approval.
+   *
+   * @param programId
+   * @param instructorId
+   * @param classroomId
    */
   const checkResources = async (
     programId: string,
@@ -41,6 +48,8 @@ export function useRequestCrossDeptResource() {
 
   /**
    * Initiates the cross-department request workflow.
+   *
+   * @param payload
    */
   const initiateCrossDeptRequest = (payload: CrossDeptRequestPayload) => {
     setPendingRequest(payload);

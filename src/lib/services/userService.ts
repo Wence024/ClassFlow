@@ -1,6 +1,6 @@
 /**
  * Centralized service for all user database operations.
- * Consolidates operations from features/users/services/usersService.ts
+ * Consolidates operations from features/users/services/usersService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -42,6 +42,9 @@ export async function getUsers(): Promise<UserProfile[]> {
 
 /**
  * Updates a user's profile (admin only via RPC).
+ *
+ * @param userId
+ * @param updates
  */
 export async function updateUserProfile(userId: string, updates: UserProfileUpdate): Promise<void> {
   const { error } = await supabase.rpc('admin_update_user_profile', {
@@ -56,6 +59,12 @@ export async function updateUserProfile(userId: string, updates: UserProfileUpda
 
 /**
  * Invites a new user by email (admin only).
+ *
+ * @param invite
+ * @param invite.email
+ * @param invite.role
+ * @param invite.program_id
+ * @param invite.department_id
  */
 export async function inviteUser(invite: {
   email: string;
@@ -84,6 +93,8 @@ export async function inviteUser(invite: {
 
 /**
  * Deletes a user (admin only via RPC).
+ *
+ * @param userId
  */
 export async function deleteUser(userId: string): Promise<void> {
   const { error } = await supabase.rpc('admin_delete_user', {
@@ -94,6 +105,9 @@ export async function deleteUser(userId: string): Promise<void> {
 
 /**
  * Updates a user's display name (admin only via RPC).
+ *
+ * @param userId
+ * @param name
  */
 export async function updateUserName(userId: string, name: string): Promise<void> {
   const { error } = await supabase.rpc('admin_update_user_name' as never, {

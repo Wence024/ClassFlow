@@ -283,6 +283,7 @@ function styleNumberCell(
 
 /**
  * Helper to make a black border style for Excel cells.
+ *
  * @returns A plain JS object compatible with XLSX cell style (cast for package).
  */
 function borderBlack(): Record<string, unknown> {
@@ -296,6 +297,7 @@ function borderBlack(): Record<string, unknown> {
 
 /**
  * Helper to make a gray border style for Excel cells.
+ *
  * @returns A plain JS object compatible with XLSX cell style (cast for package).
  */
 function borderGray(): Record<string, unknown> {

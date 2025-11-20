@@ -1,6 +1,6 @@
 /**
  * Centralized service for all course database operations.
- * Consolidates operations from features/classSessionComponents/services/coursesService.ts
+ * Consolidates operations from features/classSessionComponents/services/coursesService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -10,6 +10,8 @@ const TABLE = 'courses';
 
 /**
  * Fetches all courses for a specific program.
+ *
+ * @param program_id
  */
 export async function getCoursesByProgram(program_id: string): Promise<Course[]> {
   const { data, error } = await supabase
@@ -50,6 +52,8 @@ export async function getAllCourses(): Promise<Course[]> {
 
 /**
  * Adds a new course to the database.
+ *
+ * @param course
  */
 export async function addCourse(course: CourseInsert): Promise<Course> {
   const { data, error } = await supabase.from(TABLE).insert([course]).select().single();
@@ -59,6 +63,9 @@ export async function addCourse(course: CourseInsert): Promise<Course> {
 
 /**
  * Updates an existing course in the database.
+ *
+ * @param id
+ * @param course
  */
 export async function updateCourse(id: string, course: CourseUpdate): Promise<Course> {
   const { data, error } = await supabase.from(TABLE).update(course).eq('id', id).select().single();
@@ -68,6 +75,9 @@ export async function updateCourse(id: string, course: CourseUpdate): Promise<Co
 
 /**
  * Removes a course from the database.
+ *
+ * @param id
+ * @param user_id
  */
 export async function removeCourse(id: string, user_id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('created_by', user_id);

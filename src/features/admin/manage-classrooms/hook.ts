@@ -17,6 +17,8 @@ import {
 /**
  * Hook for managing classrooms with CRUD operations.
  * Admin-only functionality.
+ *
+ * @returns The manage classrooms API including data, loading states, and CRUD functions.
  */
 export function useManageClassrooms() {
   const { user } = useAuth();

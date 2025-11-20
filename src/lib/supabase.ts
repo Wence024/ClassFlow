@@ -1,3 +1,11 @@
+/**
+ * Primary Supabase client for the entire application.
+ * 
+ * Configuration Sources:
+ * - Production (Hostinger): Runtime config from public/config.js
+ * - Staging (Vercel): Build-time VITE_* env variables
+ * - Development (Local): Hardcoded credentials in runtimeConfig.ts.
+ */
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './supabase.types'; // Assuming types are in the same lib folder
 

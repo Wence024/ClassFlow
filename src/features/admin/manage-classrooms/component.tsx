@@ -94,6 +94,8 @@ export const ManageClassroomsView: React.FC = () => {
 
   /**
    * Handles adding a new classroom.
+   *
+   * @param data The classroom data to be added.
    */
   const handleAdd = async (data: ClassroomFormData) => {
     if (!user) return;
@@ -104,6 +106,8 @@ export const ManageClassroomsView: React.FC = () => {
 
   /**
    * Handles updating an existing classroom.
+   *
+   * @param data The updated classroom data.
    */
   const handleSave = async (data: ClassroomFormData) => {
     if (!editingClassroom) return;
@@ -122,11 +126,17 @@ export const ManageClassroomsView: React.FC = () => {
 
   /**
    * Initiates edit mode for a classroom.
+   *
+   * @param classroom The classroom to edit.
+   * @returns
    */
   const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
 
   /**
    * Initiates delete confirmation for a classroom.
+   *
+   * @param id The ID of the classroom to delete.
+   * @returns
    */
   const handleDeleteRequest = (id: string) =>
     setClassroomToDelete(classrooms.find((c) => c.id === id) || null);

@@ -7,6 +7,10 @@ import { toast } from 'sonner';
 import { fetchMyRequests, dismissRequest, cancelMyRequest } from './service';
 import type { ResourceRequest } from '@/types/resourceRequest';
 
+/**
+ *
+ * @param userId
+ */
 export function useViewPendingRequests(userId?: string) {
   const queryClient = useQueryClient();
 

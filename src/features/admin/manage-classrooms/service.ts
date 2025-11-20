@@ -13,6 +13,8 @@ import type { Classroom, ClassroomInsert, ClassroomUpdate } from '@/types/classr
 
 /**
  * Fetches all classrooms with department information.
+ *
+ * @returns A promise that resolves to an array of Classroom objects.
  */
 export async function fetchAllClassrooms(): Promise<Classroom[]> {
   return getAllClassrooms();
@@ -20,6 +22,9 @@ export async function fetchAllClassrooms(): Promise<Classroom[]> {
 
 /**
  * Creates a new classroom.
+ *
+ * @param data The classroom data to create.
+ * @returns A promise that resolves to the created Classroom object.
  */
 export async function createClassroom(data: ClassroomInsert): Promise<Classroom> {
   return addClassroomService(data);
@@ -27,6 +32,10 @@ export async function createClassroom(data: ClassroomInsert): Promise<Classroom>
 
 /**
  * Updates an existing classroom.
+ *
+ * @param id The ID of the classroom to update.
+ * @param data The updated classroom data.
+ * @returns A promise that resolves to the updated Classroom object.
  */
 export async function modifyClassroom(id: string, data: ClassroomUpdate): Promise<Classroom> {
   return updateClassroomService(id, data);
@@ -34,6 +43,9 @@ export async function modifyClassroom(id: string, data: ClassroomUpdate): Promis
 
 /**
  * Deletes a classroom.
+ *
+ * @param id The ID of the classroom to delete.
+ * @returns A promise that resolves when the classroom is deleted.
  */
 export async function deleteClassroom(id: string): Promise<void> {
   return removeClassroomService(id);

@@ -2,7 +2,7 @@
  * Business logic hook for viewing department requests.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchDepartmentRequests } from './service';
 import type { RequestWithDetails, RequestFilters } from './types';
 
@@ -18,6 +18,9 @@ export type UseViewDepartmentRequestsResult = {
 
 /**
  * Hook for viewing and filtering department requests.
+ *
+ * @param departmentId The ID of the department to fetch requests for.
+ * @returns Object containing department requests, filtering capabilities, loading state, and error information.
  */
 export function useViewDepartmentRequests(
   departmentId: string | null
@@ -47,9 +50,13 @@ export function useViewDepartmentRequests(
     }
   };
 
-  useEffect(() => {
+  const memoizedFetchRequests = useCallback(() => {
     fetchRequests();
-  }, [departmentId]);
+  }, [fetchRequests]);
+
+  useEffect(() => {
+    memoizedFetchRequests();
+  }, [memoizedFetchRequests]);
 
   const filteredRequests = requests.filter((request) => {
     if (filters.status && request.status !== filters.status) {
