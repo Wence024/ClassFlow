@@ -5,10 +5,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PendingRequestsPanel from '../PendingRequestsPanel';
-import * as resourceRequestService from '@/features/resourceRequests/services/resourceRequestService';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
 
 // Mock the resource requests service
-vi.mock('@/features/resourceRequests/services/resourceRequestService', () => ({
+vi.mock('@/lib/services/resourceRequestService', () => ({
   getMyRequests: vi.fn(),
 }));
 

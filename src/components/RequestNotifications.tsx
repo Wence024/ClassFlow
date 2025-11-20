@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RejectionDialog from './dialogs/RejectionDialog';
-import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
+import { getRequestWithDetails } from '@/lib/services/resourceRequestService';
 import { Tables } from '../lib/supabase.types';
 
 type ResourceRequest = Tables<'resource_requests'> & {
