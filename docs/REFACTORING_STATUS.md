@@ -115,13 +115,23 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
   - ✅ `service.test.ts` (created)
 - ⏳ E2E tests for department head workflows (Phase 7.6)
 
-### Phase 7.3: Admin Tests ⏳ PENDING
+### Phase 7.3: Admin Tests ✅ COMPLETED
 **Target:** `src/features/admin/*/tests/`
 
-- ⏳ Manage Users tests
-- ⏳ Manage Departments tests
-- ⏳ Manage Classrooms tests
-- ⏳ E2E tests for admin workflows
+- ✅ Manage Classrooms tests
+  - ✅ `component.integration.test.tsx` (already existed)
+  - ✅ `hook.integration.test.tsx` (created)
+  - ✅ `service.test.ts` (created)
+  - ✅ `cypress/e2e/02-admin-workflows/classrooms.cy.ts` (created)
+- ✅ Manage Departments tests
+  - ✅ `component.integration.test.tsx` (already existed)
+  - ✅ `hook.integration.test.tsx` (created)
+  - ✅ `service.test.ts` (created)
+- ✅ Manage Users tests
+  - ✅ `component.integration.test.tsx` (already existed)
+  - ✅ `hook.integration.test.tsx` (created)
+  - ✅ `service.test.ts` (created)
+- ⏳ Additional E2E tests for admin workflows (Phase 7.6)
 
 ### Phase 7.4: Shared Feature Tests ⏳ PENDING
 - ⏳ Organize existing auth tests
@@ -170,7 +180,7 @@ Directories to remove:
 
 ## Progress Summary
 
-### Overall Progress: ~45% Complete
+### Overall Progress: ~60% Complete
 
 | Phase | Status | Progress |
 |-------|--------|----------|
@@ -180,26 +190,27 @@ Directories to remove:
 | Phase 4: Program Head Features | ✅ Complete | 100% |
 | Phase 5: Department Head Features | ✅ Complete | 100% |
 | Phase 6: Admin Features | ✅ Complete | 100% |
-| **Phase 7: Testing Migration** | **🚧 In Progress** | **~40%** |
+| **Phase 7: Testing Migration** | **🚧 In Progress** | **~60%** |
 | Phase 8: Cleanup | ⏳ Pending | 0% |
 
-### Testing Migration Progress: ~40% Complete
+### Testing Migration Progress: ~60% Complete
 
 | Category | Status | Files Created | Files Remaining |
 |----------|--------|---------------|-----------------|
 | Program Head Integration Tests | ✅ Complete | 22/~20 | 0 (2 placeholders to upgrade) |
 | Department Head Tests | ✅ Complete | 8/8 | 0 |
-| Admin Tests | ⏳ Pending | 0/~8 | ~8 |
+| Admin Tests | ✅ Complete | 7/7 | 0 |
 | E2E Test Data Isolation | ✅ Complete | 4/4 | 0 |
-| E2E Tests | 🚧 In Progress | 4/~20 | ~16 |
-| **Total** | **🚧 In Progress** | **38/~60** | **~22** |
+| E2E Tests | 🚧 In Progress | 5/~20 | ~15 |
+| **Total** | **🚧 In Progress** | **46/~59** | **~13** |
 
 ## Next Steps
 
-1. **PRIORITY 1: Admin Tests (Phase 7.3)** - Create comprehensive integration and service tests for all 5 vertical slices
-2. **PRIORITY 2: Upgrade Placeholder Tests** - Replace timetable-hook and drag-drop-hook placeholders with full migrated tests
-3. **PRIORITY 3: Complete Remaining E2E Tests** - Add E2E tests for resource requests and timetabling workflows
-4. **PRIORITY 4: Phase 8 Cleanup** - Remove old directories and finalize refactoring
+1. **PRIORITY 1: Shared Feature Tests (Phase 7.4)** - Review and enhance auth and useDepartmentId tests
+2. **PRIORITY 2: Component Tests (Phase 7.5)** - Review global UI and layout component tests
+3. **PRIORITY 3: Complete Remaining E2E Tests (Phase 7.6)** - Add E2E tests for department head, program head, and timetabling workflows
+4. **PRIORITY 4: Upgrade Placeholder Tests (Phase 7.7)** - Delete or upgrade timetable-hook placeholder
+5. **PRIORITY 5: Phase 8 Cleanup** - Remove old directories and finalize refactoring
 
 ## Notes
 
@@ -229,5 +240,5 @@ Directories to remove:
 ---
 
 **Last Updated:** 2025-11-20  
-**Status:** Phase 7 In Progress - Program Head tests complete, E2E Data Isolation complete  
-**Next Milestone:** Begin Department Head and Admin test creation (Priorities 1 & 2)
+**Status:** Phase 7.3 Complete - All Admin tests created (7 new test files)  
+**Next Milestone:** Phase 7.4 - Shared Feature Tests review and enhancement
