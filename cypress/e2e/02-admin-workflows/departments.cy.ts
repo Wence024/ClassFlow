@@ -43,6 +43,10 @@ describe('Admin: Department Management', () => {
 
   /**
    * Helper function to edit a department.
+   *
+   * @param dept
+   * @param dept.name
+   * @param dept.code
    */
   function editDepartment(dept: { name: string; code: string }) {
     cy.visit('/departments');
@@ -79,6 +83,10 @@ describe('Admin: Department Management', () => {
 
   /**
    * Helper function to delete a department.
+   *
+   * @param dept
+   * @param dept.name
+   * @param dept.code
    */
   function deleteDepartment(dept: { name: string; code: string }) {
     cy.visit('/departments');
