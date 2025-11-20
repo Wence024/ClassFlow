@@ -1,3 +1,6 @@
+/**
+ * @file Validation schema for class sessions.
+ */
 import { z } from 'zod';
 
 export const classSessionSchema = z.object({

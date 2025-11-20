@@ -16,7 +16,7 @@ import {
   FormField,
   LoadingSpinner,
 } from '../../../components/ui';
-import { componentSchemas } from '../types/validation';
+import { componentSchemas } from '@/types/validation/components';
 import type { Classroom } from '../types';
 import type { ClassroomInsert } from '../types/classroom';
 import { toast } from 'sonner';

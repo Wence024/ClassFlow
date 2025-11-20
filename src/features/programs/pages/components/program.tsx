@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Control, FieldErrors } from 'react-hook-form';
 import type { Program } from '../../types/program';
-import type { ProgramFormData } from '../../types/validation';
+import type { ProgramFormData } from '@/types/validation/program';
 import {
   FormControl,
   FormField as RHFFormField,

@@ -1,7 +1,6 @@
 /**
- * @file This file contains all Zod schemas for validating the forms used to
- * create and update the core schedulable components (Courses, Instructors, etc.).
- * It centralizes validation logic to ensure consistency across the application.
+ * @file Validation schemas for schedulable components (Courses, Instructors, Classrooms, Class Groups).
+ * Centralizes validation logic to ensure consistency across the application.
  */
 import { z } from 'zod';
 
@@ -26,7 +25,6 @@ export const courseSchema = z.object({
 
 export const classGroupSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  // FIXED: Changed from z.coerce.number() to a simpler number schema.
   student_count: z.number().int().min(0, 'Cannot be negative').nullable().optional(),
   code: z.string().max(10, 'Cannot exceed 10 characters').nullable().optional(),
   color: hexColorSchema,
@@ -34,7 +32,6 @@ export const classGroupSchema = z.object({
 
 export const classroomSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  // FIXED: Changed from z.coerce.number() to a simpler number schema.
   capacity: z.number().int().min(0, 'Cannot be negative').nullable().optional(),
   code: z.string().max(10, 'Cannot exceed 10 characters').nullable().optional(),
   color: hexColorSchema,

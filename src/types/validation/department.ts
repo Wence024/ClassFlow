@@ -1,3 +1,6 @@
+/**
+ * @file Validation schema for departments.
+ */
 import { z } from 'zod';
 
 /** Zod schema for validating Department form data. */

@@ -1,7 +1,7 @@
 import { type Control, type FieldErrors, Controller } from 'react-hook-form';
 import type z from 'zod';
 import { ColorPicker, FormField } from '../../../../../components/ui';
-import type { componentSchemas } from '../../../types/validation';
+import type { componentSchemas } from '@/types/validation/components';
 
 // Define the precise form data types from our Zod schemas
 type ClassGroupFormData = z.infer<typeof componentSchemas.classGroup>;

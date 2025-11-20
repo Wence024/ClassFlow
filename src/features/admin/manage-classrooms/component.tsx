@@ -17,7 +17,7 @@ import {
   FormField,
   LoadingSpinner,
 } from '@/components/ui';
-import { componentSchemas } from '@/features/classSessionComponents/types/validation';
+import { componentSchemas } from '@/types/validation/components';
 import type { Classroom, ClassroomInsert } from '@/types/classroom';
 import type { ClassroomFormData, DepartmentOption } from './types';
 import { getRandomPresetColor } from '@/lib/colorUtils';

@@ -13,7 +13,7 @@ import {
   FormField,
   LoadingSpinner,
 } from '../../../components/ui';
-import { componentSchemas } from '../types/validation';
+import { componentSchemas } from '@/types/validation/components';
 import type { Course } from '../types';
 import { toast } from 'sonner';
 import { getRandomPresetColor } from '../../../lib/colorUtils';
