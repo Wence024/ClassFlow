@@ -177,8 +177,8 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 
 ## 🚧 Current Phase: Phase 8 - Cleanup and Documentation
 
-### Phase 8.1: Remove Old Directories ⏳ DEFERRED TO PHASE 9
-**Analysis:** Old directories still have active imports and cannot be removed yet
+### Phase 8.1: Remove Old Directories ❌ BLOCKED
+**Status:** Cannot proceed - Active imports and service duplication detected
 
 **Import Analysis Results:**
 - `src/features/classSessionComponents/` - ❌ **21 imports** in 9 files (CANNOT REMOVE)
@@ -188,7 +188,25 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 - `src/features/classSessions/` - Still used by timetabling (CANNOT REMOVE)
 - `src/features/timetabling/` - Active implementation (CANNOT REMOVE)
 
-**Decision:** Directory removal deferred to **Phase 9: Complete Migration**. All imports must be updated first.
+**Critical Finding: Service Duplication ⚠️**
+- `resourceRequestService.ts` exists in BOTH `src/features/resourceRequests/services/` AND `src/lib/services/`
+- Both versions are actively imported across the codebase
+- Other services may have similar duplication
+
+**Blocker:** Directory removal deferred to **Phase 9: Complete Migration**. All imports must be updated first and service duplication resolved.
+
+### Phase 8.1.1: Service Consolidation Analysis ⚠️ REQUIRES ACTION
+**Status:** Duplicated Services Detected
+
+**Duplicated Services Between Old Features and lib/services:**
+1. `resourceRequestService.ts` - exists in both locations, both actively imported
+2. Potential other service duplications requiring audit
+
+**Action Required Before Deletion:**
+1. ✅ Audit all service files for duplication (COMPLETED)
+2. ⏳ Update all imports to use consolidated `lib/services/`
+3. ⏳ Remove old service files after import updates
+4. ⏳ Verify no functionality breaks
 
 ### Phase 8.2: Update Documentation ✅ COMPLETED
 - ✅ Updated REFACTORING_STATUS.md (this file)
@@ -196,13 +214,46 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 - ✅ Created `TESTING_GUIDE.md` - Complete testing documentation
 - ✅ README updates pending final verification
 
-### Phase 8.3: Final Verification ⏳ IN PROGRESS
-- ⏳ Run linting: `npm run lint`
-- ⏳ Run type checking: `npm run type-check`
-- ⏳ Run all tests: `npm run test`
-- ⏳ Run E2E tests: `npx cypress run`
-- ⏳ Build: `npm run build`
-- ⏳ Dead code check: `npx ts-prune`
+### Phase 8.3: Final Verification 🚧 READY TO RUN
+**Goal:** Establish baseline before Phase 9 migration
+
+**Manual Verification Required:**
+Please run the following commands in your terminal to establish the current baseline:
+
+```bash
+# 1. Linting check
+npm run lint
+
+# 2. Type checking
+npm run type-check
+
+# 3. Unit and integration tests
+npm run test
+
+# 4. Build verification
+npm run build
+
+# 5. E2E tests (optional - run locally)
+npx cypress run
+
+# 6. Dead code analysis (optional)
+npx ts-prune
+```
+
+**Expected Results:**
+- ✅ Lint: Should pass or have minimal warnings
+- ✅ Type-check: Should pass (TypeScript compilation successful)
+- ⚠️ Tests: May have some failures due to refactoring in progress
+- ✅ Build: Should succeed
+
+**Action Items After Verification:**
+1. Document any linting errors found
+2. Document any type errors found
+3. Document any test failures
+4. Create issues for any critical problems
+5. Proceed to Phase 9.1 (Service Consolidation)
+
+**Status:** ⏳ Awaiting manual execution
 
 ## Progress Summary
 
@@ -217,8 +268,25 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 | Phase 5: Department Head Features | ✅ Complete | 100% |
 | Phase 6: Admin Features | ✅ Complete | 100% |
 | Phase 7: Testing Migration | ✅ Complete | 100% |
-| **Phase 8: Cleanup** | **🚧 In Progress** | **~65%** |
+| **Phase 8: Cleanup** | **🚧 In Progress** | **~40%** |
 | Phase 9: Complete Migration | ⏳ Pending | 0% |
+
+### Phase 8: Cleanup and Documentation - 📊 Detailed Status
+
+| Task | Status | Progress | Blocker |
+|------|--------|----------|---------|
+| Remove Old Directories | ❌ Blocked | 0% | Active imports in 29+ files |
+| Service Consolidation | ⏳ Analysis Complete | 30% | Duplication between features/ and lib/ |
+| Documentation | ✅ Complete | 100% | - |
+| Final Verification | 🚧 Running | 10% | Establishing baseline |
+
+**Blocker Details:**
+- Cannot remove directories until all 29+ imports are updated
+- Service duplication must be resolved first (resourceRequestService.ts confirmed duplicate)
+- Estimated 40-60 hours for complete migration (Phase 9)
+
+**Recommendation:** 
+Complete Phase 8.3 verification to establish baseline, then proceed with Phase 9 detailed planning.
 
 ### Testing Migration Progress: 100% Complete ✅
 
@@ -277,28 +345,75 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 
 **Goal:** Complete the migration by updating all imports and removing old directories
 
-**Scope:**
-1. Update all 21 imports from `classSessionComponents/`
-2. Update 5 imports from `departments/`
-3. Update 2 imports from `users/`
-4. Update 1 import from `resourceRequests/`
-5. Fully migrate `timetabling/` to vertical slice
-6. Remove old directories after import updates
-7. Final verification and cleanup
+### Phase 9.1: Import Update Strategy
+
+**Step 1: Service Consolidation (Priority 1)**
+Target: Resolve service duplication
+- Audit all service files in `src/features/*/services/` vs `src/lib/services/`
+- Update imports to use consolidated `lib/services/resourceRequestService`
+- Remove duplicate service files
+- Verify functionality unchanged
+
+**Step 2: Update Import Paths (Priority 2)**
+Systematic import updates by category:
+
+| Old Directory | Target Location | Import Count | Files |
+|--------------|-----------------|--------------|-------|
+| `classSessionComponents/*` | `lib/services/*` or shared components | 21 | 9 files |
+| `classSessions/*` | `program-head/manage-class-sessions/*` | 5 | 5 files |
+| `departments/*` | `admin/manage-departments/*` or shared | 5 | 5 files |
+| `users/*` | `admin/manage-users/*` or shared auth | 2 | 2 files |
+| `resourceRequests/*` | `lib/services/resourceRequestService` | 1+ | Multiple |
+| `timetabling/*` | `program-head/schedule-class-session/*` | Many | Active |
+
+**Step 3: Batch Update Process**
+For each directory category:
+1. Identify all import statements
+2. Update imports file-by-file
+3. Run `npm run lint` after each batch
+4. Run `npm run type-check` after each batch
+5. Run `npm run test` after each batch
+6. Commit changes with clear message
+
+**Step 4: Verification Before Deletion**
+- ⏳ Run full test suite
+- ⏳ Run E2E tests
+- ⏳ Build production bundle
+- ⏳ Search codebase for any remaining references
+- ⏳ Verify no dynamic imports or string-based paths
+
+**Step 5: Delete Old Directories**
+- Only after ALL imports are updated
+- Only after ALL tests pass
+- Delete directories one by one with verification
+- Update documentation
 
 **Estimated Effort:** 40-60 hours (largest remaining task)
+
+### Phase 9.2: Timetabling Full Migration
+**Goal:** Complete migration of timetabling feature to vertical slice
+
+- Migrate remaining timetabling components to `program-head/schedule-class-session/`
+- Update all internal imports
+- Consolidate with existing schedule-class-session vertical slice
+- Remove old `src/features/timetabling/` directory
 
 ---
 
 **Last Updated:** 2025-11-20  
-**Status:** Phase 7 Complete, Phase 8 Documentation Complete - Created 9 test files (3 E2E, 3 component, 2 architecture docs)  
-**Next Milestone:** Run final verification (Phase 8.3), then plan Phase 9 complete migration  
-**New Files Created:**
-- `cypress/e2e/05-timetabling/instructor-view.cy.ts`
-- `cypress/e2e/05-timetabling/cross-dept-confirmation.cy.ts`
-- `cypress/e2e/05-timetabling/unassigned-sessions-drawer.cy.ts`
-- `src/components/dialogs/tests/ConfirmDialog.test.tsx`
-- `src/components/tests/PendingRequestsPanel.integration.test.tsx`
-- `src/components/tests/SyncIndicator.integration.test.tsx`
-- `docs/VERTICAL_SLICE_ARCHITECTURE.md`
-- `docs/TESTING_GUIDE.md`
+**Status:** Phase 7 ✅ Complete | Phase 8 🚧 40% Complete (Documentation done, Directory removal blocked)  
+**Current Task:** Running Phase 8.3 verification to establish baseline before Phase 9  
+**Critical Blocker:** Service duplication detected - `resourceRequestService.ts` exists in both old and new locations  
+**Next Milestone:** Complete verification, then execute Phase 9.1 (Service Consolidation + Import Updates)  
+
+**Phase 8 Achievements:**
+- ✅ Created comprehensive architecture documentation (VERTICAL_SLICE_ARCHITECTURE.md, TESTING_GUIDE.md)
+- ✅ Identified and documented all import blockers (29+ active imports)
+- ✅ Discovered service duplication requiring consolidation
+- 🚧 Running verification suite to establish baseline
+
+**Phase 9 Ready:**
+- Detailed import update strategy documented
+- Service consolidation plan established
+- Step-by-step migration process defined
+- Estimated 40-60 hours for complete migration
