@@ -122,18 +122,23 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
 }
 
 /**
- * Rejects a resource request with a rejection message.
- * Uses a database function to handle the rejection workflow.
+ * Rejects a resource request with a message and either restores the session to its original
+ * position (if previously approved) or deletes it (if pending).
  *
- * @param id
- * @param reviewerId
- * @param rejectionMessage
+ * @param id The ID of the resource request to reject.
+ * @param reviewerId The ID of the user rejecting the request.
+ * @param rejectionMessage The rejection message from the department head.
  */
 export async function rejectRequest(
   id: string,
   reviewerId: string,
   rejectionMessage: string
-): Promise<ResourceRequest> {
+): Promise<{
+  success: boolean;
+  action: 'removed_from_timetable' | 'restored';
+  class_session_id?: string;
+  restored_to_period?: number;
+}> {
   const { data, error } = await supabase.rpc(
     'reject_resource_request' as never,
     {
@@ -148,29 +153,39 @@ export async function rejectRequest(
     throw new Error(`Rejection failed: ${error.message}`);
   }
 
-  const result = data as { success: boolean; error?: string };
+  const result = data as {
+    success: boolean;
+    action: 'removed_from_timetable' | 'restored';
+    class_session_id?: string;
+    restored_to_period?: number;
+    error?: string;
+  };
+
   if (!result.success) {
     throw new Error(result.error || 'Rejection failed for unknown reason');
   }
 
-  // Fetch and return updated request
-  const { data: updated, error: fetchError } = await supabase
-    .from(TABLE)
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (fetchError) throw fetchError;
-  return updated as ResourceRequest;
+  console.log('Request rejected successfully:', result);
+  return result;
 }
 
 /**
- * Cancels a resource request (requester only).
- * Uses a database function to handle the cancellation workflow.
+ * Cancels a resource request initiated by the program head.
+ * Restores session to original position if approved, or removes from timetable if pending.
  *
- * @param id
- * @param requesterId
+ * @param id The ID of the resource request to cancel.
+ * @param requesterId The ID of the user canceling the request (for permission check).
  */
-export async function cancelRequest(id: string, requesterId: string): Promise<void> {
+export async function cancelRequest(
+  id: string,
+  requesterId: string
+): Promise<{
+  success: boolean;
+  action: 'removed_from_timetable' | 'restored';
+  class_session_id?: string;
+  restored_to_period?: number;
+  error?: string;
+}> {
   const { data, error } = await supabase.rpc(
     'cancel_resource_request' as never,
     {
@@ -184,17 +199,50 @@ export async function cancelRequest(id: string, requesterId: string): Promise<vo
     throw new Error(`Cancellation failed: ${error.message}`);
   }
 
-  const result = data as { success: boolean; error?: string };
+  const result = data as {
+    success: boolean;
+    action: 'removed_from_timetable' | 'restored';
+    class_session_id?: string;
+    restored_to_period?: number;
+    error?: string;
+  };
+
   if (!result.success) {
     throw new Error(result.error || 'Cancellation failed for unknown reason');
+  }
+
+  console.log('Request cancelled successfully:', result);
+  return result;
+}
+
+/**
+ * Dismisses a resource request notification without taking action.
+ * Can only be called by the requester on approved/rejected requests.
+ *
+ * @param id The ID of the resource request to dismiss.
+ */
+export async function dismissRequest(id: string): Promise<void> {
+  const { error } = await supabase
+    .from(TABLE)
+    .update({ dismissed: true } as ResourceRequestUpdate)
+    .eq('id', id);
+
+  if (error) {
+    if (error.code === '42501') {
+      throw new Error(
+        'Permission denied: You can only dismiss your own reviewed requests (approved/rejected). ' +
+          'If this is your request, please contact an administrator.'
+      );
+    }
+    throw error;
   }
 }
 
 /**
- * Updates a resource request (for dismissal).
+ * Updates a resource request (for non-dismissal updates).
  *
- * @param id
- * @param update
+ * @param id The ID of the resource request to update.
+ * @param update The update payload.
  */
 export async function updateRequest(
   id: string,
