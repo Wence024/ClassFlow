@@ -7,10 +7,10 @@ import { setupCrossDeptRequest } from '../../support/testSetup';
  * E2E Tests for Department Head: View Department Requests.
  *
  * Tests the department requests dashboard including:
- * - Viewing all incoming requests for the department
- * - Filtering requests by status
- * - Seeing request details
- * - Quick approval/rejection from the dashboard
+ * - Viewing all incoming requests for the department.
+ * - Filtering requests by status.
+ * - Seeing request details.
+ * - Quick approval/rejection from the dashboard.
  */
 
 describe('Department Head: View Department Requests', () => {

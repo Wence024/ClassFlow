@@ -119,14 +119,17 @@ export const generateTestClassGroup = (programId: string, suffix = timestamp()) 
 export const TEST_CREDENTIALS = {
   admin: {
     email: 'admin@isu.edu.ph',
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     password: 'test123',
   },
   departmentHead: {
     email: 'depthead@isu.edu.ph',
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     password: 'test123',
   },
   programHead: {
     email: 'proghead@isu.edu.ph',
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     password: 'test123',
   },
 };

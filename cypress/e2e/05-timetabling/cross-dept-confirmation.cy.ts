@@ -55,8 +55,6 @@ describe('Timetabling: Cross-Department Confirmation', () => {
       });
       
       if (crossDeptSessions.length > 0) {
-        const originalPosition = crossDeptSessions.first().attr('data-period');
-        
         // Drag and drop
         cy.wrap(crossDeptSessions.first())
           .trigger('dragstart');

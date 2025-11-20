@@ -21,8 +21,8 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode, useEffect } from 'react';
-import { AuthContext } from '../../features/auth/contexts/AuthContext';
-import type { User } from '../../features/auth/types/auth';
+import { AuthContext } from '../../features/shared/auth/contexts/AuthContext';
+import type { User } from '../../features/shared/auth/types/auth';
 
 // Minimal mock user to satisfy useAuth in RealtimeProvider
 const mockUser: User = {

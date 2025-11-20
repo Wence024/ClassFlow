@@ -6,8 +6,6 @@
  * Tests CRUD operations for departments.
  */
 describe('Admin: Department Management', () => {
-  let testDepartmentId: string;
-
   beforeEach(() => {
     cy.loginAs('admin');
     cy.visit('/departments');
@@ -31,8 +29,7 @@ describe('Admin: Department Management', () => {
   context('Create Department', () => {
     it('should create a new department successfully', () => {
       // Use seedTestData to create isolated test department
-      cy.seedTestData('department', {}).then((dept: any) => {
-        testDepartmentId = dept.id;
+      cy.seedTestData('department', {}).then((dept: { id: string; name: string; code: string }) => {
         const deptName = dept.name;
         const deptCode = dept.code;
 
@@ -47,7 +44,7 @@ describe('Admin: Department Management', () => {
   context('Edit Department', () => {
     it('should edit an existing test department', () => {
       // Create a test department to edit
-      cy.seedTestData('department', {}).then((dept: any) => {
+      cy.seedTestData('department', {}).then((dept: { name: string; code: string }) => {
         cy.visit('/departments');
         
         // Find the test department and edit it
@@ -76,7 +73,7 @@ describe('Admin: Department Management', () => {
   context('Delete Department', () => {
     it('should delete a test department with confirmation', () => {
       // Create a test department to delete
-      cy.seedTestData('department', {}).then((dept: any) => {
+      cy.seedTestData('department', {}).then((dept: { name: string; code: string }) => {
         cy.visit('/departments');
         cy.contains(dept.name).should('be.visible');
 

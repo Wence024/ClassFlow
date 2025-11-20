@@ -5,10 +5,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PendingRequestsPanel from '../PendingRequestsPanel';
-import * as resourceRequestsService from '@/lib/services/resourceRequestsService';
+import * as resourceRequestsService from '@/lib/services/resourceRequestService';
 
 // Mock the resource requests service
-vi.mock('@/lib/services/resourceRequestsService');
+vi.mock('@/lib/services/resourceRequestService');
 
 // Mock the auth context
 vi.mock('@/features/shared/auth/context/AuthContext', () => ({

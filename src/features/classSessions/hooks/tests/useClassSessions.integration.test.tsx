@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useClassSessions } from '../useClassSessions';
 import * as classSessionsService from '../../services/classSessionsService';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type {
   Course,
   Instructor,

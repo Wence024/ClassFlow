@@ -4,11 +4,11 @@ import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import ClassSessionsPage from '../ClassSessionsPage';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { User, AuthContextType } from '../../../auth/types/auth';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import type { User, AuthContextType } from '../../../shared/auth/types/auth';
 
 // --- Mocks ---
-vi.mock('../../../auth/hooks/useAuth');
+vi.mock('../../../shared/auth/hooks/useAuth');
 vi.mock('../../hooks/useClassSessions');
 vi.mock('../../../classSessionComponents/hooks');
 vi.mock('../../../programs/hooks/usePrograms');

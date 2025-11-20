@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import TimetableRow from '../TimetableRow';
 import TimetableContext from '../TimetableContext';
-import { AuthProvider } from '../../../../../auth/contexts/AuthProvider';
+import { AuthProvider } from '../../../../../shared/auth/contexts/AuthProvider';
 import type {
   ClassGroup,
   Classroom,

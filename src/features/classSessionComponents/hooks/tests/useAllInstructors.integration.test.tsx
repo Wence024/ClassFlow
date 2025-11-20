@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAllInstructors } from '../useAllInstructors';
-import type { User } from '../../../auth/types/auth';
+import type { User } from '../../../shared/auth/types/auth';
 
 // --- Mocks ---
-vi.mock('../../../auth/hooks/useAuth');
+vi.mock('../../../shared/auth/hooks/useAuth');
 vi.mock('../../services/instructorsService');
 
 // --- Mock Data ---
@@ -81,7 +81,7 @@ describe('useAllInstructors Integration', () => {
   });
 
   it('should fetch all instructors regardless of user department', async () => {
-    const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
+    const mockUseAuth = vi.mocked(await import('../../../shared/auth/hooks/useAuth')).useAuth;
     mockUseAuth.mockReturnValue({
       user: mockUser,
       loading: false,
@@ -117,7 +117,7 @@ describe('useAllInstructors Integration', () => {
   });
 
   it('should include department_name in instructor data', async () => {
-    const mockUseAuth = vi.mocked(await import('../../../auth/hooks/useAuth')).useAuth;
+    const mockUseAuth = vi.mocked(await import('../../../shared/auth/hooks/useAuth')).useAuth;
     mockUseAuth.mockReturnValue({
       user: mockUser,
       loading: false,

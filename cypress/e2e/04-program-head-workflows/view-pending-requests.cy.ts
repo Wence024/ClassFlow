@@ -7,10 +7,10 @@ import { setupCrossDeptRequest } from '../../support/testSetup';
  * E2E Tests for Program Head: View Pending Requests.
  *
  * Tests the pending requests dashboard including:
- * - Viewing outgoing cross-department requests
- * - Checking request status
- * - Canceling pending requests
- * - Seeing approval/rejection notifications
+ * - Viewing outgoing cross-department requests.
+ * - Checking request status.
+ * - Canceling pending requests.
+ * - Seeing approval/rejection notifications.
  */
 
 describe('Program Head: View Pending Requests', () => {
