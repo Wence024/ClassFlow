@@ -97,14 +97,23 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 - ✅ Updated E2E tests to use seeding system and data-cy selectors
 - ✅ Protected production data from test modifications
 
-### Phase 7.2: Department Head Tests ⏳ PENDING
+### Phase 7.2: Department Head Tests ✅ COMPLETED
 **Target:** `src/features/department-head/*/tests/`
 
-- ⏳ Manage Instructors tests
-- ⏳ Approve Request tests
-- ⏳ Reject Request tests
-- ⏳ View Department Requests tests
-- ⏳ E2E tests for department head workflows
+- ✅ Manage Instructors tests
+  - ✅ `component.integration.test.tsx` (already existed)
+  - ✅ `hook.integration.test.tsx` (created)
+  - ✅ `service.test.ts` (created)
+- ✅ Approve Request tests
+  - ✅ `hook.integration.test.tsx` (already existed)
+  - ✅ `service.test.ts` (created)
+- ✅ Reject Request tests
+  - ✅ `hook.integration.test.tsx` (already existed)
+  - ✅ `service.test.ts` (created)
+- ✅ View Department Requests tests
+  - ✅ `hook.integration.test.tsx` (created)
+  - ✅ `service.test.ts` (created)
+- ⏳ E2E tests for department head workflows (Phase 7.6)
 
 ### Phase 7.3: Admin Tests ⏳ PENDING
 **Target:** `src/features/admin/*/tests/`
@@ -179,18 +188,18 @@ Directories to remove:
 | Category | Status | Files Created | Files Remaining |
 |----------|--------|---------------|-----------------|
 | Program Head Integration Tests | ✅ Complete | 22/~20 | 0 (2 placeholders to upgrade) |
-| Department Head Tests | ⏳ Pending | 0/~10 | ~10 |
+| Department Head Tests | ✅ Complete | 8/8 | 0 |
 | Admin Tests | ⏳ Pending | 0/~8 | ~8 |
-| E2E Test Data Isolation | ✅ Complete | 3/3 | 0 |
+| E2E Test Data Isolation | ✅ Complete | 4/4 | 0 |
 | E2E Tests | 🚧 In Progress | 4/~20 | ~16 |
-| **Total** | **🚧 In Progress** | **29/~61** | **~32** |
+| **Total** | **🚧 In Progress** | **38/~60** | **~22** |
 
 ## Next Steps
 
-1. **PRIORITY 1: Department Head Tests (Phase 7.2)** - Create comprehensive integration and service tests for all 4 vertical slices
-2. **PRIORITY 2: Admin Tests (Phase 7.3)** - Create comprehensive tests for all 3 vertical slices  
-3. **PRIORITY 3: Upgrade Placeholder Tests** - Replace timetable-hook and drag-drop-hook placeholders with full migrated tests
-4. **PRIORITY 4: Complete Remaining E2E Tests** - Add E2E tests for resource requests and timetabling workflows
+1. **PRIORITY 1: Admin Tests (Phase 7.3)** - Create comprehensive integration and service tests for all 5 vertical slices
+2. **PRIORITY 2: Upgrade Placeholder Tests** - Replace timetable-hook and drag-drop-hook placeholders with full migrated tests
+3. **PRIORITY 3: Complete Remaining E2E Tests** - Add E2E tests for resource requests and timetabling workflows
+4. **PRIORITY 4: Phase 8 Cleanup** - Remove old directories and finalize refactoring
 
 ## Notes
 
