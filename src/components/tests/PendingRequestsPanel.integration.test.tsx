@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import PendingRequestsPanel from '../PendingRequestsPanel';
-import * as resourceRequestsService from '@/lib/services/resourceRequestService';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
 
 // Mock the resource requests service
 vi.mock('@/lib/services/resourceRequestService');
@@ -63,7 +63,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
         },
       ];
 
-      vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+      vi.mocked(resourceRequestService.fetchResourceRequestsByProgram)
         .mockResolvedValue(mockRequests);
 
       renderWithQuery(<PendingRequestsPanel />);
@@ -74,7 +74,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
     });
 
     it('should show zero when no pending requests', async () => {
-      vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+      vi.mocked(resourceRequestService.fetchResourceRequestsByProgram)
         .mockResolvedValue([]);
 
       renderWithQuery(<PendingRequestsPanel />);
@@ -92,7 +92,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
         { id: 'req-4', status: 'pending', resource_type: 'classroom' },
       ];
 
-      vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+      vi.mocked(resourceRequestService.fetchResourceRequestsByProgram)
         .mockResolvedValue(mockRequests);
 
       renderWithQuery(<PendingRequestsPanel />);
@@ -106,7 +106,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
 
   describe('Loading and Error States', () => {
     it('should show loading state initially', () => {
-      vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+      vi.mocked(resourceRequestService.fetchResourceRequestsByProgram)
         .mockImplementation(() => new Promise(() => {})); // Never resolves
 
       renderWithQuery(<PendingRequestsPanel />);
@@ -115,7 +115,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
     });
 
     it('should handle fetch errors gracefully', async () => {
-      vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+      vi.mocked(resourceRequestService.fetchResourceRequestsByProgram)
         .mockRejectedValue(new Error('Failed to fetch requests'));
 
       renderWithQuery(<PendingRequestsPanel />);
@@ -133,7 +133,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
         { id: 'req-1', status: 'pending', resource_type: 'instructor' },
       ];
 
-      vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+      vi.mocked(resourceRequestService.fetchResourceRequestsByProgram)
         .mockResolvedValue(mockRequests);
 
       renderWithQuery(<PendingRequestsPanel />);
