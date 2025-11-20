@@ -155,7 +155,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
         { id: 'req-2', status: 'pending', resource_type: 'classroom' },
       ];
 
-      const fetchMock = vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram);
+      const fetchMock = vi.mocked(resourceRequestService.fetchResourceRequestsByProgram);
       fetchMock.mockResolvedValueOnce(mockRequests1);
 
       renderWithQuery(<PendingRequestsPanel />);
@@ -176,7 +176,7 @@ describe('PendingRequestsPanel Integration Tests', () => {
 
   describe('User Context Integration', () => {
     it('should fetch requests for the current user program', async () => {
-      const fetchMock = vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram);
+      const fetchMock = vi.mocked(resourceRequestService.fetchResourceRequestsByProgram);
       fetchMock.mockResolvedValue([]);
 
       renderWithQuery(<PendingRequestsPanel />);
