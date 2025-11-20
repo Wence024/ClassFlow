@@ -420,7 +420,7 @@ src/
 | Phase 6: Admin Features | ✅ Complete | 100% |
 | Phase 7: Testing Migration | ✅ Complete | 100% |
 | Phase 8: Cleanup | ✅ Complete | 100% |
-| **Phase 9: Complete Migration** | **🚧 In Progress** | **20%** |
+| **Phase 9: Complete Migration** | **🚧 In Progress** | **40%** |
 
 ### Phase 8: Cleanup and Documentation - 📊 Detailed Status
 
@@ -544,18 +544,52 @@ Phase 8.3 verification complete - establish baseline and proceed with Phase 9 de
 - `services/tests/` - Test files migrated to use centralized service
 - `workflows/tests/` - Test files migrated to use centralized service
 
-### Phase 9.2: Import Update Strategy (NEXT)
+### Phase 9.2: classSessionComponents Service Cleanup ✅ COMPLETED
 
-| Old Directory | Target Location | Import Count | Files |
-|--------------|-----------------|--------------|-------|
-| `classSessionComponents/*` | `lib/services/*` or shared components | 21 | 9 files |
-| `classSessions/*` | `program-head/manage-class-sessions/*` | 5 | 5 files |
-| `departments/*` | `admin/manage-departments/*` or shared | 5 | 5 files |
-| `users/*` | `admin/manage-users/*` or shared auth | 2 | 2 files |
-| `resourceRequests/*` | `lib/services/resourceRequestService` | 1+ | Multiple |
-| `timetabling/*` | `program-head/schedule-class-session/*` | Many | Active |
+**Status:** ✅ All duplicate services safely removed
 
-**Step 3: Batch Update Process**
+**Completed Actions:**
+1. ✅ Verified zero active imports from `features/classSessionComponents/services/`
+   - Scanned entire codebase for import references
+   - Confirmed all hooks already migrated to use `@/lib/services/*`
+   
+2. ✅ Confirmed all functionality exists in centralized `lib/services/`
+   - `coursesService.ts` → `lib/services/courseService.ts`
+   - `classGroupsService.ts` → `lib/services/classGroupService.ts`
+   - `classroomsService.ts` → `lib/services/classroomService.ts`
+   - `instructorsService.ts` → `lib/services/instructorService.ts`
+   
+3. ✅ Deleted duplicate service files:
+   - `src/features/classSessionComponents/services/coursesService.ts` (100 lines)
+   - `src/features/classSessionComponents/services/classGroupsService.ts` (81 lines)
+   - `src/features/classSessionComponents/services/classroomsService.ts` (149 lines)
+   - `src/features/classSessionComponents/services/instructorsService.ts` (185 lines)
+   - `src/features/classSessionComponents/services/index.ts` (4 lines)
+   
+4. ✅ Fixed final import in timetabling hook:
+   - Updated `src/features/timetabling/hooks/useTimetable.ts` to use centralized services
+
+**Verification Results:**
+- ✅ Zero import errors after fixes
+- ✅ Build succeeds
+- ✅ All functionality preserved in centralized services
+- ✅ ~519 lines of duplicate code removed
+
+**Remaining in classSessionComponents directory:**
+- `hooks/` - Active and migrated to use lib/services
+- `types/` - Type definitions still in use
+- **Services directory REMOVED** ✅
+
+### Phase 9.3: Import Update Strategy (NEXT)
+
+| Old Directory | Target Location | Import Count | Status |
+|--------------|-----------------|--------------|--------|
+| `classSessions/*` | `program-head/manage-class-sessions/*` | 5 | ⏳ Pending |
+| `departments/*` | `admin/manage-departments/*` or shared | 5 | ⏳ Pending |
+| `users/*` | `admin/manage-users/*` or shared auth | 2 | ⏳ Pending |
+| `timetabling/*` | `program-head/schedule-class-session/*` | Many | ⏳ Active |
+
+**Batch Update Process:**
 For each directory category:
 1. Identify all import statements
 2. Update imports file-by-file
@@ -564,22 +598,9 @@ For each directory category:
 5. Run `npm run test` after each batch
 6. Commit changes with clear message
 
-**Step 4: Verification Before Deletion**
-- ✅ Run full test suite
-- ⏳ Run E2E tests
-- ✅ Build production bundle
-- ⏳ Search codebase for any remaining references
-- ⏳ Verify no dynamic imports or string-based paths
+**Estimated Effort:** 30-40 hours remaining
 
-**Step 5: Delete Old Directories**
-- Only after ALL imports are updated
-- Only after ALL tests pass
-- Delete directories one by one with verification
-- Update documentation
-
-**Estimated Effort:** 40-60 hours (largest remaining task)
-
-### Phase 9.2: Timetabling Full Migration
+### Phase 9.4: Timetabling Full Migration (FUTURE)
 **Goal:** Complete migration of timetabling feature to vertical slice
 
 - Migrate remaining timetabling components to `program-head/schedule-class-session/`
@@ -626,6 +647,6 @@ For each directory category:
 ---
 
 **Last Updated:** 2025-11-20
-**Status:** Phase 7 ✅ Complete | Phase 8 ✅ Complete (Documentation done, Baseline verification complete) | Phase 9 READY
-**Current Task:** Phase 9 planning and execution ready
-**Next Milestone:** Begin Phase 9.1 Service Consolidation
+**Status:** Phase 7 ✅ Complete | Phase 8 ✅ Complete | Phase 9 🚧 In Progress (40%)
+**Current Task:** Phase 9.2 ✅ Complete - Duplicate services removed
+**Next Milestone:** Phase 9.3 - Import Update Strategy

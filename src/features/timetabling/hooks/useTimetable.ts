@@ -13,9 +13,9 @@ import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig'
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment, TimetableViewMode } from '../types/timetable';
 import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
-import * as classGroupsService from '../../classSessionComponents/services/classGroupsService';
-import * as classroomsService from '../../classSessionComponents/services/classroomsService';
-import * as instructorsService from '../../classSessionComponents/services/instructorsService';
+import * as classGroupsService from '@/lib/services/classGroupService';
+import * as classroomsService from '@/lib/services/classroomService';
+import * as instructorsService from '@/lib/services/instructorService';
 import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
 import { usePrograms } from '../../programs/hooks/usePrograms';
 import { Semester } from '../../scheduleConfig/types/semesters';
