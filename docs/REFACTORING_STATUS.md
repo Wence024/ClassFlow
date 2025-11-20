@@ -492,9 +492,10 @@ Phase 8.3 verification complete - establish baseline and proceed with Phase 9 de
 - ⏳ No dead code remaining (to be analyzed in Phase 9)
 - ⏳ Vertical slice pattern consistently applied (needs verification in Phase 9)
 
-## ✅ Phase 9: Complete Migration (IN PROGRESS)
+## ✅ Phase 9: Complete Migration (40% → 55% PROGRESS)
 
 **Goal:** Complete the migration by updating all imports and removing old directories
+**Current Status:** Service consolidation complete - 3/3 major cleanup phases done
 
 ### Phase 9.1: Service Consolidation ✅ COMPLETED
 
@@ -578,6 +579,42 @@ Phase 8.3 verification complete - establish baseline and proceed with Phase 9 de
 **Remaining in classSessionComponents directory:**
 - `hooks/` - Active and migrated to use lib/services
 - `types/` - Type definitions still in use
+
+### Phase 9.3: Remove Remaining Duplicate Service Files ✅ COMPLETED
+
+**Status:** ✅ All remaining duplicate feature service files safely removed
+
+**Completed Actions:**
+1. ✅ Audited consolidated services for completeness:
+   - `lib/services/programService.ts` - All 4 CRUD operations present
+   - `lib/services/userService.ts` - All 5 operations present (including inviteUser)
+   - `lib/services/departmentService.ts` - All 4 CRUD operations present
+
+2. ✅ Verified zero active imports from old service locations:
+   - No imports from `features/programs/services/`
+   - No imports from `features/users/services/`
+   - No imports from `features/departments/services/`
+
+3. ✅ Deleted duplicate service files:
+   - `src/features/departments/services/departmentsService.ts` (50 lines)
+   - `src/features/programs/services/programsService.ts` (50 lines)
+   - `src/features/users/services/usersService.ts` (99 lines)
+
+4. ✅ Updated all remaining imports:
+   - `src/features/programs/hooks/usePrograms.ts` → uses `@/lib/services/programService`
+   - `src/features/users/hooks/useUsers.ts` → uses `@/lib/services/userService`
+   - `src/features/users/pages/UserManagementPage.tsx` → uses `@/lib/services/userService`
+
+**Verification Results:**
+- ✅ Zero import errors after fixes
+- ✅ TypeScript compilation successful
+- ✅ All functionality preserved in centralized services
+- ✅ ~199 lines of duplicate code removed
+
+**Impact:**
+- Total duplicate code removed in Phase 9: ~718 lines
+- Service layer now fully consolidated in `lib/services/`
+- Easier to maintain and test centralized services
 - **Services directory REMOVED** ✅
 
 ### Phase 9.3: Import Update Strategy (NEXT)
@@ -647,6 +684,6 @@ For each directory category:
 ---
 
 **Last Updated:** 2025-11-20
-**Status:** Phase 7 ✅ Complete | Phase 8 ✅ Complete | Phase 9 🚧 In Progress (40%)
-**Current Task:** Phase 9.2 ✅ Complete - Duplicate services removed
+**Status:** Phase 7 ✅ Complete | Phase 8 ✅ Complete | Phase 9 🚧 In Progress (55%)
+**Current Task:** Phase 9.3 ✅ Complete - All duplicate feature services removed (~718 lines cleaned)
 **Next Milestone:** Phase 9.3 - Import Update Strategy

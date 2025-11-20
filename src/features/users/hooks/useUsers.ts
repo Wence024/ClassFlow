@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UserProfile, UserProfileUpdate } from '../types/user';
-import * as svc from '../services/usersService';
+import * as svc from '@/lib/services/userService';
 
 const qk = {
   list: ['users', 'list'] as const,
