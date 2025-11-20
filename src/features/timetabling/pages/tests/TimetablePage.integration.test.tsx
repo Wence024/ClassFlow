@@ -6,7 +6,7 @@ import * as useTimetableHook from '../../hooks/useTimetable';
 import * as useTimetableDndHook from '../../hooks/useTimetableDnd';
 import * as classSessionsService from '../../../classSessions/services/classSessionsService';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import { MemoryRouter } from 'react-router-dom';
 
 import type { ClassSession } from '../../../classSessions/types/classSession';

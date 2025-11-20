@@ -7,10 +7,10 @@ import { setupProgramHeadEnvironment } from '../../support/testSetup';
  * E2E Tests for Admin Classroom Management.
  *
  * Tests full CRUD workflow for classrooms including:
- * - Creating classrooms with department preferences
- * - Viewing all classrooms
- * - Editing classroom details
- * - Deleting classrooms (and handling foreign key constraints)
+ * - Creating classrooms with department preferences.
+ * - Viewing all classrooms.
+ * - Editing classroom details.
+ * - Deleting classrooms (and handling foreign key constraints).
  */
 
 describe('Admin: Manage Classrooms', () => {
@@ -21,6 +21,7 @@ describe('Admin: Manage Classrooms', () => {
     // Setup test environment
     testEnv = await setupProgramHeadEnvironment({
       email: `admin_classrooms_${Date.now()}@cypress.test`,
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
       password: 'TestPassword123!',
     });
 
@@ -28,6 +29,7 @@ describe('Admin: Manage Classrooms', () => {
     const { seedTestUser } = await import('../../support/seedTestData');
     adminUser = await seedTestUser({
       email: `admin_${Date.now()}@cypress.test`,
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
       password: 'AdminPassword123!',
       fullName: 'Admin User',
       role: 'admin',

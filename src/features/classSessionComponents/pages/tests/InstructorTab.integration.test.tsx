@@ -4,11 +4,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import InstructorTab from '../InstructorTab';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import * as instructorsService from '../../services/instructorsService';
 import * as useClassSessionsHook from '../../../classSessions/hooks/useClassSessions';
 import type { ReactNode } from 'react';
-import type { AuthContextType } from '../../../auth/types/auth';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
 import type { Instructor } from '../../types';
 
 // Mock services and hooks

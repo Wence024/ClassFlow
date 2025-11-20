@@ -2,14 +2,14 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import SessionCell from '../SessionCell';
 import TimetableContext, { type TimetableContextType } from '../TimetableContext';
-import { AuthContext } from '../../../../../../features/auth/contexts/AuthContext';
+import { AuthContext } from '../../../../../../features/shared/auth/contexts/AuthContext';
 import {
   getSessionCellBgColor,
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../../lib/colorUtils';
 import type { ClassSession } from '../../../../../../features/classSessions/types/classSession';
-import type { AuthContextType } from '../../../../../../features/auth/types/auth';
+import type { AuthContextType } from '../../../../../../features/shared/auth/types/auth';
 
 // Test helper to convert a hex color to the rgb/rgba format JSDOM uses
 const hexToRgba = (hex: string): string => {

@@ -4,14 +4,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import ClassroomManagement from '../ClassroomTab';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import * as useClassroomsUnifiedHook from '../../hooks/useClassroomsUnified';
 import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
-import type { AuthContextType } from '../../../auth/types/auth';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
 import type { Classroom } from '../../types/classroom';
 import type { Department } from '../../../departments/types/department';
-import { User } from '../../../auth/types/auth';
+import { User } from '../../../shared/auth/types/auth';
 
 // Mocks
 vi.mock('../../hooks/useClassroomsUnified');

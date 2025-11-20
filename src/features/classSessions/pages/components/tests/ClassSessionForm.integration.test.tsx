@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import ClassSessionForm from '../classSession/ClassSessionForm';
-import { AuthProvider } from '../../../../auth/contexts/AuthProvider';
+import { AuthProvider } from '../../../../shared/auth/contexts/AuthProvider';
 import { classSessionSchema } from '../../../../classSessions/types/validation';
 import type {
   Course,

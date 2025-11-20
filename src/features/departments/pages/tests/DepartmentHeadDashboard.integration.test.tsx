@@ -4,8 +4,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import DepartmentHeadDashboard from '../DepartmentHeadDashboard';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { AuthContextType } from '../../../auth/types/auth';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
 import type { ReactNode } from 'react';
 
 /**

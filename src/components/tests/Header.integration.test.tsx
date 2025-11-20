@@ -4,9 +4,9 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Header from '../Header';
-import { AuthContext } from '../../features/auth/contexts/AuthContext';
+import { AuthContext } from '../../features/shared/auth/contexts/AuthContext';
 import { LayoutProvider } from '../../contexts/LayoutContext';
-import type { AuthContextType } from '../../features/auth/types/auth';
+import type { AuthContextType } from '../../features/shared/auth/types/auth';
 
 /**
  * Renders Header with required providers for testing.

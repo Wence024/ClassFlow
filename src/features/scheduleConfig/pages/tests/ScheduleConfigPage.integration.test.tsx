@@ -2,8 +2,8 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScheduleConfigPage from '../ScheduleConfigPage';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { AuthContextType } from '../../../auth/types/auth';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
 import * as useScheduleConfigHook from '../../hooks/useScheduleConfig';
 
 const queryClient = new QueryClient();

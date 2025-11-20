@@ -3,8 +3,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { userEvent } from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import CourseManagement from '../CourseTab';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { AuthContextType } from '../../../auth/types/auth';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
 import * as courseHooks from '../../hooks/useCourses';
 import * as sessionHooks from '../../../classSessions/hooks/useClassSessions';
 

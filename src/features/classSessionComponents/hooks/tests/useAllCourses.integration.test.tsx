@@ -4,11 +4,11 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAllCourses } from '../useAllCourses';
 import * as coursesService from '../../services/coursesService';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
-import type { User } from '../../../auth/types/auth';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import type { User } from '../../../shared/auth/types/auth';
 import type { Course } from '../../types/course';
 import type { UseQueryResult } from '@tanstack/react-query';
-import type { AuthContextType } from '../../../auth/types/auth';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
 
 // Mocks
 vi.mock('../../services/coursesService');

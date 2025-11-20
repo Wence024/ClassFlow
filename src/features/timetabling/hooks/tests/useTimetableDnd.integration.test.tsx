@@ -5,9 +5,9 @@ import { useTimetableDnd } from '../useTimetableDnd';
 import * as useTimetableHook from '../useTimetable';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import * as useProgramsHook from '../../../programs/hooks/usePrograms';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { ClassSession } from '../../../classSessions/types/classSession';
-import type { User } from '../../../auth/types/auth';
+import type { User } from '../../../shared/auth/types/auth';
 import type { DragSource } from '../../types/DragSource';
 import type { TimetableGrid } from '../../utils/timetableLogic';
 import type {

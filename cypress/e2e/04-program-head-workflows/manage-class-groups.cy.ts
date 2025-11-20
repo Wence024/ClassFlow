@@ -7,11 +7,11 @@ import { setupProgramHeadEnvironment } from '../../support/testSetup';
  * E2E Tests for Program Head: Manage Class Groups.
  *
  * Tests full CRUD workflow for class groups including:
- * - Creating class groups with name, code, student count
- * - Viewing all class groups for the program
- * - Editing class group details
- * - Deleting class groups
- * - Assigning colors to class groups
+ * - Creating class groups with name, code, student count.
+ * - Viewing all class groups for the program.
+ * - Editing class group details.
+ * - Deleting class groups.
+ * - Assigning colors to class groups.
  */
 
 describe('Program Head: Manage Class Groups', () => {
@@ -20,6 +20,7 @@ describe('Program Head: Manage Class Groups', () => {
   before(async () => {
     testEnv = await setupProgramHeadEnvironment({
       email: `prog_head_groups_${Date.now()}@cypress.test`,
+      // eslint-disable-next-line sonarjs/no-hardcoded-passwords
       password: 'TestPassword123!',
     });
   });

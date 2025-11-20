@@ -6,13 +6,13 @@ import * as timetableService from '../../services/timetableService';
 import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
-import { AuthContext } from '../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { Semester as ActiveSemester } from '../../../scheduleConfig/types/semesters';
 import type { ScheduleConfig as ScheduleConfigSettings } from '../../../scheduleConfig/types/scheduleConfig';
 import type { TimetableAssignment, HydratedTimetableAssignment } from '../../types/timetable';
 import type { ClassSession } from '../../../classSessions/types/classSession';
 import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
-import type { User } from '../../../auth/types/auth';
+import type { User } from '../../../shared/auth/types/auth';
 import type { Course, Instructor, Classroom } from '../../../classSessionComponents/types';
 
 // 1. MOCK THE SERVICE MODULES
