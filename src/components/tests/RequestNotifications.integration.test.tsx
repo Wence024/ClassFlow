@@ -17,9 +17,7 @@ import type { EnrichedRequest } from '../RequestNotifications';
 vi.mock('../../features/shared/auth/hooks/useDepartmentId');
 vi.mock('../../features/resourceRequests/hooks/useResourceRequests');
 vi.mock('@/lib/services/resourceRequestService', async () => {
-  const actual = await vi.importActual(
-    '../../features/resourceRequests/services/resourceRequestService'
-  );
+  const actual = await vi.importActual('@/lib/services/resourceRequestService');
   return {
     ...actual,
     approveRequest: vi.fn(),
