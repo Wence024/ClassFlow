@@ -326,7 +326,7 @@ export const useTimetableDnd = (
       )
         return;
       const { createRequest } = await import(
-        '../../resourceRequests/services/resourceRequestService'
+        '@/lib/services/resourceRequestService'
       );
       try {
         await createRequest({
@@ -470,7 +470,7 @@ export const useTimetableDnd = (
           if (hasCrossDeptResource) {
             onConfirm(async () => {
               const { cancelActiveRequestsForClassSession } = await import(
-                '../../resourceRequests/services/resourceRequestService'
+                '@/lib/services/resourceRequestService'
               );
               try {
                 // Cancel active requests and notify department head

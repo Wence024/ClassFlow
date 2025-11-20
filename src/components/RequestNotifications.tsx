@@ -71,7 +71,7 @@ export default function RequestNotifications() {
     try {
       // Import the new approveRequest function
       const { approveRequest } = await import(
-        '../features/resourceRequests/services/resourceRequestService'
+        '@/lib/services/resourceRequestService'
       );
 
       // Use the atomic approval function (trigger will cleanup notifications)
@@ -103,7 +103,7 @@ export default function RequestNotifications() {
     setRejectingId(selectedRequestForRejection.id);
     try {
       const { rejectRequest } = await import(
-        '../features/resourceRequests/services/resourceRequestService'
+        '@/lib/services/resourceRequestService'
       );
 
       // Reject request (trigger will cleanup notifications)
