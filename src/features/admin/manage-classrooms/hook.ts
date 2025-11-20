@@ -102,13 +102,23 @@ export function useManageClassrooms() {
 
   /**
    * Validates if a classroom can be deleted.
+   *
+   * @param classroomId - The ID of the classroom to check.
+   * @param classSessions - Array of class sessions to check against.
+   * @returns True if the classroom can be deleted.
    */
-  const canDeleteClassroom = (classroomId: string, classSessions: any[]): boolean => {
+  const canDeleteClassroom = (
+    classroomId: string,
+    classSessions: Array<{ classroom?: { id: string } | null }>
+  ): boolean => {
     return !classSessions.some((session) => session.classroom?.id === classroomId);
   };
 
   /**
    * Finds the index where "other" classrooms begin (for visual separator).
+   *
+   * @param classrooms - Array of classrooms to search.
+   * @returns Index of first classroom outside user's department, or -1 if none.
    */
   const getFirstOtherIndex = (classrooms: Classroom[]): number => {
     if (!user?.department_id) return -1;

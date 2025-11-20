@@ -9,30 +9,43 @@
 
 import { describe, it, expect, vi } from 'vitest';
 
+// Helper mock chain builders to avoid deep nesting
+const createSelectMock = () => ({
+  single: vi.fn().mockResolvedValue({ data: { id: 'updated-id' }, error: null }),
+});
+
+const createEqSelectMock = () => ({
+  select: vi.fn(() => createSelectMock()),
+});
+
+const createUpdateMock = () => ({
+  eq: vi.fn(() => createEqSelectMock()),
+});
+
+const createInsertMock = () => ({
+  select: vi.fn(() => ({
+    single: vi.fn().mockResolvedValue({ data: { id: 'new-id' }, error: null }),
+  })),
+});
+
+const createDeleteMock = () => ({
+  eq: vi.fn().mockResolvedValue({ error: null }),
+});
+
+const createFromMock = () => ({
+  select: vi.fn(() => ({
+    eq: vi.fn(() => ({
+      order: vi.fn().mockResolvedValue({ data: [], error: null }),
+    })),
+  })),
+  insert: vi.fn(() => createInsertMock()),
+  update: vi.fn(() => createUpdateMock()),
+  delete: vi.fn(() => createDeleteMock()),
+});
+
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn().mockResolvedValue({ data: [], error: null }),
-        })),
-      })),
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn().mockResolvedValue({ data: { id: 'new-id' }, error: null }),
-        })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: vi.fn().mockResolvedValue({ data: { id: 'updated-id' }, error: null }),
-          })),
-        })),
-      })),
-      delete: vi.fn(() => ({
-        eq: vi.fn().mockResolvedValue({ error: null }),
-      })),
-    })),
+    from: vi.fn(() => createFromMock()),
   },
 }));
 

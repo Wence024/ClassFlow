@@ -51,6 +51,7 @@ export async function setupProgramHeadEnvironment(options?: {
   
   const user = await seedTestUser({
     email: options?.email || `prog_head_${Date.now()}@cypress.test`,
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     password: options?.password || 'TestPassword123!',
     fullName: `Test Program Head ${Date.now()}`,
     role: 'program_head',
@@ -114,6 +115,7 @@ export async function setupDepartmentHeadEnvironment(options?: {
   
   const user = await seedTestUser({
     email: options?.email || `dept_head_${Date.now()}@cypress.test`,
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     password: options?.password || 'TestPassword123!',
     fullName: `Test Department Head ${Date.now()}`,
     role: 'department_head',

@@ -6,6 +6,7 @@ describe('Timetabling: Cross-Department Confirmation', () => {
   beforeEach(() => {
     cy.visit('/login');
     cy.get('[data-cy="email-input"]').type('programhead@test.com');
+    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
     cy.get('[data-cy="password-input"]').type('testpass123');
     cy.get('[data-cy="login-button"]').click();
     cy.url().should('include', '/dashboard');

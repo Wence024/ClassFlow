@@ -55,7 +55,7 @@ export async function cleanupTestData() {
       } else {
         // For all other tables, use standard delete
         const { error } = await supabase
-          .from(record.table as any)
+          .from(record.table as keyof Database['public']['Tables'])
           .delete()
           .eq('id', record.id);
 
@@ -97,13 +97,13 @@ export async function cleanupOrphanedTestData() {
     try {
       // Try cleaning by name
       await supabase
-        .from(table as any)
+        .from(table as keyof Database['public']['Tables'])
         .delete()
         .ilike('name', `${TEST_DATA_PREFIX}%`);
 
       // Try cleaning by code
       await supabase
-        .from(table as any)
+        .from(table as keyof Database['public']['Tables'])
         .delete()
         .ilike('code', `${TEST_DATA_PREFIX}%`);
     } catch (error) {

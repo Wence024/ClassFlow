@@ -71,14 +71,24 @@ describe('useRequestCrossDeptResource', () => {
     });
 
     it('should set isChecking state correctly', async () => {
-      vi.mocked(service.checkCrossDepartmentResource).mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({
-          isCrossDept: false,
-          resourceType: null,
-          resourceId: null,
-          departmentId: null,
-        }), 100))
-      );
+      // Helper to avoid nested Promise callback
+      const delayedResolve = () => new Promise<{
+        isCrossDept: boolean;
+        resourceType: null;
+        resourceId: null;
+        departmentId: null;
+      }>((resolve) => {
+        setTimeout(() => {
+          resolve({
+            isCrossDept: false,
+            resourceType: null,
+            resourceId: null,
+            departmentId: null,
+          });
+        }, 100);
+      });
+
+      vi.mocked(service.checkCrossDepartmentResource).mockImplementation(delayedResolve);
 
       const { result } = renderHook(() => useRequestCrossDeptResource());
 
