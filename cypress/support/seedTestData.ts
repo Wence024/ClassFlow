@@ -24,13 +24,19 @@ function getSupabaseClient() {
 
 /**
  * Generates a unique test identifier with timestamp.
+ *
+ * @param prefix
  */
 function getUniqueId(prefix: string): string {
-  return `${TEST_DATA_PREFIX}${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  // Use a predictable but unique ID for tests to avoid pseudo-random warning
+  return `${TEST_DATA_PREFIX}${prefix}_${Date.now()}_${performance.now().toString().replace('.', '')}`;
 }
 
 /**
  * Tracks a created test record for cleanup.
+ *
+ * @param table
+ * @param id
  */
 function trackCreatedRecord(table: string, id: string) {
   const records = Cypress.env('testDataRecords') || [];
@@ -40,6 +46,10 @@ function trackCreatedRecord(table: string, id: string) {
 
 /**
  * Seeds a test department.
+ *
+ * @param data
+ * @param data.name
+ * @param data.code
  */
 export async function seedTestDepartment(data?: {
   name?: string;
@@ -68,6 +78,11 @@ export async function seedTestDepartment(data?: {
 
 /**
  * Seeds a test program.
+ *
+ * @param data
+ * @param data.departmentId
+ * @param data.name
+ * @param data.shortCode
  */
 export async function seedTestProgram(data: {
   departmentId: string;
@@ -98,6 +113,14 @@ export async function seedTestProgram(data: {
 
 /**
  * Seeds a test user using the create_test_user database function.
+ *
+ * @param data
+ * @param data.email
+ * @param data.password
+ * @param data.fullName
+ * @param data.role
+ * @param data.departmentId
+ * @param data.programId
  */
 export async function seedTestUser(data: {
   email: string;
@@ -128,6 +151,13 @@ export async function seedTestUser(data: {
 
 /**
  * Seeds a test classroom.
+ *
+ * @param data
+ * @param data.name
+ * @param data.code
+ * @param data.capacity
+ * @param data.location
+ * @param data.preferredDepartmentId
  */
 export async function seedTestClassroom(data?: {
   name?: string;
@@ -162,6 +192,12 @@ export async function seedTestClassroom(data?: {
 
 /**
  * Seeds a test instructor.
+ *
+ * @param data
+ * @param data.departmentId
+ * @param data.firstName
+ * @param data.lastName
+ * @param data.email
  */
 export async function seedTestInstructor(data: {
   departmentId: string;
@@ -194,6 +230,13 @@ export async function seedTestInstructor(data: {
 
 /**
  * Seeds a test course.
+ *
+ * @param data
+ * @param data.programId
+ * @param data.createdBy
+ * @param data.name
+ * @param data.code
+ * @param data.units
  */
 export async function seedTestCourse(data: {
   programId: string;
@@ -228,6 +271,13 @@ export async function seedTestCourse(data: {
 
 /**
  * Seeds a test class group.
+ *
+ * @param data
+ * @param data.programId
+ * @param data.userId
+ * @param data.name
+ * @param data.code
+ * @param data.studentCount
  */
 export async function seedTestClassGroup(data: {
   programId: string;
@@ -262,6 +312,15 @@ export async function seedTestClassGroup(data: {
 
 /**
  * Seeds a test class session.
+ *
+ * @param data
+ * @param data.programId
+ * @param data.userId
+ * @param data.courseId
+ * @param data.classGroupId
+ * @param data.instructorId
+ * @param data.classroomId
+ * @param data.periodCount
  */
 export async function seedTestClassSession(data: {
   programId: string;
@@ -300,6 +359,11 @@ export async function seedTestClassSession(data: {
 
 /**
  * Seeds a complete test environment with department, program, and user.
+ *
+ * @param data
+ * @param data.role
+ * @param data.email
+ * @param data.password
  */
 export async function seedTestEnvironment(data: {
   role: 'admin' | 'department_head' | 'program_head';
