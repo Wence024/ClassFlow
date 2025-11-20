@@ -104,12 +104,7 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
   /**
    * Handles drag start event.
    */
-  type DragSource = {
-    periodIndex: number;
-    classGroupId: string;
-  } | null;
-
-  const handleDragStart = useCallback((session: ClassSession, source: DragSource) => {
+  const handleDragStart = useCallback((session: ClassSession, source: TimetableDragState['dragSource']) => {
     setDragState({
       draggedSession: session,
       dragSource: source,

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
 
 /**
  * Notification dropdown for Program Heads to view and cancel their pending resource requests.
@@ -17,8 +18,6 @@ export default function PendingRequestsPanel() {
   const { isProgramHead, user } = useAuth();
   const { pendingRequests, isLoading, error } = useMyPendingRequests();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
-
-  const hasPendingRequests = pendingRequests.length > 0;
 
   // Calculate count to show - show 0 when error occurs or when no requests
   const displayCount = error ? 0 : pendingRequests.length;
@@ -54,12 +53,11 @@ export default function PendingRequestsPanel() {
   });
 
   const handleCancel = async (requestId: string) => {
+    if (!user?.id) return;
+    
     setCancellingId(requestId);
     try {
-      const { error } = await supabase.rpc('cancel_resource_request', {
-        p_request_id: requestId,
-      });
-      if (error) throw error;
+      await resourceRequestService.cancelRequest(requestId, user.id);
       toast.success('Request cancelled successfully');
     } catch (error) {
       console.error('Error cancelling request:', error);
