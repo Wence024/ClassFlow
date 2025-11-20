@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as service from '../services/resourceRequestService';
+import * as service from '@/lib/services/resourceRequestService';
 import type {
   ResourceRequest,
   ResourceRequestInsert,
   ResourceRequestUpdate,
-} from '../types/resourceRequest';
+} from '@/types/resourceRequest';
 
 /**
  * A hook for managing resource requests initiated by the current user.

@@ -373,7 +373,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
 
       // Import the resource request service dynamically
       const { createRequest } = await import(
-        '../../resourceRequests/services/resourceRequestService'
+        '@/lib/services/resourceRequestService'
       );
 
       // Create request for cross-department instructor

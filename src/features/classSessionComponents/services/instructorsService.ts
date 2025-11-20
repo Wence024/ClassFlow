@@ -172,7 +172,7 @@ export async function updateInstructor(
 export async function removeInstructor(id: string, _user_id: string): Promise<void> {
   // Cancel any active requests for this instructor before deletion
   const { cancelActiveRequestsForResource } = await import(
-    '../../resourceRequests/services/resourceRequestService'
+    '@/lib/services/resourceRequestService'
   );
   try {
     await cancelActiveRequestsForResource('instructor', id);

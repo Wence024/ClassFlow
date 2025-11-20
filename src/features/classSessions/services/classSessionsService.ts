@@ -120,7 +120,7 @@ export async function updateClassSession(
 export async function removeClassSession(id: string, user_id: string): Promise<void> {
   // Cancel any active requests for this session before deletion
   const { cancelActiveRequestsForClassSession } = await import(
-    '../../resourceRequests/services/resourceRequestService'
+    '@/lib/services/resourceRequestService'
   );
   try {
     await cancelActiveRequestsForClassSession(id);

@@ -136,7 +136,7 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 export async function removeClassroom(id: string, _user_id: string): Promise<void> {
   // Cancel any active requests for this classroom before deletion
   const { cancelActiveRequestsForResource } = await import(
-    '../../resourceRequests/services/resourceRequestService'
+    '@/lib/services/resourceRequestService'
   );
   try {
     await cancelActiveRequestsForResource('classroom', id);
