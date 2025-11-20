@@ -492,7 +492,7 @@ export const useTimetableDnd = (
 
       cleanupDragState();
     },
-    [removeClassSession, cleanupDragState, allClassSessions, user, userDepartmentId]
+    [removeClassSession, cleanupDragState, allClassSessions, userDepartmentId]
   );
 
   return {
