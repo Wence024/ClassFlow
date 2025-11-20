@@ -10,8 +10,8 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { supabase } from '../../../../lib/supabase';
-import * as resourceRequestService from '../resourceRequestService';
-import type { ResourceRequestInsert } from '../../types/resourceRequest';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
+import type { ResourceRequestInsert } from '@/types/resourceRequest';
 
 vi.mock('../../../../lib/supabase', () => ({
   supabase: {
