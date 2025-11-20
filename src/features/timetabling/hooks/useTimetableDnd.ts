@@ -6,9 +6,9 @@ import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import { usePrograms } from '../../programs/hooks/usePrograms';
-import { useAuth } from '../../auth/hooks/useAuth';
+import { useAuth } from '../../shared/auth/hooks/useAuth';
 import type { TimetableViewMode, HydratedTimetableAssignment } from '../types/timetable';
-import { User } from '../../auth/types/auth';
+import { User } from '../../shared/auth/types/auth';
 
 const DRAG_DATA_KEY = 'application/json';
 
