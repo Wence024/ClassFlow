@@ -11,7 +11,18 @@
 
 /// <reference types="cypress" />
 
-import { cleanupTestData } from './testDataCleanup';
+import { cleanupTestData, cleanupOrphanedTestData } from './testDataCleanup';
+import {
+  seedTestDepartment,
+  seedTestProgram,
+  seedTestUser,
+  seedTestClassroom,
+  seedTestInstructor,
+  seedTestCourse,
+  seedTestClassGroup,
+  seedTestClassSession,
+  seedTestEnvironment,
+} from './seedTestData';
 
 /**
  * Custom command to log in a user through the UI.
@@ -48,9 +59,66 @@ Cypress.Commands.add('loginAs', (role: 'program_head' | 'admin' | 'department_he
   });
 });
 
+/**
+ * Seeds test data into the database.
+ *
+ * @param dataType - The type of data to seed.
+ * @param data - The data to seed.
+ *
+ * @example
+ * cy.seedTestData('department', { name: 'CS Department', code: 'CS' })
+ * cy.seedTestData('environment', { role: 'program_head', email: 'test@test.com' })
+ */
+Cypress.Commands.add('seedTestData', (dataType, data) => {
+  return cy.wrap(null).then(async () => {
+    switch (dataType) {
+      case 'department':
+        return seedTestDepartment(data);
+      case 'program':
+        return seedTestProgram(data);
+      case 'user':
+        return seedTestUser(data);
+      case 'classroom':
+        return seedTestClassroom(data);
+      case 'instructor':
+        return seedTestInstructor(data);
+      case 'course':
+        return seedTestCourse(data);
+      case 'classGroup':
+        return seedTestClassGroup(data);
+      case 'classSession':
+        return seedTestClassSession(data);
+      case 'environment':
+        return seedTestEnvironment(data);
+      default:
+        throw new Error(`Unknown data type: ${dataType}`);
+    }
+  });
+});
+
+/**
+ * Cleans up all test data created during the test.
+ *
+ * @example
+ * cy.cleanupTestData()
+ */
+Cypress.Commands.add('cleanupTestData', () => {
+  return cy.wrap(cleanupTestData());
+});
+
+/**
+ * Cleans up orphaned test data (fallback cleanup).
+ *
+ * @example
+ * cy.cleanupOrphanedTestData()
+ */
+Cypress.Commands.add('cleanupOrphanedTestData', () => {
+  return cy.wrap(cleanupOrphanedTestData());
+});
+
 // Global after hook for cleanup
 afterEach(() => {
-  cleanupTestData();
+  cy.cleanupTestData();
 });
 
 // Add the command to Cypress's global namespace for TypeScript support
@@ -59,6 +127,9 @@ declare global {
   namespace Cypress {
     interface Chainable {
       loginAs(role: 'program_head' | 'admin' | 'department_head'): Chainable<void>;
+      seedTestData(dataType: string, data: any): Chainable<any>;
+      cleanupTestData(): Chainable<void>;
+      cleanupOrphanedTestData(): Chainable<void>;
     }
   }
 }
