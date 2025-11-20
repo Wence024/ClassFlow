@@ -19,7 +19,7 @@ import type { ClassSession } from '../types/classSession';
 import { Instructor } from '../../classSessionComponents/types/instructor';
 import { Classroom } from '../../classSessionComponents/types/classroom';
 // FIXED: Import the schema from its correct, new location
-import { classSessionSchema } from '../types/validation';
+import { classSessionSchema } from '@/types/validation/classSession';
 // Import all necessary UI components
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
 import { toast } from 'sonner';

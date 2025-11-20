@@ -5,7 +5,7 @@ import { Button, Card, ConfirmModal, ErrorMessage, LoadingSpinner, Alert } from 
 import type { Department } from '../types/department';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { departmentSchema, type DepartmentFormData } from '../types/validation';
+import { departmentSchema, type DepartmentFormData } from '@/types/validation/department';
 import { DepartmentFields, DepartmentCard } from './components/department';
 import FormField from '@/components/ui/custom/form-field';
 

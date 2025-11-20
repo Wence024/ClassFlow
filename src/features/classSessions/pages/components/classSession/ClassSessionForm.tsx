@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { z } from 'zod';
 import { Button, Label } from '../../../../../components/ui';
-import { classSessionSchema } from '../../../../classSessions/types/validation';
+import { classSessionSchema } from '@/types/validation/classSession';
 import type {
   Course,
   ClassGroup,

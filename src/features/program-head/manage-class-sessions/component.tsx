@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { useManageClassSessions } from './hook';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import { useFormPersistence } from '@/features/classSessions/hooks/useFormPersistence';
-import { classSessionSchema } from '@/features/classSessions/types/validation';
+import { classSessionSchema } from '@/types/validation/classSession';
 import { ClassSessionForm, ClassSessionCard } from '@/features/classSessions/pages/components/classSession';
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '@/components/ui';
 import { toast } from 'sonner';

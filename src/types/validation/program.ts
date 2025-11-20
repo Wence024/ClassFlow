@@ -1,3 +1,6 @@
+/**
+ * @file Validation schema for programs.
+ */
 import { z } from 'zod';
 
 /** Zod schema for validating Program form data. */

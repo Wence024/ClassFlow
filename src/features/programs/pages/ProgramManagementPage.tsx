@@ -6,7 +6,7 @@ import { Button, Card, ConfirmModal, ErrorMessage, LoadingSpinner, Alert } from 
 import type { Program } from '../types/program';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { programSchema, type ProgramFormData } from '../types/validation';
+import { programSchema, type ProgramFormData } from '@/types/validation/program';
 import { ProgramFields, ProgramCard } from './components/program';
 import FormField from '@/components/ui/custom/form-field';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Control, FieldErrors } from 'react-hook-form';
 import type { Department } from '../../types/department';
-import type { DepartmentFormData } from '../../types/validation';
+import type { DepartmentFormData } from '@/types/validation/department';
 import {
   FormControl,
   FormField as RHFFormField,
