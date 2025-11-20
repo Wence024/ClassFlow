@@ -121,15 +121,17 @@ afterEach(() => {
   cy.cleanupTestData();
 });
 
-// Add the command to Cypress's global namespace for TypeScript support
-// eslint-disable-next-line @typescript-eslint/no-namespace -- Cypress augmentation pattern
+// Add type definitions for Cypress custom commands
+// Use namespace as required by Cypress type extension system
 declare global {
+  /* eslint-disable @typescript-eslint/no-namespace */
   namespace Cypress {
     interface Chainable {
       loginAs(role: 'program_head' | 'admin' | 'department_head'): Chainable<void>;
-      seedTestData(dataType: string, data: any): Chainable<any>;
+      seedTestData(dataType: string, data: Record<string, unknown>): Chainable<Record<string, unknown>>;
       cleanupTestData(): Chainable<void>;
       cleanupOrphanedTestData(): Chainable<void>;
     }
   }
+  /* eslint-enable @typescript-eslint/no-namespace */
 }

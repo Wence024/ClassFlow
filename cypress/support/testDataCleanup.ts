@@ -43,34 +43,46 @@ export async function cleanupTestData() {
   const reversedRecords = [...records].reverse();
 
   for (const record of reversedRecords) {
-    try {
-      if (record.table === 'auth.users') {
-        // Use the delete_test_user function for auth users
-        const { error } = await supabase.rpc('delete_test_user', {
-          email: record.id, // For users, we store email as id
-        });
-        if (error && !error.message.includes('not found')) {
-          cy.log(`Warning: Failed to delete user ${record.id}: ${error.message}`);
-        }
-      } else {
-        // For all other tables, use standard delete
-        const { error } = await supabase
-          .from(record.table as keyof Database['public']['Tables'])
-          .delete()
-          .eq('id', record.id);
-
-        if (error && !error.message.includes('No rows found')) {
-          cy.log(`Warning: Failed to delete ${record.table} record ${record.id}: ${error.message}`);
-        }
-      }
-    } catch (error) {
-      cy.log(`Error during cleanup of ${record.table}: ${error}`);
-    }
+    await deleteRecord(supabase, record);
   }
 
   // Clear the tracking array
   Cypress.env('testDataRecords', []);
   cy.log('Test data cleanup complete');
+}
+
+/**
+ * Helper function to delete a single record.
+ *
+ * @param supabase
+ * @param record
+ * @param record.table
+ * @param record.id
+ */
+async function deleteRecord(supabase: SupabaseClient<Database>, record: {table: string, id: string}) {
+  try {
+    if (record.table === 'auth.users') {
+      // Use the delete_test_user function for auth users
+      const { error } = await supabase.rpc('delete_test_user', {
+        email: record.id, // For users, we store email as id
+      });
+      if (error && !error.message.includes('not found')) {
+        cy.log(`Warning: Failed to delete user ${record.id}: ${error.message}`);
+      }
+    } else {
+      // For all other tables, use standard delete
+      const { error } = await supabase
+        .from(record.table as keyof Database['public']['Tables'])
+        .delete()
+        .eq('id', record.id);
+
+      if (error && !error.message.includes('No rows found')) {
+        cy.log(`Warning: Failed to delete ${record.table} record ${record.id}: ${error.message}`);
+      }
+    }
+  } catch (error) {
+    cy.log(`Error during cleanup of ${record.table}: ${error}`);
+  }
 }
 
 /**
@@ -117,7 +129,7 @@ export async function cleanupOrphanedTestData() {
 /**
  * Creates a unique test identifier with timestamp.
  *
- * @deprecated Use seedTestData functions instead
+ * @deprecated Use seedTestData functions instead.
  * @returns A unique test identifier string with prefix and timestamp.
  */
 export function getTestId(): string {
@@ -127,7 +139,7 @@ export function getTestId(): string {
 /**
  * Tracks a created test record for cleanup.
  *
- * @deprecated This is handled automatically by seed functions
+ * @deprecated This is handled automatically by seed functions.
  * @param tableName - The name of the table where the record was created.
  * @param id - The ID of the created record.
  */
@@ -140,7 +152,7 @@ export function trackTestRecord(tableName: string, id: string) {
 /**
  * Creates a test department with cleanup tracking.
  *
- * @deprecated Use seedTestDepartment from seedTestData instead
+ * @deprecated Use seedTestDepartment from seedTestData instead.
  * @param name - Optional custom department name.
  * @param code - Optional custom department code.
  * @returns Test department object with name and code.
