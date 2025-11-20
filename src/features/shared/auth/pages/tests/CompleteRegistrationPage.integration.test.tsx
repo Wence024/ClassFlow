@@ -1,12 +1,12 @@
-/* eslint-disable sonarjs/no-hardcoded-passwords */
+
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import CompleteRegistrationPage from '../CompleteRegistrationPage';
-import { supabase } from '../../../../lib/supabase';
+import { supabase } from '../../../../integrations/supabase/client';
 
-vi.mock('../../../../lib/supabase', () => ({
+vi.mock('../../../../integrations/supabase/client', () => ({
   supabase: {
     auth: {
       updateUser: vi.fn(),

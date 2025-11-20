@@ -8,7 +8,7 @@ import SessionCell from '../SessionCell';
 import type { HydratedTimetableAssignment } from '../../../../types/timetable';
 import TimetableContext from '../TimetableContext';
 import type { TimetableContextType } from '../TimetableContext';
-import { AuthContext } from '../../../../../auth/contexts/AuthContext';
+import { AuthContext } from '../../../../shared/auth/contexts/AuthContext';
 
 vi.mock('react-dnd', () => ({
   useDrag: () => [{}, vi.fn(), vi.fn()],
