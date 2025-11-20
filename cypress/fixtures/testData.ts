@@ -115,7 +115,7 @@ export const generateTestClassGroup = (programId: string, suffix = timestamp()) 
  *
  * These are test-only credentials for Cypress E2E tests.
  */
-// eslint-disable-next-line sonarjs/no-hardcoded-passwords -- Test credentials object
+ 
 export const TEST_CREDENTIALS = {
   admin: {
     email: 'admin@isu.edu.ph',

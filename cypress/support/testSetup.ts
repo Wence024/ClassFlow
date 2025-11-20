@@ -27,7 +27,7 @@ import {
  * - Test classroom
  * - Test instructor
  * - Test course
- * - Test class group
+ * - Test class group.
  *
  * @param options - Optional configuration.
  * @param options.email - Custom email for the program head.
@@ -51,7 +51,7 @@ export async function setupProgramHeadEnvironment(options?: {
   
   const user = await seedTestUser({
     email: options?.email || `prog_head_${Date.now()}@cypress.test`,
-    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+     
     password: options?.password || 'TestPassword123!',
     fullName: `Test Program Head ${Date.now()}`,
     role: 'program_head',
@@ -95,7 +95,7 @@ export async function setupProgramHeadEnvironment(options?: {
  * - Test department
  * - Department head user
  * - Test instructor
- * - Test classroom
+ * - Test classroom.
  *
  * @param options - Optional configuration.
  * @param options.email - Custom email for the department head.
@@ -115,7 +115,7 @@ export async function setupDepartmentHeadEnvironment(options?: {
   
   const user = await seedTestUser({
     email: options?.email || `dept_head_${Date.now()}@cypress.test`,
-    // eslint-disable-next-line sonarjs/no-hardcoded-passwords
+     
     password: options?.password || 'TestPassword123!',
     fullName: `Test Department Head ${Date.now()}`,
     role: 'department_head',
@@ -164,7 +164,7 @@ export async function setupCrossDeptRequest(): Promise<{
   const programA = await seedTestProgram({ departmentId: deptA.id });
   const userA = await seedTestUser({
     email: `prog_head_a_${Date.now()}@cypress.test`,
-    password: 'TestPassword123!',
+    password: Cypress.env('TEST_USER_PASSWORD') || 'TestPassword123!', // Test password for cypress tests
     fullName: `Program Head A ${Date.now()}`,
     role: 'program_head',
     departmentId: deptA.id,
@@ -176,7 +176,7 @@ export async function setupCrossDeptRequest(): Promise<{
   const programB = await seedTestProgram({ departmentId: deptB.id });
   const userB = await seedTestUser({
     email: `prog_head_b_${Date.now()}@cypress.test`,
-    password: 'TestPassword123!',
+    password: Cypress.env('TEST_USER_PASSWORD') || 'TestPassword123!', // Test password for cypress tests
     fullName: `Program Head B ${Date.now()}`,
     role: 'program_head',
     departmentId: deptB.id,
