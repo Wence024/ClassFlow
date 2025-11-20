@@ -1,34 +1,50 @@
 /**
- * Service wrapper for Create Class Session use case.
- * 
- * This service provides a thin abstraction over the infrastructure
- * services, allowing us to compose operations specific to this use case.
+ * Service layer for managing class sessions (CRUD operations).
  */
 
 import * as classSessionService from '@/lib/services/classSessionService';
 import * as instructorService from '@/lib/services/instructorService';
 import * as classroomService from '@/lib/services/classroomService';
-import type { CreateClassSessionFormData, CrossDepartmentInfo } from './types';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate, CrossDepartmentInfo } from './types';
+
+/**
+ * Fetches all class sessions for a user.
+ */
+export async function fetchSessions(userId: string): Promise<ClassSession[]> {
+  return classSessionService.getClassSessions(userId);
+}
 
 /**
  * Creates a new class session.
  */
-export async function createClassSession(data: CreateClassSessionFormData) {
+export async function createSession(data: ClassSessionInsert): Promise<ClassSession> {
   return classSessionService.addClassSession(data);
 }
 
 /**
- * Checks if resources (instructor or classroom) belong to a different department.
- * 
- * @param instructorId - The instructor ID to check.
- * @param classroomId - The classroom ID to check (optional).
- * @returns Cross-department information if resources are from another department.
+ * Updates an existing class session.
+ */
+export async function updateSession(
+  sessionId: string,
+  data: ClassSessionUpdate
+): Promise<ClassSession> {
+  return classSessionService.updateClassSession(sessionId, data);
+}
+
+/**
+ * Deletes a class session.
+ */
+export async function deleteSession(sessionId: string, userId: string): Promise<void> {
+  return classSessionService.removeClassSession(sessionId, userId);
+}
+
+/**
+ * Checks if resources belong to a different department (cross-department).
  */
 export async function checkCrossDepartmentResources(
   instructorId: string,
   classroomId: string | null
 ): Promise<CrossDepartmentInfo | null> {
-  // Fetch all instructors to find the one we need
   const instructors = await instructorService.getAllInstructors();
   const instructor = instructors.find((i) => i.id === instructorId);
   
