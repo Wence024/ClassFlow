@@ -1,17 +1,123 @@
 /// <reference types="cypress" />
 
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '../../src/integrations/supabase/types';
+
 /**
- * Test Data Management.
+ * Test Data Cleanup System.
  *
- * Utilities for creating test data and ensuring cleanup after tests.
- * All test data should be created with a prefix to identify it for cleanup.
+ * Removes all test data created during E2E tests by tracking created records
+ * and deleting them in reverse order to respect foreign key constraints.
  */
 
-export const TEST_DATA_PREFIX = 'E2E_TEST_';
+export const TEST_DATA_PREFIX = 'CYPRESS_TEST_';
+
+const supabaseUrl = 'https://wkfgcroybuuefaulqsru.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrZmdjcm95YnV1ZWZhdWxxc3J1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0MjgxNzEsImV4cCI6MjA3OTAwNDE3MX0.OmmXnxzeGspJJgPr8r0yiYXXbwEtaIBmkT-KIZdE4Mg';
+
+/**
+ * Creates a Supabase client for cleanup operations.
+ */
+function getSupabaseClient() {
+  return createClient<Database>(supabaseUrl, supabaseKey);
+}
+
+/**
+ * Cleanup all test data created during E2E tests.
+ *
+ * Deletes records in reverse order of creation to respect foreign key constraints.
+ */
+export async function cleanupTestData() {
+  const records = Cypress.env('testDataRecords') || [];
+  
+  if (records.length === 0) {
+    cy.log('No test data to clean up');
+    return;
+  }
+
+  cy.log(`Cleaning up ${records.length} test records`);
+
+  const supabase = getSupabaseClient();
+
+  // Delete in reverse order to handle foreign key constraints
+  const reversedRecords = [...records].reverse();
+
+  for (const record of reversedRecords) {
+    try {
+      if (record.table === 'auth.users') {
+        // Use the delete_test_user function for auth users
+        const { error } = await supabase.rpc('delete_test_user', {
+          email: record.id, // For users, we store email as id
+        });
+        if (error && !error.message.includes('not found')) {
+          cy.log(`Warning: Failed to delete user ${record.id}: ${error.message}`);
+        }
+      } else {
+        // For all other tables, use standard delete
+        const { error } = await supabase
+          .from(record.table as any)
+          .delete()
+          .eq('id', record.id);
+
+        if (error && !error.message.includes('No rows found')) {
+          cy.log(`Warning: Failed to delete ${record.table} record ${record.id}: ${error.message}`);
+        }
+      }
+    } catch (error) {
+      cy.log(`Error during cleanup of ${record.table}: ${error}`);
+    }
+  }
+
+  // Clear the tracking array
+  Cypress.env('testDataRecords', []);
+  cy.log('Test data cleanup complete');
+}
+
+/**
+ * Cleanup all records with TEST_DATA_PREFIX in their names/codes.
+ *
+ * Fallback cleanup for any orphaned test data.
+ */
+export async function cleanupOrphanedTestData() {
+  const supabase = getSupabaseClient();
+
+  cy.log('Cleaning up orphaned test data...');
+
+  // Tables that have name or code fields with test prefix
+  const tablesToClean = [
+    'departments',
+    'programs',
+    'classrooms',
+    'instructors',
+    'courses',
+    'class_groups',
+  ];
+
+  for (const table of tablesToClean) {
+    try {
+      // Try cleaning by name
+      await supabase
+        .from(table as any)
+        .delete()
+        .ilike('name', `${TEST_DATA_PREFIX}%`);
+
+      // Try cleaning by code
+      await supabase
+        .from(table as any)
+        .delete()
+        .ilike('code', `${TEST_DATA_PREFIX}%`);
+    } catch (error) {
+      cy.log(`Note: Could not clean ${table}: ${error}`);
+    }
+  }
+
+  cy.log('Orphaned test data cleanup complete');
+}
 
 /**
  * Creates a unique test identifier with timestamp.
  *
+ * @deprecated Use seedTestData functions instead
  * @returns A unique test identifier string with prefix and timestamp.
  */
 export function getTestId(): string {
@@ -19,42 +125,22 @@ export function getTestId(): string {
 }
 
 /**
- * Cleanup all test data created during E2E tests.
- *
- * Should be called in a global afterEach or after hook.
- */
-export function cleanupTestData() {
-  // Store created test IDs in Cypress env for tracking
-  const createdIds = Cypress.env('createdTestIds') || [];
-  
-  if (createdIds.length === 0) {
-    return;
-  }
-
-  cy.log(`Cleaning up ${createdIds.length} test records`);
-  
-  // Note: Actual cleanup would require direct database access or API calls
-  // For now, we rely on the database being reset between test suites
-  
-  // Clear the tracking array
-  Cypress.env('createdTestIds', []);
-}
-
-/**
  * Tracks a created test record for cleanup.
  *
+ * @deprecated This is handled automatically by seed functions
  * @param tableName - The name of the table where the record was created.
  * @param id - The ID of the created record.
  */
 export function trackTestRecord(tableName: string, id: string) {
-  const createdIds = Cypress.env('createdTestIds') || [];
-  createdIds.push({ table: tableName, id });
-  Cypress.env('createdTestIds', createdIds);
+  const records = Cypress.env('testDataRecords') || [];
+  records.push({ table: tableName, id });
+  Cypress.env('testDataRecords', records);
 }
 
 /**
  * Creates a test department with cleanup tracking.
  *
+ * @deprecated Use seedTestDepartment from seedTestData instead
  * @param name - Optional custom department name.
  * @param code - Optional custom department code.
  * @returns Test department object with name and code.
