@@ -3,45 +3,272 @@
 ## Lint results
 
 ```txt
-npm run lint
+...
+  8:23  error  Remove this unused import of 'QueryClientProvider'  sonarjs/unused-import
+  9:10  error  Remove this unused import of 'AuthContext'          sonarjs/unused-import
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\program-head\view-pending-requests\tests\service.test.ts
+  23:89  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\reports\services\excelExportService.ts
+  285:1  warning  Expected 1 lines after block description  jsdoc/tag-lines
+  298:1  warning  Expected 1 lines after block description  jsdoc/tag-lines
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\shared\auth\services\tests\authService.login.test.ts
+   45:78  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   59:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   60:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   61:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   92:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:78  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  121:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:78  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  162:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  183:78  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  197:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  198:59  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  199:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\timetabling\hooks\useTimetableDnd.ts
+  495:5  warning  React Hook useCallback has an unnecessary dependency: 'user'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\timetabling\pages\components\timetable\TimetableHeader.tsx
+  14:1  warning  Missing JSDoc @param "th.viewMode" declaration  jsdoc/require-param
+  17:1  warning  Missing @param "th.viewMode"                    jsdoc/check-param-names
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\timetabling\pages\components\timetable\TimetableRow.tsx
+  10:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\timetabling\pages\components\timetable\index.tsx   
+  34:1  warning  @param "t.isLoading" does not exist on t  jsdoc/check-param-names
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\integrations\supabase\client.ts
+  6:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\runtimeConfig.ts
+   4:1  warning  Sentences must end with a period           jsdoc/require-description-complete-sentence
+  31:1  warning  Missing JSDoc @returns declaration         jsdoc/require-returns
+  32:1  warning  Sentences must end with a period           jsdoc/require-description-complete-sentence
+  58:1  warning  Missing JSDoc @param "config" declaration  jsdoc/require-param
+  59:1  warning  Sentences must end with a period           jsdoc/require-description-complete-sentence
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\authService.ts
+    2:1  warning  Sentences must end with a period                jsdoc/require-description-complete-sentence
+   14:1  warning  Missing JSDoc @param "email" declaration        jsdoc/require-param
+   14:1  warning  Missing JSDoc @param "password" declaration     jsdoc/require-param
+   14:1  warning  Missing JSDoc @returns declaration              jsdoc/require-returns
+   78:1  warning  Missing JSDoc @returns declaration              jsdoc/require-returns
+  136:1  warning  Missing JSDoc @param "update" declaration       jsdoc/require-param
+  136:1  warning  Missing JSDoc @param "update.name" declaration  jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\classGroupService.ts
+   2:1  warning  Sentences must end with a period               jsdoc/require-description-complete-sentence
+  11:1  warning  Missing JSDoc @param "program_id" declaration  jsdoc/require-param
+  11:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  24:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  33:1  warning  Missing JSDoc @param "group" declaration       jsdoc/require-param
+  33:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  42:1  warning  Missing JSDoc @param "id" declaration          jsdoc/require-param
+  42:1  warning  Missing JSDoc @param "group" declaration       jsdoc/require-param
+  42:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  51:1  warning  Missing JSDoc @param "id" declaration          jsdoc/require-param
+  51:1  warning  Missing JSDoc @param "user_id" declaration     jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\classSessionService.ts
+    2:1  warning  Sentences must end with a period                 jsdoc/require-description-complete-sentence
+   19:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+   28:1  warning  Missing JSDoc @param "user_id" declaration       jsdoc/require-param
+   28:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+   37:1  warning  Missing JSDoc @param "id" declaration            jsdoc/require-param
+   37:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+   46:1  warning  Missing JSDoc @param "classSession" declaration  jsdoc/require-param
+   46:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+   59:1  warning  Missing JSDoc @param "id" declaration            jsdoc/require-param
+   59:1  warning  Missing JSDoc @param "classSession" declaration  jsdoc/require-param
+   59:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+   76:1  warning  Missing JSDoc @param "id" declaration            jsdoc/require-param
+   76:1  warning  Missing JSDoc @param "user_id" declaration       jsdoc/require-param
+   84:1  warning  Missing JSDoc @param "program_id" declaration    jsdoc/require-param
+   84:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+   96:1  warning  Missing JSDoc @param "sessionId" declaration     jsdoc/require-param
+   96:1  warning  Missing JSDoc @param "semester_id" declaration   jsdoc/require-param
+   96:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+  112:1  warning  Missing JSDoc @param "program_id" declaration    jsdoc/require-param
+  112:1  warning  Missing JSDoc @param "semester_id" declaration   jsdoc/require-param
+  112:1  warning  Missing JSDoc @returns declaration               jsdoc/require-returns
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\classroomService.ts
+   2:1  warning  Sentences must end with a period                         jsdoc/require-description-complete-sentence
+  11:1  warning  Missing JSDoc @param "params" declaration                jsdoc/require-param
+  11:1  warning  Missing JSDoc @param "params.role" declaration           jsdoc/require-param
+  11:1  warning  Missing JSDoc @param "params.department_id" declaration  jsdoc/require-param
+  11:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  29:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  54:1  warning  Missing JSDoc @param "classroom" declaration             jsdoc/require-param
+  54:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  63:1  warning  Missing JSDoc @param "id" declaration                    jsdoc/require-param
+  63:1  warning  Missing JSDoc @param "classroom" declaration             jsdoc/require-param
+  63:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  72:1  warning  Missing JSDoc @param "id" declaration                    jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\courseService.ts
+   2:1  warning  Sentences must end with a period               jsdoc/require-description-complete-sentence
+  11:1  warning  Missing JSDoc @param "program_id" declaration  jsdoc/require-param
+  11:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  24:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  51:1  warning  Missing JSDoc @param "course" declaration      jsdoc/require-param
+  51:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  60:1  warning  Missing JSDoc @param "id" declaration          jsdoc/require-param
+  60:1  warning  Missing JSDoc @param "course" declaration      jsdoc/require-param
+  60:1  warning  Missing JSDoc @returns declaration             jsdoc/require-returns
+  69:1  warning  Missing JSDoc @param "id" declaration          jsdoc/require-param
+  69:1  warning  Missing JSDoc @param "user_id" declaration     jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\departmentService.ts
+   2:1  warning  Sentences must end with a period            jsdoc/require-description-complete-sentence
+  11:1  warning  Missing JSDoc @returns declaration          jsdoc/require-returns
+  20:1  warning  Missing JSDoc @param "payload" declaration  jsdoc/require-param
+  20:1  warning  Missing JSDoc @returns declaration          jsdoc/require-returns
+  29:1  warning  Missing JSDoc @param "id" declaration       jsdoc/require-param
+  29:1  warning  Missing JSDoc @param "update" declaration   jsdoc/require-param
+  29:1  warning  Missing JSDoc @returns declaration          jsdoc/require-returns
+  38:1  warning  Missing JSDoc @param "id" declaration       jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\instructorService.ts
+   2:1  warning  Sentences must end with a period                         jsdoc/require-description-complete-sentence
+  11:1  warning  Missing JSDoc @param "params" declaration                jsdoc/require-param
+  11:1  warning  Missing JSDoc @param "params.role" declaration           jsdoc/require-param
+  11:1  warning  Missing JSDoc @param "params.department_id" declaration  jsdoc/require-param
+  11:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  29:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  54:1  warning  Missing JSDoc @param "instructor" declaration            jsdoc/require-param
+  54:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  74:1  warning  Missing JSDoc @param "id" declaration                    jsdoc/require-param
+  74:1  warning  Missing JSDoc @param "instructor" declaration            jsdoc/require-param
+  74:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  91:1  warning  Missing JSDoc @param "id" declaration                    jsdoc/require-param
+  99:1  warning  Missing JSDoc @param "departmentId" declaration          jsdoc/require-param
+  99:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\notificationService.ts
+   2:1  warning  Sentences must end with a period       jsdoc/require-description-complete-sentence
+  17:1  warning  Missing JSDoc @returns declaration     jsdoc/require-returns
+  33:1  warning  Missing JSDoc @param "id" declaration  jsdoc/require-param
+  44:1  warning  Missing JSDoc @param "id" declaration  jsdoc/require-param
+  52:1  warning  Missing JSDoc @returns declaration     jsdoc/require-returns
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\programService.ts
+   2:1  warning  Sentences must end with a period            jsdoc/require-description-complete-sentence
+  11:1  warning  Missing JSDoc @returns declaration          jsdoc/require-returns
+  20:1  warning  Missing JSDoc @param "payload" declaration  jsdoc/require-param
+  20:1  warning  Missing JSDoc @returns declaration          jsdoc/require-returns
+  29:1  warning  Missing JSDoc @param "id" declaration       jsdoc/require-param
+  29:1  warning  Missing JSDoc @param "update" declaration   jsdoc/require-param
+  29:1  warning  Missing JSDoc @returns declaration          jsdoc/require-returns
+  38:1  warning  Missing JSDoc @param "id" declaration       jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\resourceRequestService.ts
+    2:1  warning  Sentences must end with a period                     jsdoc/require-description-complete-sentence
+   28:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+   40:1  warning  Missing JSDoc @param "departmentId" declaration      jsdoc/require-param
+   40:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+   53:1  warning  Missing JSDoc @param "payload" declaration           jsdoc/require-param
+   53:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+   84:1  warning  Missing JSDoc @param "id" declaration                jsdoc/require-param
+   84:1  warning  Missing JSDoc @param "reviewerId" declaration        jsdoc/require-param
+   84:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+  117:1  warning  Missing JSDoc @param "id" declaration                jsdoc/require-param
+  117:1  warning  Missing JSDoc @param "reviewerId" declaration        jsdoc/require-param
+  117:1  warning  Missing JSDoc @param "rejectionMessage" declaration  jsdoc/require-param
+  117:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+  155:1  warning  Missing JSDoc @param "id" declaration                jsdoc/require-param
+  155:1  warning  Missing JSDoc @param "requesterId" declaration       jsdoc/require-param
+  179:1  warning  Missing JSDoc @param "id" declaration                jsdoc/require-param
+  179:1  warning  Missing JSDoc @param "update" declaration            jsdoc/require-param
+  179:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+  191:1  warning  Missing JSDoc @param "id" declaration                jsdoc/require-param
+  199:1  warning  Missing JSDoc @param "sessionId" declaration         jsdoc/require-param
+  199:1  warning  Missing JSDoc @returns declaration                   jsdoc/require-returns
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\timetableService.ts
+    2:1  warning  Sentences must end with a period                        jsdoc/require-description-complete-sentence
+   13:1  warning  Missing JSDoc @param "semester_id" declaration          jsdoc/require-param
+   13:1  warning  Missing JSDoc @returns declaration                      jsdoc/require-returns
+   46:1  warning  Missing JSDoc @param "assignment" declaration           jsdoc/require-param
+   46:1  warning  Missing JSDoc @param "status" declaration               jsdoc/require-param
+   46:1  warning  Missing JSDoc @returns declaration                      jsdoc/require-returns
+   65:1  warning  Missing JSDoc @param "class_group_id" declaration       jsdoc/require-param
+   65:1  warning  Missing JSDoc @param "period_index" declaration         jsdoc/require-param
+   65:1  warning  Missing JSDoc @param "semester_id" declaration          jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "from" declaration                 jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "from.class_group_id" declaration  jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "from.period_index" declaration    jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "from.semester_id" declaration     jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "to" declaration                   jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "to.class_group_id" declaration    jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "to.period_index" declaration      jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "to.semester_id" declaration       jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "class_session_id" declaration     jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "user_id" declaration              jsdoc/require-param
+   82:1  warning  Missing JSDoc @param "status" declaration               jsdoc/require-param
+  108:1  warning  Missing JSDoc @param "class_session_id" declaration     jsdoc/require-param
+  108:1  warning  Missing JSDoc @param "old_period_index" declaration     jsdoc/require-param
+  108:1  warning  Missing JSDoc @param "old_class_group_id" declaration   jsdoc/require-param
+  108:1  warning  Missing JSDoc @param "new_period_index" declaration     jsdoc/require-param
+  108:1  warning  Missing JSDoc @param "new_class_group_id" declaration   jsdoc/require-param
+  108:1  warning  Missing JSDoc @param "semester_id" declaration          jsdoc/require-param
+  108:1  warning  Missing JSDoc @returns declaration                      jsdoc/require-returns
+  139:1  warning  Missing JSDoc @param "class_session_id" declaration     jsdoc/require-param
+  139:1  warning  Missing JSDoc @param "semester_id" declaration          jsdoc/require-param
+  154:1  warning  Missing JSDoc @param "class_session_id" declaration     jsdoc/require-param
+  154:1  warning  Missing JSDoc @param "semester_id" declaration          jsdoc/require-param
+  154:1  warning  Missing JSDoc @param "status" declaration               jsdoc/require-param
+  170:1  warning  Missing JSDoc @param "class_session_id" declaration     jsdoc/require-param
+  170:1  warning  Missing JSDoc @param "semester_id" declaration          jsdoc/require-param
+  170:1  warning  Missing JSDoc @returns declaration                      jsdoc/require-returns
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\services\userService.ts
+   2:1  warning  Sentences must end with a period                         jsdoc/require-description-complete-sentence
+   9:1  warning  Missing JSDoc @returns declaration                       jsdoc/require-returns
+  43:1  warning  Missing JSDoc @param "userId" declaration                jsdoc/require-param
+  43:1  warning  Missing JSDoc @param "updates" declaration               jsdoc/require-param
+  57:1  warning  Missing JSDoc @param "invite" declaration                jsdoc/require-param
+  57:1  warning  Missing JSDoc @param "invite.email" declaration          jsdoc/require-param
+  57:1  warning  Missing JSDoc @param "invite.role" declaration           jsdoc/require-param
+  57:1  warning  Missing JSDoc @param "invite.program_id" declaration     jsdoc/require-param
+  57:1  warning  Missing JSDoc @param "invite.department_id" declaration  jsdoc/require-param
+  85:1  warning  Missing JSDoc @param "userId" declaration                jsdoc/require-param
+  95:1  warning  Missing JSDoc @param "userId" declaration                jsdoc/require-param
+  95:1  warning  Missing JSDoc @param "name" declaration                  jsdoc/require-param
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\lib\supabase.ts
+  4:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\routes\index.tsx
+  4:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
+
+✖ 536 problems (113 errors, 423 warnings)
+  0 errors and 297 warnings potentially fixable with the `--fix` option.
+
+PS C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad>
+PS C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad> npm run lint --fix
+npm warn Unknown cli config "--fix". This will stop working in the next major version of npm.
 
 > classflow@0.0.0 lint
 > eslint .
 
 
-C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\e2e\02-admin-workflows\classrooms.cy.ts
-   9:1   warning  Sentences must end with a period             jsdoc/require-description-complete-sentence
-  24:17  error    Review this potentially hard-coded password  sonarjs/no-hardcoded-passwords
-  31:17  error    Review this potentially hard-coded password  sonarjs/no-hardcoded-passwords
-
 C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\e2e\02-admin-workflows\departments.cy.ts
-  34:53  error  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
-  35:9   error  Remove this useless assignment to variable "testDepartmentId"     sonarjs/no-dead-store
-  50:53  error  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
-  54:79  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
-  61:34  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
-  79:53  error  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
-  84:79  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
-  89:67  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
-
-C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\e2e\03-department-head-workflows\view-department-requests.cy.ts
-  9:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
-
-C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\e2e\04-program-head-workflows\manage-class-groups.cy.ts 
-   9:1   warning  Sentences must end with a period             jsdoc/require-description-complete-sentence
-  23:17  error    Review this potentially hard-coded password  sonarjs/no-hardcoded-passwords
-
-C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\e2e\04-program-head-workflows\view-pending-requests.cy.ts
-  9:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
-
-C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\e2e\05-timetabling\cross-dept-confirmation.cy.ts        
-  58:15  error  Remove this useless assignment to variable "originalPosition"  sonarjs/no-dead-store
+  51:79  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
+  58:34  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
+  81:79  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
+  86:67  error  Refactor this code to not nest functions more than 4 levels deep  sonarjs/no-nested-functions
 
 C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\fixtures\testData.ts
-  118:1   warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/no-hardcoded-passwords')
-  122:15  error    Review this potentially hard-coded password                                                        sonarjs/no-hardcoded-passwords
-  126:15  error    Review this potentially hard-coded password                                                        sonarjs/no-hardcoded-passwords
-  130:15  error    Review this potentially hard-coded password                                                        sonarjs/no-hardcoded-passwords
+  118:1  warning  Unused eslint-disable directive (no problems were reported from 'sonarjs/no-hardcoded-passwords')
 
 C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\cypress\support\commands.ts
   125:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-namespace')
@@ -742,17 +969,15 @@ C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad
 C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\routes\index.tsx
   4:1  warning  Sentences must end with a period  jsdoc/require-description-complete-sentence
 
-✖ 551 problems (124 errors, 427 warnings)
-  0 errors and 301 warnings potentially fixable with the `--fix` option.
-
-  
+✖ 536 problems (113 errors, 423 warnings)
+  0 errors and 297 warnings potentially fixable with the `--fix` option.
 
 ```
 
 ## Test outputs
 
 ```
-C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad>npm run test
+npm run test
 
 > classflow@0.0.0 test
 > vitest run
@@ -4656,4 +4881,2092 @@ AssertionError: expected null not to be null
       Tests  33 failed | 505 passed (538)
    Start at  12:20:12
    Duration  131.82s (transform 42.77s, setup 189.79s, collect 173.51s, tests 32.13s, environment 642.38s, prepare 125.68s)
+
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad>|clip
+| was unexpected at this time.
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad>clip
+
+INFO: Type "CLIP /?" for usage.
+
+C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad>npx vitest --watch
+
+ DEV  v3.2.4 C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad
+
+stdout | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should return cross-department result when instructor is from different dept
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should return cross-department result when instructor is from different dept
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should return false when resources are same department
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should return false when resources are same department
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should handle errors gracefully
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should handle errors gracefully
+Error checking cross-department resource: Error: Network error
+    at C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\program-head\request-cross-dept-resource\tests\hook.integration.test.tsx:63:9
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runSuite (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > checkResources > should set isChecking state correctly
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > initiateCrossDeptRequest > should set pending request
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > cancelRequest > should clear pending request
+An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ❯ src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx (6 tests | 2 failed) 652ms
+   ✓ useRequestCrossDeptResource > checkResources > should return cross-department result when instructor is from different dept 164ms
+   ✓ useRequestCrossDeptResource > checkResources > should return false when resources are same department 85ms
+   ✓ useRequestCrossDeptResource > checkResources > should handle errors gracefully 159ms
+   ✓ useRequestCrossDeptResource > checkResources > should set isChecking state correctly 164ms
+   × useRequestCrossDeptResource > initiateCrossDeptRequest > should set pending request 45ms
+     → expected null to deeply equal { classSessionId: 'session-1', …(3) }
+   × useRequestCrossDeptResource > cancelRequest > should clear pending request 20ms
+     → expected null not to be null
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx (13 tests | 11 failed) 827ms
+   × SyncIndicator Integration Tests > Visibility States > should show indicator when timetable queries are fetching 453ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   ✓ SyncIndicator Integration Tests > Visibility States > should hide indicator when no queries are fetching 23ms
+   × SyncIndicator Integration Tests > Visibility States > should show indicator when multiple queries are fetching 33ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Visual States > should display loading spinner when fetching 31ms
+     → Unable to find an element by: [data-testid="sync-spinner"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Visual States > should display sync text 46ms
+     → Unable to find an element with the text: Syncing.... This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Query Filter Integration > should only respond to timetable-related queries 42ms
+     → expected "spy" to be called with arguments: [ { queryKey: [ 'timetable' ] } ]
+
+Number of calls: 0
+
+   ✓ SyncIndicator Integration Tests > Query Filter Integration > should not show for non-timetable queries 12ms
+   × SyncIndicator Integration Tests > Transition Behavior > should transition from hidden to visible 40ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Transition Behavior > should transition from visible to hidden 33ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Multiple Concurrent Fetches > should show single indicator for multiple fetches 18ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Accessibility > should have proper ARIA label 25ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Accessibility > should have proper role for screen readers 40ms
+     → Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+   × SyncIndicator Integration Tests > Performance > should not cause unnecessary re-renders 14ms
+     → expected "spy" to be called at least once
+stdout | src/features/program-head/manage-components/tests/class-groups-component.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ❯ src/components/dialogs/tests/ConfirmDialog.test.tsx (18 tests | 1 failed) 4956ms
+   ✓ ConfirmDialog Component > Rendering > should render dialog when open is true  1153ms
+   ✓ ConfirmDialog Component > Rendering > should not render dialog when open is false 28ms
+   ✓ ConfirmDialog Component > Rendering > should render default button text  309ms
+   ✓ ConfirmDialog Component > Rendering > should render custom button text 166ms
+   ✓ ConfirmDialog Component > User Interactions > should call onConfirm when confirm button is clicked  335ms
+   ✓ ConfirmDialog Component > User Interactions > should call onOpenChange with false when cancel button is clicked 297ms
+   ✓ ConfirmDialog Component > User Interactions > should disable buttons when isLoading is true 209ms
+   ✓ ConfirmDialog Component > User Interactions > should show "Processing..." text when loading 216ms
+   ✓ ConfirmDialog Component > Button Variants > should render confirm button with default variant 128ms
+   ✓ ConfirmDialog Component > Button Variants > should render confirm button with destructive variant 171ms
+   ✓ ConfirmDialog Component > Cross-Department Confirmation Scenarios > should handle move confirmed session scenario 195ms
+   ✓ ConfirmDialog Component > Cross-Department Confirmation Scenarios > should handle remove cross-department session scenario 183ms
+   ✓ ConfirmDialog Component > Accessibility > should have proper dialog role  347ms
+   ✓ ConfirmDialog Component > Accessibility > should have accessible title 107ms
+   ✓ ConfirmDialog Component > Accessibility > should have accessible description 112ms
+   ✓ ConfirmDialog Component > Edge Cases > should handle rapid clicks when not loading 116ms
+   ✓ ConfirmDialog Component > Edge Cases > should prevent clicks when loading 89ms
+   × ConfirmDialog Component > Edge Cases > should handle empty strings for custom text 779ms
+     → expected [ <button …(1)></button>, …(2) ] to have a length of 2 but got 3
+ ❯ src/features/program-head/manage-components/tests/class-groups-component.integration.test.tsx (1 test | 1 failed) 55ms
+   × ClassGroupManagement Component > should render the component 48ms
+     → Cannot find module '@/features/classSessionComponents/hooks/useClassGroups'
+Require stack:
+- C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\program-head\manage-components\tests\class-groups-component.integration.test.tsx
+stdout | src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ❯ src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx (6 tests | 6 failed) 250ms
+   × ManageClassSessions Component > should render class sessions list 124ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ManageClassSessions Component > should display loading state 25ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ManageClassSessions Component > should display error state 21ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ManageClassSessions Component > should filter sessions by search query 23ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ManageClassSessions Component > should open add session dialog 25ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ManageClassSessions Component > should handle session deletion 22ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+ ❯ src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx (7 tests | 7 failed) 229ms
+   × ViewSelector > should render all three view options 101ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ViewSelector > should highlight the active view mode 16ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ViewSelector > should call onViewModeChange when a view button is clicked 23ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ViewSelector > should not call onViewModeChange when clicking the already active view 17ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ViewSelector > should switch between all view modes correctly 25ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ViewSelector > should render correct icons for each view 16ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+   × ViewSelector > should have proper accessibility attributes 23ms
+     → Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+stdout | src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ❯ src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx (5 tests | 5 failed) 40ms
+   × useManageClassSessions Hook > should fetch class sessions for program 23ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × useManageClassSessions Hook > should add a new class session 3ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × useManageClassSessions Hook > should update an existing class session 2ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × useManageClassSessions Hook > should remove a class session 2ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × useManageClassSessions Hook > should handle fetch errors 2ms
+     → Cannot read properties of undefined (reading 'mockRejectedValue')
+stdout | src/components/tests/Header.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should subscribe to all tables on mount
+[Realtime] All channels subscribed for user: test-user
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should subscribe to all tables on mount
+[Realtime] Cleaning up all channels
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should invalidate queries on INSERT/UPDATE but not DELETE (resource_requests)
+[Realtime] All channels subscribed for user: test-user
+[Realtime] resource_requests changed: INSERT
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should invalidate queries on INSERT/UPDATE but not DELETE (resource_requests)
+[Realtime] Cleaning up all channels
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should clean up channels on unmount
+[Realtime] All channels subscribed for user: test-user
+[Realtime] Cleaning up all channels
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should prevent duplicate subscriptions (idempotent)
+[Realtime] All channels subscribed for user: test-user
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should prevent duplicate subscriptions (idempotent)
+[Realtime] Cleaning up all channels
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should not crash when consumer renders alongside provider
+[Realtime] All channels subscribed for user: test-user
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should not crash when consumer renders alongside provider
+[Realtime] Cleaning up all channels
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should not break on unknown/fuzz events and uses defensive handling
+[Realtime] All channels subscribed for user: test-user
+[Realtime] resource_requests changed: UNKNOWN
+
+stdout | src/contexts/tests/RealtimeProvider.test.tsx > RealtimeProvider > should not break on unknown/fuzz events and uses defensive handling
+[Realtime] Cleaning up all channels
+
+ ✓ src/contexts/tests/RealtimeProvider.test.tsx (6 tests) 332ms
+stdout | src/components/tests/RequestNotifications.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/components/tests/PendingRequestsPanel.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx (8 tests | 8 failed) 49ms
+   × PendingRequestsPanel Integration Tests > Pending Requests Display > should display count of pending requests 23ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × PendingRequestsPanel Integration Tests > Pending Requests Display > should show zero when no pending requests 3ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × PendingRequestsPanel Integration Tests > Pending Requests Display > should filter only pending status requests 4ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × PendingRequestsPanel Integration Tests > Loading and Error States > should show loading state initially 2ms
+     → Cannot read properties of undefined (reading 'mockImplementation')
+   × PendingRequestsPanel Integration Tests > Loading and Error States > should handle fetch errors gracefully 2ms
+     → Cannot read properties of undefined (reading 'mockRejectedValue')
+   × PendingRequestsPanel Integration Tests > Navigation > should link to pending requests page 2ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+   × PendingRequestsPanel Integration Tests > Real-time Updates > should refetch when query is invalidated 2ms
+     → Cannot read properties of undefined (reading 'mockResolvedValueOnce')
+   × PendingRequestsPanel Integration Tests > User Context Integration > should fetch requests for the current user program 2ms
+     → Cannot read properties of undefined (reading 'mockResolvedValue')
+ ✓ src/components/tests/Header.integration.test.tsx (4 tests) 1919ms
+   ✓ Header - Sidebar Toggle Integration > should render the sidebar toggle button  794ms
+   ✓ Header - Sidebar Toggle Integration > should toggle icon when button is clicked  496ms
+stdout | src/components/layout/tests/AppLayout.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/components/layout/tests/AppLayout.integration.test.tsx (4 tests) 4449ms
+   ✓ AppLayout - Collapsible Sidebar Integration > should render header, sidebar, and main content  1023ms
+   ✓ AppLayout - Collapsible Sidebar Integration > should have sidebar collapsed by default  304ms
+   ✓ AppLayout - Collapsible Sidebar Integration > should toggle sidebar when header button is clicked  1249ms
+   ✓ AppLayout - Collapsible Sidebar Integration > should persist sidebar state across navigation  1481ms
+stderr | src/components/tests/RequestNotifications.integration.test.tsx > RequestNotifications > should call rejectRequest with message on reject click
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ✓ src/components/layout/tests/Sidebar.integration.test.tsx (3 tests) 1199ms
+   ✓ Sidebar - Role-based Navigation > should show "Schedule Configuration" link for admin users  891ms
+ ✓ src/components/tests/RequestNotifications.integration.test.tsx (6 tests) 7272ms
+   ✓ RequestNotifications > should not render for program heads  303ms
+   ✓ RequestNotifications > should render for department heads and show badge for pending requests  558ms
+   ✓ RequestNotifications > should show pending requests in popover  1035ms
+   ✓ RequestNotifications > should call approveRequest on approve click  1105ms
+   ✓ RequestNotifications > should call rejectRequest with message on reject click  3654ms
+stdout | src/features/classSessionComponents/hooks/tests/useAllCourses.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/classSessionComponents/hooks/tests/useAllCourses.integration.test.tsx (1 test) 188ms
+stdout | src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/classSessionComponents/pages/tests/CourseTab.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/classSessions/hooks/tests/useClassSessions.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/classSessions/hooks/tests/useClassSessions.integration.test.tsx (2 tests) 130ms
+stderr | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx > InstructorTab Integration Tests (Department Head) > should show only department-owned instructors for department heads
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["allInstructors"]
+
+stderr | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx > InstructorTab Integration Tests (Department Head) > should allow department heads to create instructors in their department
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["allInstructors"]
+
+ ✓ src/features/classSessionComponents/pages/tests/CourseTab.integration.test.tsx (4 tests) 4018ms
+   ✓ CourseTab (CourseManagement) > should render the list of courses  467ms
+   ✓ CourseTab (CourseManagement) > should filter the list of courses when a user types in the search bar  964ms
+   ✓ CourseTab (CourseManagement) > should populate the form when the edit button is clicked  1316ms
+   ✓ CourseTab (CourseManagement) > should show edit/delete buttons for courses owned by program head  1263ms
+stderr | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx > InstructorTab Integration Tests (Department Head) > should allow department heads to update an instructor
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["allInstructors"]
+
+ ✓ src/features/classSessionComponents/pages/tests/ClassroomTab.integration.test.tsx (7 tests) 7784ms
+   ✓ ClassroomTab Integration Tests > as a Non-Admin User (Program Head) > should hide Edit/Delete buttons on classroom cards  361ms
+   ✓ ClassroomTab Integration Tests > as a Non-Admin User (Program Head) > should display classrooms with a matching preferred department first, followed by a separator  364ms
+   ✓ ClassroomTab Integration Tests > as an Admin User > should show Edit/Delete buttons on classroom cards  561ms
+   ✓ ClassroomTab Integration Tests > as an Admin User > should enable the creation/edit form  310ms
+   ✓ ClassroomTab Integration Tests > as an Admin User > should call the update mutation with a department ID when a preferred department is assigned  3868ms
+   ✓ ClassroomTab Integration Tests > as an Admin User > should call the update mutation with null when a preferred department is cleared  1958ms
+stderr | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx > InstructorTab Integration Tests (Department Head) > should allow department heads to delete an instructor
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["allInstructors"]
+
+stdout | src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx > InstructorTab Integration Tests (Department Head) > should filter instructors based on search term
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["allInstructors"]
+
+stderr | src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx > InstructorTab Integration Tests (Department Head) > should filter instructors by code
+Query data cannot be undefined. Please make sure to return a value other than undefined from your query function. Affected query key: ["allInstructors"]
+
+ ✓ src/features/classSessionComponents/pages/tests/InstructorTab.integration.test.tsx (6 tests) 11598ms
+   ✓ InstructorTab Integration Tests (Department Head) > should show only department-owned instructors for department heads  998ms
+   ✓ InstructorTab Integration Tests (Department Head) > should allow department heads to create instructors in their department  3893ms
+   ✓ InstructorTab Integration Tests (Department Head) > should allow department heads to update an instructor  2991ms
+   ✓ InstructorTab Integration Tests (Department Head) > should allow department heads to delete an instructor  1647ms
+   ✓ InstructorTab Integration Tests (Department Head) > should filter instructors based on search term  1511ms
+   ✓ InstructorTab Integration Tests (Department Head) > should filter instructors by code  549ms
+ ✓ src/features/departments/pages/tests/DepartmentHeadDashboard.integration.test.tsx (4 tests) 1798ms
+   ✓ DepartmentHeadDashboard Integration Tests > should render the instructor management component for a Department Head  689ms
+   ✓ DepartmentHeadDashboard Integration Tests > should render the instructor management component for an Admin  416ms
+stdout | src/features/programs/pages/tests/ProgramManagementPage.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/programs/pages/tests/ProgramManagementPage.integration.test.tsx > ProgramManagementPage Integration Tests > should call the create mutation when the create form is submitted
+Received `false` for a non-boolean attribute `loading`.
+
+If you want to write it to the DOM, pass a string instead: loading="false" or loading={value.toString()}.
+
+If you used to conditionally omit it with loading={condition && value}, pass loading={condition ? value : undefined} instead.
+
+stderr | src/features/scheduleConfig/pages/tests/ScheduleConfigPage.integration.test.tsx
+[DEPRECATED] src/integrations/supabase/client.ts is deprecated. Use "@/lib/supabase" for environment-aware Supabase client.
+
+stdout | src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx
+[DEPRECATED] src/integrations/supabase/client.ts is deprecated. Use "@/lib/supabase" for environment-aware Supabase client.
+GoTrueClient@sb-wkfgcroybuuefaulqsru-auth-token:1 (2.81.0) 2025-11-20T06:02:19.046Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+
+ ✓ src/features/programs/pages/tests/ProgramManagementPage.integration.test.tsx (5 tests) 3428ms
+   ✓ ProgramManagementPage Integration Tests > should deny access to non-admin users  765ms
+   ✓ ProgramManagementPage Integration Tests > should call the create mutation when the create form is submitted  1070ms
+   ✓ ProgramManagementPage Integration Tests > should populate the form for editing and call the update mutation on save  1003ms
+   ✓ ProgramManagementPage Integration Tests > should call the delete mutation when deletion is confirmed  387ms
+ ✓ src/features/scheduleConfig/pages/tests/ScheduleConfigPage.integration.test.tsx (5 tests) 1407ms
+   ✓ ScheduleConfigPage - Admin Access > should handle null settings gracefully for initial setup  671ms
+stdout | src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx
+[DEPRECATED] src/integrations/supabase/client.ts is deprecated. Use "@/lib/supabase" for environment-aware Supabase client.
+GoTrueClient@sb-wkfgcroybuuefaulqsru-auth-token:1 (2.81.0) 2025-11-20T06:02:21.444Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+
+stdout | src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx > useTimetable - semester scope > should pass semester_id when calling assignClassSessionToTimetable
+[useTimetable] assignClassSession check {
+  viewMode: 'class-group',
+  targetId: 'g1',
+  periodIndex: 1,
+  sessionId: 's1'
+}
+
+stdout | src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx > useTimetable - semester scope > should pass semester_id when calling moveClassSessionInTimetable
+[useTimetable] moveClassSession check {
+  viewMode: 'class-group',
+  from: { class_group_id: 'g1', period_index: 0 },
+  to: { class_group_id: 'g1', period_index: 1 },
+  targetRowIdForCheck: 'g1',
+  dbTargetGroupId: 'g1',
+  sessionId: 's1'
+}
+
+stderr | src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx > useTimetable - semester scope > should pass semester_id when calling moveClassSessionInTimetable
+[useTimetable] Assignment to move not found in cache {
+  from: { class_group_id: 'g1', period_index: 0 },
+  classSessionId: 's1'
+}
+
+ ✓ src/features/timetabling/hooks/tests/useTimetable.integration.test.tsx (6 tests) 824ms
+   ✓ useTimetable - semester scope > should call timetableService.getTimetableAssignments with the active semester ID  495ms
+stderr | src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx > TimetablePage Integration Tests > should render a fallback UI for sessions with invalid/orphaned data
+Rendering fallback for an invalid class session with missing relational data.
+
+stderr | src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx > TimetablePage Integration Tests > should update view mode when clicking view selector buttons
+Failed to restore pending session from localStorage: SyntaxError: Unexpected token 'c', "class-group" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\timetabling\pages\TimetablePage.tsx:88:20
+    at Object.react-stack-bottom-frame (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:23949:20)
+    at runWithFiberInDEV (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:1522:13)
+    at commitHookEffectListMount (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:11905:29)
+    at commitHookPassiveMountEffects (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:12028:11)
+    at commitPassiveMountOnFiber (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:13841:13)
+    at recursivelyTraversePassiveMountEffects (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:13815:11)
+    at commitPassiveMountOnFiber (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:13957:11)
+    at recursivelyTraversePassiveMountEffects (C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\node_modules\react-dom\cjs\react-dom-client.development.js:13815:11)
+
+ ✓ src/features/timetabling/pages/tests/TimetablePage.integration.test.tsx (6 tests) 2601ms
+   ✓ TimetablePage Integration Tests > should render the user's own groups first, followed by a separator and other groups  956ms
+   ✓ TimetablePage Integration Tests > should only display unassigned class sessions from the program head's program in the drawer  405ms
+   ✓ TimetablePage Integration Tests > should update view mode when clicking view selector buttons  509ms
+stdout | src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx
+[DEPRECATED] src/integrations/supabase/client.ts is deprecated. Use "@/lib/supabase" for environment-aware Supabase client.
+GoTrueClient@sb-wkfgcroybuuefaulqsru-auth-token:1 (2.81.0) 2025-11-20T06:02:26.002Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+
+ ✓ src/features/timetabling/hooks/tests/useTimetableDnd.integration.test.tsx (17 tests) 643ms
+stdout | src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx > ClassSessionForm > should display a conflict warning when group size exceeds classroom capacity
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx > ClassSessionForm > should display a conflict warning when group size exceeds classroom capacity
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx > ClassSessionForm > should remove the conflict warning when selections are changed to be valid
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ✓ src/features/timetabling/pages/components/timetable/tests/SessionCell.integration.test.tsx (2 tests) 779ms
+   ✓ SessionCell - Ownership Styling > should render owned sessions with normal styling  682ms
+stderr | src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx > ClassSessionForm > should remove the conflict warning when selections are changed to be valid
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx > ClassSessionForm > should remove the conflict warning when selections are changed to be valid
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ✓ src/features/classSessions/pages/components/tests/ClassSessionForm.integration.test.tsx (2 tests) 5036ms
+   ✓ ClassSessionForm > should display a conflict warning when group size exceeds classroom capacity  2778ms
+   ✓ ClassSessionForm > should remove the conflict warning when selections are changed to be valid  2251ms
+stderr | src/features/timetabling/pages/components/timetable/tests/SessionCell.test.tsx > SessionCell > Invalid Data Handling > should render the invalid data fallback if the primary session is missing data
+Rendering fallback for an invalid class session with missing relational data.
+
+ ✓ src/features/timetabling/pages/components/timetable/tests/SessionCell.test.tsx (8 tests) 581ms
+   ✓ SessionCell > Single Session Rendering > should apply the correct inline styles based on instructor color  335ms
+stderr | src/features/timetabling/pages/components/timetable/tests/Timetable.integration.test.tsx
+[DEPRECATED] src/integrations/supabase/client.ts is deprecated. Use "@/lib/supabase" for environment-aware Supabase client.
+
+stdout | src/features/timetabling/pages/components/timetable/tests/TimetableRow.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/timetabling/pages/components/timetable/tests/Timetable.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/timetabling/pages/components/timetable/tests/Timetable.integration.test.tsx
+GoTrueClient@sb-wkfgcroybuuefaulqsru-auth-token:1 (2.81.0) 2025-11-20T06:02:42.039Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+
+ ✓ src/features/timetabling/pages/components/timetable/tests/TimetableRow.test.tsx (11 tests) 618ms
+ ✓ src/features/timetabling/pages/components/timetable/tests/Timetable.integration.test.tsx (7 tests) 1446ms
+   ✓ Timetable - Resource Filtering > Classroom View Filtering > should separate classrooms by department for program head  417ms
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should render with resource name
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should require rejection message (disabled submit when empty)
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should enable submit button when message is entered
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should call onConfirm with message on submit
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Department Grouping > should show "From Your Department" section when priority items exist
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should not call onConfirm with whitespace-only message
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Department Grouping > should show "From Other Departments" section when both priority and non-priority items exist
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should clear message on close
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Department Grouping > should prioritize items by department correctly
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should clear message on close
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Fallback UI > should show fallback info message when no priority items exist and showAllItemsWhenNoPriority is true
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Fallback UI > should show ungrouped list when showAllItemsWhenNoPriority is true and no priority items
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should disable form during loading state
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/dialogs/tests/RejectionDialog.test.tsx > RejectionDialog > should show loading text on submit button during loading
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ✓ src/components/dialogs/tests/RejectionDialog.test.tsx (8 tests) 1688ms
+   ✓ RejectionDialog > should render with resource name  585ms
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Search Filtering > should filter items based on search query
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Search Filtering > should show empty state when search returns no results
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Item Selection > should call onSelectItem when an item is clicked
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Item Selection > should reset search when an item is selected
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ✓ src/components/ui/tests/ColorPicker.test.tsx (7 tests) 2609ms
+   ✓ ColorPicker > should open the popover when the trigger is clicked  1006ms
+   ✓ ColorPicker > should call onChange and close the popover when a preset color is clicked  442ms
+   ✓ ColorPicker > should close the popover when Escape key is pressed  311ms
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Loading State > should show loading spinner when isLoading is true
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+stderr | src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx > ResourceSelectorModal > Empty State > should show empty message when items array is empty
+Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.
+
+ ✓ src/components/ui/custom/tests/resource-selector-modal.integration.test.tsx (11 tests) 1469ms
+   ✓ ResourceSelectorModal > Department Grouping > should show "From Your Department" section when priority items exist  487ms
+ ✓ src/features/timetabling/components/tests/ViewSelector.test.tsx (7 tests) 1085ms
+stdout | src/features/resourceRequests/workflows/tests/moveConfirmedSession.integration.test.tsx > Move Confirmed Cross-Department Session Workflow > should move session on confirm
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/resourceRequests/workflows/tests/moveConfirmedSession.integration.test.tsx (8 tests) 435ms
+   ✓ Move Confirmed Cross-Department Session Workflow > should move session on confirm  399ms
+stdout | src/features/admin/manage-users/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/admin/manage-users/tests/hook.integration.test.tsx (10 tests) 790ms
+stdout | src/features/admin/manage-classrooms/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/department-head/view-department-requests/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/program-head/manage-components/tests/courses-hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > should handle auth initialization errors gracefully
+Failed to initialize auth: Error: Network error
+    at C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\shared\auth\contexts\tests\AuthProvider.integration.test.tsx:124:60
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at runSuite (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runFiles (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1787:3)
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > should update user after updateMyProfile is called
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > should update user after updateMyProfile is called
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > Role-based navigation on login > should redirect admin users to /departments
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > Role-based navigation on login > should redirect admin users to /departments
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > Role-based navigation on login > should redirect department_head users to /department-head
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > Role-based navigation on login > should redirect department_head users to /department-head
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > Role-based navigation on login > should redirect program_head users to /scheduler
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx > AuthProvider Integration Tests > Role-based navigation on login > should redirect program_head users to /scheduler
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to AuthProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ src/features/shared/auth/contexts/tests/AuthProvider.integration.test.tsx (8 tests) 853ms
+ ✓ src/features/department-head/view-department-requests/tests/hook.integration.test.tsx (11 tests) 847ms
+ ✓ src/features/admin/manage-classrooms/tests/hook.integration.test.tsx (9 tests) 902ms
+ ✓ src/features/program-head/manage-components/tests/courses-hook.integration.test.tsx (8 tests) 765ms
+stdout | src/features/department-head/manage-instructors/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/department-head/manage-instructors/tests/hook.integration.test.tsx (9 tests) 828ms
+ ✓ src/components/ui/tests/sonner.test.tsx (5 tests) 660ms
+   ✓ Toaster > renders and displays a toast message  382ms
+stdout | src/features/admin/manage-departments/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/programs/hooks/tests/usePrograms.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/program-head/manage-components/tests/class-groups-hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/contexts/tests/LayoutContext.test.tsx (3 tests) 535ms
+   ✓ LayoutContext > should toggle sidebar state when toggleSidebar is called  387ms
+ ✓ src/features/programs/hooks/tests/usePrograms.integration.test.tsx (5 tests) 479ms
+ ✓ src/features/admin/manage-departments/tests/hook.integration.test.tsx (8 tests) 666ms
+ ✓ src/features/program-head/manage-components/tests/class-groups-hook.integration.test.tsx (8 tests) 723ms
+stdout | src/features/classSessions/pages/components/tests/ClassSessionCard.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/program-head/view-pending-requests/tests/hook.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/classSessions/pages/components/tests/ClassSessionCard.integration.test.tsx (2 tests) 306ms
+stderr | src/features/program-head/view-pending-requests/tests/hook.integration.test.tsx > useViewPendingRequests > handleDismiss > should handle dismiss errors
+Error dismissing request: Error: Dismiss failed
+    at C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\program-head\view-pending-requests\tests\hook.integration.test.tsx:114:59
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at runNextTicks (node:internal/process/task_queues:60:5)
+    at listOnTimeout (node:internal/timers:545:9)
+    at processTimers (node:internal/timers:519:7)
+
+ ✓ src/features/program-head/view-pending-requests/tests/hook.integration.test.tsx (6 tests) 458ms
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > approve_resource_request > should successfully approve pending request and update timetable status
+Request approved successfully: {
+  requestId: 'request-1',
+  updatedAssignments: 1,
+  classSessionId: 'session-1',
+  semesterId: 'semester-1'
+}
+
+stderr | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > approve_resource_request > should return error when request does not exist
+Approval function returned failure: Request not found
+
+stderr | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > approve_resource_request > should return error when request is not pending
+Approval function returned failure: Request is not pending
+
+stderr | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > approve_resource_request > should validate reviewer_id is provided
+Approval function returned failure: Reviewer ID is required
+
+stderr | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > approve_resource_request > should return error when no active semester exists
+Approval function returned failure: No active semester found
+
+stderr | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > approve_resource_request > should return error when timetable assignment does not exist
+Approval function returned failure: Timetable assignment not found
+
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > reject_resource_request > should reject pending request and delete session/assignment
+Request rejected successfully: {
+  success: true,
+  action: 'removed_from_timetable',
+  class_session_id: 'session-1'
+}
+
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > reject_resource_request > should reject approved request and restore to original position
+Request rejected successfully: {
+  success: true,
+  action: 'restored',
+  class_session_id: 'session-1',
+  restored_to_period: 5
+}
+
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > reject_resource_request > should store rejection message in database
+Request rejected successfully: { success: true, action: 'removed_from_timetable' }
+
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > reject_resource_request > should return correct action taken (removed vs restored)
+Request rejected successfully: { success: true, action: 'removed_from_timetable' }
+
+stdout | src/features/resourceRequests/services/tests/databaseFunctions.test.ts > Database Functions (RPC) > reject_resource_request > should return correct action taken (removed vs restored)
+Request rejected successfully: { success: true, action: 'restored', restored_to_period: 10 }
+
+ ✓ src/features/resourceRequests/services/tests/databaseFunctions.test.ts (19 tests) 121ms
+stdout | src/features/departments/hooks/tests/useDepartments.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/users/hooks/tests/useUsers.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/timetabling/hooks/tests/useTimetableViewMode.test.tsx (6 tests) 133ms
+ ✓ src/features/users/hooks/tests/useUsers.integration.test.tsx (2 tests) 293ms
+ ✓ src/features/departments/hooks/tests/useDepartments.integration.test.tsx (5 tests) 527ms
+ ✓ src/features/program-head/schedule-class-session/tests/view-mode-hook.integration.test.tsx (6 tests) 186ms
+ ✓ src/features/shared/auth/hooks/tests/useAuth.integration.test.tsx (8 tests) 196ms
+stderr | src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts > resourceRequestService - Edge Cases > createRequest - Duplicate Prevention > should return existing request instead of creating duplicate
+Request already exists for this class session: {
+  id: 'existing-request-id',
+  class_session_id: 'session-123',
+  status: 'pending'
+}
+
+stdout | src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts > resourceRequestService - Edge Cases > cancelRequest > should cancel pending request and remove from timetable
+Request cancelled successfully: {
+  success: true,
+  action: 'removed_from_timetable',
+  class_session_id: 'session-1'
+}
+
+stdout | src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts > resourceRequestService - Edge Cases > cancelRequest > should cancel approved request and restore to original position
+Request cancelled successfully: {
+  success: true,
+  action: 'restored',
+  class_session_id: 'session-1',
+  restored_to_period: 5
+}
+
+stderr | src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts > resourceRequestService - Edge Cases > cancelRequest > should throw error if requester lacks permission
+Cancellation function returned failure: Permission denied: You can only cancel your own requests
+
+stderr | src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts > resourceRequestService - Edge Cases > cancelRequest > should throw error if request not found
+Cancellation function returned failure: Resource request not found
+
+stderr | src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts > resourceRequestService - Edge Cases > cancelRequest > should throw error if RPC call fails
+Failed to cancel request (RPC error): { message: 'Database error', code: 'DB_ERROR' }
+
+ ✓ src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts (10 tests) 80ms
+stdout | src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx > Rejection Workflow > should require rejection message (validation)
+Request rejected successfully: { success: true, action: 'removed_from_timetable' }
+
+stdout | src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx > Rejection Workflow > should delete session and assignment for pending request
+Request rejected successfully: {
+  success: true,
+  action: 'removed_from_timetable',
+  class_session_id: 'session-1'
+}
+
+stdout | src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx > Rejection Workflow > should restore to original position for approved request
+Request rejected successfully: {
+  success: true,
+  action: 'restored',
+  class_session_id: 'session-1',
+  restored_to_period: 5
+}
+
+stdout | src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx > Rejection Workflow > should store rejection_message in database
+Request rejected successfully: { success: true, action: 'removed_from_timetable' }
+
+stderr | src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx > Rejection Workflow > should handle rejection with detailed error messages
+Rejection function returned failure: Request is not pending or approved (current status: cancelled)
+
+ ✓ src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx (7 tests) 84ms
+stdout | src/features/resourceRequests/workflows/tests/removeToDrawer.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/resourceRequests/tests/permissions.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/resourceRequests/workflows/tests/removeToDrawer.integration.test.tsx > Remove to Drawer Workflow > should call cancelRequest service for pending request
+Request cancelled successfully: {
+  success: true,
+  action: 'removed_from_timetable',
+  class_session_id: 'session-1'
+}
+
+stdout | src/features/resourceRequests/workflows/tests/removeToDrawer.integration.test.tsx > Remove to Drawer Workflow > should call cancelRequest service for approved request
+Request cancelled successfully: {
+  success: true,
+  action: 'restored',
+  class_session_id: 'session-1',
+  restored_to_period: 5
+}
+
+stdout | src/features/resourceRequests/tests/permissions.test.ts > Resource Request Permissions and Security > should allow department heads to approve requests for their department
+Request approved successfully: {
+  requestId: 'request-1',
+  updatedAssignments: 1,
+  classSessionId: undefined,
+  semesterId: undefined
+}
+
+ ✓ src/features/resourceRequests/workflows/tests/removeToDrawer.integration.test.tsx (9 tests) 69ms
+stderr | src/features/resourceRequests/tests/permissions.test.ts > Resource Request Permissions and Security > should prevent department heads from approving requests for other departments
+Failed to approve request (RPC error): { code: '42501', message: 'Permission denied' }
+
+stderr | src/features/resourceRequests/tests/permissions.test.ts > Resource Request Permissions and Security > should validate reviewer_id is provided for approval
+Approval function returned failure: Reviewer ID is required
+
+ ✓ src/features/resourceRequests/tests/permissions.test.ts (10 tests) 116ms
+stdout | src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx > Approval Workflow > should call approve_resource_request atomically
+Request approved successfully: {
+  requestId: 'request-1',
+  updatedAssignments: 1,
+  classSessionId: 'session-1',
+  semesterId: 'semester-1'
+}
+
+stdout | src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx > Approval Workflow > should update request status to approved
+Request approved successfully: {
+  requestId: 'request-1',
+  updatedAssignments: 1,
+  classSessionId: undefined,
+  semesterId: undefined
+}
+
+stdout | src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx > Approval Workflow > should trigger delete notifications via database trigger
+Request approved successfully: {
+  requestId: 'request-1',
+  updatedAssignments: 1,
+  classSessionId: undefined,
+  semesterId: undefined
+}
+
+stdout | src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx > Approval Workflow > should allow real-time updates to propagate to timetable
+Request approved successfully: {
+  requestId: 'request-1',
+  updatedAssignments: 1,
+  classSessionId: undefined,
+  semesterId: undefined
+}
+
+ ✓ src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx (6 tests) 48ms
+ ✓ src/features/timetabling/utils/tests/checkConflicts.test.ts (24 tests) 69ms
+ ✓ src/features/timetabling/services/timetableService.test.ts (10 tests) 43ms
+stderr | src/features/program-head/request-cross-dept-resource/tests/service.test.ts > Request Cross-Dept Resource Service > checkCrossDepartmentResource > should handle RPC errors gracefully
+Error checking cross-department resource: Error: RPC error
+    at C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\program-head\request-cross-dept-resource\tests\service.test.ts:92:16
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at runSuite (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+    at runSuite (file:///C:/Users/User/Documents/Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/@vitest/runner/dist/chunk-hooks.js:1729:8)
+
+ ✓ src/features/program-head/request-cross-dept-resource/tests/service.test.ts (4 tests) 48ms
+stdout | src/features/admin/manage-departments/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/classSessionComponents/types/tests/validation.test.ts (11 tests) 42ms
+ ✓ src/features/admin/manage-departments/tests/service.test.ts (8 tests) 28ms
+stdout | src/features/admin/manage-users/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/program-head/schedule-class-session/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/program-head/schedule-class-session/tests/service.test.ts (5 tests) 55ms
+ ✓ src/features/admin/manage-users/tests/service.test.ts (11 tests) 114ms
+ ✓ src/features/timetabling/utils/tests/timetableLogic.test.ts (7 tests) 39ms
+ ✓ src/features/users/services/tests/usersService.integration.test.ts (5 tests) 39ms
+ ✓ src/features/timetabling/utils/tests/timetableLogic.factory.test.ts (4 tests) 29ms
+stdout | src/features/department-head/reject-request/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/department-head/reject-request/tests/service.test.ts (4 tests) 36ms
+stdout | src/features/program-head/view-pending-requests/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+stdout | src/features/admin/manage-classrooms/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/program-head/view-pending-requests/tests/service.test.ts (5 tests) 39ms
+ ✓ src/features/shared/auth/services/tests/authService.login.test.ts (6 tests) 56ms
+ ✓ src/features/admin/manage-classrooms/tests/service.test.ts (8 tests) 59ms
+ ✓ src/features/timetabling/utils/tests/timetableLogic.classroom.test.ts (5 tests) 22ms
+ ✓ src/features/timetabling/utils/tests/timetableLogic.instructor.test.ts (5 tests) 33ms
+stdout | src/features/department-head/manage-instructors/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/department-head/manage-instructors/tests/service.test.ts (6 tests) 35ms
+ ✓ src/features/shared/auth/utils/tests/permissions.test.ts (23 tests) 34ms
+ ✓ src/features/program-head/schedule-class-session/tests/confirmation-dialog.integration.test.tsx (6 tests) 27ms
+stdout | src/features/department-head/view-department-requests/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/department-head/view-department-requests/tests/service.test.ts (4 tests) 29ms
+ ✓ src/lib/tests/colorUtils.test.ts (16 tests) 34ms
+ ✓ src/features/timetabling/hooks/tests/useTimetableDnd.confirmation.test.tsx (6 tests) 26ms
+stdout | src/features/department-head/approve-request/tests/service.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/department-head/approve-request/tests/service.test.ts (3 tests) 27ms
+ ✓ src/features/program-head/schedule-class-session/tests/conflict-detection.test.ts (9 tests) 18ms
+ ✓ src/features/classSessions/types/tests/validation.test.ts (3 tests) 23ms
+ ✓ src/features/program-head/manage-components/tests/courses-component.integration.test.tsx (5 tests) 14ms
+ ✓ src/features/program-head/schedule-class-session/tests/session-cell-component.integration.test.tsx (10 tests) 19ms
+stdout | src/features/reports/services/tests/instructorReportService.unit.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/reports/services/tests/instructorReportService.unit.test.ts (3 tests) 20ms
+ ✓ src/features/program-head/manage-components/tests/service.test.ts (9 tests) 19ms
+ ✓ src/features/department-head/approve-request/tests/hook.integration.test.tsx (3 tests) 14ms
+ ✓ src/features/department-head/reject-request/tests/hook.integration.test.tsx (3 tests) 14ms
+ ✓ src/features/admin/manage-departments/tests/component.integration.test.tsx (4 tests) 23ms
+ ✓ src/features/admin/manage-users/tests/component.integration.test.tsx (5 tests) 18ms
+ ✓ src/features/admin/manage-classrooms/tests/component.integration.test.tsx (5 tests) 18ms
+stdout | src/features/reports/services/tests/loadCalculationService.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/reports/services/tests/loadCalculationService.test.ts (5 tests) 16ms
+ ✓ src/features/program-head/view-pending-requests/tests/component.integration.test.tsx (3 tests) 13ms
+ ✓ src/features/program-head/request-cross-dept-resource/tests/component.integration.test.tsx (3 tests) 13ms
+ ✓ src/features/program-head/schedule-class-session/tests/timetable-hook.integration.test.tsx (3 tests) 14ms
+stdout | src/features/reports/services/tests/pdfExportService.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/reports/services/tests/pdfExportService.test.ts (1 test) 9ms
+stdout | src/features/reports/services/tests/excelExportService.test.ts
+[Config] Using hardcoded development config
+[Supabase Client] Environment: development
+[Supabase Client] Project URL: https://wkfgcroybuuefaulqsru.supabase.co
+[Supabase Client] Project ID: wkfgcroybuuefaulqsru
+
+ ✓ src/features/reports/services/tests/excelExportService.test.ts (1 test) 10ms
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Suites 13 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/classSessionComponents/hooks/tests/useAllClassrooms.integration.test.tsx [ src/features/classSessionComponents/hooks/tests/useAllClassrooms.integration.test.tsx ]
+Error: Failed to resolve import "../../../auth/hooks/useAuth" from "src/features/classSessionComponents/hooks/tests/useAllClassrooms.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/classSessionComponents/hooks/tests/useAllClassrooms.integration.test.tsx:153:47
+  127|    });
+  128|    it("should handle loading state", async () => {
+  129|      const mockUseAuth = vi.mocked(await import("../../../auth/hooks/useAuth")).useAuth;
+     |                                                 ^
+  130|      mockUseAuth.mockReturnValue({
+  131|        user: mockUser,
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/54]⎯
+
+ FAIL  src/features/classSessionComponents/hooks/tests/useAllInstructors.integration.test.tsx [ src/features/classSessionComponents/hooks/tests/useAllInstructors.integration.test.tsx ]
+Error: Failed to resolve import "../../../auth/hooks/useAuth" from "src/features/classSessionComponents/hooks/tests/useAllInstructors.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/classSessionComponents/hooks/tests/useAllInstructors.integration.test.tsx:156:47
+  130|    });
+  131|    it("should handle loading state", async () => {
+  132|      const mockUseAuth = vi.mocked(await import("../../../auth/hooks/useAuth")).useAuth;
+     |                                                 ^
+  133|      mockUseAuth.mockReturnValue({
+  134|        user: mockUser,
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/54]⎯
+
+ FAIL  src/features/department-head/manage-instructors/tests/component.integration.test.tsx [ src/features/department-head/manage-instructors/tests/component.integration.test.tsx ]
+Error: Failed to resolve import "@tantml:query" from "src/features/department-head/manage-instructors/tests/component.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/department-head/manage-instructors/tests/component.integration.test.tsx:9:0
+  1  |  vi.mock("../hook");
+  2  |  const __vi_import_0__ = await import("@tantml:query");
+     |                                       ^
+  3  |  import { describe, it, expect, beforeEach, vi } from "vitest";
+  4  |
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/54]⎯
+
+ FAIL  src/features/classSessions/pages/tests/ClassSessionsPage.integration.test.tsx [ src/features/classSessions/pages/tests/ClassSessionsPage.integration.test.tsx ]
+Error: Failed to resolve import "../../../auth/hooks/useAuth" from "src/features/classSessions/pages/tests/ClassSessionsPage.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/classSessions/pages/tests/ClassSessionsPage.integration.test.tsx:57:45
+  42 |  });
+  43 |  const setupComponent = async (classSessions = [mockClassSession], isLoading = false, error = null) => {
+  44 |    const mockUseAuth = vi.mocked(await import("../../../auth/hooks/useAuth")).useAuth;
+     |                                               ^
+  45 |    mockUseAuth.mockReturnValue({
+  46 |      user: mockUser,
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/service.test.ts [ src/features/program-head/manage-class-sessions/tests/service.test.ts ]
+Error: Failed to resolve import "../../infrastructure/services/classSessionsService" from "src/features/program-head/manage-class-sessions/tests/service.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/program-head/manage-class-sessions/tests/service.test.ts:8:0
+  1  |  vi.mock("../../infrastructure/services/classSessionsService");
+  2  |  const __vi_import_0__ = await import("../service");
+  3  |  const __vi_import_1__ = await import("../../infrastructure/services/classSessionsService");
+     |                                       ^
+  4  |  import { describe, it, expect, vi, beforeEach } from "vitest";
+  5  |
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/54]⎯
+
+ FAIL  src/features/program-head/schedule-class-session/tests/pending-operations.integration.test.tsx [ src/features/program-head/schedule-class-session/tests/pending-operations.integration.test.tsx ]
+Error: Failed to resolve import "../../manage-components/services/classGroupsService" from "src/features/program-head/schedule-class-session/tests/pending-operations.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/program-head/schedule-class-session/tests/pending-operations.integration.test.tsx:11:0
+  21 |  const __vi_import_3__ = await import("../hook");
+  22 |  const __vi_import_4__ = await import("../service");
+  23 |  const __vi_import_5__ = await import("../../manage-components/services/classGroupsService");
+     |                                       ^
+  24 |  const __vi_import_6__ = await import("@/features/shared/schedule-config/hooks/useScheduleConfig");
+  25 |  const __vi_import_7__ = await import("@/features/shared/schedule-config/hooks/useActiveSemester");
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/54]⎯
+
+ FAIL  src/features/shared/auth/hooks/useDepartmentId.test.ts [ src/features/shared/auth/hooks/useDepartmentId.test.ts ]
+Error: Failed to resolve import "../../programs/hooks/usePrograms" from "src/features/shared/auth/hooks/useDepartmentId.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/shared/auth/hooks/useDepartmentId.test.ts:5:0
+  4  |  const __vi_import_1__ = await import("./useDepartmentId");
+  5  |  const __vi_import_2__ = await import("./useAuth");
+  6  |  const __vi_import_3__ = await import("../../programs/hooks/usePrograms");
+     |                                       ^
+  7  |
+  8  |  import { describe, it, expect, vi } from "vitest";
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/54]⎯
+
+ FAIL  src/features/timetabling/hooks/tests/useTimetable.pending.test.tsx [ src/features/timetabling/hooks/tests/useTimetable.pending.test.tsx ]
+Error: Failed to resolve import "../../../auth/hooks/useAuth" from "src/features/timetabling/hooks/tests/useTimetable.pending.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/timetabling/hooks/tests/useTimetable.pending.test.tsx:14:0
+  24 |  const __vi_import_6__ = await import("../../../scheduleConfig/hooks/useScheduleConfig");
+  25 |  const __vi_import_7__ = await import("../../../scheduleConfig/hooks/useActiveSemester");
+  26 |  const __vi_import_8__ = await import("../../../auth/hooks/useAuth");
+     |                                       ^
+  27 |
+  28 |  import { describe, it, expect, vi, beforeEach } from "vitest";
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/54]⎯
+
+ FAIL  src/features/shared/auth/components/tests/PrivateRoute.integration.test.tsx [ src/features/shared/auth/components/tests/PrivateRoute.integration.test.tsx ]
+Error: Failed to resolve import "../../../../components/layout/AppLayout" from "src/features/shared/auth/components/tests/PrivateRoute.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/shared/auth/components/tests/PrivateRoute.integration.test.tsx:7:0
+  30 |  const __vi_import_4__ = await import("../PrivateRoute");
+  31 |  const __vi_import_5__ = await import("../../contexts/AuthContext");
+  32 |  const __vi_import_6__ = await import("../../../../components/layout/AppLayout");
+     |                                       ^
+  33 |
+  34 |
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/54]⎯
+
+ FAIL  src/features/shared/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx [ src/features/shared/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx ]
+Error: Failed to resolve import "../../../../lib/supabase" from "src/features/shared/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/shared/auth/pages/tests/CompleteRegistrationPage.integration.test.tsx:7:0
+  19 |  const __vi_import_3__ = await import("react-router-dom");
+  20 |  const __vi_import_4__ = await import("../CompleteRegistrationPage");
+  21 |  const __vi_import_5__ = await import("../../../../lib/supabase");
+     |                                       ^
+  22 |
+  23 |
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/54]⎯
+
+ FAIL  src/features/shared/auth/pages/tests/UserProfilePage.integration.test.tsx [ src/features/shared/auth/pages/tests/UserProfilePage.integration.test.tsx ]
+Error: Failed to resolve import "../../../programs/hooks/usePrograms" from "src/features/shared/auth/pages/tests/UserProfilePage.integration.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/shared/auth/pages/tests/UserProfilePage.integration.test.tsx:13:30
+  9  |  import UserProfilePage from "../UserProfilePage";
+  10 |  import { AuthContext } from "../../contexts/AuthContext";
+  11 |  import * as programHooks from "../../../programs/hooks/usePrograms";
+     |                                 ^
+  12 |  import * as departmentHooks from "../../../departments/hooks/useDepartments";
+  13 |  const mockPrograms = [
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/54]⎯
+
+ FAIL  src/features/shared/auth/services/tests/authService.integration.test.ts [ src/features/shared/auth/services/tests/authService.integration.test.ts ]
+Error: Failed to resolve import "../../../../lib/supabase" from "src/features/shared/auth/services/tests/authService.integration.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/shared/auth/services/tests/authService.integration.test.ts:3:0
+  8  |  }));
+  9  |  const __vi_import_0__ = await import("../authService");
+  10 |  const __vi_import_1__ = await import("../../../../lib/supabase");
+     |                                       ^
+  11 |  import { vi, describe, it, expect, beforeEach } from "vitest";
+  12 |
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/54]⎯
+
+ FAIL  src/features/timetabling/pages/components/timetable/tests/SessionCell.pending.test.tsx [ src/features/timetabling/pages/components/timetable/tests/SessionCell.pending.test.tsx ]
+Error: Failed to resolve import "../../../../../auth/contexts/AuthContext" from "src/features/timetabling/pages/components/timetable/tests/SessionCell.pending.test.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/User/Documents/Personal Documents/Code Base/React (Web)/ClassFlow-nomad/src/features/timetabling/pages/components/timetable/tests/SessionCell.pending.test.tsx:11:0
+  7  |  const __vi_import_2__ = await import("../SessionCell");
+  8  |  const __vi_import_3__ = await import("../TimetableContext");
+  9  |  const __vi_import_4__ = await import("../../../../../auth/contexts/AuthContext");
+     |                                       ^
+  10 |
+  11 |  import { describe, it, expect, vi } from "vitest";
+ ❯ TransformPluginContext._formatLog ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ❯ TransformPluginContext.error ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ❯ normalizeUrl ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40504:23
+ ❯ ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40623:37
+ ❯ TransformPluginContext.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40550:7
+ ❯ EnvironmentPluginContainer.transform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ❯ loadAndTransform ../../../../Personal%20Documents/Code%20Base/React%20(Web)/ClassFlow-nomad/node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/54]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 41 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Pending Requests Display > should display count of pending requests
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:66:71
+     64|       ];
+     65|
+     66|       vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+       |                                                                       ^
+     67|         .mockResolvedValue(mockRequests);
+     68|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Pending Requests Display > should show zero when no pending requests
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:77:71
+     75|
+     76|     it('should show zero when no pending requests', async () => {
+     77|       vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+       |                                                                       ^
+     78|         .mockResolvedValue([]);
+     79|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Pending Requests Display > should filter only pending status requests
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:95:71
+     93|       ];
+     94|
+     95|       vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+       |                                                                       ^
+     96|         .mockResolvedValue(mockRequests);
+     97|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Loading and Error States > should show loading state initially
+TypeError: Cannot read properties of undefined (reading 'mockImplementation')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:109:71
+    107|   describe('Loading and Error States', () => {
+    108|     it('should show loading state initially', () => {
+    109|       vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+       |                                                                       ^
+    110|         .mockImplementation(() => new Promise(() => {})); // Never resolves
+    111|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Loading and Error States > should handle fetch errors gracefully
+TypeError: Cannot read properties of undefined (reading 'mockRejectedValue')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:118:71
+    116|
+    117|     it('should handle fetch errors gracefully', async () => {
+    118|       vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+       |                                                                       ^
+    119|         .mockRejectedValue(new Error('Failed to fetch requests'));
+    120|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Navigation > should link to pending requests page
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:136:71
+    134|       ];
+    135|
+    136|       vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram)
+       |                                                                       ^
+    137|         .mockResolvedValue(mockRequests);
+    138|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > Real-time Updates > should refetch when query is invalidated
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValueOnce')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:159:17
+    157|
+    158|       const fetchMock = vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram…
+    159|       fetchMock.mockResolvedValueOnce(mockRequests1);
+       |                 ^
+    160|
+    161|       renderWithQuery(<PendingRequestsPanel />);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/54]⎯
+
+ FAIL  src/components/tests/PendingRequestsPanel.integration.test.tsx > PendingRequestsPanel Integration Tests > User Context Integration > should fetch requests for the current user program
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/components/tests/PendingRequestsPanel.integration.test.tsx:180:17
+    178|     it('should fetch requests for the current user program', async () => {
+    179|       const fetchMock = vi.mocked(resourceRequestsService.fetchResourceRequestsByProgram…
+    180|       fetchMock.mockResolvedValue([]);
+       |                 ^
+    181|
+    182|       renderWithQuery(<PendingRequestsPanel />);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Visibility States > should show indicator when timetable queries are fetching
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:51:21
+     49|       renderWithQuery(<SyncIndicator />);
+     50|
+     51|       expect(screen.getByTestId('sync-indicator')).toBeInTheDocument();
+       |                     ^
+     52|       expect(screen.getByText(/syncing/i)).toBeInTheDocument();
+     53|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Visibility States > should show indicator when multiple queries are fetching
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:68:21
+     66|       renderWithQuery(<SyncIndicator />);
+     67|
+     68|       expect(screen.getByTestId('sync-indicator')).toBeInTheDocument();
+       |                     ^
+     69|     });
+     70|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Visual States > should display loading spinner when fetching
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-spinner"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:78:30
+     76|       renderWithQuery(<SyncIndicator />);
+     77|
+     78|       const spinner = screen.getByTestId('sync-spinner');
+       |                              ^
+     79|       expect(spinner).toBeInTheDocument();
+     80|       expect(spinner).toHaveClass('animate-spin');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Visual States > should display sync text
+TestingLibraryElementError: Unable to find an element with the text: Syncing.... This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:88:21
+     86|       renderWithQuery(<SyncIndicator />);
+     87|
+     88|       expect(screen.getByText('Syncing...')).toBeInTheDocument();
+       |                     ^
+     89|     });
+     90|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Query Filter Integration > should only respond to timetable-related queries
+AssertionError: expected "spy" to be called with arguments: [ { queryKey: [ 'timetable' ] } ]
+
+Number of calls: 0
+
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:100:33
+     98|       renderWithQuery(<SyncIndicator />);
+     99|
+    100|       expect(mockUseIsFetching).toHaveBeenCalledWith({
+       |                                 ^
+    101|         queryKey: ['timetable'],
+    102|       });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Transition Behavior > should transition from hidden to visible
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:131:21
+    129|       );
+    130|
+    131|       expect(screen.getByTestId('sync-indicator')).toBeInTheDocument();
+       |                     ^
+    132|     });
+    133|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Transition Behavior > should transition from visible to hidden
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:140:21
+    138|       const { rerender } = renderWithQuery(<SyncIndicator />);
+    139|
+    140|       expect(screen.getByTestId('sync-indicator')).toBeInTheDocument();
+       |                     ^
+    141|
+    142|       // Simulate query finishing
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Multiple Concurrent Fetches > should show single indicator for multiple fetches
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:161:33
+    159|
+    160|       // Should only show one indicator, not 5
+    161|       const indicators = screen.getAllByTestId('sync-indicator');
+       |                                 ^
+    162|       expect(indicators).toHaveLength(1);
+    163|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Accessibility > should have proper ARIA label
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:172:32
+    170|       renderWithQuery(<SyncIndicator />);
+    171|
+    172|       const indicator = screen.getByTestId('sync-indicator');
+       |                                ^
+    173|       expect(indicator).toHaveAttribute('aria-label', 'Syncing timetable data');
+    174|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Accessibility > should have proper role for screen readers
+TestingLibraryElementError: Unable to find an element by: [data-testid="sync-indicator"]
+
+Ignored nodes: comments, script, style
+<body>
+  <div />
+</body>
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:181:32
+    179|       renderWithQuery(<SyncIndicator />);
+    180|
+    181|       const indicator = screen.getByTestId('sync-indicator');
+       |                                ^
+    182|       expect(indicator).toHaveAttribute('role', 'status');
+    183|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/54]⎯
+
+ FAIL  src/components/tests/SyncIndicator.integration.test.tsx > SyncIndicator Integration Tests > Performance > should not cause unnecessary re-renders
+AssertionError: expected "spy" to be called at least once
+ ❯ src/components/tests/SyncIndicator.integration.test.tsx:201:33
+    199|
+    200|       expect(screen.queryByTestId('sync-indicator')).not.toBeInTheDocument();
+    201|       expect(mockUseIsFetching).toHaveBeenCalled();
+       |                                 ^
+    202|     });
+    203|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/54]⎯
+
+ FAIL  src/components/dialogs/tests/ConfirmDialog.test.tsx > ConfirmDialog Component > Edge Cases > should handle empty strings for custom text
+AssertionError: expected [ <button …(1)></button>, …(2) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/components/dialogs/tests/ConfirmDialog.test.tsx:206:23
+    204|       // Should still render buttons even with empty text
+    205|       const buttons = screen.getAllByRole('button');
+    206|       expect(buttons).toHaveLength(2);
+       |                       ^
+    207|     });
+    208|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx > ManageClassSessions Component > should render class sessions list
+ FAIL  src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx > ManageClassSessions Component > should display loading state
+ FAIL  src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx > ManageClassSessions Component > should display error state
+ FAIL  src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx > ManageClassSessions Component > should filter sessions by search query
+ FAIL  src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx > ManageClassSessions Component > should open add session dialog
+ FAIL  src/features/program-head/manage-class-sessions/tests/component.integration.test.tsx > ManageClassSessions Component > should handle session deletion
+Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+ ❯ createFiberFromTypeAndProps node_modules/react-dom/cjs/react-dom-client.development.js:4259:28
+ ❯ createFiberFromElement node_modules/react-dom/cjs/react-dom-client.development.js:4273:14
+ ❯ reconcileChildFibersImpl node_modules/react-dom/cjs/react-dom-client.development.js:7879:31
+ ❯ node_modules/react-dom/cjs/react-dom-client.development.js:8057:33
+ ❯ reconcileChildren node_modules/react-dom/cjs/react-dom-client.development.js:8621:13
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:10915:13
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1522:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:15140:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:14956:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:14936:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx > useManageClassSessions Hook > should fetch class sessions for program
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx:82:46
+     80|
+     81|   it('should fetch class sessions for program', async () => {
+     82|     mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
+       |                                              ^
+     83|
+     84|     const { result } = renderHook(() => useManageClassSessions(), {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx > useManageClassSessions Hook > should add a new class session
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx:105:46
+    103|     };
+    104|
+    105|     mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
+       |                                              ^
+    106|     mockedService.createClassSession.mockResolvedValue({ id: 'session2', ...newSession }…
+    107|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx > useManageClassSessions Hook > should update an existing class session
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx:128:46
+    126|     };
+    127|
+    128|     mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
+       |                                              ^
+    129|     mockedService.updateClassSession.mockResolvedValue({ ...mockClassSessions[0], ...upd…
+    130|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx > useManageClassSessions Hook > should remove a class session
+TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')
+ ❯ src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx:147:46
+    145|
+    146|   it('should remove a class session', async () => {
+    147|     mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
+       |                                              ^
+    148|     mockedService.deleteClassSession.mockResolvedValue(undefined);
+    149|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/54]⎯
+
+ FAIL  src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx > useManageClassSessions Hook > should handle fetch errors
+TypeError: Cannot read properties of undefined (reading 'mockRejectedValue')
+ ❯ src/features/program-head/manage-class-sessions/tests/hook.integration.test.tsx:167:46
+    165|   it('should handle fetch errors', async () => {
+    166|     const error = new Error('Failed to fetch sessions');
+    167|     mockedService.getClassSessionsForProgram.mockRejectedValue(error);
+       |                                              ^
+    168|
+    169|     const { result } = renderHook(() => useManageClassSessions(), {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/54]⎯
+
+ FAIL  src/features/program-head/manage-components/tests/class-groups-component.integration.test.tsx > ClassGroupManagement Component > should render the component
+Error: Cannot find module '@/features/classSessionComponents/hooks/useClassGroups'
+Require stack:
+- C:\Users\User\Documents\Personal Documents\Code Base\React (Web)\ClassFlow-nomad\src\features\program-head\manage-components\tests\class-groups-component.integration.test.tsx
+ ❯ src/features/program-head/manage-components/tests/class-groups-component.integration.test.tsx:66:32
+     64| describe('ClassGroupManagement Component', () => {
+     65|   it('should render the component', () => {
+     66|     const { useClassGroups } = require('@/features/classSessionComponents/hooks/useClass…
+       |                                ^
+     67|     useClassGroups.mockReturnValue({
+     68|       classGroups: mockClassGroups,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/54]⎯
+
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should render all three view options
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should highlight the active view mode
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should call onViewModeChange when a view button is clicked
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should not call onViewModeChange when clicking the already active view
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should switch between all view modes correctly
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should render correct icons for each view
+ FAIL  src/features/program-head/schedule-class-session/tests/view-selector-component.integration.test.tsx > ViewSelector > should have proper accessibility attributes
+Error: Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+ ❯ createFiberFromTypeAndProps node_modules/react-dom/cjs/react-dom-client.development.js:4259:28
+ ❯ createFiberFromElement node_modules/react-dom/cjs/react-dom-client.development.js:4273:14
+ ❯ reconcileChildFibersImpl node_modules/react-dom/cjs/react-dom-client.development.js:7879:31
+ ❯ node_modules/react-dom/cjs/react-dom-client.development.js:8057:33
+ ❯ reconcileChildren node_modules/react-dom/cjs/react-dom-client.development.js:8622:13
+ ❯ beginWork node_modules/react-dom/cjs/react-dom-client.development.js:10643:15
+ ❯ runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:1522:13
+ ❯ performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:15140:22
+ ❯ workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:14956:41
+ ❯ renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:14936:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/54]⎯
+
+ FAIL  src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > initiateCrossDeptRequest > should set pending request
+AssertionError: expected null to deeply equal { classSessionId: 'session-1', …(3) }
+
+- Expected:
+{
+  "classSessionId": "session-1",
+  "departmentId": "dept-2",
+  "resourceId": "inst-1",
+  "resourceType": "instructor",
+}
+
++ Received:
+null
+
+ ❯ src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx:107:45
+    105|       result.current.initiateCrossDeptRequest(payload);
+    106|
+    107|       expect(result.current.pendingRequest).toEqual(payload);
+       |                                             ^
+    108|     });
+    109|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/54]⎯
+
+ FAIL  src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx > useRequestCrossDeptResource > cancelRequest > should clear pending request
+AssertionError: expected null not to be null
+ ❯ src/features/program-head/request-cross-dept-resource/tests/hook.integration.test.tsx:123:49
+    121|
+    122|       result.current.initiateCrossDeptRequest(payload);
+    123|       expect(result.current.pendingRequest).not.toBeNull();
+       |                                                 ^
+    124|
+    125|       result.current.cancelRequest();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/54]⎯
+
+
+ Test Files  21 failed | 90 passed (111)
+      Tests  41 failed | 621 passed (662)
+   Start at  14:01:10
+   Duration  165.15s (transform 17.88s, setup 109.01s, collect 153.54s, tests 84.30s, environment 451.24s, prepare 87.84s)
+
 ```
