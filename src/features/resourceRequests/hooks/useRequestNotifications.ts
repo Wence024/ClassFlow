@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as service from '../services/notificationsService';
-import type { RequestNotification } from '../services/notificationsService';
+import * as service from '@/lib/services/notificationService';
+import type { RequestNotification } from '@/lib/services/notificationService';
 
 /**
  * Hook for cross-department request notifications.

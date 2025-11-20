@@ -10,7 +10,7 @@ import * as useDepartmentRequestsHook from '../../features/resourceRequests/hook
 import * as resourceRequestService from '@/lib/services/resourceRequestService';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../features/shared/auth/types/auth';
-import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
+import type { ResourceRequest } from '@/types/resourceRequest';
 import type { EnrichedRequest } from '../RequestNotifications';
 
 // Mocks
