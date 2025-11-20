@@ -22,7 +22,7 @@ import {
 } from '@/components/ui';
 import FormField from '@/components/ui/custom/form-field';
 import type { UserProfile, Role } from '../types/user';
-import { inviteUser } from '../services/usersService';
+import { inviteUser } from '@/lib/services/userService';
 import { toast } from 'sonner';
 import { UserPlus } from 'lucide-react';
 

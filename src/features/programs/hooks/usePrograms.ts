@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Program, ProgramInsert, ProgramUpdate } from '../types/program';
-import * as svc from '../services/programsService';
+import * as svc from '@/lib/services/programService';
 
 const qk = {
   list: ['programs', 'list'] as const,
