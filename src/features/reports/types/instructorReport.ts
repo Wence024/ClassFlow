@@ -1,4 +1,4 @@
-import type { Instructor } from '@/features/classSessionComponents/types';
+import type { Instructor } from '@/types/instructor';
 
 export interface CourseScheduleInfo {
   id: string;

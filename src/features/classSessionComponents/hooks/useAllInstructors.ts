@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
-import * as instructorsService from '../services/instructorsService';
-import type { Instructor } from '../types/instructor';
+import * as instructorsService from '@/lib/services/instructorService';
+import type { Instructor } from '@/types/instructor';
 
 /**
  * Custom hook to fetch ALL instructors for class session selection workflows.

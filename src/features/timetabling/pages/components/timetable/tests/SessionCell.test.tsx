@@ -8,7 +8,7 @@ import {
   getSessionCellBorderStyle,
   getSessionCellTextColor,
 } from '../../../../../../lib/colorUtils';
-import type { ClassSession } from '../../../../../../features/classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import type { AuthContextType } from '../../../../../../features/shared/auth/types/auth';
 
 // Test helper to convert a hex color to the rgb/rgba format JSDOM uses
