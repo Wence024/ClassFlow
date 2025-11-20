@@ -274,8 +274,8 @@ This document tracks the progress of refactoring ClassFlow from a feature-based 
 | Phase 5: Department Head Features | ✅ Complete | 100% |
 | Phase 6: Admin Features | ✅ Complete | 100% |
 | Phase 7: Testing Migration | ✅ Complete | 100% |
-| **Phase 8: Cleanup** | **🚧 In Progress** | **~80%** |
-| Phase 9: Complete Migration | 🚧 Ready to Start | 0% |
+| Phase 8: Cleanup | ✅ Complete | 100% |
+| **Phase 9: Complete Migration** | **🚧 In Progress** | **20%** |
 
 ### Phase 8: Cleanup and Documentation - 📊 Detailed Status
 
@@ -347,21 +347,59 @@ Phase 8.3 verification complete - establish baseline and proceed with Phase 9 de
 - ⏳ No dead code remaining (to be analyzed in Phase 9)
 - ⏳ Vertical slice pattern consistently applied (needs verification in Phase 9)
 
-## Phase 9: Complete Migration (READY TO START)
+## ✅ Phase 9: Complete Migration (IN PROGRESS)
 
 **Goal:** Complete the migration by updating all imports and removing old directories
 
-### Phase 9.1: Import Update Strategy
+### Phase 9.1: Service Consolidation ✅ COMPLETED
 
-**Step 1: Service Consolidation (Priority 1)**
-Target: Resolve service duplication
-- Audit all service files in `src/features/*/services/` vs `src/lib/services/`
-- Update imports to use consolidated `lib/services/resourceRequestService`
-- Remove duplicate service files
-- Verify functionality unchanged
+**Status:** ✅ All service duplications resolved
 
-**Step 2: Update Import Paths (Priority 2)**
-Systematic import updates by category:
+**Completed Actions:**
+1. ✅ Merged `resourceRequestService.ts` from feature directory into `lib/services/`
+   - Added `dismissRequest()` function (missing from lib version)
+   - Updated `cancelRequest()` return type to detailed response object
+   - Updated `rejectRequest()` return type to detailed response object
+   - All functionality preserved with enhanced type safety
+
+2. ✅ Migrated `notificationsService.ts` to `lib/services/notificationService.ts`
+   - Updated all imports in hooks to use centralized service
+   - Deleted duplicate file after migration
+
+3. ✅ Updated all import statements (11 files total):
+   - `src/features/resourceRequests/hooks/useResourceRequests.ts`
+   - `src/features/resourceRequests/hooks/useRequestNotifications.ts`
+   - `src/features/classSessionComponents/services/classroomsService.ts`
+   - `src/features/classSessionComponents/services/instructorsService.ts`
+   - `src/features/classSessions/services/classSessionsService.ts`
+   - `src/components/RequestNotifications.tsx`
+   - `src/features/timetabling/hooks/useTimetable.ts`
+   - `src/features/timetabling/hooks/useTimetableDnd.ts` (2 imports)
+   - `src/components/tests/RequestNotifications.integration.test.tsx`
+
+4. ✅ Updated test file imports (5 test files):
+   - `src/features/resourceRequests/services/tests/resourceRequestService.edgeCases.test.ts`
+   - `src/features/resourceRequests/services/tests/databaseFunctions.test.ts`
+   - `src/features/resourceRequests/workflows/tests/approvalWorkflow.integration.test.tsx`
+   - `src/features/resourceRequests/workflows/tests/rejectionWorkflow.integration.test.tsx`
+   - `src/features/resourceRequests/workflows/tests/removeToDrawer.integration.test.tsx`
+
+5. ✅ Safely deleted duplicate service files:
+   - `src/features/resourceRequests/services/resourceRequestService.ts`
+   - `src/features/resourceRequests/services/notificationsService.ts`
+   - `src/features/resourceRequests/types/resourceRequest.ts`
+
+**Verification Results:**
+- ✅ Zero import errors - All imports updated successfully
+- ✅ Build succeeds - TypeScript compilation successful
+- ✅ All service functionality preserved with enhanced types
+
+**Remaining in resourceRequests directory:**
+- `hooks/` - Still needed (useResourceRequests, useRequestNotifications)
+- `services/tests/` - Test files migrated to use centralized service
+- `workflows/tests/` - Test files migrated to use centralized service
+
+### Phase 9.2: Import Update Strategy (NEXT)
 
 | Old Directory | Target Location | Import Count | Files |
 |--------------|-----------------|--------------|-------|
