@@ -3,6 +3,151 @@
 ## Overview
 This document tracks the progress of refactoring ClassFlow from a feature-based architecture to a vertical slice architecture, organized by user role (Program Head, Department Head, Admin).
 
+## Archived Plan of file structure (may be outdated)
+
+src/
+     2 ├── features/                                    # Role-focused vertical slices
+     3 │   ├── program-head/                           # Program Head workflows
+     4 │   │   ├── create-class-session/              # Complete use case: Create session
+     5 │   │   │   ├── component.tsx                  # Form UI
+     6 │   │   │   ├── hook.tsx                      # Business logic
+     7 │   │   │   ├── service.ts                     # Database operations (calls lib/services)
+     8 │   │   │   └── types.ts                      # Use-case specific types
+     9 │   │   ├── schedule-class-session/            # Complete use case: Schedule with DnD
+    10 │   │   │   ├── component.tsx                  # Timetable UI
+    11 │   │   │   ├── hook.tsx                      # Scheduling & resource update logic
+    12 │   │   │   ├── service.ts                     # Calls lib/services
+    13 │   │   │   ├── types.ts                      # Scheduling specific types
+    14 │   │   │   └── utils.ts                      # Scheduling utilities
+    15 │   │   ├── request-cross-dept-resource/       # Complete use case: Request approval
+    16 │   │   │   ├── component.tsx                  # Request form/modal
+    17 │   │   │   ├── hook.tsx                      # Cross-department detection logic
+    18 │   │   │   ├── service.ts                     # Calls lib/services
+    19 │   │   │   └── types.ts
+    20 │   │   ├── view-pending-requests/             # Complete use case: Track requests
+    21 │   │   │   ├── component.tsx                  # Notification panel
+    22 │   │   │   ├── hook.tsx                      # Fetch pending requests
+    23 │   │   │   └── types.ts
+    24 │   │   ├── manage-sessions/                  # Complete use case: Edit/delete
+    25 │   │   │   ├── component.tsx
+    26 │   │   │   ├── hook.tsx
+    27 │   │   │   └── types.ts
+    28 │   │   └── shared/                           # Truly shared within role
+    29 │   │       └── permissions.ts                # Program Head specific permissions
+    30 │   │
+    31 │   ├── department-head/                       # Department Head workflows
+    32 │   │   ├── approve-cross-dept-request/        # Complete use case: Approve requests
+    33 │   │   │   ├── component.tsx                  # Approval UI in notifications
+    34 │   │   │   ├── hook.tsx                      # Approval business logic
+    35 │   │   │   ├── service.ts                     # Calls lib/services
+    36 │   │   │   └── types.ts
+    37 │   │   ├── reject-cross-dept-request/         # Complete use case: Reject requests
+    38 │   │   │   ├── component.tsx                  # Rejection dialog
+    39 │   │   │   ├── hook.tsx                      # Rejection logic
+    40 │   │   │   └── types.ts
+    41 │   │   ├── manage-instructors/               # Complete use case: Department instructors
+    42 │   │   │   ├── component.tsx
+    43 │   │   │   ├── hook.tsx
+    44 │   │   │   └── types.ts
+    45 │   │   ├── view-pending-requests/            # Complete use case: Review requests
+    46 │   │   │   ├── component.tsx                  # Request notifications
+    47 │   │   │   ├── hook.tsx                      # Fetch department requests
+    48 │   │   │   └── types.ts
+    49 │   │   └── shared/                           # Department Head specific
+    50 │   │       └── permissions.ts                # Department Head permissions
+    51 │   │
+    52 │   ├── admin/                                # Admin workflows
+    53 │   │   ├── manage-users/                     # Complete use case: User management
+    54 │   │   │   ├── component.tsx
+    55 │   │   │   ├── hook.tsx
+    56 │   │   │   └── types.ts
+    57 │   │   ├── manage-departments/               # Complete use case: Department management
+    58 │   │   │   ├── component.tsx
+    59 │   │   │   ├── hook.tsx
+    60 │   │   │   └── types.ts
+    61 │   │   ├── system-configuration/             # Complete use case: Config management
+    62 │   │   │   ├── component.tsx
+    63 │   │   │   ├── hook.tsx
+    64 │   │   │   └── types.ts
+    65 │   │   └── shared/
+    66 │   │       └── permissions.ts                # Admin permissions
+    67 │   │
+    68 │   └── shared/                               # Truly shared across all roles
+    69 │       ├── auth/                            # Authentication logic
+    70 │       │   ├── login/
+    71 │       │   │   ├── component.tsx
+    72 │       │   │   ├── hook.tsx
+    73 │       │   │   └── types.ts
+    74 │       │   ├── profile/
+    75 │       │   │   ├── component.tsx
+    76 │       │   │   └── hook.tsx
+    77 │       │   └── shared/
+    78 │       │       └── types.ts
+    79 │       └── general/                         # Truly universal components
+    80 │           ├── notifications/               # Notification infrastructure
+    81 │           └── shared/
+    82 │               ├── types.ts                # Global types
+    83 │               └── constants.ts            # Global constants
+    84 │
+    85 ├── lib/                                       # Infrastructure layer (horizontal)
+    86 │   ├── services/                            # ALL database operations (consolidated)
+    87 │   │   ├── resourceRequestService.ts        # ALL resource request operations
+    88 │   │   ├── classSessionService.ts           # ALL class session operations
+    89 │   │   ├── timetableService.ts              # ALL timetable operations
+    90 │   │   ├── userService.ts                   # ALL user operations
+    91 │   │   ├── notificationService.ts           # ALL notification operations
+    92 │   │   └── authService.ts                   # ALL auth operations
+    93 │   ├── database/                            # Database utilities
+    94 │   │   └── supabaseClient.ts                # Client configuration
+    95 │   ├── hooks/                               # Cross-cutting React hooks
+    96 │   │   └── useRealtime.ts                   # Global realtime hook (replaces contexts)
+    97 │   └── utils/                               # Shared utilities
+    98 │       ├── validation.ts                    # Validation utilities
+    99 │       ├── formatting.ts                    # Formatting utilities
+   100 │       └── errorHandling.ts                 # Error handling utilities
+   101 │
+   102 ├── components/                              # Reusable UI components (horizontal)
+   103 │   ├── ui/                                 # UI primitives
+   104 │   │   ├── Button.tsx                       # Reusable button
+   105 │   │   ├── Dialog.tsx                       # Reusable dialog
+   106 │   │   ├── Input.tsx                        # Reusable input
+   107 │   │   └── ...                             # Other primitives
+   108 │   └── common/                             # Higher-level reusable components
+   109 │       ├── Sidebar.tsx                      # Navigation sidebar
+   110 │       ├── Header.tsx                       # Page header
+   111 │       └── Layout.tsx                       # Page layout
+   112 │
+   113 ├── contexts/                                # Global React state (minimal use)
+   114 │   └── GlobalStateProvider.tsx              # Only truly global state
+   115 │
+   116 ├── routes/                                  # Route configuration (horizontal)
+   117 │   ├── AppRoutes.tsx                        # Main route configuration
+   118 │   ├── PrivateRoute.tsx                     # Route protection
+   119 │   └── RouteGuards.tsx                      # Role-based route access
+   120 │
+   121 ├── types/                                   # Global type definitions
+   122 │   ├── global.ts                            # Global types
+   123 │   └── supabase.types.ts                    # Database types (auto-generated)
+   124 │
+   125 ├── constants/                               # Global constants
+   126 │   ├── roles.ts                             # User roles
+   127 │   ├── permissions.ts                       # Permission definitions
+   128 │   └── routes.ts                           # Route definitions
+   129 │
+   130 ├── config/                                  # Configuration files
+   131 │   ├── appConfig.ts                         # Application configuration
+   132 │   └── apiConfig.ts                         # API configuration
+   133 │
+   134 ├── tests/                                   # Test utilities and shared test logic
+   135 │   ├── setup/                              # Test setup
+   136 │   ├── fixtures/                           # Test data
+   137 │   └── utils/                              # Test utilities
+   138 │
+   139 ├── hooks/                                   # Custom hooks (horizontal)
+   140 │   └── index.ts                            # Export all custom hooks
+   141 │
+   142 └── App.tsx                                  # Main application component
+
 ## Completed Phases
 
 ### ✅ Phase 1: Initial Planning
