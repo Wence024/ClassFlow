@@ -1,7 +1,7 @@
 import { Route, Navigate } from 'react-router-dom';
-import ClassSessions from '@/features/classSessions/pages/ClassSessionsPage';
+import { ManageClassSessionsPage } from '@/features/program-head/manage-class-sessions';
+import { ManageComponentsPage } from '@/features/program-head/manage-components';
 import TimetablePage from '@/features/timetabling/pages/TimetablePage';
-import ComponentManagement from '@/features/classSessionComponents/pages';
 
 /**
  * Routes for program head features.
@@ -10,8 +10,8 @@ import ComponentManagement from '@/features/classSessionComponents/pages';
 export const ProgramHeadRoutes = (
   <>
     <Route path="/" element={<Navigate to="/class-sessions" replace />} />
-    <Route path="/class-sessions" element={<ClassSessions />} />
+    <Route path="/class-sessions" element={<ManageClassSessionsPage />} />
     <Route path="/scheduler" element={<TimetablePage />} />
-    <Route path="/component-management" element={<ComponentManagement />} />
+    <Route path="/component-management" element={<ManageComponentsPage />} />
   </>
 );
