@@ -1,6 +1,6 @@
 /**
  * Centralized service for all program database operations.
- * Consolidates operations from features/programs/services/programsService.ts
+ * Consolidates operations from features/programs/services/programsService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -19,6 +19,8 @@ export async function listPrograms(): Promise<Program[]> {
 
 /**
  * Creates a new program (admin only via RLS).
+ *
+ * @param payload
  */
 export async function createProgram(payload: ProgramInsert): Promise<Program> {
   const { data, error } = await supabase.from(TABLE).insert([payload]).select().single();
@@ -28,6 +30,9 @@ export async function createProgram(payload: ProgramInsert): Promise<Program> {
 
 /**
  * Updates a program (admin only via RLS).
+ *
+ * @param id
+ * @param update
  */
 export async function updateProgram(id: string, update: ProgramUpdate): Promise<Program> {
   const { data, error } = await supabase.from(TABLE).update(update).eq('id', id).select().single();
@@ -37,6 +42,8 @@ export async function updateProgram(id: string, update: ProgramUpdate): Promise<
 
 /**
  * Deletes a program (admin only via RLS).
+ *
+ * @param id
  */
 export async function deleteProgram(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);

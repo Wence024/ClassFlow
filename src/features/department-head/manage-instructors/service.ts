@@ -13,6 +13,10 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/ins
 
 /**
  * Fetches instructors based on role and department.
+ *
+ * @param params
+ * @param params.role
+ * @param params.departmentId
  */
 export async function fetchInstructors(params: {
   role: string;
@@ -26,6 +30,8 @@ export async function fetchInstructors(params: {
 
 /**
  * Creates a new instructor.
+ *
+ * @param data
  */
 export async function createInstructor(data: InstructorInsert): Promise<Instructor> {
   return addInstructorService(data);
@@ -33,6 +39,9 @@ export async function createInstructor(data: InstructorInsert): Promise<Instruct
 
 /**
  * Updates an existing instructor.
+ *
+ * @param id
+ * @param data
  */
 export async function modifyInstructor(
   id: string,
@@ -43,6 +52,8 @@ export async function modifyInstructor(
 
 /**
  * Deletes an instructor.
+ *
+ * @param id
  */
 export async function deleteInstructor(id: string): Promise<void> {
   return removeInstructorService(id);

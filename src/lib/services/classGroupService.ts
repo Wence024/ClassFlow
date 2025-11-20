@@ -1,6 +1,6 @@
 /**
  * Centralized service for all class group database operations.
- * Consolidates operations from features/classSessionComponents/services/classGroupsService.ts
+ * Consolidates operations from features/classSessionComponents/services/classGroupsService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -10,6 +10,8 @@ const TABLE = 'class_groups';
 
 /**
  * Fetches all class groups for a specific program.
+ *
+ * @param program_id
  */
 export async function getClassGroupsByProgram(program_id: string): Promise<ClassGroup[]> {
   const { data, error } = await supabase
@@ -32,6 +34,8 @@ export async function getAllClassGroups(): Promise<ClassGroup[]> {
 
 /**
  * Adds a new class group to the database.
+ *
+ * @param group
  */
 export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup> {
   const { data, error } = await supabase.from(TABLE).insert([group]).select().single();
@@ -41,6 +45,9 @@ export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup
 
 /**
  * Updates an existing class group in the database.
+ *
+ * @param id
+ * @param group
  */
 export async function updateClassGroup(id: string, group: ClassGroupUpdate): Promise<ClassGroup> {
   const { data, error } = await supabase.from(TABLE).update(group).eq('id', id).select().single();
@@ -50,6 +57,9 @@ export async function updateClassGroup(id: string, group: ClassGroupUpdate): Pro
 
 /**
  * Removes a class group from the database.
+ *
+ * @param id
+ * @param user_id
  */
 export async function removeClassGroup(id: string, user_id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);

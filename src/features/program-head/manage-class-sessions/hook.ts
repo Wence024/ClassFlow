@@ -79,6 +79,9 @@ export function useManageClassSessions() {
 
   /**
    * Checks if selected resources require cross-department approval.
+   *
+   * @param instructorId
+   * @param classroomId
    */
   const checkCrossDepartment = async (
     instructorId: string,

@@ -25,6 +25,8 @@ import { getRandomPresetColor } from '@/lib/colorUtils';
 /**
  * Component for managing instructors with full CRUD operations.
  * Supports both admin (cross-department) and department head (scoped) views.
+ *
+ * @returns The ManageInstructorsView component.
  */
 export const ManageInstructorsView: React.FC = () => {
   const {
@@ -90,6 +92,9 @@ export const ManageInstructorsView: React.FC = () => {
 
   /**
    * Handles adding a new instructor.
+   *
+   * @param data The instructor data to be added.
+   * @returns A promise that resolves when the instructor is added.
    */
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
@@ -121,6 +126,9 @@ export const ManageInstructorsView: React.FC = () => {
 
   /**
    * Handles updating an existing instructor.
+   *
+   * @param data The updated instructor data.
+   * @returns A promise that resolves when the instructor is updated.
    */
   const handleSave = async (data: InstructorFormData) => {
     if (!editingInstructor) return;
@@ -132,6 +140,8 @@ export const ManageInstructorsView: React.FC = () => {
 
   /**
    * Cancels editing mode.
+   *
+   * @returns
    */
   const handleCancel = () => {
     setEditingInstructor(null);
@@ -140,11 +150,16 @@ export const ManageInstructorsView: React.FC = () => {
 
   /**
    * Initiates edit mode for an instructor.
+   *
+   * @param instructor The instructor to edit.
+   * @returns
    */
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
 
   /**
    * Initiates delete confirmation for an instructor.
+   *
+   * @param id
    */
   const handleDeleteRequest = (id: string) =>
     setInstructorToDelete(instructors.find((i) => i.id === id) || null);

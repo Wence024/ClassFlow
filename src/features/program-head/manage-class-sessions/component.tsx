@@ -29,6 +29,11 @@ type FormData = z.infer<typeof classSessionSchema>;
 
 /**
  * Gets resource name for cross-department requests.
+ *
+ * @param resourceType
+ * @param resourceId
+ * @param instructors
+ * @param classrooms
  */
 const getResourceName = (
   resourceType: 'instructor' | 'classroom',

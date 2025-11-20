@@ -15,6 +15,8 @@ import {
 
 /**
  * Hook for managing instructors with CRUD operations.
+ *
+ * @returns Object containing instructors data, loading states, error information, and CRUD operations for managing instructors.
  */
 export function useManageInstructors() {
   const { user, isAdmin } = useAuth();
@@ -104,8 +106,12 @@ export function useManageInstructors() {
 
   /**
    * Validates if an instructor can be deleted.
+   *
+   * @param instructorId The ID of the instructor to validate for deletion.
+   * @param classSessions The array of class sessions to check for instructor assignments.
+   * @returns A boolean indicating if the instructor can be safely deleted.
    */
-  const canDeleteInstructor = (instructorId: string, classSessions: any[]): boolean => {
+  const canDeleteInstructor = (instructorId: string, classSessions: { instructor?: { id: string } }[]): boolean => {
     return !classSessions.some((session) => session.instructor?.id === instructorId);
   };
 

@@ -1,6 +1,6 @@
 /**
  * Centralized service for all notification database operations.
- * Consolidates operations from features/resourceRequests/services/notificationsService.ts
+ * Consolidates operations from features/resourceRequests/services/notificationsService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -32,6 +32,8 @@ export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
 
 /**
  * Marks a notification as read.
+ *
+ * @param id
  */
 export async function markRead(id: string): Promise<void> {
   const { error } = await supabase
@@ -43,6 +45,8 @@ export async function markRead(id: string): Promise<void> {
 
 /**
  * Deletes a notification.
+ *
+ * @param id
  */
 export async function deleteNotification(id: string): Promise<void> {
   const { error } = await supabase.from('request_notifications').delete().eq('id', id);

@@ -9,6 +9,8 @@ import type { ClassSession, ClassSessionInsert, ClassSessionUpdate, CrossDepartm
 
 /**
  * Fetches all class sessions for a user.
+ *
+ * @param userId
  */
 export async function fetchSessions(userId: string): Promise<ClassSession[]> {
   return classSessionService.getClassSessions(userId);
@@ -16,6 +18,8 @@ export async function fetchSessions(userId: string): Promise<ClassSession[]> {
 
 /**
  * Creates a new class session.
+ *
+ * @param data
  */
 export async function createSession(data: ClassSessionInsert): Promise<ClassSession> {
   return classSessionService.addClassSession(data);
@@ -23,6 +27,9 @@ export async function createSession(data: ClassSessionInsert): Promise<ClassSess
 
 /**
  * Updates an existing class session.
+ *
+ * @param sessionId
+ * @param data
  */
 export async function updateSession(
   sessionId: string,
@@ -33,6 +40,9 @@ export async function updateSession(
 
 /**
  * Deletes a class session.
+ *
+ * @param sessionId
+ * @param userId
  */
 export async function deleteSession(sessionId: string, userId: string): Promise<void> {
   return classSessionService.removeClassSession(sessionId, userId);
@@ -40,6 +50,9 @@ export async function deleteSession(sessionId: string, userId: string): Promise<
 
 /**
  * Checks if resources belong to a different department (cross-department).
+ *
+ * @param instructorId
+ * @param classroomId
  */
 export async function checkCrossDepartmentResources(
   instructorId: string,

@@ -16,9 +16,12 @@ interface ScheduleClassSessionViewProps {
 
 /**
  * Timetable scheduling view demonstrating vertical slice architecture.
- * 
+ *
  * NOTE: This is a pilot implementation. The full timetable UI with grid,
  * drag-and-drop, and all interactions would be built here.
+ *
+ * @param root0
+ * @param root0.viewMode
  */
 export function ScheduleClassSessionView({ 
   viewMode = 'class-group' 

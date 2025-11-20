@@ -1,6 +1,6 @@
 /**
  * Centralized service for all authentication operations.
- * Consolidates operations from features/auth/services/authService.ts
+ * Consolidates operations from features/auth/services/authService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -13,6 +13,10 @@ export type AuthResponse = {
 
 /**
  * Logs in a user using their email and password.
+ *
+ * @param email The user's email address.
+ * @param password The user's password.
+ * @returns A promise that resolves to the authentication response containing user data and token.
  */
 export async function login(email: string, password: string): Promise<AuthResponse> {
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -77,6 +81,8 @@ export async function login(email: string, password: string): Promise<AuthRespon
 
 /**
  * Retrieves the currently authenticated user's session.
+ *
+ * @returns A promise that resolves to the user object or null if no user is authenticated.
  */
 export async function getStoredUser(): Promise<User | null> {
   const {
@@ -125,6 +131,8 @@ export async function getStoredUser(): Promise<User | null> {
 
 /**
  * Signs out the currently authenticated user.
+ *
+ * @returns A promise that resolves when the user is successfully signed out.
  */
 export async function logout(): Promise<void> {
   const { error } = await supabase.auth.signOut();
@@ -135,6 +143,10 @@ export async function logout(): Promise<void> {
 
 /**
  * Updates the authenticated user's profile metadata.
+ *
+ * @param update The update object containing profile fields to update.
+ * @param update.name The user's updated name.
+ * @returns A promise that resolves when the profile is successfully updated.
  */
 export async function updateMyProfileRow(update: { name?: string }): Promise<void> {
   const { error } = await supabase.auth.updateUser({ data: { name: update.name } });

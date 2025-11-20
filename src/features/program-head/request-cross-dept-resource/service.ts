@@ -14,6 +14,11 @@ import type { CrossDeptCheckResult } from './types';
 /**
  * Checks if a given instructor or classroom belongs to a different department
  * than the program's department.
+ *
+ * @param programId The ID of the program to check against.
+ * @param instructorId Optional ID of the instructor to check.
+ * @param classroomId Optional ID of the classroom to check.
+ * @returns A promise that resolves to a CrossDeptCheckResult object.
  */
 export async function checkCrossDepartmentResource(
   programId: string,
@@ -90,6 +95,9 @@ export async function checkCrossDepartmentResource(
 
 /**
  * Creates a cross-department resource request.
+ *
+ * @param payload The request data to create.
+ * @returns A promise that resolves to the created request.
  */
 export async function createCrossDeptRequest(
   payload: ResourceRequestInsert
@@ -99,6 +107,8 @@ export async function createCrossDeptRequest(
 
 /**
  * Fetches all my resource requests.
+ *
+ * @returns A promise that resolves to the user's resource requests.
  */
 export async function getMyResourceRequests() {
   return getMyRequests();

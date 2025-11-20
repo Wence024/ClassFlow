@@ -6,7 +6,7 @@
  * MIGRATION NOTICE:
  * - This client is hardcoded to development Supabase (wkfgcroybuuefaulqsru)
  * - It does not respect environment variables
- * - It will be overwritten by future Lovable integration updates
+ * - It will be overwritten by future Lovable integration updates.
  * 
  * USE INSTEAD:
  * import { supabase } from '@/lib/supabase';

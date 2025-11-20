@@ -1,6 +1,6 @@
 /**
  * Centralized service for all resource request database operations.
- * Consolidates operations from features/resourceRequests/services/
+ * Consolidates operations from features/resourceRequests/services/.
  */
 
 import { supabase } from '../supabase';
@@ -39,6 +39,8 @@ export async function getMyRequests(): Promise<ResourceRequest[]> {
 
 /**
  * Fetches all resource requests targeted at a specific department.
+ *
+ * @param departmentId
  */
 export async function getRequestsForDepartment(departmentId: string): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
@@ -53,6 +55,8 @@ export async function getRequestsForDepartment(departmentId: string): Promise<Re
 /**
  * Creates a new resource request and a corresponding notification.
  * Checks for existing pending/approved requests to prevent duplicates.
+ *
+ * @param payload
  */
 export async function createRequest(payload: ResourceRequestInsert): Promise<ResourceRequest> {
   // Check for existing pending/approved requests
@@ -84,6 +88,9 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
 /**
  * Approves a resource request and updates timetable assignments atomically.
  * Uses a database function to ensure atomic operation.
+ *
+ * @param id
+ * @param reviewerId
  */
 export async function approveRequest(id: string, reviewerId: string): Promise<ResourceRequest> {
   const { data, error } = await supabase.rpc(
@@ -117,6 +124,10 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
 /**
  * Rejects a resource request with a rejection message.
  * Uses a database function to handle the rejection workflow.
+ *
+ * @param id
+ * @param reviewerId
+ * @param rejectionMessage
  */
 export async function rejectRequest(
   id: string,
@@ -155,6 +166,9 @@ export async function rejectRequest(
 /**
  * Cancels a resource request (requester only).
  * Uses a database function to handle the cancellation workflow.
+ *
+ * @param id
+ * @param requesterId
  */
 export async function cancelRequest(id: string, requesterId: string): Promise<void> {
   const { data, error } = await supabase.rpc(
@@ -178,6 +192,9 @@ export async function cancelRequest(id: string, requesterId: string): Promise<vo
 
 /**
  * Updates a resource request (for dismissal).
+ *
+ * @param id
+ * @param update
  */
 export async function updateRequest(
   id: string,
@@ -190,6 +207,8 @@ export async function updateRequest(
 
 /**
  * Deletes a resource request (admin only, or cleanup).
+ *
+ * @param id
  */
 export async function deleteRequest(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
@@ -198,6 +217,8 @@ export async function deleteRequest(id: string): Promise<void> {
 
 /**
  * Gets all active (pending/approved) requests for a class session.
+ *
+ * @param sessionId
  */
 export async function getActiveRequestsForSession(sessionId: string): Promise<ResourceRequest[]> {
   const { data, error } = await supabase

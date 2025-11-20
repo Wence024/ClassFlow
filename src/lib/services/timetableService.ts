@@ -1,6 +1,6 @@
 /**
  * Centralized service for all timetable database operations.
- * Consolidates operations from features/timetabling/services/
+ * Consolidates operations from features/timetabling/services/.
  */
 
 import { supabase } from '../supabase';
@@ -12,6 +12,8 @@ import type {
 
 /**
  * Fetch all timetable assignments for a semester with full class session data.
+ *
+ * @param semester_id
  */
 export async function getTimetableAssignments(
   semester_id: string
@@ -45,6 +47,9 @@ export async function getTimetableAssignments(
 
 /**
  * Assign a class session to a group/period (insert or upsert).
+ *
+ * @param assignment
+ * @param status
  */
 export async function assignClassSessionToTimetable(
   assignment: TimetableAssignmentInsert,
@@ -64,6 +69,10 @@ export async function assignClassSessionToTimetable(
 
 /**
  * Remove a class session from a group/period.
+ *
+ * @param class_group_id
+ * @param period_index
+ * @param semester_id
  */
 export async function removeClassSessionFromTimetable(
   class_group_id: string,
@@ -81,6 +90,18 @@ export async function removeClassSessionFromTimetable(
 
 /**
  * Move a class session from one cell to another (upsert new, then delete old).
+ *
+ * @param from
+ * @param from.class_group_id
+ * @param from.period_index
+ * @param from.semester_id
+ * @param to
+ * @param to.class_group_id
+ * @param to.period_index
+ * @param to.semester_id
+ * @param class_session_id
+ * @param user_id
+ * @param status
  */
 export async function moveClassSession(
   from: { class_group_id: string; period_index: number; semester_id: string },
@@ -107,6 +128,13 @@ export async function moveClassSession(
 
 /**
  * Handle cross-department session move using database function.
+ *
+ * @param class_session_id
+ * @param old_period_index
+ * @param old_class_group_id
+ * @param new_period_index
+ * @param new_class_group_id
+ * @param semester_id
  */
 export async function handleCrossDeptSessionMove(
   class_session_id: string,
@@ -138,6 +166,9 @@ export async function handleCrossDeptSessionMove(
 
 /**
  * Delete a timetable assignment by class session ID.
+ *
+ * @param class_session_id
+ * @param semester_id
  */
 export async function deleteAssignmentBySession(
   class_session_id: string,
@@ -153,6 +184,10 @@ export async function deleteAssignmentBySession(
 
 /**
  * Update assignment status (pending/confirmed).
+ *
+ * @param class_session_id
+ * @param semester_id
+ * @param status
  */
 export async function updateAssignmentStatus(
   class_session_id: string,
@@ -169,6 +204,9 @@ export async function updateAssignmentStatus(
 
 /**
  * Get timetable assignments by class session ID.
+ *
+ * @param class_session_id
+ * @param semester_id
  */
 export async function getAssignmentsBySession(
   class_session_id: string,

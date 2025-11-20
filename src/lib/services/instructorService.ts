@@ -1,6 +1,6 @@
 /**
  * Centralized service for all instructor database operations.
- * Consolidates operations from features/classSessionComponents/services/instructorsService.ts
+ * Consolidates operations from features/classSessionComponents/services/instructorsService.ts.
  */
 
 import { supabase } from '../supabase';
@@ -10,6 +10,10 @@ const TABLE = 'instructors';
 
 /**
  * Fetches instructors for CRUD/management views (filtered by department for non-admins).
+ *
+ * @param params
+ * @param params.role
+ * @param params.department_id
  */
 export async function getInstructors(params?: {
   role?: string | null;
@@ -53,6 +57,8 @@ export async function getAllInstructors(): Promise<Instructor[]> {
 
 /**
  * Adds a new instructor to the database.
+ *
+ * @param instructor
  */
 export async function addInstructor(instructor: InstructorInsert): Promise<Instructor> {
   const {
@@ -73,6 +79,9 @@ export async function addInstructor(instructor: InstructorInsert): Promise<Instr
 
 /**
  * Updates an existing instructor in the database.
+ *
+ * @param id
+ * @param instructor
  */
 export async function updateInstructor(
   id: string,
@@ -90,6 +99,8 @@ export async function updateInstructor(
 
 /**
  * Removes an instructor from the database.
+ *
+ * @param id
  */
 export async function removeInstructor(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
@@ -98,6 +109,8 @@ export async function removeInstructor(id: string): Promise<void> {
 
 /**
  * Fetches instructors by department ID.
+ *
+ * @param departmentId
  */
 export async function getInstructorsByDepartment(departmentId: string): Promise<Instructor[]> {
   const { data, error } = await supabase
