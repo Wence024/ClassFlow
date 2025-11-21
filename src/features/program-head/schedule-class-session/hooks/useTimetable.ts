@@ -27,9 +27,9 @@ const getTargetRowIdForCheck = (
 ) => {
   switch (viewMode) {
     case 'classroom':
-      return classSession.classroom.id;
+      return classSession.classroom?.id || toClassGroupId;
     case 'instructor':
-      return classSession.instructor.id;
+      return classSession.instructor?.id || toClassGroupId;
     case 'class-group':
     default:
       return toClassGroupId;
@@ -344,8 +344,8 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       const userProgram = programs.find((p) => p.id === user.program_id);
       if (!userProgram?.department_id) return false;
 
-      const instructorDeptId = classSession.instructor.department_id;
-      const classroomDeptId = classSession.classroom.preferred_department_id;
+      const instructorDeptId = classSession.instructor?.department_id;
+      const classroomDeptId = classSession.classroom?.preferred_department_id;
 
       return (
         (instructorDeptId != null && instructorDeptId !== userProgram.department_id) ||
@@ -365,8 +365,8 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       const userProgram = programs.find((p) => p.id === user.program_id);
       if (!userProgram?.department_id) return;
 
-      const instructorDeptId = classSession.instructor.department_id;
-      const classroomDeptId = classSession.classroom.preferred_department_id;
+      const instructorDeptId = classSession.instructor?.department_id;
+      const classroomDeptId = classSession.classroom?.preferred_department_id;
 
       const crossDeptInstructor =
         instructorDeptId && instructorDeptId !== userProgram.department_id;
@@ -380,7 +380,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       );
 
       // Create request for cross-department instructor
-      if (crossDeptInstructor) {
+      if (crossDeptInstructor && classSession.instructor) {
         await createRequest({
           resource_type: 'instructor',
           resource_id: classSession.instructor.id,
@@ -393,7 +393,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
       }
 
       // Create request for cross-department classroom
-      if (crossDeptClassroom) {
+      if (crossDeptClassroom && classSession.classroom) {
         await createRequest({
           resource_type: 'classroom',
           resource_id: classSession.classroom.id,

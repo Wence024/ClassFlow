@@ -26,6 +26,44 @@ const parseDragData = (e: React.DragEvent): DragSource | null => {
   }
 };
 
+/**
+ * Gets information about resource changes during drag operations.
+ * Returns null if no resource change is occurring.
+ *
+ * @param viewMode - Current view mode
+ * @param session - Session being dragged
+ * @param targetId - Target row ID (resource ID)
+ */
+const getResourceChangeInfo = (
+  viewMode: TimetableViewMode,
+  session: ClassSession,
+  targetId: string
+): { isChanging: boolean; fromId: string; toId: string; resourceType: 'instructor' | 'classroom' } | null => {
+  switch (viewMode) {
+    case 'classroom':
+      if (session.classroom && session.classroom.id !== targetId) {
+        return {
+          isChanging: true,
+          fromId: session.classroom.id,
+          toId: targetId,
+          resourceType: 'classroom'
+        };
+      }
+      break;
+    case 'instructor':
+      if (session.instructor && session.instructor.id !== targetId) {
+        return {
+          isChanging: true,
+          fromId: session.instructor.id,
+          toId: targetId,
+          resourceType: 'instructor'
+        };
+      }
+      break;
+  }
+  return null;
+};
+
 const getResourceMismatchError = (
   viewMode: TimetableViewMode,
   session: ClassSession,
@@ -34,18 +72,9 @@ const getResourceMismatchError = (
 ): string => {
   if (source.from !== 'timetable') return '';
 
+  // Only block class-group view resource mismatches
+  // Instructor and classroom views now allow resource reassignment
   switch (viewMode) {
-    case 'classroom':
-      if (session.classroom.id !== targetId) {
-        return `Cannot move this session to a different classroom. This session is assigned to "${session.classroom.name}". To reassign the classroom, please go to Manage Classes page.`;
-      }
-      break;
-    case 'instructor':
-      if (session.instructor.id !== targetId) {
-        const instructorName = `${session.instructor.first_name} ${session.instructor.last_name}`;
-        return `Cannot move this session to a different instructor. This session is assigned to "${instructorName}". To reassign the instructor, please go to Manage Classes page.`;
-      }
-      break;
     case 'class-group':
       if (source.class_group_id !== targetId) {
         return `Cannot move this session to a different class group. This session belongs to "${session.group.name}".`;
@@ -92,14 +121,30 @@ const validateDrop = (
   return [source, classSessionToDrop];
 };
 
-const needsReapproval = (
+/**
+ * Determines what type of confirmation is needed for a drop operation.
+ *
+ * @param source
+ * @param classSessionToDrop
+ * @param assignments
+ * @param userDepartmentId
+ * @param resourceChangeInfo
+ */
+const needsConfirmation = (
   source: DragSource,
   classSessionToDrop: ClassSession,
   assignments: HydratedTimetableAssignment[] | undefined,
-  userDepartmentId: string | null
-): boolean => {
+  userDepartmentId: string | null,
+  resourceChangeInfo: ReturnType<typeof getResourceChangeInfo>
+): { type: 'cross-department' | 'resource-reassignment' | null; metadata?: any } => {
+  // Check for resource reassignment
+  if (resourceChangeInfo && resourceChangeInfo.isChanging) {
+    return { type: 'resource-reassignment', metadata: resourceChangeInfo };
+  }
+
+  // Check for cross-department reapproval
   if (source.from !== 'timetable') {
-    return false;
+    return { type: null };
   }
 
   const currentAssignment = assignments?.find(
@@ -111,13 +156,17 @@ const needsReapproval = (
 
   const isCurrentlyConfirmed = currentAssignment?.status === 'confirmed';
   const hasCrossDeptResource = Boolean(
-    (classSessionToDrop.instructor.department_id &&
+    (classSessionToDrop.instructor?.department_id &&
       classSessionToDrop.instructor.department_id !== userDepartmentId) ||
-      (classSessionToDrop.classroom.preferred_department_id &&
+      (classSessionToDrop.classroom?.preferred_department_id &&
         classSessionToDrop.classroom.preferred_department_id !== userDepartmentId)
   );
 
-  return hasCrossDeptResource && isCurrentlyConfirmed;
+  if (hasCrossDeptResource && isCurrentlyConfirmed) {
+    return { type: 'cross-department' };
+  }
+
+  return { type: null };
 };
 
 /**
@@ -201,20 +250,20 @@ export const useTimetableDnd = (
     if (source.from === 'timetable') {
       switch (viewMode) {
         case 'class-group':
-          return source.class_group_id === targetGroupId;
+          return draggedSession.group.id === targetGroupId;
         case 'classroom':
-          return draggedSession.classroom.id === targetGroupId;
+          return draggedSession.classroom?.id === targetGroupId;
         case 'instructor':
-          return draggedSession.instructor.id === targetGroupId;
+          return draggedSession.instructor?.id === targetGroupId;
       }
     } else if (source.from === 'drawer') {
       switch (viewMode) {
         case 'class-group':
           return draggedSession.group.id === targetGroupId;
         case 'classroom':
-          return draggedSession.classroom.id === targetGroupId;
+          return draggedSession.classroom?.id === targetGroupId;
         case 'instructor':
-          return draggedSession.instructor.id === targetGroupId;
+          return draggedSession.instructor?.id === targetGroupId;
       }
     }
     return false;
@@ -261,7 +310,8 @@ export const useTimetableDnd = (
       source: DragSource,
       session: ClassSession,
       dbTargetGroupId: string,
-      targetPeriodIndex: number
+      targetPeriodIndex: number,
+      resourceChangeMetadata?: any
     ) => {
       if (source.from === 'drawer') {
         return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
@@ -273,6 +323,30 @@ export const useTimetableDnd = (
 
         if (isSameCell) return '';
 
+        // Use resource reassignment service if resource is changing
+        if (resourceChangeMetadata?.isChanging) {
+          const { moveSessionWithResourceChange } = await import('@/lib/services/timetableService');
+          const semesterId = timetable.get(Array.from(timetable.keys())[0])?.[0]?.[0]?.id || '';
+
+          await moveSessionWithResourceChange(
+            {
+              class_group_id: source.class_group_id,
+              period_index: source.period_index,
+              semester_id: semesterId,
+            },
+            {
+              class_group_id: dbTargetGroupId,
+              period_index: targetPeriodIndex,
+              semester_id: semesterId,
+            },
+            session.id,
+            user?.id || '',
+            resourceChangeMetadata.resourceType,
+            resourceChangeMetadata.toId
+          );
+          return '';
+        }
+
         return moveClassSession(
           { class_group_id: source.class_group_id, period_index: source.period_index },
           { class_group_id: dbTargetGroupId, period_index: targetPeriodIndex },
@@ -281,7 +355,7 @@ export const useTimetableDnd = (
       }
       return 'Invalid drag source';
     },
-    [assignClassSession, moveClassSession, viewMode]
+    [assignClassSession, moveClassSession, viewMode, timetable, user]
   );
 
   const handleDragStart = useCallback(
@@ -350,32 +424,43 @@ export const useTimetableDnd = (
     [user, pendingPlacementInfo]
   );
 
-  const handleReapproval = useCallback(
+  const handleConfirmation = useCallback(
     (
       source: DragSource,
       classSessionToDrop: ClassSession,
       dbTargetGroupId: string,
       targetPeriodIndex: number,
-      onConfirmMove: (callback: () => void) => void
+      onConfirmMove: (
+        callback: () => void,
+        confirmationType: 'cross-department' | 'resource-reassignment',
+        metadata?: any
+      ) => void,
+      confirmationType: 'cross-department' | 'resource-reassignment',
+      metadata?: any
     ) => {
-      onConfirmMove(async () => {
-        try {
-          const error = await executeDropMutation(
-            source,
-            classSessionToDrop,
-            dbTargetGroupId,
-            targetPeriodIndex
-          );
-          if (error) {
-            toast.error(error);
+      onConfirmMove(
+        async () => {
+          try {
+            const error = await executeDropMutation(
+              source,
+              classSessionToDrop,
+              dbTargetGroupId,
+              targetPeriodIndex,
+              metadata
+            );
+            if (error) {
+              toast.error(error);
+            }
+          } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : String(err);
+            toast.error(errorMsg);
+          } finally {
+            cleanupDragState();
           }
-        } catch (err) {
-          const errorMsg = err instanceof Error ? err.message : String(err);
-          toast.error(errorMsg);
-        } finally {
-          cleanupDragState();
-        }
-      });
+        },
+        confirmationType,
+        metadata
+      );
     },
     [executeDropMutation, cleanupDragState]
   );
@@ -385,7 +470,11 @@ export const useTimetableDnd = (
       e: React.DragEvent,
       targetClassGroupId: string,
       targetPeriodIndex: number,
-      onConfirmMove?: (callback: () => void) => void
+      onConfirmMove?: (
+        callback: () => void,
+        confirmationType: 'cross-department' | 'resource-reassignment',
+        metadata?: any
+      ) => void
     ) => {
       e.preventDefault();
       e.stopPropagation();
@@ -406,13 +495,27 @@ export const useTimetableDnd = (
       const dbTargetGroupId =
         viewMode === 'class-group' ? targetClassGroupId : classSessionToDrop.group.id;
 
-      if (onConfirmMove && needsReapproval(source, classSessionToDrop, assignments, userDepartmentId)) {
-        handleReapproval(
+      // Check for resource change info
+      const resourceChangeInfo = getResourceChangeInfo(viewMode, classSessionToDrop, targetClassGroupId);
+
+      // Check if confirmation is needed
+      const confirmationCheck = needsConfirmation(
+        source,
+        classSessionToDrop,
+        assignments,
+        userDepartmentId,
+        resourceChangeInfo
+      );
+
+      if (onConfirmMove && confirmationCheck.type) {
+        handleConfirmation(
           source,
           classSessionToDrop,
           dbTargetGroupId,
           targetPeriodIndex,
-          onConfirmMove
+          onConfirmMove,
+          confirmationCheck.type,
+          confirmationCheck.metadata
         );
         return;
       }
@@ -424,7 +527,8 @@ export const useTimetableDnd = (
           source,
           classSessionToDrop,
           dbTargetGroupId,
-          targetPeriodIndex
+          targetPeriodIndex,
+          resourceChangeInfo || undefined
         );
         if (error) {
           toast.error(error);
@@ -448,7 +552,7 @@ export const useTimetableDnd = (
       pendingPlacementInfo,
       assignments,
       handlePendingPlacement,
-      handleReapproval,
+      handleConfirmation,
     ]
   );
 
@@ -462,9 +566,9 @@ export const useTimetableDnd = (
 
         if (session && onConfirm) {
           const hasCrossDeptResource =
-            (session.instructor.department_id &&
+            (session.instructor?.department_id &&
               session.instructor.department_id !== userDepartmentId) ||
-            (session.classroom.preferred_department_id &&
+            (session.classroom?.preferred_department_id &&
               session.classroom.preferred_department_id !== userDepartmentId);
 
           if (hasCrossDeptResource) {

@@ -43,9 +43,11 @@ export function checkSoftConflicts(session: ClassSession): string[] {
   const conflicts: string[] = [];
 
   // 1. Check for capacity conflicts between the group and classroom.
-  const capacityError = checkCapacityConflict(session.group, session.classroom);
-  if (capacityError) {
-    conflicts.push(capacityError);
+  if (session.classroom) {
+    const capacityError = checkCapacityConflict(session.group, session.classroom);
+    if (capacityError) {
+      conflicts.push(capacityError);
+    }
   }
 
   // Future soft conflicts (e.g., instructor preferences, resource requirements) can be added here.
@@ -171,13 +173,13 @@ function checkViewSpecificResourceMismatch(
       return checkGroupMismatch(sessionToCheck, targetResourceId);
 
     case 'classroom':
-      if (sessionToCheck.classroom.id !== targetResourceId) {
+      if (sessionToCheck.classroom && sessionToCheck.classroom.id !== targetResourceId) {
         return `Classroom mismatch: Cannot move session using classroom '${sessionToCheck.classroom.name}' to a row for classroom '${targetResourceId}'. Sessions can only be moved within their own classroom row.`;
       }
       return null;
 
     case 'instructor':
-      if (sessionToCheck.instructor.id !== targetResourceId) {
+      if (sessionToCheck.instructor && sessionToCheck.instructor.id !== targetResourceId) {
         const instructorName = `${sessionToCheck.instructor.first_name} ${sessionToCheck.instructor.last_name}`;
         return `Instructor mismatch: Cannot move session taught by '${instructorName}' to a row for instructor '${targetResourceId}'. Sessions can only be moved within their own instructor row.`;
       }
@@ -208,8 +210,8 @@ function findConflictInSlot(
 
     const isMergeable =
       sessionInSlot.course.code === sessionToCheck.course.code &&
-      sessionInSlot.instructor.id === sessionToCheck.instructor.id &&
-      sessionInSlot.classroom.id === sessionToCheck.classroom.id;
+      sessionInSlot.instructor?.id === sessionToCheck.instructor?.id &&
+      sessionInSlot.classroom?.id === sessionToCheck.classroom?.id;
 
     if (!isMergeable) {
       return `${resourceType} conflict: Period ${periodIndex + 1} is already occupied by class '${sessionInSlot.course.code}' for group '${sessionInSlot.group.name}'.`;
@@ -344,6 +346,8 @@ function processInstructorConflict(
   }
 
   // If the courses are different, it's a true conflict.
+  if (!conflictingSession.instructor) return null; // Skip if instructor is null
+  
   const name = `${conflictingSession.instructor.first_name} ${conflictingSession.instructor.last_name}`;
   const program = programs.find((p) => p.id === conflictingSession.group.program_id);
 
@@ -382,7 +386,8 @@ function findInstructorConflictInPeriod(
   );
 
   for (const conflictingSession of conflictingSessions) {
-    if (conflictingSession.instructor.id === sessionToCheck.instructor.id) {
+    if (conflictingSession.instructor?.id && sessionToCheck.instructor?.id && 
+        conflictingSession.instructor.id === sessionToCheck.instructor.id) {
       const conflictMessage = processInstructorConflict(
         conflictingSession,
         sessionToCheck,
@@ -453,7 +458,8 @@ function findClassroomConflictInPeriod(
 
   for (const conflictingSession of conflicts) {
     // Check if the classroom is the same.
-    if (conflictingSession.classroom.id === sessionToCheck.classroom.id) {
+    if (conflictingSession.classroom?.id && sessionToCheck.classroom?.id && 
+        conflictingSession.classroom.id === sessionToCheck.classroom.id) {
       // If the course is also the same, it's a valid merge, so we skip it.
       if (conflictingSession.course.code === sessionToCheck.course.code) {
         continue;
@@ -488,8 +494,8 @@ function findGroupConflictInCell(
     if (existingSession.group.id === targetGroupId) {
       const isMergeable =
         existingSession.course.code === sessionToCheck.course.code &&
-        existingSession.instructor.id === sessionToCheck.instructor.id &&
-        existingSession.classroom.id === sessionToCheck.classroom.id;
+        existingSession.instructor?.id === sessionToCheck.instructor?.id &&
+        existingSession.classroom?.id === sessionToCheck.classroom?.id;
 
       if (!isMergeable) {
         return `Group conflict: ${sessionToCheck.group.name} is already scheduled for '${existingSession.course.code}' at period ${periodIndex + 1}.`;

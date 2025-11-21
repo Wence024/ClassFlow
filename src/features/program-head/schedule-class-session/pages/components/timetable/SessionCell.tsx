@@ -270,7 +270,14 @@ const VisibleSessionBlock: React.FC<VisibleBlockProps> = ({
   );
 };
 
-const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell }) => {
+interface DropZoneProps {
+  groupId: string;
+  periodIndex: number;
+  sessionsInCell: ClassSession[];
+  viewMode: 'class-group' | 'classroom' | 'instructor';
+}
+
+const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell, viewMode }) => {
   const {
     dragOverCell,
     activeDraggedSession,
@@ -286,6 +293,18 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
 
   const isDragOver = dragOverCell?.groupId === groupId && dragOverCell?.periodIndex === periodIndex;
   const isSlotValidForDrop = isDragging && !isSelf && isSlotAvailable(groupId, periodIndex);
+
+  // Check if this row is the pre-assigned resource
+  const isPreassignedResource = useMemo(() => {
+    if (!activeDraggedSession) return false;
+
+    if (viewMode === 'instructor') {
+      return activeDraggedSession.instructor?.id === groupId;
+    } else if (viewMode === 'classroom') {
+      return activeDraggedSession.classroom?.id === groupId;
+    }
+    return false;
+  }, [activeDraggedSession, groupId, viewMode]);
 
   return (
     <div
@@ -304,7 +323,11 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
       )}
       {isDragging && !isSelf && isSlotValidForDrop && !isDragOver && (
         <div className="w-full h-full flex items-center justify-center pointer-events-none">
-          <div className="w-2 h-2 bg-green-500 rounded-full opacity-60" />
+          <div
+            className={`w-2 h-2 bg-green-500 rounded-full ${
+              isPreassignedResource ? 'opacity-80' : 'opacity-40'
+            }`}
+          />
         </div>
       )}
     </div>
@@ -487,6 +510,7 @@ const SessionCell: React.FC<SessionCellProps> = ({
                 groupId={groupId}
                 periodIndex={periodIndex + i}
                 sessionsInCell={sessions}
+                viewMode={viewMode}
               />
             ))}
           </div>

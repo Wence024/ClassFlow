@@ -203,6 +203,43 @@ export async function updateAssignmentStatus(
 }
 
 /**
+ * Move session with resource reassignment.
+ * Used when dragging to different instructor/classroom row.
+ *
+ * @param from
+ * @param from.class_group_id
+ * @param from.period_index
+ * @param from.semester_id
+ * @param to
+ * @param to.class_group_id
+ * @param to.period_index
+ * @param to.semester_id
+ * @param class_session_id
+ * @param user_id
+ * @param resourceType
+ * @param newResourceId
+ * @param status
+ */
+export async function moveSessionWithResourceChange(
+  from: { class_group_id: string; period_index: number; semester_id: string },
+  to: { class_group_id: string; period_index: number; semester_id: string },
+  class_session_id: string,
+  user_id: string,
+  resourceType: 'instructor' | 'classroom',
+  newResourceId: string,
+  status: 'pending' | 'confirmed' = 'confirmed'
+): Promise<void> {
+  // Import to avoid circular dependency
+  const { reassignSessionResource } = await import('./classSessionService');
+
+  // First, reassign the resource
+  await reassignSessionResource(class_session_id, resourceType, newResourceId);
+
+  // Then, move the session to new time slot
+  await moveClassSession(from, to, class_session_id, user_id, status);
+}
+
+/**
  * Get timetable assignments by class session ID.
  *
  * @param class_session_id

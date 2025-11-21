@@ -147,11 +147,11 @@ export async function createIncompleteClassSession(
 ): Promise<ClassSession> {
   const { data: newSession, error } = await supabase
     .from(TABLE)
-    .insert({
+    .insert([{
       ...data,
       instructor_id: null,
       classroom_id: null,
-    })
+    }])
     .select(SELECT_COLUMNS)
     .single();
 
@@ -171,12 +171,13 @@ export async function assignResourcesToSession(
   instructorId: string | null,
   classroomId: string | null
 ): Promise<ClassSession> {
+  const updateData: Record<string, string | null> = {};
+  if (instructorId !== undefined) updateData.instructor_id = instructorId ?? null;
+  if (classroomId !== undefined) updateData.classroom_id = classroomId ?? null;
+
   const { data, error } = await supabase
     .from(TABLE)
-    .update({
-      instructor_id: instructorId,
-      classroom_id: classroomId,
-    })
+    .update(updateData)
     .eq('id', sessionId)
     .select(SELECT_COLUMNS)
     .single();
@@ -343,4 +344,36 @@ export async function getResourceDepartmentId(
     return data?.preferred_department_id || null;
   }
   return null;
+}
+
+/**
+ * Reassign a specific resource (instructor or classroom) for a class session.
+ * Used for dynamic resource reassignment in timetable views.
+ *
+ * @param sessionId - The class session ID
+ * @param resourceType - 'instructor' | 'classroom'
+ * @param newResourceId - The new resource ID
+ */
+export async function reassignSessionResource(
+  sessionId: string,
+  resourceType: 'instructor' | 'classroom',
+  newResourceId: string
+): Promise<ClassSession> {
+  const updateData: { instructor_id?: string; classroom_id?: string } = {};
+
+  if (resourceType === 'instructor') {
+    updateData.instructor_id = newResourceId;
+  } else {
+    updateData.classroom_id = newResourceId;
+  }
+
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update(updateData)
+    .eq('id', sessionId)
+    .select(SELECT_COLUMNS)
+    .single();
+
+  if (error) throw error;
+  return mapToClassSession(data);
 }

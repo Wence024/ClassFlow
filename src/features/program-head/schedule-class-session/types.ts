@@ -70,3 +70,22 @@ export type TimetableDragState = {
   dragSource: DragSource | null;
   hoveredCell: { classGroupId: string; periodIndex: number } | null;
 };
+
+/**
+ * Types of confirmations needed for drag-and-drop operations.
+ */
+export type ConfirmationType = 
+  | 'cross-department' 
+  | 'resource-reassignment'
+  | 'remove-cross-department';
+
+/**
+ * Metadata for resource reassignment confirmations.
+ */
+export interface ResourceReassignmentMetadata {
+  resourceType: 'instructor' | 'classroom';
+  fromName: string;
+  toName: string;
+  fromId: string;
+  toId: string;
+}
