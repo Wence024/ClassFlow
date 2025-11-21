@@ -6,16 +6,16 @@ import userEvent from '@testing-library/user-event';
 import ClassroomManagement from '../ClassroomTab';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import * as useClassroomsUnifiedHook from '../../hooks/useClassroomsUnified';
-import * as useDepartmentsHook from '../../../departments/hooks/useDepartments';
+import * as useDepartmentsHook from '../../../admin/manage-departments/hooks/useDepartments';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../../shared/auth/types/auth';
 import type { Classroom } from '../../types/classroom';
-import type { Department } from '../../../departments/types/department';
+import type { Department } from '../../../admin/manage-departments/types/department';
 import { User } from '../../../shared/auth/types/auth';
 
 // Mocks
 vi.mock('../../hooks/useClassroomsUnified');
-vi.mock('../../../departments/hooks/useDepartments');
+vi.mock('../../../admin/manage-departments/hooks/useDepartments');
 
 const mockedUseClassroomsUnified = vi.mocked(useClassroomsUnifiedHook, true);
 const mockedUseDepartments = vi.mocked(useDepartmentsHook, true);

@@ -6,7 +6,7 @@ import CourseManagement from '../CourseTab';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '../../../shared/auth/types/auth';
 import * as courseHooks from '../../hooks/useCourses';
-import * as sessionHooks from '../../../classSessions/hooks/useClassSessions';
+import * as sessionHooks from '../../../program-head/manage-class-sessions/hooks/useClassSessions';
 
 // Mock the hooks to control their return values
 const mockCourses = [

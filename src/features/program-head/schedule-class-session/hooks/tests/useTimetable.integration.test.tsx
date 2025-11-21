@@ -2,8 +2,8 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTimetable } from '../useTimetable';
-import * as timetableService from '../../services/timetableService';
-import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
+import * as timetableService from '@/lib/services/timetableService';
+import * as classGroupsService from '@/lib/services/classGroupService';
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
@@ -16,8 +16,8 @@ import type { User } from '../../../shared/auth/types/auth';
 import type { Course, Instructor, Classroom } from '../../../classSessionComponents/types';
 
 // 1. MOCK THE SERVICE MODULES
-vi.mock('../../services/timetableService');
-vi.mock('../../../classSessionComponents/services/classGroupsService');
+vi.mock('@/lib/services/timetableService');
+vi.mock('@/lib/services/classGroupService');
 
 const queryClient = new QueryClient();
 

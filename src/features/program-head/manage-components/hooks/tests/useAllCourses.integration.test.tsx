@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAllCourses } from '../useAllCourses';
-import * as coursesService from '../../services/coursesService';
+import * as coursesService from '@/lib/services/courseService';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { User } from '../../../shared/auth/types/auth';
 import type { Course } from '../../types/course';
@@ -11,7 +11,7 @@ import type { UseQueryResult } from '@tanstack/react-query';
 import type { AuthContextType } from '../../../shared/auth/types/auth';
 
 // Mocks
-vi.mock('../../services/coursesService');
+vi.mock('@/lib/services/courseService');
 
 const mockedCoursesService = vi.mocked(coursesService, true);
 

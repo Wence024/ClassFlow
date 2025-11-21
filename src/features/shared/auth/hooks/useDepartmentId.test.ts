@@ -2,14 +2,14 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useDepartmentId } from './useDepartmentId';
 import * as useAuthModule from './useAuth';
-import * as useProgramsModule from '../../../programs/hooks/usePrograms';
+import * as useProgramsModule from '@/features/admin/manage-programs/hooks/usePrograms';
 import { User } from '../types/auth';
 import { Program } from '../../programs/types/program';
 import { AuthContextType } from '../types/auth';
-import { usePrograms } from '../../../programs/hooks/usePrograms';
+import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms';
 
 vi.mock('./useAuth');
-vi.mock('../../../programs/hooks/usePrograms');
+vi.mock('@/features/admin/manage-programs/hooks/usePrograms');
 
 const mockDeptHeadUser: User = {
   id: 'dept-head-id',

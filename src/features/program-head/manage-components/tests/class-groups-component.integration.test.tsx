@@ -6,7 +6,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import ClassGroupManagement from '../../../classSessionComponents/pages/ClassGroupTab';
+import ClassGroupManagement from '../pages/ClassGroupTab';
 import { AuthContext } from '@/features/shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '@/features/shared/auth/types/auth';
 

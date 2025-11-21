@@ -7,8 +7,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTimetable } from '../useTimetable';
-import { getTimetableAssignments } from '../../services/timetableService';
-import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
+import { getTimetableAssignments } from '@/lib/services/timetableService';
+import * as classGroupsService from '@/lib/services/classGroupService';
 import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
 import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
 import * as useAuthHook from '../../../shared/auth/hooks/useAuth';
@@ -17,7 +17,7 @@ import type { ScheduleConfig } from '../../../scheduleConfig/types/scheduleConfi
 import type { Semester } from '../../../scheduleConfig/types/semesters';
 import type { User } from '../../../shared/auth/types/auth';
 
-vi.mock('../../services/timetableService', () => ({
+vi.mock('@/lib/services/timetableService', () => ({
   getTimetableAssignments: vi.fn(),
 }));
 
