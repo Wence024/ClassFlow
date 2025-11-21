@@ -278,11 +278,10 @@ moveSessionWithResourceChange(
 - [x] Add pre-assigned resource highlighting (vibrant vs subtle)
 
 ### 🔄 Phase 5: Form Component Updates (NOT STARTED)
-- [ ] Add checkbox for "Assign resources now"
-- [ ] Conditionally show/hide resource selectors
-- [ ] Update form validation for optional resources
-- [ ] Add info message for deferred assignment
-- [ ] Handle form submission for incomplete sessions
+- [ ] Update form validation schema to make resources optional
+- [ ] Add info message explaining optional resource assignment
+- [ ] Handle form submission for incomplete sessions (null resources)
+- [ ] Update form UI to indicate fields are optional
 
 ### 🔄 Phase 6: Timetable Integration (PARTIAL)
 - [x] Update Drawer visual indicators (already present)
@@ -318,6 +317,213 @@ moveSessionWithResourceChange(
 - [x] Technical architecture details
 - [x] User guide for resource reassignment
 - [x] Implementation status tracking
+
+---
+
+## Additional Documentation
+
+### Comprehensive Guides
+
+- **[API Reference](../api/class-session-service.md)** - Complete API documentation for all service functions with examples
+- **[User Guide](../guides/incomplete-sessions-user-guide.md)** - Step-by-step tutorials for program heads
+- **[Migration Guide](../guides/incomplete-sessions-migration.md)** - Installation and upgrade instructions
+
+### Quick Links
+
+- **Type Definitions:** `src/types/classSession.ts`, `src/types/classSession.utils.ts`
+- **Validation Schema:** `src/types/validation/classSession.ts`
+- **Service Layer:** `src/lib/services/classSessionService.ts`, `src/lib/services/timetableService.ts`
+- **Database Migration:** `supabase/migrations/*_nullable_resources.sql`
+
+---
+
+## Performance & Security
+
+### Query Optimization
+
+The `idx_incomplete_sessions` partial index dramatically improves query performance:
+
+```sql
+-- Optimized query using the index
+SELECT * FROM class_sessions 
+WHERE program_id = :programId 
+  AND (instructor_id IS NULL OR classroom_id IS NULL);
+-- Uses index scan: ~10-100x faster than full table scan
+```
+
+**Best Practices:**
+- Use `getIncompleteSessionsForProgram()` to leverage the index
+- Batch resource assignments with `Promise.all()`
+- Cache incomplete session counts in React Query
+- Avoid filtering all sessions client-side
+
+### Security Considerations
+
+**RLS Policies:**
+- Nullable resources don't affect existing Row Level Security policies
+- Program heads can only manage sessions in their own program
+- Cross-department resource assignments still require department head approval
+- Incomplete sessions follow the same approval workflow as complete sessions
+
+**Data Validation:**
+- **Client-side:** Form validates optional resources (Zod schema)
+- **Database:** Check constraint ensures valid resource combinations
+- **Business logic:** View mode restrictions prevent invalid placements
+- **Type safety:** TypeScript enforces null checking throughout codebase
+
+**Audit Trail:**
+```sql
+-- Track when resources are assigned
+CREATE OR REPLACE FUNCTION log_resource_assignment()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF OLD.instructor_id IS NULL AND NEW.instructor_id IS NOT NULL THEN
+    INSERT INTO audit_log (table_name, record_id, action, details)
+    VALUES ('class_sessions', NEW.id, 'instructor_assigned', 
+            jsonb_build_object('instructor_id', NEW.instructor_id));
+  END IF;
+  
+  IF OLD.classroom_id IS NULL AND NEW.classroom_id IS NOT NULL THEN
+    INSERT INTO audit_log (table_name, record_id, action, details)
+    VALUES ('class_sessions', NEW.id, 'classroom_assigned', 
+            jsonb_build_object('classroom_id', NEW.classroom_id));
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER track_resource_assignment
+AFTER UPDATE ON class_sessions
+FOR EACH ROW
+EXECUTE FUNCTION log_resource_assignment();
+```
+
+---
+
+## Testing Strategy
+
+### Unit Tests
+
+**Type Guards** (`src/types/classSession.utils.test.ts`):
+```typescript
+describe('isIncompleteSession', () => {
+  it('returns true when both resources are null', () => {
+    const session: ClassSession = {
+      id: '1',
+      course: mockCourse,
+      group: mockGroup,
+      instructor: null,
+      classroom: null,
+      period_count: 1,
+      program_id: 'prog-1'
+    };
+    expect(isIncompleteSession(session)).toBe(true);
+  });
+
+  it('returns false when one resource is assigned', () => {
+    const session: ClassSession = {
+      ...mockSession,
+      instructor: mockInstructor,
+      classroom: null
+    };
+    expect(isIncompleteSession(session)).toBe(false);
+  });
+});
+
+describe('getMissingResources', () => {
+  it('returns both resources when both null', () => {
+    const session = { instructor: null, classroom: null, ... };
+    expect(getMissingResources(session)).toEqual(['instructor', 'classroom']);
+  });
+
+  it('returns empty array when complete', () => {
+    const session = { instructor: {...}, classroom: {...}, ... };
+    expect(getMissingResources(session)).toEqual([]);
+  });
+});
+```
+
+### Integration Tests
+
+**Service Layer** (`src/lib/services/classSessionService.test.ts`):
+```typescript
+describe('createIncompleteClassSession', () => {
+  it('creates session with null resources', async () => {
+    const data: ClassSessionInsert = {
+      course_id: 'course-1',
+      class_group_id: 'group-1',
+      instructor_id: null,
+      classroom_id: null,
+      period_count: 2,
+      user_id: 'user-1'
+    };
+
+    const session = await createIncompleteClassSession(data);
+
+    expect(session.instructor).toBeNull();
+    expect(session.classroom).toBeNull();
+    expect(session.course).toBeDefined();
+    expect(session.group).toBeDefined();
+  });
+});
+
+describe('assignResourcesToSession', () => {
+  it('assigns instructor and classroom to incomplete session', async () => {
+    // Create incomplete session
+    const incomplete = await createIncompleteClassSession({...});
+
+    // Assign resources
+    const complete = await assignResourcesToSession(
+      incomplete.id,
+      'instructor-1',
+      'classroom-1'
+    );
+
+    expect(complete.instructor).toBeDefined();
+    expect(complete.classroom).toBeDefined();
+  });
+});
+```
+
+### E2E Tests
+
+**Complete Workflow** (`e2e/incomplete-sessions.spec.ts`):
+```typescript
+test('create and place incomplete session', async ({ page }) => {
+  // 1. Create incomplete session
+  await page.goto('/manage-classes');
+  await page.click('[data-cy="create-session-btn"]');
+  await page.selectOption('[data-cy="course-select"]', 'Math 101');
+  await page.selectOption('[data-cy="group-select"]', 'Group A');
+  // Leave resources empty
+  await page.click('[data-cy="submit-btn"]');
+
+  await expect(page.locator('.toast-success')).toBeVisible();
+
+  // 2. Navigate to timetable
+  await page.goto('/scheduler');
+
+  // 3. Find incomplete session in drawer
+  const drawer = page.locator('[data-cy="drawer"]');
+  const incompleteSession = drawer.locator('[data-cy^="unassigned-session-"]').first();
+  await expect(incompleteSession).toHaveClass(/border-dashed/);
+
+  // 4. Drag to timetable
+  await incompleteSession.dragTo(page.locator('[data-cy="cell-0-0"]'));
+
+  // 5. Resource modal appears
+  await expect(page.locator('[data-cy="resource-modal"]')).toBeVisible();
+  await page.selectOption('[data-cy="instructor-select"]', 'Dr. Smith');
+  await page.selectOption('[data-cy="classroom-select"]', 'Room 101');
+  await page.click('[data-cy="confirm-btn"]');
+
+  // 6. Session appears in timetable
+  const cell = page.locator('[data-cy="cell-0-0"]');
+  await expect(cell).toContainText('Math 101');
+  await expect(cell).not.toHaveClass(/border-dashed/);
+});
+```
 
 ---
 
