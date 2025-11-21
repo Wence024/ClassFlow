@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useClassroomsUnified } from '../hooks/useClassroomsUnified';
 import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
-import { useDepartments } from '../../departments/hooks/useDepartments';
+import { useDepartments } from '../../admin/manage-departments/hooks/useDepartments';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
 import {
   Alert,

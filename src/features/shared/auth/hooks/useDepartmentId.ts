@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAuth } from './useAuth';
-import { usePrograms } from '@/features/programs/hooks/usePrograms';
+import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms';
 
 /**
  * Returns the user's department ID, deriving it from their program if needed.

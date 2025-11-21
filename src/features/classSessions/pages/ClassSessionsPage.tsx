@@ -29,8 +29,8 @@ import {
   useAllClassrooms,
   useAllInstructors,
 } from '../../classSessionComponents/hooks';
-import { usePrograms } from '../../programs/hooks/usePrograms';
-import { useDepartments } from '../../departments/hooks/useDepartments';
+import { usePrograms } from '../../admin/manage-programs/hooks/usePrograms';
+import { useDepartments } from '../../admin/manage-departments/hooks/useDepartments';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;

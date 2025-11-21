@@ -9,16 +9,16 @@ import {
   type TimetableRowResource,
 } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
-import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
+import { useScheduleConfig } from '../../admin/schedule-config/hooks/useScheduleConfig';
 import type { ClassSession } from '../../classSessions/types/classSession';
 import type { HydratedTimetableAssignment, TimetableViewMode } from '../types/timetable';
-import { useActiveSemester } from '../../scheduleConfig/hooks/useActiveSemester';
+import { useActiveSemester } from '../../admin/schedule-config/hooks/useActiveSemester';
 import * as classGroupsService from '@/lib/services/classGroupService';
 import * as classroomsService from '@/lib/services/classroomService';
 import * as instructorsService from '@/lib/services/instructorService';
 import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
-import { usePrograms } from '../../programs/hooks/usePrograms';
-import { Semester } from '../../scheduleConfig/types/semesters';
+import { usePrograms } from '../../admin/manage-programs/hooks/usePrograms';
+import { Semester } from '@/types/semester';
 
 const getTargetRowIdForCheck = (
   viewMode: TimetableViewMode,

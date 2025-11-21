@@ -9,7 +9,7 @@ import { useState, useCallback } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
-import { useActiveSemester } from '@/features/scheduleConfig/hooks/useActiveSemester';
+import { useActiveSemester } from '@/features/admin/schedule-config/hooks/useActiveSemester';
 import * as service from './service';
 import type {
   AssignSessionParams,

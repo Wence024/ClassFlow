@@ -20,8 +20,8 @@ import {
   useAllClassrooms,
   useAllInstructors,
 } from '@/features/classSessionComponents/hooks';
-import { usePrograms } from '@/features/programs/hooks/usePrograms';
-import { useDepartments } from '@/features/departments/hooks/useDepartments';
+import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms';
+import { useDepartments } from '@/features/admin/manage-departments/hooks/useDepartments';
 import type { ClassSession } from './types';
 import type { Instructor, Classroom } from '@/types';
 

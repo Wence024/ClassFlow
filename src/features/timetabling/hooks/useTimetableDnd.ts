@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTimetable } from './useTimetable';
-import { useScheduleConfig } from '../../scheduleConfig/hooks/useScheduleConfig';
+import { useScheduleConfig } from '../../admin/schedule-config/hooks/useScheduleConfig';
 import { toast } from 'sonner';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
 import type { ClassSession } from '../../classSessions/types/classSession';
-import { usePrograms } from '../../programs/hooks/usePrograms';
+import { usePrograms } from '../../admin/manage-programs/hooks/usePrograms';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import type { TimetableViewMode, HydratedTimetableAssignment } from '../types/timetable';
 import { User } from '../../shared/auth/types/auth';

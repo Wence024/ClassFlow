@@ -1,5 +1,5 @@
 import { ResourceSelectorModal, type PrioritizedItem } from '../../../../../../components/ui';
-import type { Program } from '../../../../../programs/types/program';
+import type { Program } from '@/types/program';
 
 interface ProgramSelectorProps {
   isOpen: boolean;

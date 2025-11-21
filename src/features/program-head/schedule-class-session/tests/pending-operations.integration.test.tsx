@@ -9,12 +9,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTimetable } from '@/features/timetabling/hooks/useTimetable';
 import { getTimetableAssignments } from '@/features/timetabling/services/timetableService';
 import * as classGroupsService from '../../../classSessionComponents/services/classGroupsService';
-import * as useScheduleConfigHook from '@/features/scheduleConfig/hooks/useScheduleConfig';
-import * as useActiveSemesterHook from '@/features/scheduleConfig/hooks/useActiveSemester';
+import * as useScheduleConfigHook from '@/features/admin/schedule-config/hooks/useScheduleConfig';
+import * as useActiveSemesterHook from '@/features/admin/schedule-config/hooks/useActiveSemester';
 import * as useAuthHook from '@/features/shared/auth/hooks/useAuth';
 import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
-import type { ScheduleConfig } from '@/features/scheduleConfig/types/scheduleConfig';
-import type { Semester } from '@/features/scheduleConfig/types/semesters';
+import type { ScheduleConfig } from '@/types/scheduleConfig';
+import type { Semester } from '@/types/semester';
 import type { User } from '@/features/shared/auth/types/auth';
 
 vi.mock('@/features/timetabling/services/timetableService', () => ({
