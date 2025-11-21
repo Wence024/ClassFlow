@@ -9,9 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useManageClassSessions } from './hook';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
-import { useFormPersistence } from '@/features/classSessions/hooks/useFormPersistence';
+import { useFormPersistence } from './hooks/useFormPersistence';
 import { classSessionSchema } from '@/types/validation/classSession';
-import { ClassSessionForm, ClassSessionCard } from '@/features/classSessions/pages/components/classSession';
+import { ClassSessionForm, ClassSessionCard } from './components/classSession';
 import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '@/components/ui';
 import { toast } from 'sonner';
 import {

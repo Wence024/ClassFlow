@@ -1,7 +1,7 @@
 import React, { useMemo, type JSX } from 'react';
 import { LoadingSpinner } from '../../../../../components/ui';
 import type { ClassGroup, Classroom, Instructor } from '../../../../classSessionComponents/types';
-import type { ClassSession } from '../../../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import { useScheduleConfig } from '../../../../admin/schedule-config/hooks/useScheduleConfig';
 import { generateTimetableHeaders } from '../../../utils/timeLogic';
 import { useAuth } from '../../../../shared/auth/hooks/useAuth';

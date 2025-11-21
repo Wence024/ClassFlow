@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ClassSession } from '../../../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import { useTimetableContext } from './useTimetableContext';
 import {
   DEFAULT_FALLBACK_COLOR,

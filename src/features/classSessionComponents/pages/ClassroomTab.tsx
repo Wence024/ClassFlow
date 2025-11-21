@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useClassroomsUnified } from '../hooks/useClassroomsUnified';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
 import { useDepartments } from '../../admin/manage-departments/hooks/useDepartments';
 import { ClassroomFields, ClassroomCard } from './components/classroom';
 import {

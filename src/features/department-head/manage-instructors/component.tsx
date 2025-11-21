@@ -7,7 +7,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useManageInstructors } from './hook';
-import { useClassSessions } from '@/features/classSessions/hooks/useClassSessions';
+import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
 import { InstructorCard } from '@/features/classSessionComponents/pages/components/instructor';
 import { AdminInstructorFields } from '@/features/classSessionComponents/pages/components/instructor/AdminInstructorFields';
 import {

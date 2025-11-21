@@ -4,7 +4,7 @@
  */
 
 import type { ClassGroup, Classroom, Instructor } from '../../classSessionComponents/types';
-import type { ClassSession } from '../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import type { HydratedTimetableAssignment, TimetableViewMode } from '../types/timetable';
 
 /**

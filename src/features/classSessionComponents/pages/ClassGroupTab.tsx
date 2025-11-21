@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useClassGroups } from '../hooks';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
 import { ClassGroupFields, ClassGroupCard } from './components/classGroup';
 import {
   Button,
