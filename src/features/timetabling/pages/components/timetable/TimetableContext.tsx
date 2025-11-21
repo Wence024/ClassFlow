@@ -1,6 +1,6 @@
 import React, { createContext } from 'react';
 import type { DragSource } from '../../../types/DragSource';
-import type { ClassSession } from '../../../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 
 /**
  * Defines the shape of the data and handlers shared across timetable components.

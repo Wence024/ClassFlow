@@ -1,7 +1,7 @@
 import React from 'react';
 import { ItemCard, type ItemCardBadge } from '../../../../../components/ui';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
-import type { ClassSession } from '../../../types/classSession';
+import type { ClassSession } from '@/types/classSession';
 
 /**
  * Props for the ClassSessionCard component.

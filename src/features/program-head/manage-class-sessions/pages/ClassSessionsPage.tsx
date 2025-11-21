@@ -7,30 +7,30 @@ import { z } from 'zod';
 import { useFormPersistence } from '../hooks/useFormPersistence';
 
 // Import hooks for fetching data
-import { useAuth } from '../../shared/auth/hooks/useAuth';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import { useClassSessions, checkCrossDepartmentResources } from '../hooks/useClassSessions';
 
-// FIXED: Corrected import paths for the refactored components
-import { ClassSessionForm } from './components/classSession';
-import { ClassSessionCard } from './components/classSession';
+// Import components from new location
+import { ClassSessionForm } from '../components/classSession';
+import { ClassSessionCard } from '../components/classSession';
 
-// Import the specific type for a class session
-import type { ClassSession } from '../types/classSession';
-import { Instructor } from '../../classSessionComponents/types/instructor';
-import { Classroom } from '../../classSessionComponents/types/classroom';
-// FIXED: Import the schema from its correct, new location
+// Import types
+import type { ClassSession } from '@/types/classSession';
+import { Instructor } from '@/types/instructor';
+import { Classroom } from '@/types/classroom';
+// Import the schema from its correct, new location
 import { classSessionSchema } from '@/types/validation/classSession';
 // Import all necessary UI components
-import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '../../../components/ui';
+import { LoadingSpinner, ErrorMessage, ConfirmModal, FormField } from '@/components/ui';
 import { toast } from 'sonner';
 import {
   useAllCourses,
   useClassGroups,
   useAllClassrooms,
   useAllInstructors,
-} from '../../classSessionComponents/hooks';
-import { usePrograms } from '../../admin/manage-programs/hooks/usePrograms';
-import { useDepartments } from '../../admin/manage-departments/hooks/useDepartments';
+} from '@/features/classSessionComponents/hooks';
+import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms';
+import { useDepartments } from '@/features/admin/manage-departments/hooks/useDepartments';
 
 // Define the form data type directly from the Zod schema
 type ClassSessionFormData = z.infer<typeof classSessionSchema>;

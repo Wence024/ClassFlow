@@ -4,7 +4,7 @@ import { useScheduleConfig } from '../../admin/schedule-config/hooks/useSchedule
 import { toast } from 'sonner';
 import checkTimetableConflicts from '../utils/checkConflicts';
 import type { DragSource } from '../types/DragSource';
-import type { ClassSession } from '../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import { usePrograms } from '../../admin/manage-programs/hooks/usePrograms';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import type { TimetableViewMode, HydratedTimetableAssignment } from '../types/timetable';

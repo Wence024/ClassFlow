@@ -10,7 +10,7 @@ import {
 } from '../utils/timetableLogic';
 import { supabase } from '../../../lib/supabase';
 import { useScheduleConfig } from '../../admin/schedule-config/hooks/useScheduleConfig';
-import type { ClassSession } from '../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import type { HydratedTimetableAssignment, TimetableViewMode } from '../types/timetable';
 import { useActiveSemester } from '../../admin/schedule-config/hooks/useActiveSemester';
 import * as classGroupsService from '@/lib/services/classGroupService';

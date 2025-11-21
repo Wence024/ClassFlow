@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ClassGroup, Classroom, Instructor } from '../../../../classSessionComponents/types';
-import type { ClassSession } from '../../../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import type { TimetableViewMode } from '../../../types/timetable';
 import type { TimetableRowResource } from '../../../utils/timetableLogic';
 import EmptyCell from './EmptyCell';

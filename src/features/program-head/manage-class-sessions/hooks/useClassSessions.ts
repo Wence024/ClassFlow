@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuth } from '../../shared/auth/hooks/useAuth';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import * as classSessionsService from '@/lib/services/classSessionService';
 import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '@/types/classSession';
 
@@ -137,7 +137,7 @@ export async function checkCrossDepartmentResources(
   departmentId: string | null;
 }> {
   const { isCrossDepartmentInstructor, isCrossDepartmentClassroom, getResourceDepartmentId } =
-    await import('../../classSessions/services/classSessionsService');
+    await import('@/lib/services/classSessionService');
 
   const isInstructorCrossDept = await isCrossDepartmentInstructor(programId, data.instructor_id);
   const isClassroomCrossDept = await isCrossDepartmentClassroom(programId, data.classroom_id);

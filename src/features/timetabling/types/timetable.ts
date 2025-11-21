@@ -1,6 +1,6 @@
 // Import the generated Database type. This is the single source of truth.
 import type { Database } from '../../../lib/supabase.types';
-import type { ClassSession } from '../../classSessions/types/classSession'; // Import the hydrated ClassSession type
+import type { ClassSession } from '@/types/classSession';
 
 // --- Base Entity Types (from Supabase) ---
 // This represents the raw database row for a timetable assignment.

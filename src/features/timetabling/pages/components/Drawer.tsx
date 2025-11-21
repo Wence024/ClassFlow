@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { DragSource } from '../../types/DragSource';
-import type { ClassSession } from '../../../classSessions/types/classSession';
+import type { ClassSession } from '@/types/classSession';
 import { Button } from '@/components/ui';
 import { useTimetableContext } from './timetable/useTimetableContext';
 

@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useDepartmentId } from '../../shared/auth/hooks/useDepartmentId';
 import { useInstructors } from '../hooks';
-import { useClassSessions } from '../../classSessions/hooks/useClassSessions';
+import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
 import { InstructorCard } from './components/instructor';
 import { AdminInstructorFields } from './components/instructor/AdminInstructorFields';
 import {

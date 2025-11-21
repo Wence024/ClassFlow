@@ -356,17 +356,69 @@ src/features/shared/view-reports/
 - ✅ No remaining references to old path
 - ✅ Application builds successfully
 
-### Phase 9.2: Migrate Class Sessions ⏳ NEXT
-**Target:** Move `src/features/classSessions/` → `src/features/program-head/manage-class-sessions/`
-**Estimated Time:** 2-3 hours
-**Imports to Update:** 5 files
+### Phase 9.6.1: Merge Class Sessions ✅ COMPLETED
+**Status:** Successfully migrated `src/features/classSessions/` to `src/features/program-head/manage-class-sessions/`
+**Completed:** 2025-01-21
 
-### Phase 9.3: Migrate Class Session Components ⏳ PENDING
+**Migration Details:**
+- ✅ Created hooks/ and pages/ folders in manage-class-sessions/
+- ✅ Moved hooks: useClassSessions.ts, useFormPersistence.ts
+- ✅ Moved pages: ClassSessionsPage.tsx
+- ✅ Moved components: classSession/ with all selectors
+- ✅ Added missing functions to lib/services/classSessionService.ts:
+  - isCrossDepartmentInstructor()
+  - isCrossDepartmentClassroom()
+  - getResourceDepartmentId()
+- ✅ Updated all import paths (3 files):
+  - admin/manage-classrooms/component.tsx
+  - department-head/manage-instructors/component.tsx
+  - program-head/manage-class-sessions/component.tsx
+- ✅ Updated internal imports in all moved files
+- ✅ Deleted old `src/features/classSessions/` folder
+
+**New Structure:**
+```
+program-head/manage-class-sessions/
+├── hooks/
+│   ├── useClassSessions.ts
+│   └── useFormPersistence.ts
+├── pages/
+│   └── ClassSessionsPage.tsx
+├── components/
+│   └── classSession/
+│       ├── selectors/
+│       │   ├── ClassGroupSelector.tsx
+│       │   ├── ClassroomSelector.tsx
+│       │   ├── CourseSelector.tsx
+│       │   ├── InstructorSelector.tsx
+│       │   ├── ProgramSelector.tsx
+│       │   └── index.ts
+│       ├── ClassSessionCard.tsx
+│       ├── ClassSessionForm.tsx
+│       └── index.ts
+├── tests/ (existing)
+├── component.tsx (updated)
+├── hook.ts
+├── index.ts (updated)
+├── service.ts
+└── types.ts
+```
+
+**Verification:**
+- ✅ TypeScript compilation: PASSED
+- ✅ Import paths updated: 3 files
+- ✅ No remaining references to @/features/classSessions
+- ✅ Service consolidation: 3 functions added to lib/services/classSessionService.ts
+
+### Phase 9.6.2: Merge Class Session Components ⏳ NEXT
 **Target:** Move `src/features/classSessionComponents/` → `src/features/program-head/manage-components/`
-**Estimated Time:** 3-4 hours
-**Imports to Update:** 11 files
+**Estimated Time:** 5-6 hours
+**Imports to Update:** 14 files
 
-### Phase 9.4: Migrate Timetabling ⏳ PENDING
+### Phase 9.6.3: Merge Timetabling ⏳ PENDING
+**Target:** Move `src/features/timetabling/` → `src/features/program-head/schedule-class-session/`
+**Estimated Time:** 3-4 hours
+**Imports to Update:** Fixed 15 type imports
 **Target:** Move `src/features/timetabling/` → `src/features/program-head/schedule-class-session/`
 **Estimated Time:** 2-3 hours
 **Imports to Update:** 3 files
