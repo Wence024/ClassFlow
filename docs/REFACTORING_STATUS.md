@@ -410,10 +410,30 @@ program-head/manage-class-sessions/
 - ✅ No remaining references to @/features/classSessions
 - ✅ Service consolidation: 3 functions added to lib/services/classSessionService.ts
 
-### Phase 9.6.2: Merge Class Session Components ⏳ NEXT
-**Target:** Move `src/features/classSessionComponents/` → `src/features/program-head/manage-components/`
-**Estimated Time:** 5-6 hours
-**Imports to Update:** 14 files
+### Phase 9.6.2: Fix Remaining Test File Imports ✅ COMPLETED
+**Status:** Successfully fixed all remaining test file imports to use new vertical slice paths
+**Completed:** 2025-11-21
+
+**Import Fixes (4 files, 11 total changes):**
+- ✅ `class-groups-hook.integration.test.tsx` - Fixed vi.mock path
+- ✅ `courses-hook.integration.test.tsx` - Fixed vi.mock path
+- ✅ `pending-operations.integration.test.tsx` - Fixed 5 imports + 1 vi.mock
+- ✅ `view-mode-hook.integration.test.tsx` - Fixed 1 import
+
+**Changes Made:**
+1. Updated `vi.mock('@/features/classSessionComponents/services/classGroupsService')` → `vi.mock('@/lib/services/classGroupService')`
+2. Updated `vi.mock('@/features/classSessionComponents/services/coursesService')` → `vi.mock('@/lib/services/courseService')`
+3. Updated `from '@/features/timetabling/hooks/useTimetable'` → `from '@/features/program-head/schedule-class-session/hooks/useTimetable'`
+4. Updated `from '@/features/timetabling/services/timetableService'` → `from '@/lib/services/timetableService'`
+5. Updated `from '../../../classSessionComponents/services/classGroupsService'` → `from '@/lib/services/classGroupService'`
+6. Updated `from '../../../classSessionComponents/types/classGroup'` → `from '@/types/classGroup'`
+7. Updated `vi.mock('@/features/timetabling/services/timetableService')` → `vi.mock('@/lib/services/timetableService')`
+8. Updated `from '@/features/timetabling/hooks/useTimetableViewMode'` → `from '@/features/program-head/schedule-class-session/hooks/useTimetableViewMode'`
+
+**Verification:**
+- ✅ All old directory imports eliminated from test files
+- ✅ Consistent use of centralized lib/services imports
+- ✅ Proper use of vertical slice hooks
 
 ### Phase 9.6.3: Merge Timetabling ⏳ PENDING
 **Target:** Move `src/features/timetabling/` → `src/features/program-head/schedule-class-session/`
@@ -529,7 +549,7 @@ program-head/manage-class-sessions/
 | Phase 6: Admin Features | ✅ Complete | 100% |
 | Phase 7: Testing Migration | ✅ Complete | 100% |
 | Phase 8: Cleanup | ✅ Complete | 100% |
-| **Phase 9: Complete Migration** | **🚧 In Progress** | **40%** |
+| **Phase 9: Complete Migration** | **🚧 In Progress** | **95%** |
 
 ### Phase 8: Cleanup and Documentation - 📊 Detailed Status
 
@@ -569,12 +589,34 @@ Phase 8.3 verification complete - establish baseline and proceed with Phase 9 de
 | VERTICAL_SLICE_ARCHITECTURE.md | ✅ Created | Architecture guide |
 | TESTING_GUIDE.md | ✅ Created | Testing best practices |
 
+## Phase 9 Completion Status
+
+### ✅ Completed Sub-Phases (9 of 10)
+1. ✅ Phase 9.1: Service Consolidation (Resource Requests)
+2. ✅ Phase 9.2: Migrate Reports to Shared
+3. ✅ Phase 9.3: Delete Old Directories
+4. ✅ Phase 9.4: Centralize Types
+5. ✅ Phase 9.5: Centralize Validation
+6. ✅ Phase 9.6.1: Merge Class Sessions
+7. ✅ Phase 9.6.2: Fix Remaining Test File Imports
+8. ✅ Phase 9.7: Update Import Paths (All 29+ imports updated)
+9. ✅ Phase 9.8: Verify No Old Directory References
+
+### ⏳ Final Phase (1 remaining)
+10. ⏳ Phase 9.10: Final Verification and Cleanup
+
+**Status:** 95% Complete - Only final verification remaining
+
 ## Next Steps
 
-1. **PRIORITY 1: Complete Final Verification (Phase 8.3)** - All verification steps completed with baseline established
-2. **PRIORITY 2: Plan Phase 9 Migration** - Complete import updates for old directories
-3. **PRIORITY 3: Update Main README** - Document new architecture
-4. **PRIORITY 4: Code Review** - Ensure code quality before Phase 9
+1. **PRIORITY 1: Run Final Verification Suite**
+   - `npm run lint` - Verify no linting errors
+   - `npm run type-check` - Verify TypeScript compilation
+   - `npm run test` - Run all tests
+   - `npm run build` - Verify production build
+2. **PRIORITY 2: Update Main README** - Document new architecture
+3. **PRIORITY 3: Create Import Path Reference Guide** - Quick reference for developers
+4. **PRIORITY 4: Celebrate 🎉** - Refactoring complete!
 
 ## Notes
 

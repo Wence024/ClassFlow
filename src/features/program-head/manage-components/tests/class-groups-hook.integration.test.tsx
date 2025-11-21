@@ -11,7 +11,7 @@ import { AuthContext } from '@/features/shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '@/features/shared/auth/types/auth';
 import type { ClassGroup } from '@/types/classGroup';
 
-vi.mock('@/features/classSessionComponents/services/classGroupsService');
+vi.mock('@/lib/services/classGroupService');
 
 const mockUser = {
   id: 'user-1',
