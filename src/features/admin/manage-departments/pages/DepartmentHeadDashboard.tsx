@@ -1,6 +1,6 @@
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import { Alert, Card } from '@/components/ui';
-import AdminInstructorManagement from '@/features/classSessionComponents/pages/AdminInstructorManagement';
+import AdminInstructorManagement from '@/features/program-head/manage-components/pages/AdminInstructorManagement';
 
 /**
  * Renders the main dashboard for Department Heads.

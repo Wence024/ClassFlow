@@ -4,10 +4,10 @@
 
 import { useState } from 'react';
 import { TabNavigation } from '@/components/ui';
-import CourseManagement from '@/features/classSessionComponents/pages/CourseTab';
-import ClassGroupManagement from '@/features/classSessionComponents/pages/ClassGroupTab';
-import ClassroomManagement from '@/features/classSessionComponents/pages/ClassroomTab';
-import InstructorManagement from '@/features/classSessionComponents/pages/InstructorTab';
+import CourseManagement from '@/features/program-head/manage-components/pages/CourseTab';
+import ClassGroupManagement from '@/features/program-head/manage-components/pages/ClassGroupTab';
+import ClassroomManagement from '@/features/program-head/manage-components/pages/ClassroomTab';
+import InstructorManagement from '@/features/program-head/manage-components/pages/InstructorTab';
 import type { ComponentType } from './types';
 
 const TABS = [

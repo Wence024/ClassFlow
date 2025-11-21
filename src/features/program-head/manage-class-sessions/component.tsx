@@ -19,7 +19,7 @@ import {
   useClassGroups,
   useAllClassrooms,
   useAllInstructors,
-} from '@/features/classSessionComponents/hooks';
+} from '@/features/program-head/manage-components/hooks';
 import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms';
 import { useDepartments } from '@/features/admin/manage-departments/hooks/useDepartments';
 import type { ClassSession } from './types';
