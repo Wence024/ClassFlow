@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useTimetableViewMode } from '@/features/timetabling/hooks/useTimetableViewMode';
+import { useTimetableViewMode } from '@/features/program-head/schedule-class-session/hooks/useTimetableViewMode';
 
 const STORAGE_KEY = 'timetable_view_mode';
 
