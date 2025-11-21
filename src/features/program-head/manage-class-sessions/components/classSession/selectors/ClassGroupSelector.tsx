@@ -1,5 +1,5 @@
 import { ResourceSelectorModal, type PrioritizedItem } from '../../../../../../components/ui';
-import type { ClassGroup } from '../../../../../classSessionComponents/types';
+import type { ClassGroup } from '@/types';
 
 interface ClassGroupSelectorProps {
   isOpen: boolean;

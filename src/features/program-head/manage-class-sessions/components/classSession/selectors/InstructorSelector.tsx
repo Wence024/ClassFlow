@@ -1,5 +1,5 @@
 import { ResourceSelectorModal, type PrioritizedItem } from '../../../../../../components/ui';
-import type { Instructor } from '../../../../../classSessionComponents/types';
+import type { Instructor } from '@/types';
 
 interface InstructorSelectorProps {
   isOpen: boolean;
