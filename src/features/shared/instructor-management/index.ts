@@ -1,3 +1,7 @@
+/**
+ * Shared instructor management exports.
+ */
+
 export { useInstructors } from './hooks/useInstructors';
 export { useAllInstructors } from './hooks/useAllInstructors';
 export { useInstructorsUnified } from './hooks/useInstructorsUnified';

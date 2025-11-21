@@ -10,7 +10,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  * Renders the specific form fields required for an Instructor in a two-column layout.
  * Includes logic to auto-generate a short code from the first and last name.
  *
- * @param if The component's props.
+ * @param if The destructured props object.
  * @param if.control The control object from react-hook-form.
  * @param if.errors The errors object from react-hook-form.
  * @returns The rendered form fields for an instructor.
@@ -27,8 +27,8 @@ export const InstructorFields: React.FC<{
     /**
      * Generates an instructor short code from the first initial of the first and last names.
      *
-     * @param fName - The first name.
-     * @param lName - The last name.
+     * @param fName The first name.
+     * @param lName The last name.
      * @returns The generated short code (e.g., "JS" for "John Smith").
      */
     const generateInstructorCode = (fName?: string | null, lName?: string | null): string => {

@@ -13,7 +13,7 @@ type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
  * Enhanced instructor form fields for admins and department heads.
  * Includes department selection for admins when editing instructors.
  *
- * @param aif The component's props.
+ * @param aif The destructured props object.
  * @param aif.control The control object from react-hook-form.
  * @param aif.errors The errors object from react-hook-form.
  * @param aif.isEditing Whether the form is in edit mode.
@@ -42,8 +42,8 @@ export const AdminInstructorFields: React.FC<{
     /**
      * Generates an instructor short code from the first initial of the first and last names.
      *
-     * @param fName - The first name.
-     * @param lName - The last name.
+     * @param fName The first name.
+     * @param lName The last name.
      * @returns The generated short code (e.g., "JS" for "John Smith").
      */
     const generateInstructorCode = (fName?: string | null, lName?: string | null): string => {

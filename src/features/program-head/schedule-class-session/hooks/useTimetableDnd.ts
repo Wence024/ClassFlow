@@ -30,40 +30,47 @@ const parseDragData = (e: React.DragEvent): DragSource | null => {
  * Gets information about resource changes during drag operations.
  * Returns null if no resource change is occurring.
  *
- * @param viewMode - Current view mode
- * @param session - Session being dragged
- * @param targetId - Target row ID (resource ID)
+ * @param viewMode Current view mode
+ * @param session Session being dragged
+ * @param targetId Target row ID (resource ID)
+ * @returns Resource change information or null if no change
  */
 const getResourceChangeInfo = (
   viewMode: TimetableViewMode,
   session: ClassSession,
   targetId: string
 ): { isChanging: boolean; fromId: string; toId: string; resourceType: 'instructor' | 'classroom' } | null => {
-  switch (viewMode) {
-    case 'classroom':
-      if (session.classroom && session.classroom.id !== targetId) {
-        return {
-          isChanging: true,
-          fromId: session.classroom.id,
-          toId: targetId,
-          resourceType: 'classroom'
-        };
-      }
-      break;
-    case 'instructor':
-      if (session.instructor && session.instructor.id !== targetId) {
-        return {
-          isChanging: true,
-          fromId: session.instructor.id,
-          toId: targetId,
-          resourceType: 'instructor'
-        };
-      }
-      break;
+  if (viewMode === 'classroom') {
+    if (session.classroom && session.classroom.id !== targetId) {
+      return {
+        isChanging: true,
+        fromId: session.classroom.id,
+        toId: targetId,
+        resourceType: 'classroom'
+      };
+    }
+  } else if (viewMode === 'instructor') {
+    if (session.instructor && session.instructor.id !== targetId) {
+      return {
+        isChanging: true,
+        fromId: session.instructor.id,
+        toId: targetId,
+        resourceType: 'instructor'
+      };
+    }
   }
   return null;
 };
 
+/**
+ * Gets the resource mismatch error message if any.
+ *
+ * @param viewMode Current view mode
+ * @param session Class session being dragged
+ * @param source The drag source
+ * @param targetId The target ID
+ * @returns Error message if there is a mismatch, otherwise empty string
+ */
 const getResourceMismatchError = (
   viewMode: TimetableViewMode,
   session: ClassSession,
@@ -74,16 +81,24 @@ const getResourceMismatchError = (
 
   // Only block class-group view resource mismatches
   // Instructor and classroom views now allow resource reassignment
-  switch (viewMode) {
-    case 'class-group':
-      if (source.class_group_id !== targetId) {
-        return `Cannot move this session to a different class group. This session belongs to "${session.group.name}".`;
-      }
-      break;
+  if (viewMode === 'class-group') {
+    if (source.class_group_id !== targetId) {
+      return `Cannot move this session to a different class group. This session belongs to "${session.group.name}".`;
+    }
   }
   return '';
 };
 
+/**
+ * Validates a drop operation.
+ *
+ * @param source The drag source
+ * @param allClassSessions All class sessions visible to the user
+ * @param user The currently logged in user
+ * @param viewMode The current view mode
+ * @param targetClassGroupId The target class group ID
+ * @returns A tuple containing the source and session if valid, or [null, null] if invalid
+ */
 const validateDrop = (
   source: DragSource | null,
   allClassSessions: ClassSession[],
@@ -124,11 +139,12 @@ const validateDrop = (
 /**
  * Determines what type of confirmation is needed for a drop operation.
  *
- * @param source
- * @param classSessionToDrop
- * @param assignments
- * @param userDepartmentId
- * @param resourceChangeInfo
+ * @param source The drag source
+ * @param classSessionToDrop The class session being dropped
+ * @param assignments Current timetable assignments for checking confirmation status
+ * @param userDepartmentId The user's department ID for cross-department validation
+ * @param resourceChangeInfo Information about resource changes during drag operations
+ * @returns The type of confirmation needed and associated metadata
  */
 const needsConfirmation = (
   source: DragSource,
@@ -174,16 +190,11 @@ const needsConfirmation = (
  * operations for the timetable. It handles UI state, visual feedback,
  * event handling, and data mutations.
  *
- * @param allClassSessions - All class sessions visible to the user (not just their own).
- * @param viewMode - The current timetable view mode for validation.
- * @param userDepartmentId - The user's department ID for cross-department validation.
- * @param assignments - Current timetable assignments for checking confirmation status.
- * @param pendingPlacementInfo - Optional info about a session awaiting cross-dept placement.
- * @param pendingPlacementInfo.pendingSessionId - Pending session ID for placement.
- * @param pendingPlacementInfo.resourceType - Resource type for pending placement ('instructor' | 'classroom').
- * @param pendingPlacementInfo.resourceId - ID of resource that is pending placement.
- * @param pendingPlacementInfo.departmentId - Target department ID for the resource.
- * @param pendingPlacementInfo.onClearPending - Callback to clear pending placement state.
+ * @param allClassSessions All class sessions visible to the user (not just their own).
+ * @param viewMode The current timetable view mode for validation.
+ * @param userDepartmentId The user's department ID for cross-department validation.
+ * @param assignments Current timetable assignments for checking confirmation status.
+ * @param pendingPlacementInfo Optional info about a session awaiting cross-dept placement.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
 export const useTimetableDnd = (
@@ -192,10 +203,25 @@ export const useTimetableDnd = (
   userDepartmentId: string | null = null,
   assignments?: HydratedTimetableAssignment[],
   pendingPlacementInfo?: {
+    /**
+     * Pending session ID for placement.
+     */
     pendingSessionId?: string;
+    /**
+     * Resource type for pending placement ('instructor' | 'classroom').
+     */
     resourceType?: 'instructor' | 'classroom';
+    /**
+     * ID of resource that is pending placement.
+     */
     resourceId?: string;
+    /**
+     * Target department ID for the resource.
+     */
     departmentId?: string;
+    /**
+     * Callback to clear pending placement state.
+     */
     onClearPending?: () => void;
   }
 ) => {
@@ -311,7 +337,7 @@ export const useTimetableDnd = (
       session: ClassSession,
       dbTargetGroupId: string,
       targetPeriodIndex: number,
-      resourceChangeMetadata?: any
+      resourceChangeMetadata?: ResourceChangeMetadata
     ) => {
       if (source.from === 'drawer') {
         return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
@@ -424,6 +450,14 @@ export const useTimetableDnd = (
     [user, pendingPlacementInfo]
   );
 
+  // Define a type for resource change metadata
+  type ResourceChangeMetadata = {
+    isChanging: boolean;
+    fromId: string;
+    toId: string;
+    resourceType: 'instructor' | 'classroom';
+  };
+
   const handleConfirmation = useCallback(
     (
       source: DragSource,
@@ -433,10 +467,10 @@ export const useTimetableDnd = (
       onConfirmMove: (
         callback: () => void,
         confirmationType: 'cross-department' | 'resource-reassignment',
-        metadata?: any
+        metadata?: ResourceChangeMetadata
       ) => void,
       confirmationType: 'cross-department' | 'resource-reassignment',
-      metadata?: any
+      metadata?: ResourceChangeMetadata
     ) => {
       onConfirmMove(
         async () => {
