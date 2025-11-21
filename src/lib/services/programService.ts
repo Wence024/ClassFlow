@@ -10,6 +10,8 @@ const TABLE = 'programs';
 
 /**
  * Lists all programs, ordered by name.
+ *
+ * @returns Array of all programs.
  */
 export async function listPrograms(): Promise<Program[]> {
   const { data, error } = await supabase.from(TABLE).select('*').order('name');
@@ -20,7 +22,8 @@ export async function listPrograms(): Promise<Program[]> {
 /**
  * Creates a new program (admin only via RLS).
  *
- * @param payload
+ * @param payload - The program data to create.
+ * @returns The newly created program object.
  */
 export async function createProgram(payload: ProgramInsert): Promise<Program> {
   const { data, error } = await supabase.from(TABLE).insert([payload]).select().single();
@@ -31,8 +34,9 @@ export async function createProgram(payload: ProgramInsert): Promise<Program> {
 /**
  * Updates a program (admin only via RLS).
  *
- * @param id
- * @param update
+ * @param id - The ID of the program to update.
+ * @param update - The updated program data.
+ * @returns The updated program object.
  */
 export async function updateProgram(id: string, update: ProgramUpdate): Promise<Program> {
   const { data, error } = await supabase.from(TABLE).update(update).eq('id', id).select().single();
@@ -43,7 +47,7 @@ export async function updateProgram(id: string, update: ProgramUpdate): Promise<
 /**
  * Deletes a program (admin only via RLS).
  *
- * @param id
+ * @param id - The ID of the program to delete.
  */
 export async function deleteProgram(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);

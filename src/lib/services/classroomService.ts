@@ -11,9 +11,10 @@ const TABLE = 'classrooms';
 /**
  * Fetches classrooms for CRUD/management views (admin-only access).
  *
- * @param params
- * @param params.role
- * @param params.department_id
+ * @param params - The parameters for fetching classrooms.
+ * @param params.role - The user role to determine access level.
+ * @param params.department_id - The department ID to filter classrooms (for non-admins).
+ * @returns Array of classrooms matching the criteria.
  */
 export async function getClassrooms(params?: {
   role?: string | null;
@@ -32,6 +33,8 @@ export async function getClassrooms(params?: {
 
 /**
  * Fetches ALL classrooms with department information for selection workflows.
+ *
+ * @returns Array of all classrooms with their department information.
  */
 export async function getAllClassrooms(): Promise<Classroom[]> {
   const { data, error } = await supabase
@@ -58,7 +61,8 @@ export async function getAllClassrooms(): Promise<Classroom[]> {
 /**
  * Adds a new classroom to the database.
  *
- * @param classroom
+ * @param classroom - The classroom data to insert.
+ * @returns The newly created classroom object.
  */
 export async function addClassroom(classroom: ClassroomInsert): Promise<Classroom> {
   const { data, error } = await supabase.from(TABLE).insert([classroom]).select().single();
@@ -69,8 +73,9 @@ export async function addClassroom(classroom: ClassroomInsert): Promise<Classroo
 /**
  * Updates an existing classroom in the database.
  *
- * @param id
- * @param classroom
+ * @param id - The ID of the classroom to update.
+ * @param classroom - The updated classroom data.
+ * @returns The updated classroom object.
  */
 export async function updateClassroom(id: string, classroom: ClassroomUpdate): Promise<Classroom> {
   const { data, error } = await supabase.from(TABLE).update(classroom).eq('id', id).select().single();
@@ -81,7 +86,7 @@ export async function updateClassroom(id: string, classroom: ClassroomUpdate): P
 /**
  * Removes a classroom from the database.
  *
- * @param id
+ * @param id - The ID of the classroom to remove.
  */
 export async function removeClassroom(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);

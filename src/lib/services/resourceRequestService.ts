@@ -27,6 +27,8 @@ async function createNotificationForRequest(request: ResourceRequest): Promise<v
 
 /**
  * Fetches all resource requests initiated by the current user.
+ *
+ * @returns Array of resource requests initiated by the current user.
  */
 export async function getMyRequests(): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
@@ -40,7 +42,8 @@ export async function getMyRequests(): Promise<ResourceRequest[]> {
 /**
  * Fetches all resource requests targeted at a specific department.
  *
- * @param departmentId
+ * @param departmentId - The ID of the department to fetch requests for.
+ * @returns Array of resource requests targeted at the specified department.
  */
 export async function getRequestsForDepartment(departmentId: string): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
@@ -56,7 +59,8 @@ export async function getRequestsForDepartment(departmentId: string): Promise<Re
  * Creates a new resource request and a corresponding notification.
  * Checks for existing pending/approved requests to prevent duplicates.
  *
- * @param payload
+ * @param payload - The resource request data to insert.
+ * @returns The newly created resource request.
  */
 export async function createRequest(payload: ResourceRequestInsert): Promise<ResourceRequest> {
   // Check for existing pending/approved requests
@@ -89,8 +93,9 @@ export async function createRequest(payload: ResourceRequestInsert): Promise<Res
  * Approves a resource request and updates timetable assignments atomically.
  * Uses a database function to ensure atomic operation.
  *
- * @param id
- * @param reviewerId
+ * @param id - The ID of the resource request to approve.
+ * @param reviewerId - The ID of the user approving the request.
+ * @returns The approved resource request.
  */
 export async function approveRequest(id: string, reviewerId: string): Promise<ResourceRequest> {
   const { data, error } = await supabase.rpc(
@@ -125,9 +130,10 @@ export async function approveRequest(id: string, reviewerId: string): Promise<Re
  * Rejects a resource request with a message and either restores the session to its original
  * position (if previously approved) or deletes it (if pending).
  *
- * @param id The ID of the resource request to reject.
- * @param reviewerId The ID of the user rejecting the request.
- * @param rejectionMessage The rejection message from the department head.
+ * @param id - The ID of the resource request to reject.
+ * @param reviewerId - The ID of the user rejecting the request.
+ * @param rejectionMessage - The rejection message from the department head.
+ * @returns An object with the result of the rejection operation.
  */
 export async function rejectRequest(
   id: string,
@@ -173,8 +179,9 @@ export async function rejectRequest(
  * Cancels a resource request initiated by the program head.
  * Restores session to original position if approved, or removes from timetable if pending.
  *
- * @param id The ID of the resource request to cancel.
- * @param requesterId The ID of the user canceling the request (for permission check).
+ * @param id - The ID of the resource request to cancel.
+ * @param requesterId - The ID of the user canceling the request (for permission check).
+ * @returns An object with the result of the cancellation operation.
  */
 export async function cancelRequest(
   id: string,
@@ -219,7 +226,7 @@ export async function cancelRequest(
  * Dismisses a resource request notification without taking action.
  * Can only be called by the requester on approved/rejected requests.
  *
- * @param id The ID of the resource request to dismiss.
+ * @param id - The ID of the resource request to dismiss.
  */
 export async function dismissRequest(id: string): Promise<void> {
   const { error } = await supabase
@@ -241,8 +248,9 @@ export async function dismissRequest(id: string): Promise<void> {
 /**
  * Updates a resource request (for non-dismissal updates).
  *
- * @param id The ID of the resource request to update.
- * @param update The update payload.
+ * @param id - The ID of the resource request to update.
+ * @param update - The update payload.
+ * @returns The updated resource request.
  */
 export async function updateRequest(
   id: string,
@@ -256,7 +264,7 @@ export async function updateRequest(
 /**
  * Deletes a resource request (admin only, or cleanup).
  *
- * @param id
+ * @param id - The ID of the resource request to delete.
  */
 export async function deleteRequest(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
@@ -266,7 +274,8 @@ export async function deleteRequest(id: string): Promise<void> {
 /**
  * Gets all active (pending/approved) requests for a class session.
  *
- * @param sessionId
+ * @param sessionId - The ID of the class session to get active requests for.
+ * @returns Array of active resource requests for the class session.
  */
 export async function getActiveRequestsForSession(sessionId: string): Promise<ResourceRequest[]> {
   const { data, error } = await supabase
@@ -282,7 +291,7 @@ export async function getActiveRequestsForSession(sessionId: string): Promise<Re
  * Cancels all active resource requests for a class session and notifies department heads.
  * Used when a program head drops a session back to the drawer.
  *
- * @param classSessionId
+ * @param classSessionId - The ID of the class session to cancel active requests for.
  */
 export async function cancelActiveRequestsForClassSession(classSessionId: string): Promise<void> {
   const { data: requests, error: fetchError } = await supabase
@@ -320,7 +329,8 @@ export async function cancelActiveRequestsForClassSession(classSessionId: string
 /**
  * Fetches a resource request with enriched details including requester info and timetable position.
  *
- * @param requestId
+ * @param requestId - The ID of the resource request to fetch.
+ * @returns The resource request with enriched details.
  */
 export async function getRequestWithDetails(requestId: string): Promise<
   ResourceRequest & {
@@ -418,8 +428,8 @@ export async function getRequestWithDetails(requestId: string): Promise<
  * Cancels all active resource requests for a specific resource (instructor or classroom).
  * Used as an edge case handler when resources are deleted.
  *
- * @param resourceType
- * @param resourceId
+ * @param resourceType - The type of resource ('instructor' or 'classroom').
+ * @param resourceId - The ID of the resource to cancel active requests for.
  */
 export async function cancelActiveRequestsForResource(
   resourceType: 'instructor' | 'classroom',

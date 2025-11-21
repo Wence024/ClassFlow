@@ -16,6 +16,8 @@ export type RequestNotification = {
 
 /**
  * Returns unread notifications for the current user's department.
+ *
+ * @returns Array of unread notifications.
  */
 export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
   const { data, error } = await supabase
@@ -33,7 +35,7 @@ export async function getUnreadForDepartment(): Promise<RequestNotification[]> {
 /**
  * Marks a notification as read.
  *
- * @param id
+ * @param id - The ID of the notification to mark as read.
  */
 export async function markRead(id: string): Promise<void> {
   const { error } = await supabase
@@ -46,7 +48,7 @@ export async function markRead(id: string): Promise<void> {
 /**
  * Deletes a notification.
  *
- * @param id
+ * @param id - The ID of the notification to delete.
  */
 export async function deleteNotification(id: string): Promise<void> {
   const { error } = await supabase.from('request_notifications').delete().eq('id', id);
@@ -55,6 +57,8 @@ export async function deleteNotification(id: string): Promise<void> {
 
 /**
  * Gets all notifications for a department (read and unread).
+ *
+ * @returns Array of all notifications for the department.
  */
 export async function getAllForDepartment(): Promise<RequestNotification[]> {
   const { data, error } = await supabase
@@ -72,9 +76,9 @@ export async function getAllForDepartment(): Promise<RequestNotification[]> {
  * Creates a notification for a resource request.
  * Internal helper used by the resourceRequestService.
  *
- * @param requestId
- * @param targetDepartmentId
- * @param message
+ * @param requestId - The ID of the resource request.
+ * @param targetDepartmentId - The ID of the target department.
+ * @param message - The notification message.
  */
 export async function createNotification(
   requestId: string,

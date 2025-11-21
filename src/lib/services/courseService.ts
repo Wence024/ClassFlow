@@ -11,7 +11,8 @@ const TABLE = 'courses';
 /**
  * Fetches all courses for a specific program.
  *
- * @param program_id
+ * @param program_id - The ID of the program to fetch courses for.
+ * @returns Array of courses for the specified program.
  */
 export async function getCoursesByProgram(program_id: string): Promise<Course[]> {
   const { data, error } = await supabase
@@ -25,6 +26,8 @@ export async function getCoursesByProgram(program_id: string): Promise<Course[]>
 
 /**
  * Fetches ALL courses with program metadata for cross-program workflows.
+ *
+ * @returns Array of all courses with their program metadata.
  */
 export async function getAllCourses(): Promise<Course[]> {
   const { data, error } = await supabase
@@ -53,7 +56,8 @@ export async function getAllCourses(): Promise<Course[]> {
 /**
  * Adds a new course to the database.
  *
- * @param course
+ * @param course - The course data to insert.
+ * @returns The newly created course object.
  */
 export async function addCourse(course: CourseInsert): Promise<Course> {
   const { data, error } = await supabase.from(TABLE).insert([course]).select().single();
@@ -64,8 +68,9 @@ export async function addCourse(course: CourseInsert): Promise<Course> {
 /**
  * Updates an existing course in the database.
  *
- * @param id
- * @param course
+ * @param id - The ID of the course to update.
+ * @param course - The updated course data.
+ * @returns The updated course object.
  */
 export async function updateCourse(id: string, course: CourseUpdate): Promise<Course> {
   const { data, error } = await supabase.from(TABLE).update(course).eq('id', id).select().single();
@@ -76,8 +81,8 @@ export async function updateCourse(id: string, course: CourseUpdate): Promise<Co
 /**
  * Removes a course from the database.
  *
- * @param id
- * @param user_id
+ * @param id - The ID of the course to remove.
+ * @param user_id - The ID of the user performing the deletion.
  */
 export async function removeCourse(id: string, user_id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('created_by', user_id);

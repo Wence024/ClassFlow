@@ -10,6 +10,8 @@ const TABLE = 'departments';
 
 /**
  * Lists all departments, ordered by name.
+ *
+ * @returns Array of all departments.
  */
 export async function listDepartments(): Promise<Department[]> {
   const { data, error } = await supabase.from(TABLE).select('*').order('name');
@@ -20,7 +22,8 @@ export async function listDepartments(): Promise<Department[]> {
 /**
  * Creates a new department (admin only via RLS).
  *
- * @param payload
+ * @param payload - The department data to create.
+ * @returns The newly created department object.
  */
 export async function createDepartment(payload: DepartmentInsert): Promise<Department> {
   const { data, error } = await supabase.from(TABLE).insert([payload]).select().single();
@@ -31,8 +34,9 @@ export async function createDepartment(payload: DepartmentInsert): Promise<Depar
 /**
  * Updates a department (admin only via RLS).
  *
- * @param id
- * @param update
+ * @param id - The ID of the department to update.
+ * @param update - The updated department data.
+ * @returns The updated department object.
  */
 export async function updateDepartment(id: string, update: DepartmentUpdate): Promise<Department> {
   const { data, error } = await supabase.from(TABLE).update(update).eq('id', id).select().single();
@@ -43,7 +47,7 @@ export async function updateDepartment(id: string, update: DepartmentUpdate): Pr
 /**
  * Deletes a department (admin only via RLS).
  *
- * @param id
+ * @param id - The ID of the department to delete.
  */
 export async function deleteDepartment(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);

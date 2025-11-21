@@ -11,7 +11,8 @@ const TABLE = 'class_groups';
 /**
  * Fetches all class groups for a specific program.
  *
- * @param program_id
+ * @param program_id - The ID of the program to fetch class groups for.
+ * @returns Array of class groups for the specified program.
  */
 export async function getClassGroupsByProgram(program_id: string): Promise<ClassGroup[]> {
   const { data, error } = await supabase
@@ -25,6 +26,8 @@ export async function getClassGroupsByProgram(program_id: string): Promise<Class
 
 /**
  * Fetches ALL class groups from the database.
+ *
+ * @returns Array of all class groups.
  */
 export async function getAllClassGroups(): Promise<ClassGroup[]> {
   const { data, error } = await supabase.from('class_groups').select('*').order('name');
@@ -35,7 +38,8 @@ export async function getAllClassGroups(): Promise<ClassGroup[]> {
 /**
  * Adds a new class group to the database.
  *
- * @param group
+ * @param group - The class group data to insert.
+ * @returns The newly created class group.
  */
 export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup> {
   const { data, error } = await supabase.from(TABLE).insert([group]).select().single();
@@ -46,8 +50,9 @@ export async function addClassGroup(group: ClassGroupInsert): Promise<ClassGroup
 /**
  * Updates an existing class group in the database.
  *
- * @param id
- * @param group
+ * @param id - The ID of the class group to update.
+ * @param group - The updated class group data.
+ * @returns The updated class group.
  */
 export async function updateClassGroup(id: string, group: ClassGroupUpdate): Promise<ClassGroup> {
   const { data, error } = await supabase.from(TABLE).update(group).eq('id', id).select().single();
@@ -58,8 +63,8 @@ export async function updateClassGroup(id: string, group: ClassGroupUpdate): Pro
 /**
  * Removes a class group from the database.
  *
- * @param id
- * @param user_id
+ * @param id - The ID of the class group to remove.
+ * @param user_id - The ID of the user performing the deletion.
  */
 export async function removeClassGroup(id: string, user_id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id).eq('user_id', user_id);
