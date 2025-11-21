@@ -109,9 +109,9 @@ export function ManageClassSessionsPage() {
     if (editingSession && editingSession.course) {
       formMethods.reset({
         course_id: editingSession.course.id,
-        instructor_id: editingSession.instructor.id,
+        instructor_id: editingSession.instructor?.id || '',
         class_group_id: editingSession.group.id,
-        classroom_id: editingSession.classroom.id,
+        classroom_id: editingSession.classroom?.id || '',
         period_count: editingSession.period_count ?? 1,
         program_id: editingSession.program_id || '',
       });

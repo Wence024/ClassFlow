@@ -23,9 +23,11 @@ const buildDrawerTooltipContent = (session: DrawerClassSession): React.ReactElem
     <p className="text-gray-300">{session.course.code}</p>
     <p className="mt-1">Class Group: {session.group.name}</p>
     <p>
-      Instructor: {session.instructor.first_name} {session.instructor.last_name}
+      Instructor: {session.instructor 
+        ? `${session.instructor.first_name} ${session.instructor.last_name}` 
+        : '⚠️ Not assigned'}
     </p>
-    <p>Classroom: {session.classroom.name}</p>
+    <p>Classroom: {session.classroom?.name || '⚠️ Not assigned'}</p>
     <p className="mt-1 text-xs text-gray-400">Drag to timetable to schedule</p>
   </>
 );

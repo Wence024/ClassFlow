@@ -16,16 +16,42 @@ export type ClassSessionUpdate = Database['public']['Tables']['class_sessions'][
 // --- Hydrated/Composite Types for Frontend ---
 /**
  * Represents a fully-hydrated Class Session object for use in the UI.
- * It contains the full objects for course, group, instructor, and classroom.
- * This is the primary type that components will interact with.
+ * Resources (instructor/classroom) can be null for incomplete sessions
+ * that will be assigned resources later via timetable drag-and-drop.
  */
 export type ClassSession = {
-  // The ID comes from the raw ClassSessionRow.
   id: ClassSessionRow['id'];
   course: Course;
   group: ClassGroup;
-  instructor: Instructor;
-  classroom: Classroom;
+  instructor: Instructor | null;  // ← Now nullable for dynamic assignment
+  classroom: Classroom | null;     // ← Now nullable for dynamic assignment
   period_count: number;
   program_id: string | null;
+};
+
+// --- Utility Types for Incomplete Sessions ---
+
+/**
+ * A class session with no resources assigned yet.
+ * Created when user wants to assign resources via timetable.
+ */
+export type IncompleteClassSession = ClassSession & {
+  instructor: null;
+  classroom: null;
+};
+
+/**
+ * A class session with only one resource assigned.
+ */
+export type PartiallyCompleteClassSession = ClassSession & (
+  | { instructor: Instructor; classroom: null }
+  | { instructor: null; classroom: Classroom }
+);
+
+/**
+ * A class session with both resources fully assigned.
+ */
+export type CompleteClassSession = ClassSession & {
+  instructor: Instructor;
+  classroom: Classroom;
 };

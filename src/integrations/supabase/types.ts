@@ -62,7 +62,7 @@ export type Database = {
           course_id: string
           created_at: string | null
           id: string
-          instructor_id: string
+          instructor_id: string | null
           period_count: number
           program_id: string | null
           user_id: string
@@ -73,7 +73,7 @@ export type Database = {
           course_id: string
           created_at?: string | null
           id?: string
-          instructor_id: string
+          instructor_id?: string | null
           period_count: number
           program_id?: string | null
           user_id: string
@@ -84,7 +84,7 @@ export type Database = {
           course_id?: string
           created_at?: string | null
           id?: string
-          instructor_id?: string
+          instructor_id?: string | null
           period_count?: number
           program_id?: string | null
           user_id?: string

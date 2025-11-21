@@ -313,7 +313,8 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
 
 // Add helper functions outside SessionCell to reduce cognitive complexity
 function isSessionDataInvalid(session: ClassSession | undefined) {
-  return !session?.instructor || !session?.course || !session?.group || !session?.classroom;
+  // Only check for course and group - instructor/classroom can be null for incomplete sessions
+  return !session?.course || !session?.group;
 }
 
 function findOwnSession(sessions: ClassSession[], userProgramId: string | undefined) {
