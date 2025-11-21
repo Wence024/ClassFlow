@@ -8,10 +8,10 @@ import type {
   ClassGroup,
   Instructor,
   Classroom,
-} from '../../../../classSessionComponents/types';
+} from '@/types';
 import { AlertTriangle, ChevronDown } from 'lucide-react';
-import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
-import { useAuth } from '../../../../shared/auth/hooks/useAuth';
+import { checkSoftConflicts } from '../../../schedule-class-session/utils/checkConflicts';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { Program } from '@/types/program';
 import {
   CourseSelector,

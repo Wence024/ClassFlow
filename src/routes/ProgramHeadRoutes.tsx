@@ -1,7 +1,7 @@
 import { Route, Navigate } from 'react-router-dom';
 import { ManageClassSessionsPage } from '@/features/program-head/manage-class-sessions';
 import { ManageComponentsPage } from '@/features/program-head/manage-components';
-import TimetablePage from '@/features/timetabling/pages/TimetablePage';
+import TimetablePage from '@/features/program-head/schedule-class-session/pages/TimetablePage';
 
 /**
  * Routes for program head features.

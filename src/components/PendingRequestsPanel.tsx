@@ -1,7 +1,7 @@
 import { Clock, X } from 'lucide-react';
 import { useAuth } from '../features/shared/auth/hooks/useAuth';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
-import { useMyPendingRequests } from '../features/resourceRequests/hooks/useResourceRequests';
+import { useMyPendingRequests } from '@/features/shared/resource-management';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';

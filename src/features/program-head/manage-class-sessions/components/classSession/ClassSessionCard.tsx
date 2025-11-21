@@ -1,6 +1,6 @@
 import React from 'react';
 import { ItemCard, type ItemCardBadge } from '../../../../../components/ui';
-import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
+import { checkSoftConflicts } from '../../../schedule-class-session/utils/checkConflicts';
 import type { ClassSession } from '@/types/classSession';
 
 /**

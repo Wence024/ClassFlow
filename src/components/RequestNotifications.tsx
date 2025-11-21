@@ -1,6 +1,6 @@
 import { Bell, X, MapPin } from 'lucide-react';
 import { useAuth } from '../features/shared/auth/hooks/useAuth';
-import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
+import { useDepartmentRequests } from '@/features/shared/resource-management';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';

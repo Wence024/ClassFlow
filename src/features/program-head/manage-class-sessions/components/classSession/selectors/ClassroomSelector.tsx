@@ -1,5 +1,5 @@
 import { ResourceSelectorModal, type PrioritizedItem } from '../../../../../../components/ui';
-import type { Classroom } from '../../../../../classSessionComponents/types';
+import type { Classroom } from '@/types';
 
 interface ClassroomSelectorProps {
   isOpen: boolean;
