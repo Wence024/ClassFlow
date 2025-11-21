@@ -231,7 +231,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               return (
                 <div className="space-y-2">
                   <Label htmlFor="instructor_id">
-                    Instructor <span className="text-destructive">*</span>
+                    Instructor <span className="text-muted-foreground text-sm">(Optional)</span>
                   </Label>
                   <button
                     type="button"
@@ -249,6 +249,12 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                   </button>
                   {errors.instructor_id && (
                     <p className="text-sm text-destructive">{errors.instructor_id.message}</p>
+                  )}
+                  {!field.value && (
+                    <p className="text-xs text-amber-600 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Can be assigned later in timetable
+                    </p>
                   )}
                   <InstructorSelector
                     isOpen={openModal === 'instructor'}
@@ -313,7 +319,7 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
               return (
                 <div className="space-y-2">
                   <Label htmlFor="classroom_id">
-                    Classroom <span className="text-destructive">*</span>
+                    Classroom <span className="text-muted-foreground text-sm">(Optional)</span>
                   </Label>
                   <button
                     type="button"
@@ -333,6 +339,12 @@ const ClassSessionForm: React.FC<ClassSessionFormProps> = ({
                   </button>
                   {errors.classroom_id && (
                     <p className="text-sm text-destructive">{errors.classroom_id.message}</p>
+                  )}
+                  {!field.value && (
+                    <p className="text-xs text-amber-600 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Can be assigned later in timetable
+                    </p>
                   )}
                   <ClassroomSelector
                     isOpen={openModal === 'classroom'}

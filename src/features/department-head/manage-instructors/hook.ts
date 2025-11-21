@@ -111,7 +111,7 @@ export function useManageInstructors() {
    * @param classSessions The array of class sessions to check for instructor assignments.
    * @returns A boolean indicating if the instructor can be safely deleted.
    */
-  const canDeleteInstructor = (instructorId: string, classSessions: { instructor?: { id: string } }[]): boolean => {
+  const canDeleteInstructor = (instructorId: string, classSessions: { instructor?: { id: string } | null }[]): boolean => {
     return !classSessions.some((session) => session.instructor?.id === instructorId);
   };
 

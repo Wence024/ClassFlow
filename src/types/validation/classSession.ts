@@ -6,8 +6,8 @@ import { z } from 'zod';
 export const classSessionSchema = z.object({
   course_id: z.string({ error: 'A course must be selected' }).min(1, 'A course must be selected'),
   class_group_id: z.string().min(1, 'A class group must be selected'),
-  classroom_id: z.string().min(1, 'A classroom must be selected'),
-  instructor_id: z.string().min(1, 'An instructor must be selected'),
+  classroom_id: z.string().optional(),
+  instructor_id: z.string().optional(),
   period_count: z
     .number({
       error: 'Duration is required and must be a number',

@@ -78,9 +78,16 @@ export async function getClassSession(id: string): Promise<ClassSession> {
  * @returns The newly created class session.
  */
 export async function addClassSession(classSession: ClassSessionInsert): Promise<ClassSession> {
+  // Convert undefined to null for database insertion
+  const insertData = {
+    ...classSession,
+    instructor_id: classSession.instructor_id ?? null,
+    classroom_id: classSession.classroom_id ?? null,
+  } as any; // Type assertion needed due to Supabase type strictness
+  
   const { data, error } = await supabase
     .from(TABLE)
-    .insert([classSession])
+    .insert([insertData])
     .select(SELECT_COLUMNS)
     .single();
   if (error) throw error;
@@ -152,15 +159,20 @@ export async function getClassSessionsByProgram(program_id: string): Promise<Cla
  * @returns The newly created incomplete class session.
  */
 export async function createIncompleteClassSession(
-  data: Omit<ClassSessionInsert, 'instructor_id' | 'classroom_id'>
+  data: Omit<ClassSessionInsert, 'instructor_id' | 'classroom_id'> & {
+    instructor_id?: string | null;
+    classroom_id?: string | null;
+  }
 ): Promise<ClassSession> {
+  const insertData = {
+    ...data,
+    instructor_id: data.instructor_id ?? null,
+    classroom_id: data.classroom_id ?? null,
+  } as any; // Type assertion needed due to Supabase type strictness
+  
   const { data: newSession, error } = await supabase
     .from(TABLE)
-    .insert([{
-      ...data,
-      instructor_id: null,
-      classroom_id: null,
-    }])
+    .insert([insertData])
     .select(SELECT_COLUMNS)
     .single();
 

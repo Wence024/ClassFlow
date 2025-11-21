@@ -63,7 +63,10 @@ const buildTooltipContent = (
         <p className="text-gray-300">{primary.course.code}</p>
         <p className="mt-1">Class Group: {primary.group.name}</p>
         <p>
-          Instructor: {primary.instructor.first_name} {primary.instructor.last_name}
+          Instructor: {primary.instructor 
+            ? `${primary.instructor.first_name} ${primary.instructor.last_name}`
+            : '⚠️ Not Assigned'
+          }
         </p>
         {sessions.length > 1 && (
           <>
@@ -84,8 +87,10 @@ const buildTooltipContent = (
         <p className="font-bold text-sm">{primary.course.name}</p>
         <p className="text-gray-300">{primary.course.code}</p>
         <p className="mt-1">Class Group: {primary.group.name}</p>
-        <p className="text-gray-300">{primary.instructor.contract_type}</p>
-        <p>Classroom: {primary.classroom.name}</p>
+        {primary.instructor?.contract_type && (
+          <p className="text-gray-300">{primary.instructor.contract_type}</p>
+        )}
+        <p>Classroom: {primary.classroom?.name || '⚠️ Not Assigned'}</p>
         {sessions.length > 1 && (
           <>
             <hr className="my-1 border-gray-400" />
@@ -106,20 +111,23 @@ const buildTooltipContent = (
       <p className="font-bold text-sm">{primary.course.name}</p>
       <p className="text-gray-300">{primary.course.code}</p>
       <p className="mt-1">
-        Instructor: {primary.instructor.first_name} {primary.instructor.last_name}
+        Instructor: {primary.instructor
+          ? `${primary.instructor.first_name} ${primary.instructor.last_name}`
+          : '⚠️ Not Assigned'
+        }
       </p>
-      <p>Classroom: {primary.classroom.name}</p>
+      <p>Classroom: {primary.classroom?.name || '⚠️ Not Assigned'}</p>
       {sessions.length > 1 && (
-        <>
-          <hr className="my-1 border-gray-400" />
-          <p className="font-semibold">Merged Groups:</p>
-          <ul className="list-disc list-inside">
-            {sessions.map((s) => (
-              <li key={s.id}>{s.group.name}</li>
-            ))}
-          </ul>
-        </>
-      )}
+          <>
+            <hr className="my-1 border-gray-400" />
+            <p className="font-semibold">Merged Groups:</p>
+            <ul className="list-disc list-inside">
+              {sessions.map((s) => (
+                <li key={s.id}>{s.group.name}</li>
+              ))}
+            </ul>
+          </>
+        )}
     </>
   );
 };

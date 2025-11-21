@@ -175,7 +175,10 @@ export function ManageClassSessionsPage() {
     }
 
     try {
-      const crossDeptCheck = await checkCrossDepartment(data.instructor_id, data.classroom_id);
+      const instructorId = data.instructor_id || undefined;
+      const classroomId = data.classroom_id || undefined;
+      
+      const crossDeptCheck = await checkCrossDepartment(instructorId, classroomId);
 
       if (crossDeptCheck) {
         handleCrossDepartmentRequest({ isCrossDept: true, ...crossDeptCheck }, data);
@@ -183,9 +186,23 @@ export function ManageClassSessionsPage() {
       }
 
       const program_id = data.program_id || user.program_id;
-      await createSession({ ...data, user_id: user.id, program_id });
+      await createSession({ 
+        ...data, 
+        instructor_id: instructorId || null,
+        classroom_id: classroomId || null,
+        user_id: user.id, 
+        program_id 
+      });
       formMethods.reset();
       clearPersistedData();
+      
+      if (!instructorId || !classroomId) {
+        toast.success('Class session created! Assign resources in timetable.', {
+          description: `Missing: ${!instructorId ? 'Instructor' : ''} ${!classroomId ? 'Classroom' : ''}`.trim()
+        });
+      } else {
+        toast.success('Class session created successfully!');
+      }
     } catch (error) {
       console.error('Error creating class session:', error);
     }
@@ -203,6 +220,8 @@ export function ManageClassSessionsPage() {
       const program_id = pendingFormData.program_id || user.program_id;
       const newSession = await createSession({
         ...pendingFormData,
+        instructor_id: pendingFormData.instructor_id || null,
+        classroom_id: pendingFormData.classroom_id || null,
         user_id: user.id,
         program_id,
       });

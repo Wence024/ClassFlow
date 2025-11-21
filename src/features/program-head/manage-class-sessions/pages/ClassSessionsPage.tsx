@@ -123,9 +123,9 @@ const ClassSessionsPage: React.FC = () => {
     if (editingSession && editingSession.course) {
       formMethods.reset({
         course_id: editingSession.course.id,
-        instructor_id: editingSession.instructor.id,
+        instructor_id: editingSession.instructor?.id || '',
         class_group_id: editingSession.group.id,
-        classroom_id: editingSession.classroom.id,
+        classroom_id: editingSession.classroom?.id || '',
         period_count: editingSession.period_count ?? 1,
         program_id: editingSession.program_id || '',
       });
@@ -203,10 +203,26 @@ const ClassSessionsPage: React.FC = () => {
       }
 
       const program_id = data.program_id || user.program_id;
-      await addClassSession({ ...data, user_id: user.id, program_id });
+      const instructorId = data.instructor_id || null;
+      const classroomId = data.classroom_id || null;
+      
+      await addClassSession({ 
+        ...data, 
+        instructor_id: instructorId,
+        classroom_id: classroomId,
+        user_id: user.id, 
+        program_id 
+      });
       formMethods.reset();
       clearPersistedData();
-      toast.success('Class session created successfully!');
+      
+      if (!instructorId || !classroomId) {
+        toast.success('Class session created! Assign resources in timetable.', {
+          description: `Missing: ${!instructorId ? 'Instructor' : ''} ${!classroomId ? 'Classroom' : ''}`.trim()
+        });
+      } else {
+        toast.success('Class session created successfully!');
+      }
     } catch (error) {
       console.error('Error creating class session:', error);
       toast.error('Failed to create class session');

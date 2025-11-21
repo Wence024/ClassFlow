@@ -128,7 +128,7 @@ export function useClassSessions() {
  * @returns An object with cross-department detection results.
  */
 export async function checkCrossDepartmentResources(
-  data: { instructor_id: string; classroom_id: string },
+  data: { instructor_id?: string; classroom_id?: string },
   programId: string
 ): Promise<{
   isCrossDept: boolean;
@@ -139,27 +139,35 @@ export async function checkCrossDepartmentResources(
   const { isCrossDepartmentInstructor, isCrossDepartmentClassroom, getResourceDepartmentId } =
     await import('@/lib/services/classSessionService');
 
-  const isInstructorCrossDept = await isCrossDepartmentInstructor(programId, data.instructor_id);
-  const isClassroomCrossDept = await isCrossDepartmentClassroom(programId, data.classroom_id);
-
-  if (isInstructorCrossDept) {
-    const deptId = await getResourceDepartmentId(data.instructor_id, undefined);
-    return {
-      isCrossDept: true,
-      resourceType: 'instructor',
-      resourceId: data.instructor_id,
-      departmentId: deptId,
-    };
+  // Skip check if resources are not assigned
+  if (!data.instructor_id && !data.classroom_id) {
+    return { isCrossDept: false, resourceType: null, resourceId: null, departmentId: null };
   }
 
-  if (isClassroomCrossDept) {
-    const deptId = await getResourceDepartmentId(undefined, data.classroom_id);
-    return {
-      isCrossDept: true,
-      resourceType: 'classroom',
-      resourceId: data.classroom_id,
-      departmentId: deptId,
-    };
+  if (data.instructor_id) {
+    const isInstructorCrossDept = await isCrossDepartmentInstructor(programId, data.instructor_id);
+    if (isInstructorCrossDept) {
+      const deptId = await getResourceDepartmentId(data.instructor_id, undefined);
+      return {
+        isCrossDept: true,
+        resourceType: 'instructor',
+        resourceId: data.instructor_id,
+        departmentId: deptId,
+      };
+    }
+  }
+
+  if (data.classroom_id) {
+    const isClassroomCrossDept = await isCrossDepartmentClassroom(programId, data.classroom_id);
+    if (isClassroomCrossDept) {
+      const deptId = await getResourceDepartmentId(undefined, data.classroom_id);
+      return {
+        isCrossDept: true,
+        resourceType: 'classroom',
+        resourceId: data.classroom_id,
+        departmentId: deptId,
+      };
+    }
   }
 
   return { isCrossDept: false, resourceType: null, resourceId: null, departmentId: null };

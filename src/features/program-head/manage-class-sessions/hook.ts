@@ -84,10 +84,11 @@ export function useManageClassSessions() {
    * @param classroomId
    */
   const checkCrossDepartment = async (
-    instructorId: string,
-    classroomId: string | null
+    instructorId?: string,
+    classroomId?: string
   ): Promise<CrossDepartmentInfo | null> => {
     if (!user?.program_id) return null;
+    if (!instructorId && !classroomId) return null;
     try {
       return await classSessionService.checkCrossDepartmentResources(instructorId, classroomId);
     } catch (error) {
