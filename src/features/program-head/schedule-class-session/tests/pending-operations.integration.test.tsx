@@ -21,7 +21,7 @@ vi.mock('@/lib/services/timetableService', () => ({
   getTimetableAssignments: vi.fn(),
 }));
 
-vi.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/lib/supabase', () => ({
   supabase: {
     channel: vi.fn(() => ({
       on: vi.fn().mockReturnThis(),

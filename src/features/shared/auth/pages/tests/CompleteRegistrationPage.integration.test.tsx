@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import CompleteRegistrationPage from '../CompleteRegistrationPage';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@lib/supabase';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {

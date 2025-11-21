@@ -43,7 +43,7 @@ const createFromMock = () => ({
   delete: vi.fn(() => createDeleteMock()),
 });
 
-vi.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/lib/supabase', () => ({
   supabase: {
     from: vi.fn(() => createFromMock()),
   },
