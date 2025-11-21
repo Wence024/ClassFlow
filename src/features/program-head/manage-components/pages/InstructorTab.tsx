@@ -4,9 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../../shared/auth/hooks/useAuth';
 import { useDepartmentId } from '../../../shared/auth/hooks/useDepartmentId';
-import { useInstructorsUnified } from '../hooks/useInstructorsUnified';
+import { useInstructorsUnified } from '../../../shared/instructor-management/hooks/useInstructorsUnified';
 import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
-import { AdminInstructorFields, InstructorCard } from './components/instructor';
+import { AdminInstructorFields, InstructorCard } from '../../../shared/instructor-management/components';
 import {
   Button,
   ConfirmModal,

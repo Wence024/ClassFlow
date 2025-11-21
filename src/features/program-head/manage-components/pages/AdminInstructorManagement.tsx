@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../../../shared/auth/hooks/useAuth';
 import { useDepartmentId } from '../../../shared/auth/hooks/useDepartmentId';
-import { useInstructors } from '../hooks';
+import { useInstructors } from '../../../shared/instructor-management/hooks/useInstructors';
 import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
-import { InstructorCard } from './components/instructor';
-import { AdminInstructorFields } from './components/instructor/AdminInstructorFields';
+import { InstructorCard } from '../../../shared/instructor-management/components';
+import { AdminInstructorFields } from '../../../shared/instructor-management/components';
 import {
   Button,
   ConfirmModal,

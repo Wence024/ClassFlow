@@ -23,13 +23,13 @@
 export { useCourses } from './useCourses';
 export { useClassGroups } from './useClassGroups';
 export { useClassrooms } from './useClassrooms';
-export { useInstructors } from './useInstructors';
+export { useInstructors } from '../../../shared/instructor-management/hooks/useInstructors';
 
 // Selection hooks for cross-department workflows
-export { useAllInstructors } from './useAllInstructors';
+export { useAllInstructors } from '../../../shared/instructor-management/hooks/useAllInstructors';
 export { useAllClassrooms } from './useAllClassrooms';
 export { useAllCourses } from './useAllCourses';
 
 // Unified hooks that adapt to user role
 export { useClassroomsUnified } from './useClassroomsUnified';
-export { useInstructorsUnified } from './useInstructorsUnified';
+export { useInstructorsUnified } from '../../../shared/instructor-management/hooks/useInstructorsUnified';

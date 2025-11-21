@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FileDown, FileSpreadsheet } from 'lucide-react';
-import { useAllInstructors } from '@/features/program-head/manage-components/hooks';
+import { useAllInstructors } from '@/features/shared/instructor-management/hooks/useAllInstructors';
 import type { Instructor } from '@/types/instructor';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
