@@ -2,9 +2,9 @@
  * Runtime configuration system for production deployments.
  * 
  * Configuration Priority:
- * 1. Runtime config (window.APP_CONFIG from public/config.js) - Production only
- * 2. Build-time env vars (import.meta.env.VITE_*) - Staging (Vercel)
- * 3. Hardcoded defaults - Development
+ * 1. Runtime config (window.APP_CONFIG from public/config.js) - Production only.
+ * 2. Build-time env vars (import.meta.env.VITE_*) - Staging (Vercel).
+ * 3. Hardcoded defaults - Development.
  */
 
 export interface AppConfig {
@@ -29,8 +29,9 @@ const DEV_CONFIG: AppConfig = {
 };
 
 /**
- * Get application configuration with fallback chain:
- * 1. Runtime config (production) → 2. Env vars (staging) → 3. Hardcoded (dev)
+ * Get application configuration with fallback chain.
+ * 
+ * @returns Application configuration object.
  */
 export function getConfig(): AppConfig {
   // Priority 1: Runtime config from public/config.js (production)
@@ -56,7 +57,9 @@ export function getConfig(): AppConfig {
 }
 
 /**
- * Validate that configuration is complete
+ * Validate that configuration is complete.
+ *
+ * @param config - Configuration object to validate.
  */
 export function validateConfig(config: AppConfig): void {
   const missing: string[] = [];

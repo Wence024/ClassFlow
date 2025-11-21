@@ -4,22 +4,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import RequestNotifications from '../RequestNotifications';
-import { AuthContext } from '../../features/auth/contexts/AuthContext';
-import * as useDepartmentIdHook from '../../features/auth/hooks/useDepartmentId';
-import * as useDepartmentRequestsHook from '../../features/resourceRequests/hooks/useResourceRequests';
-import * as resourceRequestService from '../../features/resourceRequests/services/resourceRequestService';
+import { AuthContext } from '../../features/shared/auth/contexts/AuthContext';
+import * as useDepartmentIdHook from '../../features/shared/auth/hooks/useDepartmentId';
+import * as useDepartmentRequestsHook from '../../features/shared/resource-management/hooks/useResourceRequests';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
 import type { ReactNode } from 'react';
-import type { AuthContextType } from '../../features/auth/types/auth';
-import type { ResourceRequest } from '@/features/resourceRequests/types/resourceRequest';
+import type { AuthContextType } from '../../features/shared/auth/types/auth';
+import type { ResourceRequest } from '@/types/resourceRequest';
 import type { EnrichedRequest } from '../RequestNotifications';
 
 // Mocks
-vi.mock('../../features/auth/hooks/useDepartmentId');
-vi.mock('../../features/resourceRequests/hooks/useResourceRequests');
-vi.mock('../../features/resourceRequests/services/resourceRequestService', async () => {
-  const actual = await vi.importActual(
-    '../../features/resourceRequests/services/resourceRequestService'
-  );
+vi.mock('../../features/shared/auth/hooks/useDepartmentId');
+vi.mock('../../features/shared/resource-management/hooks/useResourceRequests');
+vi.mock('@/lib/services/resourceRequestService', async () => {
+  const actual = await vi.importActual('@/lib/services/resourceRequestService');
   return {
     ...actual,
     approveRequest: vi.fn(),

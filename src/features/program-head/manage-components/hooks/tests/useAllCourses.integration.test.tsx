@@ -1,0 +1,94 @@
+import React from 'react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useAllCourses } from '../useAllCourses';
+import * as coursesService from '@/lib/services/courseService';
+import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
+import type { User } from '../../../shared/auth/types/auth';
+import type { Course } from '../../types/course';
+import type { UseQueryResult } from '@tanstack/react-query';
+import type { AuthContextType } from '../../../shared/auth/types/auth';
+
+// Mocks
+vi.mock('@/lib/services/courseService');
+
+const mockedCoursesService = vi.mocked(coursesService, true);
+
+const queryClient = new QueryClient();
+
+const TestWrapper = ({ children, user }: { children: React.ReactNode; user: User | null }) => {
+  const authContextValue: Partial<AuthContextType> = {
+    user,
+    loading: false,
+    error: null,
+    role: user?.role || null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn(),
+  };
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthContext.Provider value={authContextValue as AuthContextType}>
+        {children}
+      </AuthContext.Provider>
+    </QueryClientProvider>
+  );
+};
+
+const useTestHook = (): UseQueryResult<Course[], unknown> => {
+  const query = useAllCourses('test');
+  return query as UseQueryResult<Course[], unknown>;
+};
+
+describe('useAllCourses', () => {
+  const mockUser: User = {
+    id: 'user1',
+    name: 'Test User',
+    email: 'test@user.com',
+    role: 'program_head',
+    program_id: 'p1',
+    department_id: 'd1',
+  };
+
+  const mockCourses: Course[] = [
+    {
+      id: 'c1',
+      name: 'Course 1',
+      code: 'C1',
+      program_id: 'p1',
+      created_at: '',
+      color: '#fff',
+      created_by: 'u1',
+    },
+    {
+      id: 'c2',
+      name: 'Course 2',
+      code: 'C2',
+      program_id: 'p2',
+      created_at: '',
+      color: '#fff',
+      created_by: 'u1',
+    },
+  ];
+
+  beforeEach(() => {
+    vi.resetAllMocks();
+    queryClient.clear();
+  });
+
+  it('should fetch all courses for an authenticated user', async () => {
+    mockedCoursesService.getAllCourses.mockResolvedValue(mockCourses);
+
+    const { result } = renderHook(() => useAllCourses(), {
+      wrapper: ({ children }) => <TestWrapper user={mockUser}>{children}</TestWrapper>,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.courses).toEqual(mockCourses);
+    expect(mockedCoursesService.getAllCourses).toHaveBeenCalledTimes(1);
+  });
+});

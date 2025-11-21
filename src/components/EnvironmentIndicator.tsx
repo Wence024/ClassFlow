@@ -4,6 +4,11 @@
 import { useEffect, useState } from 'react';
 import { config } from '@/lib/supabase';
 
+/**
+ * Component that displays the current environment (development, staging, production).
+ *
+ * @returns The environment indicator component.
+ */
 export function EnvironmentIndicator() {
   const [env, setEnv] = useState<string | null>(null);
 

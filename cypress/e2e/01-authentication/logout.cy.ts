@@ -24,13 +24,18 @@ describe('Authentication: Logout', () => {
       cy.get('input[name="email"]').should('be.visible');
     });
 
-    it('should clear session after logout', () => {
+    it('should clear session and localStorage after logout', () => {
       // Logout
       cy.get('[data-cy="user-avatar"]').click();
       cy.contains('button', /logout|sign out/i).click();
       
-      // Wait for logout to complete
-      cy.wait(1000);
+      // Verify redirect to login
+      cy.url().should('include', '/login');
+      
+      // Verify localStorage is cleared
+      cy.window().then((win) => {
+        expect(win.localStorage.length).to.equal(0);
+      });
 
       // Try to access protected route
       cy.visit('/departments', { failOnStatusCode: false });

@@ -2,9 +2,9 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import Sidebar from '../../Sidebar';
-import { AuthContext } from '../../../features/auth/contexts/AuthContext';
+import { AuthContext } from '../../../features/shared/auth/contexts/AuthContext';
 import { LayoutProvider } from '../../../contexts/LayoutContext';
-import type { AuthContextType } from '../../../features/auth/types/auth';
+import type { AuthContextType } from '../../../features/shared/auth/types/auth';
 
 /**
  * Renders the Sidebar component with required providers for testing.

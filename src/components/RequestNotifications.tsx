@@ -1,13 +1,13 @@
 import { Bell, X, MapPin } from 'lucide-react';
-import { useAuth } from '../features/auth/hooks/useAuth';
-import { useDepartmentRequests } from '../features/resourceRequests/hooks/useResourceRequests';
+import { useAuth } from '../features/shared/auth/hooks/useAuth';
+import { useDepartmentRequests } from '@/features/shared/resource-management';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RejectionDialog from './dialogs/RejectionDialog';
-import { getRequestWithDetails } from '../features/resourceRequests/services/resourceRequestService';
+import { getRequestWithDetails } from '@/lib/services/resourceRequestService';
 import { Tables } from '../lib/supabase.types';
 
 type ResourceRequest = Tables<'resource_requests'> & {
@@ -71,7 +71,7 @@ export default function RequestNotifications() {
     try {
       // Import the new approveRequest function
       const { approveRequest } = await import(
-        '../features/resourceRequests/services/resourceRequestService'
+        '@/lib/services/resourceRequestService'
       );
 
       // Use the atomic approval function (trigger will cleanup notifications)
@@ -103,7 +103,7 @@ export default function RequestNotifications() {
     setRejectingId(selectedRequestForRejection.id);
     try {
       const { rejectRequest } = await import(
-        '../features/resourceRequests/services/resourceRequestService'
+        '@/lib/services/resourceRequestService'
       );
 
       // Reject request (trigger will cleanup notifications)

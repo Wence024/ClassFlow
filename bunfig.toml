@@ -1,0 +1,9 @@
+# Bun configuration
+# Skip lifecycle scripts that may fail in build environments
+[install]
+optional = true
+dev = true
+
+# Skip specific problematic postinstall scripts
+[install.cache]
+disable = false

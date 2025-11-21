@@ -1,5 +1,5 @@
 import React from 'react';
-import RoleGuard from '../../features/auth/components/RoleGuard';
+import RoleGuard from '../../features/shared/auth/components/RoleGuard';
 
 interface RoleGuardedPageProps {
   children: React.ReactNode;
