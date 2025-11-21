@@ -4,8 +4,8 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppLayout from '../AppLayout';
-import { AuthContext } from '../../../features/auth/contexts/AuthContext';
-import type { AuthContextType } from '../../../features/auth/types/auth';
+import { AuthContext } from '../../../features/shared/auth/contexts/AuthContext';
+import type { AuthContextType } from '../../../features/shared/auth/types/auth';
 
 /**
  * Renders AppLayout with required providers for testing.

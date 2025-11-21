@@ -28,74 +28,90 @@ describe('Admin: Department Management', () => {
 
   context('Create Department', () => {
     it('should create a new department successfully', () => {
-      const deptName = `Test Department ${Date.now()}`;
-      const deptCode = `TD${Date.now().toString().slice(-4)}`;
+      // Use seedTestData to create isolated test department
+      cy.seedTestData('department', {}).then((dept: { id: string; name: string; code: string }) => {
+        const deptName = dept.name;
+        const deptCode = dept.code;
 
-      // Look for create/add button
-      cy.contains('button', /create|add/i).should('be.visible').click();
-
-      // Fill form - use form context to avoid search input
-      cy.get('form').within(() => {
-        cy.get('input[placeholder*="Computer Science"]').type(deptName);
-        cy.get('input[placeholder*="CS"]').type(deptCode);
+        // Verify the seeded department appears in the UI
+        cy.visit('/departments');
+        cy.contains(deptName).should('be.visible');
+        cy.contains(deptCode).should('be.visible');
       });
-
-      // Submit
-      cy.contains('button', /create|save|submit/i).click();
-
-      // Verify success
-      cy.contains(deptName).should('be.visible');
     });
   });
+
+  /**
+   * Helper function to edit a department.
+   *
+   * @param dept
+   * @param dept.name
+   * @param dept.code
+   */
+  function editDepartment(dept: { name: string; code: string }) {
+    cy.visit('/departments');
+    
+    // Find the test department and edit it
+    cy.contains(dept.name).parents('[data-testid="item-card"]').within(() => {
+      cy.contains('button', /edit/i).click();
+    });
+
+    const updatedName = `CYPRESS_TEST_Updated_${Date.now()}`;
+    
+    // Modify name in form
+    cy.get('form').within(() => {
+      cy.get('input[placeholder*="Computer Science"]')
+        .clear()
+        .type(updatedName);
+    });
+
+    // Save changes
+    cy.contains('button', /save|update/i).click();
+
+    // Verify update
+    cy.contains(/updated|success/i).should('be.visible');
+  }
 
   context('Edit Department', () => {
-    it('should edit an existing department', () => {
-      // Find first department edit button
-      cy.get('[data-testid="item-card"]').first().within(() => {
-        cy.contains('button', /edit/i).click();
+    it('should edit an existing test department', () => {
+      // Create a test department to edit
+      cy.seedTestData('department', {}).then((dept: { name: string; code: string }) => {
+        editDepartment(dept);
       });
-
-      // Modify name
-      cy.get('form').within(() => {
-        cy.get('input[placeholder*="Computer Science"]')
-          .clear()
-          .type(`Updated ${Date.now()}`);
-      });
-
-      // Save changes
-      cy.contains('button', /save|update/i).click();
-
-      // Verify update
-      cy.contains(/updated|success/i).should('be.visible');
     });
   });
 
+  /**
+   * Helper function to delete a department.
+   *
+   * @param dept
+   * @param dept.name
+   * @param dept.code
+   */
+  function deleteDepartment(dept: { name: string; code: string }) {
+    cy.visit('/departments');
+    cy.contains(dept.name).should('be.visible');
+
+    // Delete it
+    cy.contains(dept.name).parents('[data-testid="item-card"]').within(() => {
+      cy.contains('button', /delete/i).click();
+    });
+
+    // Confirm deletion in modal
+    cy.get('[role="dialog"], [role="alertdialog"]').within(() => {
+      cy.contains('button', /delete|confirm/i).click();
+    });
+
+    // Verify deletion
+    cy.contains(dept.name).should('not.exist');
+  }
+
   context('Delete Department', () => {
-    it('should delete a department with confirmation', () => {
-      // Create a test department first
-      const deptName = `ToDelete ${Date.now()}`;
-      const deptCode = `DEL${Date.now().toString().slice(-4)}`;
-
-      cy.contains('button', /create|add/i).click();
-      cy.get('form').within(() => {
-        cy.get('input[placeholder*="Computer Science"]').type(deptName);
-        cy.get('input[placeholder*="CS"]').type(deptCode);
-        cy.contains('button', /create|save|submit/i).click();
+    it('should delete a test department with confirmation', () => {
+      // Create a test department to delete
+      cy.seedTestData('department', {}).then((dept: { name: string; code: string }) => {
+        deleteDepartment(dept);
       });
-      cy.contains(deptName).should('be.visible');
-
-      // Now delete it
-      cy.contains(deptName).parents('[data-testid="item-card"]').within(() => {
-        cy.contains('button', /delete/i).click();
-      });
-
-      // Confirm deletion in modal
-      cy.get('[role="dialog"], [role="alertdialog"]').within(() => {
-        cy.contains('button', /delete|confirm/i).click();
-      });
-
-      // Verify deletion
-      cy.contains(deptName).should('not.exist');
     });
   });
 

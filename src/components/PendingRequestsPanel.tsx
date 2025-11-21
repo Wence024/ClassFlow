@@ -1,11 +1,12 @@
 import { Clock, X } from 'lucide-react';
-import { useAuth } from '../features/auth/hooks/useAuth';
+import { useAuth } from '../features/shared/auth/hooks/useAuth';
 import { Popover, PopoverTrigger, PopoverContent, Button } from './ui';
-import { useMyPendingRequests } from '../features/resourceRequests/hooks/useResourceRequests';
+import { useMyPendingRequests } from '@/features/shared/resource-management';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
 
 /**
  * Notification dropdown for Program Heads to view and cancel their pending resource requests.
@@ -14,14 +15,15 @@ import { useState } from 'react';
  * @returns The PendingRequestsPanel component.
  */
 export default function PendingRequestsPanel() {
-  const { isProgramHead } = useAuth();
-  const { pendingRequests, cancelRequest, isCancelling } = useMyPendingRequests();
+  const { isProgramHead, user } = useAuth();
+  const { pendingRequests, isLoading, error } = useMyPendingRequests();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
-  const hasPendingRequests = pendingRequests.length > 0;
+  // Calculate count to show - show 0 when error occurs or when no requests
+  const displayCount = error ? 0 : pendingRequests.length;
 
   // Fetch enriched details for each pending request
-  const { data: enrichedRequests = [] } = useQuery({
+  const { data: enrichedRequests = [], isLoading: isEnriching } = useQuery({
     queryKey: ['my_enriched_pending_requests', pendingRequests.map((r) => r.id)],
     queryFn: async () => {
       const enriched = await Promise.all(
@@ -51,9 +53,11 @@ export default function PendingRequestsPanel() {
   });
 
   const handleCancel = async (requestId: string) => {
+    if (!user?.id) return;
+    
     setCancellingId(requestId);
     try {
-      await cancelRequest(requestId);
+      await resourceRequestService.cancelRequest(requestId, user.id);
       toast.success('Request cancelled successfully');
     } catch (error) {
       console.error('Error cancelling request:', error);
@@ -63,17 +67,32 @@ export default function PendingRequestsPanel() {
     }
   };
 
+  if (!user || !isProgramHead()) {
+    return null; // Don't show to non-program heads
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button 
+        <button
           data-cy="pending-requests-bell"
+          data-testid="pending-requests-bell"
           className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
           <Clock className="w-5 h-5" />
-          {hasPendingRequests && (
+          {/* Show loading state */}
+          {isLoading && (
+            <span
+              data-testid="pending-requests-loading"
+              className="absolute -top-1 -right-1 bg-gray-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+            >
+              0
+            </span>
+          )}
+          {/* Show count when not loading - always show the count, even if 0 */}
+          {!isLoading && (
             <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {pendingRequests.length}
+              {displayCount}
             </span>
           )}
         </button>
@@ -86,7 +105,11 @@ export default function PendingRequestsPanel() {
           </p>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {enrichedRequests.length === 0 ? (
+          {error ? (
+            <div className="p-4 text-center text-red-500">Error loading requests</div>
+          ) : isLoading || isEnriching ? (
+            <div className="p-4 text-center text-gray-500">Loading...</div>
+          ) : enrichedRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No pending requests</div>
           ) : (
             enrichedRequests.map((request) => (
@@ -112,7 +135,7 @@ export default function PendingRequestsPanel() {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleCancel(request.id)}
-                    disabled={cancellingId === request.id || isCancelling}
+                    disabled={cancellingId === request.id}
                     className="h-8 w-8 p-0"
                   >
                     <X className="h-4 w-4" />
