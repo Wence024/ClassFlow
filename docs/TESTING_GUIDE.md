@@ -240,12 +240,12 @@ describe('Feature Service Tests', () => {
   });
 
   it('should transform data correctly', async () => {
-    const rawData = { id: '1', created_at: '2025-01-01' };
+    const rawData = { id: '1', created_at: 'DATE' };
     vi.mocked(infraService.fetchItem).mockResolvedValue(rawData);
 
     const result = await service.fetchItem('1');
 
-    expect(result.createdAt).toBe('2025-01-01');
+    expect(result.createdAt).toBe('DATE');
   });
 });
 ```
@@ -612,6 +612,5 @@ cy.get('[data-cy="button"]').click();
 
 ---
 
-**Last Updated:** 2025-11-20  
-**Version:** 1.0  
+**Version:** 1.0
 **Status:** Active

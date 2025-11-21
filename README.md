@@ -244,7 +244,7 @@ See [Coding Guidelines](./docs/coding-guidelines.md) for detailed standards.
 
 ## Recent Changes
 
-### Version 2.0 - Vertical Slice Architecture (November 2025)
+### Version 2.0 - Vertical Slice Architecture
 - ✅ Complete refactoring to vertical slice architecture
 - ✅ Role-based feature organization (Admin, Department Head, Program Head)
 - ✅ Centralized services and validation in `lib/`
