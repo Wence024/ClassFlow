@@ -1,6 +1,6 @@
 /**
  * Integration tests for Class Groups component.
- * Placeholder test - full implementation requires component refactoring.
+ * Tests the class group management UI for program heads.
  */
 
 import { render, screen } from '@testing-library/react';
@@ -11,6 +11,7 @@ import { AuthContext } from '@/features/shared/auth/contexts/AuthContext';
 import type { AuthContextType } from '@/features/shared/auth/types/auth';
 
 vi.mock('../hooks/useClassGroups');
+import { useClassGroups } from '../hooks/useClassGroups';
 
 const mockClassGroups = [
   {
@@ -54,6 +55,18 @@ const createWrapper = () => {
     signOut: vi.fn(),
   };
 
+  // Mock the hook implementation
+  vi.mocked(useClassGroups).mockReturnValue({
+    classGroups: mockClassGroups,
+    isLoading: false,
+    isSubmitting: false,
+    isRemoving: false,
+    error: null,
+    addClassGroup: vi.fn(),
+    updateClassGroup: vi.fn(),
+    removeClassGroup: vi.fn(),
+  });
+
   return ({ children }: { children: React.ReactNode }) => (
     <QueryClientProvider client={queryClient}>
       <AuthContext.Provider value={authValue}>{children}</AuthContext.Provider>
@@ -65,6 +78,6 @@ describe('ClassGroupManagement Component', () => {
   it('should render the component', () => {
     render(<ClassGroupManagement />, { wrapper: createWrapper() });
 
-    expect(screen.getByText(/class groups/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /class groups/i })).toBeInTheDocument();
   });
 });
