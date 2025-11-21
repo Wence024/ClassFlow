@@ -6,10 +6,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useViewPendingRequests } from '../hook';
-import * as service from '../service';
+import * as resourceRequestService from '@/lib/services/resourceRequestService';
 import type { ResourceRequest } from '@/types/resourceRequest';
 
-vi.mock('../service');
+vi.mock('@/lib/services/resourceRequestService');
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
@@ -66,7 +66,7 @@ describe('useViewPendingRequests', () => {
 
   describe('fetchMyRequests', () => {
     it('should fetch and display user requests', async () => {
-      vi.mocked(service.fetchMyRequests).mockResolvedValue(mockRequests);
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
 
       const { result } = renderHook(() => useViewPendingRequests('user-1'), {
         wrapper: createWrapper(),
@@ -80,21 +80,21 @@ describe('useViewPendingRequests', () => {
     });
 
     it('should not fetch when userId is undefined', () => {
-      vi.mocked(service.fetchMyRequests).mockResolvedValue(mockRequests);
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
 
       const { result } = renderHook(() => useViewPendingRequests(undefined), {
         wrapper: createWrapper(),
       });
 
       expect(result.current.requests).toHaveLength(0);
-      expect(service.fetchMyRequests).not.toHaveBeenCalled();
+      expect(resourceRequestService.getMyRequests).not.toHaveBeenCalled();
     });
   });
 
   describe('handleDismiss', () => {
     it('should dismiss a request successfully', async () => {
-      vi.mocked(service.fetchMyRequests).mockResolvedValue(mockRequests);
-      vi.mocked(service.dismissRequest).mockResolvedValue();
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
+      vi.mocked(resourceRequestService.dismissRequest).mockResolvedValue();
 
       const { result } = renderHook(() => useViewPendingRequests('user-1'), {
         wrapper: createWrapper(),
@@ -106,12 +106,12 @@ describe('useViewPendingRequests', () => {
 
       await waitFor(() => expect(result.current.isDismissing).toBe(false));
 
-      expect(service.dismissRequest).toHaveBeenCalledWith('req-1');
+      expect(resourceRequestService.dismissRequest).toHaveBeenCalledWith('req-1');
     });
 
     it('should handle dismiss errors', async () => {
-      vi.mocked(service.fetchMyRequests).mockResolvedValue(mockRequests);
-      vi.mocked(service.dismissRequest).mockRejectedValue(new Error('Dismiss failed'));
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
+      vi.mocked(resourceRequestService.dismissRequest).mockRejectedValue(new Error('Dismiss failed'));
 
       const { result } = renderHook(() => useViewPendingRequests('user-1'), {
         wrapper: createWrapper(),
@@ -127,8 +127,8 @@ describe('useViewPendingRequests', () => {
 
   describe('handleCancel', () => {
     it('should cancel a request successfully', async () => {
-      vi.mocked(service.fetchMyRequests).mockResolvedValue(mockRequests);
-      vi.mocked(service.cancelMyRequest).mockResolvedValue();
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
+      vi.mocked(resourceRequestService.cancelRequest).mockResolvedValue();
 
       const { result } = renderHook(() => useViewPendingRequests('user-1'), {
         wrapper: createWrapper(),
@@ -140,11 +140,11 @@ describe('useViewPendingRequests', () => {
 
       await waitFor(() => expect(result.current.isCancelling).toBe(false));
 
-      expect(service.cancelMyRequest).toHaveBeenCalledWith('req-1', 'user-1');
+      expect(resourceRequestService.cancelRequest).toHaveBeenCalledWith('req-1', 'user-1');
     });
 
     it('should show error when userId is missing', async () => {
-      vi.mocked(service.fetchMyRequests).mockResolvedValue(mockRequests);
+      vi.mocked(resourceRequestService.getMyRequests).mockResolvedValue(mockRequests);
 
       const { result } = renderHook(() => useViewPendingRequests(undefined), {
         wrapper: createWrapper(),
@@ -152,7 +152,7 @@ describe('useViewPendingRequests', () => {
 
       result.current.handleCancel(mockRequests[0]);
 
-      expect(service.cancelMyRequest).not.toHaveBeenCalled();
+      expect(resourceRequestService.cancelRequest).not.toHaveBeenCalled();
     });
   });
 });

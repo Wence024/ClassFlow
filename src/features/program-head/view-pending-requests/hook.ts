@@ -4,7 +4,11 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { fetchMyRequests, dismissRequest, cancelMyRequest } from './service';
+import {
+  getMyRequests,
+  dismissRequest as dismissRequestService,
+  cancelRequest as cancelRequestService,
+} from '@/lib/services/resourceRequestService';
 import type { ResourceRequest } from '@/types/resourceRequest';
 
 /**
@@ -16,12 +20,12 @@ export function useViewPendingRequests(userId?: string) {
 
   const requestsQuery = useQuery({
     queryKey: ['my-resource-requests'],
-    queryFn: fetchMyRequests,
+    queryFn: getMyRequests,
     enabled: !!userId,
   });
 
   const dismissMutation = useMutation({
-    mutationFn: dismissRequest,
+    mutationFn: dismissRequestService,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-resource-requests'] });
       toast.success('Request dismissed');
@@ -34,7 +38,7 @@ export function useViewPendingRequests(userId?: string) {
 
   const cancelMutation = useMutation({
     mutationFn: ({ requestId, requesterId }: { requestId: string; requesterId: string }) =>
-      cancelMyRequest(requestId, requesterId),
+      cancelRequestService(requestId, requesterId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-resource-requests'] });
       queryClient.invalidateQueries({ queryKey: ['timetable'] });

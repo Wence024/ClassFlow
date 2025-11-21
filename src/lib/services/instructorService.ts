@@ -11,9 +11,10 @@ const TABLE = 'instructors';
 /**
  * Fetches instructors for CRUD/management views (filtered by department for non-admins).
  *
- * @param params
- * @param params.role
- * @param params.department_id
+ * @param params - The parameters for fetching instructors.
+ * @param params.role - The user role to determine access level.
+ * @param params.department_id - The department ID to filter instructors (for non-admins).
+ * @returns Array of instructors matching the criteria.
  */
 export async function getInstructors(params?: {
   role?: string | null;
@@ -32,6 +33,8 @@ export async function getInstructors(params?: {
 
 /**
  * Fetches ALL instructors with department information for selection workflows.
+ *
+ * @returns Array of all instructors with their department information.
  */
 export async function getAllInstructors(): Promise<Instructor[]> {
   const { data, error } = await supabase
@@ -58,7 +61,8 @@ export async function getAllInstructors(): Promise<Instructor[]> {
 /**
  * Adds a new instructor to the database.
  *
- * @param instructor
+ * @param instructor - The instructor data to insert.
+ * @returns The newly created instructor object.
  */
 export async function addInstructor(instructor: InstructorInsert): Promise<Instructor> {
   const {
@@ -80,8 +84,9 @@ export async function addInstructor(instructor: InstructorInsert): Promise<Instr
 /**
  * Updates an existing instructor in the database.
  *
- * @param id
- * @param instructor
+ * @param id - The ID of the instructor to update.
+ * @param instructor - The updated instructor data.
+ * @returns The updated instructor object.
  */
 export async function updateInstructor(
   id: string,
@@ -100,7 +105,7 @@ export async function updateInstructor(
 /**
  * Removes an instructor from the database.
  *
- * @param id
+ * @param id - The ID of the instructor to remove.
  */
 export async function removeInstructor(id: string): Promise<void> {
   const { error } = await supabase.from(TABLE).delete().eq('id', id);
@@ -110,7 +115,8 @@ export async function removeInstructor(id: string): Promise<void> {
 /**
  * Fetches instructors by department ID.
  *
- * @param departmentId
+ * @param departmentId - The ID of the department to filter instructors by.
+ * @returns Array of instructors belonging to the specified department.
  */
 export async function getInstructorsByDepartment(departmentId: string): Promise<Instructor[]> {
   const { data, error } = await supabase

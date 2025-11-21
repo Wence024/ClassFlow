@@ -8,11 +8,11 @@ import { toast } from 'sonner';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { Classroom, ClassroomInsert, ClassroomUpdate } from '@/types/classroom';
 import {
-  fetchAllClassrooms,
-  createClassroom,
-  modifyClassroom,
-  deleteClassroom,
-} from './service';
+  getAllClassrooms,
+  addClassroom as addClassroomService,
+  updateClassroom as updateClassroomService,
+  removeClassroom as removeClassroomService,
+} from '@/lib/services/classroomService';
 
 /**
  * Hook for managing classrooms with CRUD operations.
@@ -33,7 +33,7 @@ export function useManageClassrooms() {
     error,
   } = useQuery<Classroom[]>({
     queryKey,
-    queryFn: fetchAllClassrooms,
+    queryFn: getAllClassrooms,
     enabled: !!user,
   });
 
@@ -51,7 +51,7 @@ export function useManageClassrooms() {
 
   // Create classroom mutation
   const addMutation = useMutation({
-    mutationFn: (data: ClassroomInsert) => createClassroom(data),
+    mutationFn: (data: ClassroomInsert) => addClassroomService(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Classroom created successfully!');
@@ -66,7 +66,7 @@ export function useManageClassrooms() {
   // Update classroom mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: ClassroomUpdate }) =>
-      modifyClassroom(id, data),
+      updateClassroomService(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Classroom updated successfully!');
@@ -80,7 +80,7 @@ export function useManageClassrooms() {
 
   // Delete classroom mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteClassroom(id),
+    mutationFn: (id: string) => removeClassroomService(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Classroom removed successfully.');

@@ -8,14 +8,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useManageClassrooms } from '../hook';
-import * as service from '../service';
+import * as classroomService from '@/lib/services/classroomService';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { User, AuthContextType } from '../../../shared/auth/types/auth';
 import type { Classroom } from '@/types/classroom';
 
-vi.mock('../service');
+vi.mock('@/lib/services/classroomService');
 
-const mockedService = vi.mocked(service);
+const mockedService = vi.mocked(classroomService);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false },
@@ -94,7 +94,7 @@ describe('useManageClassrooms Hook', () => {
   });
 
   it('should fetch all classrooms', async () => {
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,
@@ -105,11 +105,11 @@ describe('useManageClassrooms Hook', () => {
     });
 
     expect(result.current.classrooms).toHaveLength(2);
-    expect(mockedService.fetchAllClassrooms).toHaveBeenCalled();
+    expect(mockedService.getAllClassrooms).toHaveBeenCalled();
   });
 
   it('should prioritize classrooms from user department first', async () => {
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,
@@ -133,8 +133,8 @@ describe('useManageClassrooms Hook', () => {
       preferred_department_id: 'd1',
     };
 
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
-    mockedService.createClassroom.mockResolvedValue({
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.addClassroom.mockResolvedValue({
       id: 'c3',
       ...newClassroom,
       color: null,
@@ -155,7 +155,7 @@ describe('useManageClassrooms Hook', () => {
       await result.current.addClassroom(newClassroom);
     });
 
-    expect(mockedService.createClassroom).toHaveBeenCalledWith(newClassroom);
+    expect(mockedService.addClassroom).toHaveBeenCalledWith(newClassroom);
   });
 
   it('should update an existing classroom', async () => {
@@ -164,8 +164,8 @@ describe('useManageClassrooms Hook', () => {
       location: 'Building A - Floor 2',
     };
 
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
-    mockedService.modifyClassroom.mockResolvedValue({
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.updateClassroom.mockResolvedValue({
       ...mockClassrooms[0],
       ...updates,
     });
@@ -182,12 +182,12 @@ describe('useManageClassrooms Hook', () => {
       await result.current.updateClassroom('c1', updates);
     });
 
-    expect(mockedService.modifyClassroom).toHaveBeenCalledWith('c1', updates);
+    expect(mockedService.updateClassroom).toHaveBeenCalledWith('c1', updates);
   });
 
   it('should delete a classroom', async () => {
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
-    mockedService.deleteClassroom.mockResolvedValue(undefined);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.removeClassroom.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,
@@ -201,11 +201,11 @@ describe('useManageClassrooms Hook', () => {
       await result.current.removeClassroom('c1');
     });
 
-    expect(mockedService.deleteClassroom).toHaveBeenCalledWith('c1');
+    expect(mockedService.removeClassroom).toHaveBeenCalledWith('c1');
   });
 
   it('should validate if classroom can be deleted', async () => {
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,
@@ -227,7 +227,7 @@ describe('useManageClassrooms Hook', () => {
   });
 
   it('should get first other department index correctly', async () => {
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,
@@ -243,8 +243,8 @@ describe('useManageClassrooms Hook', () => {
 
   it('should handle errors during creation', async () => {
     const error = new Error('Failed to create classroom');
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
-    mockedService.createClassroom.mockRejectedValue(error);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.addClassroom.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,
@@ -267,8 +267,8 @@ describe('useManageClassrooms Hook', () => {
 
   it('should handle foreign key errors during deletion', async () => {
     const error = new Error('foreign key constraint violation');
-    mockedService.fetchAllClassrooms.mockResolvedValue(mockClassrooms);
-    mockedService.deleteClassroom.mockRejectedValue(error);
+    mockedService.getAllClassrooms.mockResolvedValue(mockClassrooms);
+    mockedService.removeClassroom.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageClassrooms(), {
       wrapper: TestWrapper,

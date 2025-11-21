@@ -5,7 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
-import * as service from './service';
+import * as classSessionService from '@/lib/services/classSessionService';
 import type { ClassSessionInsert, ClassSessionUpdate, CrossDepartmentInfo } from './types';
 
 /**
@@ -24,7 +24,7 @@ export function useManageClassSessions() {
     error,
   } = useQuery({
     queryKey,
-    queryFn: () => (user ? service.fetchSessions(user.id) : Promise.resolve([])),
+    queryFn: () => (user ? classSessionService.getClassSessions(user.id) : Promise.resolve([])),
     enabled: !!user,
   });
 
@@ -35,7 +35,7 @@ export function useManageClassSessions() {
         throw new Error('Cannot create class session: User is not assigned to a program.');
       }
       const sessionData = { ...data, user_id: user.id, program_id: user.program_id };
-      return service.createSession(sessionData);
+      return classSessionService.addClassSession(sessionData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
@@ -49,7 +49,7 @@ export function useManageClassSessions() {
   // Update session
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: ClassSessionUpdate }) =>
-      service.updateSession(id, data),
+      classSessionService.updateClassSession(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Class session updated successfully');
@@ -61,7 +61,7 @@ export function useManageClassSessions() {
 
   // Delete session
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => service.deleteSession(id, user!.id),
+    mutationFn: (id: string) => classSessionService.removeClassSession(id, user!.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Class session deleted successfully');
@@ -89,7 +89,7 @@ export function useManageClassSessions() {
   ): Promise<CrossDepartmentInfo | null> => {
     if (!user?.program_id) return null;
     try {
-      return await service.checkCrossDepartmentResources(instructorId, classroomId);
+      return await classSessionService.checkCrossDepartmentResources(instructorId, classroomId);
     } catch (error) {
       console.error('Error checking cross-department resources:', error);
       return null;

@@ -5,11 +5,11 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
-  fetchDepartments,
-  createNewDepartment,
-  updateDepartmentData,
-  removeDepartment,
-} from './service';
+  getDepartments as fetchDepartments,
+  createDepartment as createNewDepartment,
+  updateDepartment as updateDepartmentData,
+  deleteDepartment as removeDepartment,
+} from '@/lib/services/departmentService';
 import type { Department, DepartmentInsert, DepartmentUpdate } from '@/types/department';
 
 export type UseManageDepartmentsResult = {

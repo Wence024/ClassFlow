@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { rejectResourceRequest } from './service';
+import { rejectResource as rejectResourceService } from '@/lib/services/resourceRequestService';
 
 export type UseRejectRequestResult = {
   rejectRequest: (requestId: string, reviewerId: string, rejectionMessage: string) => Promise<boolean>;
@@ -33,7 +33,7 @@ export function useRejectRequest(): UseRejectRequestResult {
     setError(null);
 
     try {
-      await rejectResourceRequest(requestId, reviewerId, rejectionMessage);
+      await rejectResourceService(requestId, reviewerId, rejectionMessage);
       toast.success('Request rejected');
       return true;
     } catch (err) {

@@ -7,11 +7,11 @@ import { toast } from 'sonner';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/instructor';
 import {
-  fetchInstructors,
-  createInstructor,
-  modifyInstructor,
-  deleteInstructor,
-} from './service';
+  getAllInstructors as fetchInstructors,
+  addInstructor as createInstructor,
+  updateInstructor as modifyInstructor,
+  removeInstructor as deleteInstructor,
+} from '@/lib/services/instructorService';
 
 /**
  * Hook for managing instructors with CRUD operations.

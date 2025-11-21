@@ -4,7 +4,11 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { fetchAllUsers, removeUser, updateUserProfileData } from './service';
+import {
+  getAllUsers as fetchAllUsers,
+  removeUser as removeUserService,
+  updateUserProfile as updateUserProfileService,
+} from '@/lib/services/userService';
 import type { UserProfile, Role } from '@/types/user';
 import type { UserFilters } from './types';
 
@@ -54,7 +58,7 @@ export function useManageUsers(): UseManageUsersResult {
     data: { role?: Role; programId?: string | null; departmentId?: string | null }
   ): Promise<boolean> => {
     try {
-      await updateUserProfileData(userId, data);
+      await updateUserProfileService(userId, data);
       toast.success('User updated successfully');
       await fetchUsers();
       return true;
@@ -67,7 +71,7 @@ export function useManageUsers(): UseManageUsersResult {
 
   const deleteUser = async (userId: string): Promise<boolean> => {
     try {
-      await removeUser(userId);
+      await removeUserService(userId);
       toast.success('User deleted successfully');
       await fetchUsers();
       return true;

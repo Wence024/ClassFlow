@@ -8,6 +8,8 @@ import type { Role, UserProfile, UserProfileUpdate } from '../../types/user';
 
 /**
  * Fetches all users with their profile information and roles.
+ *
+ * @returns Array of user profiles with their information and roles.
  */
 export async function getUsers(): Promise<UserProfile[]> {
   const { data: profiles, error: profileError } = await supabase
@@ -43,8 +45,8 @@ export async function getUsers(): Promise<UserProfile[]> {
 /**
  * Updates a user's profile (admin only via RPC).
  *
- * @param userId
- * @param updates
+ * @param userId - The ID of the user to update.
+ * @param updates - The profile updates to apply.
  */
 export async function updateUserProfile(userId: string, updates: UserProfileUpdate): Promise<void> {
   const { error } = await supabase.rpc('admin_update_user_profile', {
@@ -60,11 +62,11 @@ export async function updateUserProfile(userId: string, updates: UserProfileUpda
 /**
  * Invites a new user by email (admin only).
  *
- * @param invite
- * @param invite.email
- * @param invite.role
- * @param invite.program_id
- * @param invite.department_id
+ * @param invite - The invitation details.
+ * @param invite.email - The email address of the user to invite.
+ * @param invite.role - The role to assign to the invited user.
+ * @param invite.program_id - The program ID to assign to the user (optional).
+ * @param invite.department_id - The department ID to assign to the user (optional).
  */
 export async function inviteUser(invite: {
   email: string;
@@ -94,7 +96,7 @@ export async function inviteUser(invite: {
 /**
  * Deletes a user (admin only via RPC).
  *
- * @param userId
+ * @param userId - The ID of the user to delete.
  */
 export async function deleteUser(userId: string): Promise<void> {
   const { error } = await supabase.rpc('admin_delete_user', {
@@ -106,8 +108,8 @@ export async function deleteUser(userId: string): Promise<void> {
 /**
  * Updates a user's display name (admin only via RPC).
  *
- * @param userId
- * @param name
+ * @param userId - The ID of the user whose name to update.
+ * @param name - The new display name for the user.
  */
 export async function updateUserName(userId: string, name: string): Promise<void> {
   const { error } = await supabase.rpc('admin_update_user_name' as never, {

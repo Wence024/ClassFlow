@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { checkCrossDepartmentResource } from './service';
+import { checkCrossDepartmentResource as checkCrossDepartmentResourceService } from '@/lib/services/classSessionService';
 import type { CrossDeptCheckResult, CrossDeptRequestPayload } from './types';
 
 /**
@@ -30,7 +30,7 @@ export function useRequestCrossDeptResource() {
   ): Promise<CrossDeptCheckResult> => {
     setIsChecking(true);
     try {
-      const result = await checkCrossDepartmentResource(programId, instructorId, classroomId);
+      const result = await checkCrossDepartmentResourceService(programId, instructorId, classroomId);
       return result;
     } catch (error) {
       console.error('Error checking cross-department resource:', error);

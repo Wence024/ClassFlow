@@ -19,9 +19,10 @@ const SELECT_COLUMNS = `
 /**
  * Maps raw database row to ClassSession type, handling nullable resources.
  *
- * @param row - Raw database row
+ * @param row - Raw database row.
+ * @returns The mapped ClassSession object.
  */
-function mapToClassSession(row: any): ClassSession {
+function mapToClassSession(row: Record<string, unknown>): ClassSession {
   return {
     id: row.id,
     course: row.course,
@@ -36,6 +37,8 @@ function mapToClassSession(row: any): ClassSession {
 /**
  * Retrieves all class sessions from the database.
  * Handles nullable instructor and classroom for incomplete sessions.
+ *
+ * @returns Array of all class sessions.
  */
 export async function getAllClassSessions(): Promise<ClassSession[]> {
   const { data, error } = await supabase.from('class_sessions').select(SELECT_COLUMNS);
@@ -46,7 +49,8 @@ export async function getAllClassSessions(): Promise<ClassSession[]> {
 /**
  * Retrieves class sessions for a specific user.
  *
- * @param user_id
+ * @param user_id - The ID of the user whose class sessions to retrieve.
+ * @returns Array of class sessions for the specified user.
  */
 export async function getClassSessions(user_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('user_id', user_id);
@@ -57,7 +61,8 @@ export async function getClassSessions(user_id: string): Promise<ClassSession[]>
 /**
  * Fetches a single, fully-hydrated class session by its ID.
  *
- * @param id
+ * @param id - The ID of the class session to fetch.
+ * @returns The requested class session.
  */
 export async function getClassSession(id: string): Promise<ClassSession> {
   const { data, error } = await supabase.from(TABLE).select(SELECT_COLUMNS).eq('id', id).single();
@@ -69,7 +74,8 @@ export async function getClassSession(id: string): Promise<ClassSession> {
  * Adds a new class session to the database.
  * Supports both complete and incomplete sessions.
  *
- * @param classSession
+ * @param classSession - The class session data to insert.
+ * @returns The newly created class session.
  */
 export async function addClassSession(classSession: ClassSessionInsert): Promise<ClassSession> {
   const { data, error } = await supabase
@@ -85,8 +91,9 @@ export async function addClassSession(classSession: ClassSessionInsert): Promise
  * Updates an existing class session in the database.
  * Can be used to assign resources to incomplete sessions.
  *
- * @param id
- * @param classSession
+ * @param id - The ID of the class session to update.
+ * @param classSession - The updated class session data.
+ * @returns The updated class session.
  */
 export async function updateClassSession(
   id: string,
@@ -106,8 +113,8 @@ export async function updateClassSession(
  * Removes a class session from the database by its ID.
  * Cancels all active resource requests for this session before deletion.
  *
- * @param id
- * @param user_id
+ * @param id - The ID of the class session to remove.
+ * @param user_id - The ID of the user performing the deletion.
  */
 export async function removeClassSession(id: string, user_id: string): Promise<void> {
   // Cancel any active requests for this session before deletion
@@ -125,7 +132,8 @@ export async function removeClassSession(id: string, user_id: string): Promise<v
 /**
  * Retrieves class sessions for a specific program.
  *
- * @param program_id
+ * @param program_id - The ID of the program to filter class sessions by.
+ * @returns Array of class sessions for the specified program.
  */
 export async function getClassSessionsByProgram(program_id: string): Promise<ClassSession[]> {
   const { data, error } = await supabase
@@ -140,7 +148,8 @@ export async function getClassSessionsByProgram(program_id: string): Promise<Cla
  * Creates an incomplete class session (no resources assigned).
  * Resources will be assigned later via timetable drag-and-drop.
  *
- * @param data - Session data without instructor_id and classroom_id
+ * @param data - Session data without instructor_id and classroom_id.
+ * @returns The newly created incomplete class session.
  */
 export async function createIncompleteClassSession(
   data: Omit<ClassSessionInsert, 'instructor_id' | 'classroom_id'>
@@ -162,9 +171,10 @@ export async function createIncompleteClassSession(
 /**
  * Assigns resources to an incomplete or partially complete session.
  *
- * @param sessionId - The session ID to update
- * @param instructorId - Instructor ID to assign (or null)
- * @param classroomId - Classroom ID to assign (or null)
+ * @param sessionId - The session ID to update.
+ * @param instructorId - Instructor ID to assign (or null).
+ * @param classroomId - Classroom ID to assign (or null).
+ * @returns The updated class session with assigned resources.
  */
 export async function assignResourcesToSession(
   sessionId: string,
@@ -189,7 +199,8 @@ export async function assignResourcesToSession(
 /**
  * Fetches incomplete sessions for a program (missing instructor or classroom).
  *
- * @param program_id - The program ID to query
+ * @param program_id - The program ID to query.
+ * @returns Array of incomplete class sessions for the program.
  */
 export async function getIncompleteSessionsForProgram(
   program_id: string
@@ -207,8 +218,9 @@ export async function getIncompleteSessionsForProgram(
 /**
  * Checks if a class session exists in the timetable drawer (no timetable assignment).
  *
- * @param sessionId
- * @param semester_id
+ * @param sessionId - The ID of the class session to check.
+ * @param semester_id - The ID of the semester to check in.
+ * @returns True if the session is in the drawer (not assigned), false otherwise.
  */
 export async function isSessionInDrawer(
   sessionId: string,
@@ -226,8 +238,9 @@ export async function isSessionInDrawer(
 /**
  * Fetches unassigned class sessions (in drawer) for a specific program.
  *
- * @param program_id
- * @param semester_id
+ * @param program_id - The ID of the program to fetch sessions for.
+ * @param semester_id - The ID of the semester to check for assignments.
+ * @returns Array of unassigned class sessions.
  */
 export async function getUnassignedSessions(
   program_id: string,
@@ -252,8 +265,9 @@ export async function getUnassignedSessions(
  * Checks if a session can be placed in a specific view mode.
  * Incomplete sessions have restrictions based on missing resources.
  *
- * @param session - The session to check
- * @param viewMode - The timetable view mode
+ * @param session - The session to check.
+ * @param viewMode - The timetable view mode.
+ * @returns True if the session can be placed in the specified view, false otherwise.
  */
 export function canPlaceInView(
   session: ClassSession,
@@ -274,8 +288,9 @@ export function canPlaceInView(
 /**
  * Checks if an instructor belongs to a different department than the program.
  *
- * @param programId
- * @param instructorId
+ * @param programId - The ID of the program to check against.
+ * @param instructorId - The ID of the instructor to check.
+ * @returns True if the instructor is from a different department, false otherwise.
  */
 export async function isCrossDepartmentInstructor(
   programId: string,
@@ -296,8 +311,9 @@ export async function isCrossDepartmentInstructor(
 /**
  * Checks if a classroom belongs to a different department than the program.
  *
- * @param programId
- * @param classroomId
+ * @param programId - The ID of the program to check against.
+ * @param classroomId - The ID of the classroom to check.
+ * @returns True if the classroom is from a different department, false otherwise.
  */
 export async function isCrossDepartmentClassroom(
   programId: string,
@@ -318,8 +334,9 @@ export async function isCrossDepartmentClassroom(
 /**
  * Gets the department ID for an instructor or classroom.
  *
- * @param instructorId
- * @param classroomId
+ * @param instructorId - The ID of the instructor (optional).
+ * @param classroomId - The ID of the classroom (optional).
+ * @returns The department ID or null if not found.
  */
 export async function getResourceDepartmentId(
   instructorId?: string,
@@ -350,9 +367,10 @@ export async function getResourceDepartmentId(
  * Reassign a specific resource (instructor or classroom) for a class session.
  * Used for dynamic resource reassignment in timetable views.
  *
- * @param sessionId - The class session ID
- * @param resourceType - 'instructor' | 'classroom'
- * @param newResourceId - The new resource ID
+ * @param sessionId - The class session ID.
+ * @param resourceType - 'instructor' | 'classroom'.
+ * @param newResourceId - The new resource ID.
+ * @returns The updated class session with reassigned resource.
  */
 export async function reassignSessionResource(
   sessionId: string,

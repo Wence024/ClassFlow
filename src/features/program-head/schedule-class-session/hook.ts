@@ -10,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import { useActiveSemester } from '@/features/admin/schedule-config/hooks/useActiveSemester';
-import * as service from './service';
+import * as timetableService from '@/lib/services/timetableService';
 import type {
   AssignSessionParams,
   MoveSessionParams,
@@ -40,7 +40,7 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
   // Fetch timetable assignments
   const { data: assignments = [], isLoading: isLoadingAssignments } = useQuery({
     queryKey: ['timetableAssignments', activeSemester?.id],
-    queryFn: () => service.fetchTimetableAssignments(activeSemester!.id),
+    queryFn: () => timetableService.getTimetableAssignments(activeSemester!.id),
     enabled: !!activeSemester,
   });
 
@@ -50,7 +50,13 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
       if (!user?.id || !activeSemester?.id) {
         throw new Error('User or semester not available');
       }
-      return service.assignSession(params, user.id, activeSemester.id);
+      return timetableService.assignClassSessionToTimetable({
+        class_session_id: params.classSessionId,
+        class_group_id: params.classGroupId,
+        period_index: params.periodIndex,
+        user_id: user.id,
+        semester_id: activeSemester.id,
+      }, params.status);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timetableAssignments'] });
@@ -69,7 +75,24 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
       if (!user?.id || !activeSemester?.id) {
         throw new Error('User or semester not available');
       }
-      return service.moveSession(params, user.id, activeSemester.id);
+      const fromCell = {
+        class_group_id: params.fromClassGroupId,
+        period_index: params.fromPeriodIndex,
+        semester_id: activeSemester.id,
+      };
+
+      const toCell = {
+        class_group_id: params.toClassGroupId,
+        period_index: params.toPeriodIndex,
+        semester_id: activeSemester.id,
+      };
+
+      return timetableService.moveClassSession(
+        fromCell,
+        toCell,
+        params.classSessionId,
+        user.id
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timetableAssignments'] });
@@ -88,7 +111,11 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
       if (!activeSemester?.id) {
         throw new Error('Semester not available');
       }
-      return service.removeSession(params, activeSemester.id);
+      return timetableService.removeClassSessionFromTimetable(
+        params.classGroupId,
+        params.periodIndex,
+        activeSemester.id
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['timetableAssignments'] });

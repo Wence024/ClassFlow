@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { fetchDepartmentRequests } from './service';
+import { getRequestsForDepartment as fetchDepartmentRequests } from '@/lib/services/resourceRequestService';
 import type { RequestWithDetails, RequestFilters } from './types';
 
 export type UseViewDepartmentRequestsResult = {
