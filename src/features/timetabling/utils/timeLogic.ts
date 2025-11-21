@@ -3,7 +3,7 @@
  * data for the timetable UI based on a given schedule configuration.
  */
 
-import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
+import type { ScheduleConfig } from '@/types/scheduleConfig';
 
 /**
  * Represents the data needed for a single time header in the timetable's vertical axis.

@@ -1,7 +1,7 @@
 import type { ClassGroup, Classroom } from '../../classSessionComponents/types';
 import type { ClassSession } from '../../classSessions/types/classSession';
-import type { Program } from '../../programs/types/program';
-import type { ScheduleConfig } from '../../scheduleConfig/types/scheduleConfig';
+import type { Program } from '@/types/program';
+import type { ScheduleConfig } from '@/types/scheduleConfig';
 import type { TimetableViewMode } from '../types/timetable';
 
 /**

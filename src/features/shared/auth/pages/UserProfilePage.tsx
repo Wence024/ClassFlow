@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { usePrograms } from '@/features/programs/hooks/usePrograms';
-import { useDepartments } from '@/features/departments/hooks/useDepartments';
+import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms';
+import { useDepartments } from '@/features/admin/manage-departments/hooks/useDepartments';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

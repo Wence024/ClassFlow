@@ -12,7 +12,7 @@ import type {
 import { AlertTriangle, ChevronDown } from 'lucide-react';
 import { checkSoftConflicts } from '../../../../timetabling/utils/checkConflicts';
 import { useAuth } from '../../../../shared/auth/hooks/useAuth';
-import type { Program } from '../../../../programs/types/program';
+import type { Program } from '@/types/program';
 import {
   CourseSelector,
   InstructorSelector,

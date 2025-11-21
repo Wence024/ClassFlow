@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useManageClassrooms } from './hook';
 import { useClassSessions } from '@/features/classSessions/hooks/useClassSessions';
-import { useDepartments } from '@/features/departments/hooks/useDepartments';
+import { useDepartments } from '@/features/admin/manage-departments/hooks/useDepartments';
 import { ClassroomCard, ClassroomFields } from '@/features/classSessionComponents/pages/components/classroom';
 import {
   Button,

@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import RoleGuardedPage from '@/components/layout/RoleGuardedPage';
-import DepartmentHeadDashboard from '@/features/departments/pages/DepartmentHeadDashboard';
+import DepartmentHeadDashboard from '@/features/admin/manage-departments/pages/DepartmentHeadDashboard';
 
 /**
  * Routes for department head features.

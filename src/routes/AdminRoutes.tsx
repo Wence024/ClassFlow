@@ -1,9 +1,9 @@
 import { Route } from 'react-router-dom';
 import RoleGuardedPage from '@/components/layout/RoleGuardedPage';
-import ScheduleConfigPage from '@/features/scheduleConfig/pages/ScheduleConfigPage';
-import DepartmentManagementPage from '@/features/departments/pages/DepartmentManagementPage';
-import ProgramManagementPage from '@/features/programs/pages/ProgramManagementPage';
-import UserManagementPage from '@/features/users/pages/UserManagementPage';
+import ScheduleConfigPage from '@/features/admin/schedule-config/component';
+import DepartmentManagementPage from '@/features/admin/manage-departments/pages/DepartmentManagementPage';
+import ProgramManagementPage from '@/features/admin/manage-programs/component';
+import UserManagementPage from '@/features/admin/manage-users/pages/UserManagementPage';
 
 /**
  * Routes for admin-only features.

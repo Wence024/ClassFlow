@@ -15,7 +15,7 @@ import ConfirmDialog from '../../../components/dialogs/ConfirmDialog';
 import { supabase } from '../../../lib/supabase';
 import { useAuth } from '../../shared/auth/hooks/useAuth';
 import { useDepartmentId } from '../../shared/auth/hooks/useDepartmentId';
-import { usePrograms } from '../../programs/hooks/usePrograms';
+import { usePrograms } from '../../admin/manage-programs/hooks/usePrograms';
 
 /** Represents the state of the tooltip. */
 interface TooltipState {
