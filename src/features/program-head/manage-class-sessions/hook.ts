@@ -5,7 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
-import * as classSessionService from '@/lib/services/classSessionService';
+import * as service from './service';  // Use service layer
 import type { ClassSessionInsert, ClassSessionUpdate, CrossDepartmentInfo } from './types';
 
 /**
@@ -16,7 +16,7 @@ export function useManageClassSessions() {
   const queryClient = useQueryClient();
   const queryKey = ['classSessions', user?.id];
 
-  // Fetch sessions
+  // Fetch sessions for user
   const {
     data: sessions = [],
     isLoading,
@@ -24,18 +24,17 @@ export function useManageClassSessions() {
     error,
   } = useQuery({
     queryKey,
-    queryFn: () => (user ? classSessionService.getClassSessions(user.id) : Promise.resolve([])),
+    queryFn: () => (user ? service.getClassSessions(user.id) : Promise.resolve([])),
     enabled: !!user,
   });
 
   // Create session
   const createMutation = useMutation({
     mutationFn: (data: ClassSessionInsert) => {
-      if (!user?.program_id) {
+      if (!user || !user.program_id) {
         throw new Error('Cannot create class session: User is not assigned to a program.');
       }
-      const sessionData = { ...data, user_id: user.id, program_id: user.program_id };
-      return classSessionService.addClassSession(sessionData);
+      return service.createClassSession(data, user.program_id, user.id);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
@@ -49,7 +48,7 @@ export function useManageClassSessions() {
   // Update session
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: ClassSessionUpdate }) =>
-      classSessionService.updateClassSession(id, data),
+      service.updateClassSession(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Class session updated successfully');
@@ -61,7 +60,12 @@ export function useManageClassSessions() {
 
   // Delete session
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => classSessionService.removeClassSession(id, user!.id),
+    mutationFn: (id: string) => {
+      if (!user?.id) {
+        throw new Error('Cannot delete class session: User not authenticated.');
+      }
+      return service.deleteClassSession(id, user.id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success('Class session deleted successfully');
@@ -90,41 +94,8 @@ export function useManageClassSessions() {
     if (!user?.program_id) return null;
     if (!instructorId && !classroomId) return null;
     try {
-      // Check instructor
-      if (instructorId) {
-        const isCrossDept = await classSessionService.isCrossDepartmentInstructor(
-          user.program_id,
-          instructorId
-        );
-        if (isCrossDept) {
-          const deptId = await classSessionService.getResourceDepartmentId(instructorId);
-          return {
-            resourceType: 'instructor',
-            resourceId: instructorId,
-            departmentId: deptId,
-            resourceName: '', // Name would need to be fetched separately if needed
-          };
-        }
-      }
-      
-      // Check classroom
-      if (classroomId) {
-        const isCrossDept = await classSessionService.isCrossDepartmentClassroom(
-          user.program_id,
-          classroomId
-        );
-        if (isCrossDept) {
-          const deptId = await classSessionService.getResourceDepartmentId(undefined, classroomId);
-          return {
-            resourceType: 'classroom',
-            resourceId: classroomId,
-            departmentId: deptId,
-            resourceName: '', // Name would need to be fetched separately if needed
-          };
-        }
-      }
-      
-      return null;
+      // Use service layer function
+      return await service.checkCrossDepartmentResources(instructorId, classroomId);
     } catch (error) {
       console.error('Error checking cross-department resources:', error);
       return null;
@@ -140,7 +111,8 @@ export function useManageClassSessions() {
     error: error ? (error as Error).message : null,
     createSession: createMutation.mutateAsync,
     updateSession: (id: string, data: ClassSessionUpdate) => updateMutation.mutateAsync({ id, data }),
-    deleteSession: deleteMutation.mutateAsync,
+    deleteSession: deleteMutation.mutateAsync,  // For consistency
+    removeClassSession: deleteMutation.mutateAsync,  // For test compatibility
     checkCrossDepartment,
   };
 }

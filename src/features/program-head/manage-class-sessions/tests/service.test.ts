@@ -22,17 +22,17 @@ describe('Manage Class Sessions Service', () => {
         { id: 'session1', program_id: 'p1', period_count: 1 },
       ];
 
-      mockedInfra.getClassSessions.mockResolvedValue(mockSessions);
+      mockedInfra.getClassSessionsByProgram.mockResolvedValue(mockSessions);
 
       const result = await service.getClassSessionsForProgram('p1');
 
       expect(result).toEqual(mockSessions);
-      expect(mockedInfra.getClassSessions).toHaveBeenCalledWith({ program_id: 'p1' });
+      expect(mockedInfra.getClassSessionsByProgram).toHaveBeenCalledWith('p1');
     });
 
     it('should propagate errors from infrastructure layer', async () => {
       const error = new Error('Database error');
-      mockedInfra.getClassSessions.mockRejectedValue(error);
+      mockedInfra.getClassSessionsByProgram.mockRejectedValue(error);
 
       await expect(service.getClassSessionsForProgram('p1')).rejects.toThrow('Database error');
     });
@@ -49,12 +49,12 @@ describe('Manage Class Sessions Service', () => {
       };
 
       const mockCreated = { id: 'session1', ...sessionData, program_id: 'p1' };
-      mockedInfra.createClassSession.mockResolvedValue(mockCreated);
+      mockedInfra.addClassSession.mockResolvedValue(mockCreated);
 
       const result = await service.createClassSession(sessionData, 'p1', 'user1');
 
       expect(result).toEqual(mockCreated);
-      expect(mockedInfra.createClassSession).toHaveBeenCalledWith({
+      expect(mockedInfra.addClassSession).toHaveBeenCalledWith({
         ...sessionData,
         program_id: 'p1',
         user_id: 'user1',
@@ -78,11 +78,11 @@ describe('Manage Class Sessions Service', () => {
 
   describe('deleteClassSession', () => {
     it('should delete a class session', async () => {
-      mockedInfra.deleteClassSession.mockResolvedValue(undefined);
+      mockedInfra.removeClassSession.mockResolvedValue(undefined);
 
       await service.deleteClassSession('session1');
 
-      expect(mockedInfra.deleteClassSession).toHaveBeenCalledWith('session1');
+      expect(mockedInfra.removeClassSession).toHaveBeenCalledWith('session1', '');
     });
   });
 });

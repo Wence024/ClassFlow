@@ -8,14 +8,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useManageClassSessions } from '../hook';
-import * as service from '../service';
+import * as classSessionService from '@/lib/services/classSessionService';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import type { User, AuthContextType } from '../../../shared/auth/types/auth';
 
 // Mocks
-vi.mock('../service');
+vi.mock('@/lib/services/classSessionService');
 
-const mockedService = vi.mocked(service);
+const mockedService = vi.mocked(classSessionService);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false },
@@ -79,7 +79,7 @@ describe('useManageClassSessions Hook', () => {
   });
 
   it('should fetch class sessions for program', async () => {
-    mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
+    mockedService.getClassSessions.mockResolvedValue(mockClassSessions);
 
     const { result } = renderHook(() => useManageClassSessions(), {
       wrapper: TestWrapper,
@@ -87,10 +87,10 @@ describe('useManageClassSessions Hook', () => {
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
+      expect(result.current.sessions).toEqual(mockClassSessions);
     });
 
-    expect(result.current.classSessions).toEqual(mockClassSessions);
-    expect(mockedService.getClassSessionsForProgram).toHaveBeenCalledWith('p1');
+    expect(mockedService.getClassSessions).toHaveBeenCalledWith('user1');
   });
 
   it('should add a new class session', async () => {
@@ -102,8 +102,8 @@ describe('useManageClassSessions Hook', () => {
       period_count: 2,
     };
 
-    mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
-    mockedService.createClassSession.mockResolvedValue({ id: 'session2', ...newSession });
+    mockedService.getClassSessions.mockResolvedValue(mockClassSessions);
+    mockedService.addClassSession.mockResolvedValue({ id: 'session2', ...newSession });
 
     const { result } = renderHook(() => useManageClassSessions(), {
       wrapper: TestWrapper,
@@ -113,11 +113,17 @@ describe('useManageClassSessions Hook', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
+    // Since we're mocking the infra service directly, we don't need to check the service layer calls
     await act(async () => {
-      await result.current.addClassSession(newSession);
+      await result.current.createSession(newSession);
     });
 
-    expect(mockedService.createClassSession).toHaveBeenCalledWith(newSession, 'p1', 'user1');
+    // Check that the mutation was called with the correct parameters
+    expect(mockedService.addClassSession).toHaveBeenCalledWith({
+      ...newSession,
+      user_id: 'user1',
+      program_id: 'p1',
+    });
   });
 
   it('should update an existing class session', async () => {
@@ -125,7 +131,7 @@ describe('useManageClassSessions Hook', () => {
       period_count: 3,
     };
 
-    mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
+    mockedService.getClassSessions.mockResolvedValue(mockClassSessions);
     mockedService.updateClassSession.mockResolvedValue({ ...mockClassSessions[0], ...updates });
 
     const { result } = renderHook(() => useManageClassSessions(), {
@@ -137,15 +143,15 @@ describe('useManageClassSessions Hook', () => {
     });
 
     await act(async () => {
-      await result.current.updateClassSession('session1', updates);
+      await result.current.updateSession('session1', updates);
     });
 
     expect(mockedService.updateClassSession).toHaveBeenCalledWith('session1', updates);
   });
 
   it('should remove a class session', async () => {
-    mockedService.getClassSessionsForProgram.mockResolvedValue(mockClassSessions);
-    mockedService.deleteClassSession.mockResolvedValue(undefined);
+    mockedService.getClassSessions.mockResolvedValue(mockClassSessions);
+    mockedService.removeClassSession.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useManageClassSessions(), {
       wrapper: TestWrapper,
@@ -156,15 +162,15 @@ describe('useManageClassSessions Hook', () => {
     });
 
     await act(async () => {
-      await result.current.removeClassSession('session1');
+      await result.current.deleteSession('session1');
     });
 
-    expect(mockedService.deleteClassSession).toHaveBeenCalledWith('session1');
+    expect(mockedService.removeClassSession).toHaveBeenCalledWith('session1', 'user1');
   });
 
   it('should handle fetch errors', async () => {
     const error = new Error('Failed to fetch sessions');
-    mockedService.getClassSessionsForProgram.mockRejectedValue(error);
+    mockedService.getClassSessions.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageClassSessions(), {
       wrapper: TestWrapper,
