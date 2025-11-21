@@ -6,7 +6,7 @@ import type { User } from '../../../shared/auth/types/auth';
 
 // --- Mocks ---
 vi.mock('../../../shared/auth/hooks/useAuth');
-vi.mock('../../services/instructorsService');
+vi.mock('@/lib/services/instructorService');
 
 // --- Mock Data ---
 const mockUser: User = {
@@ -102,7 +102,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
+    const mockInstructorsService = vi.mocked(await import('@/lib/services/instructorService'));
     mockInstructorsService.getAllInstructors.mockResolvedValue(allMockInstructors);
 
     const { result } = renderHook(() => useAllInstructors(), { wrapper });
@@ -138,7 +138,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
+    const mockInstructorsService = vi.mocked(await import('@/lib/services/instructorService'));
     mockInstructorsService.getAllInstructors.mockResolvedValue(allMockInstructors);
 
     const { result } = renderHook(() => useAllInstructors(), { wrapper });
@@ -174,7 +174,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
+    const mockInstructorsService = vi.mocked(await import('@/lib/services/instructorService'));
     mockInstructorsService.getAllInstructors.mockImplementation(() =>
       createDelayedPromise(allMockInstructors, 100)
     );
@@ -212,7 +212,7 @@ describe('useAllInstructors Integration', () => {
       error: null,
     });
 
-    const mockInstructorsService = vi.mocked(await import('../../services/instructorsService'));
+    const mockInstructorsService = vi.mocked(await import('@/lib/services/instructorService'));
     mockInstructorsService.getAllInstructors.mockRejectedValue(
       new Error('Failed to fetch instructors')
     );

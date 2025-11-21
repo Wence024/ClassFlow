@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 // Import all the component schemas that are actually defined in the corresponding validation file
-import { courseSchema, instructorSchema, classroomSchema, classGroupSchema } from '../validation';
+import { courseSchema, instructorSchema, classroomSchema, classGroupSchema } from '@/types/validation/components';
 
 describe('componentSchemas', () => {
   describe('courseSchema', () => {

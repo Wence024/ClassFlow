@@ -6,14 +6,14 @@ import userEvent from '@testing-library/user-event';
 import InstructorTab from '../InstructorTab';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
 import * as instructorsService from '../../services/instructorsService';
-import * as useClassSessionsHook from '../../../classSessions/hooks/useClassSessions';
+import * as useClassSessionsHook from '../../../program-head/manage-class-sessions/hooks/useClassSessions';
 import type { ReactNode } from 'react';
 import type { AuthContextType } from '../../../shared/auth/types/auth';
 import type { Instructor } from '../../types';
 
 // Mock services and hooks
 vi.mock('../../services/instructorsService');
-vi.mock('../../../classSessions/hooks/useClassSessions');
+vi.mock('../../../program-head/manage-class-sessions/hooks/useClassSessions');
 
 const mockedInstructorsService = vi.mocked(instructorsService, true);
 const mockedUseClassSessions = vi.mocked(useClassSessionsHook, true);
