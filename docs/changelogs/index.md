@@ -16,6 +16,15 @@ This index provides quick access to all documented changes in the ClassFlow proj
 
 ## Major Features
 
+### January 2025
+
+- **[Dynamic Resource Timetabling](./dynamic-resource-timetabling.md)** - 2025-01-18
+  - Made classroom assignment optional in class sessions
+  - Enabled classroom and instructor reassignment during timetabling
+  - Enhanced drawer to show unassigned classrooms in classroom view
+  - Added confirmation prompts for resource changes
+  - Fixed service import inconsistencies across features
+
 ### November 2025
 
 - **[Vertical Slice Architecture Refactoring](./2025-11-vertical-slice-refactoring.md)** - 2025-11
@@ -199,11 +208,11 @@ Resolution of defects or unexpected behavior.
 ## Statistics
 
 ### Total Changelogs
-- **Major Features**: 3
+- **Major Features**: 4
 - **Refactoring**: 1
 - **Infrastructure**: 1
 - **Bug Fixes**: 1
-- **Total**: 6
+- **Total**: 7
 
 ### Coverage Period
 - **Start Date**: October 2025

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useFormContext, type Control, type FieldErrors } from 'react-hook-form';
 import { z } from 'zod';
-import { ColorPicker, FormField } from '../../../../../../components/ui';
+import { ColorPicker, FormField } from '@/components/ui';
 import { componentSchemas } from '@/types/validation/components';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
@@ -86,7 +86,7 @@ export const InstructorFields: React.FC<{
               <FormField
                 {...field}
                 value={field.value ?? ''}
-                onChange={(val) => {
+                onChange={(val: string) => {
                   setIsCodeManuallyEdited(true);
                   field.onChange(val);
                 }}

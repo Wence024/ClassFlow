@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Controller, useFormContext, type Control, type FieldErrors } from 'react-hook-form';
 import { z } from 'zod';
-import { ColorPicker, FormField } from '../../../../../../components/ui';
+import { ColorPicker, FormField } from '@/components/ui';
 import { componentSchemas } from '@/types/validation/components';
-import { useAuth } from '../../../../../shared/auth/hooks/useAuth';
-import { useDepartments } from '../../../../../admin/manage-departments/hooks/useDepartments';
+import { useAuth } from '@/features/shared/auth/hooks/useAuth';
+import { useDepartments } from '@/features/admin/manage-departments/hooks/useDepartments';
 import type { Department } from '@/types/department';
 
 type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
@@ -81,7 +81,7 @@ export const AdminInstructorFields: React.FC<{
                 label="Department"
                 type="select"
                 placeholder="Select department..."
-                options={departmentOptions.map((d) => ({ id: d.value, name: d.label }))}
+                options={departmentOptions.map((d: { value: string; label: string }) => ({ id: d.value, name: d.label }))}
                 error={errors.department_id?.message}
                 required
               />
@@ -135,7 +135,7 @@ export const AdminInstructorFields: React.FC<{
               <FormField
                 {...field}
                 value={field.value ?? ''}
-                onChange={(val) => {
+                onChange={(val: string) => {
                   setIsCodeManuallyEdited(true);
                   field.onChange(val);
                 }}

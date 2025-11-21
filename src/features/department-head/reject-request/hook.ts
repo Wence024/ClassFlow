@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { rejectResource as rejectResourceService } from '@/lib/services/resourceRequestService';
+import { rejectRequest as rejectResourceService } from '@/lib/services/resourceRequestService';
 
 export type UseRejectRequestResult = {
   rejectRequest: (requestId: string, reviewerId: string, rejectionMessage: string) => Promise<boolean>;

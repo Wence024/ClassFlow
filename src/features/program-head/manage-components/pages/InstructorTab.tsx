@@ -6,7 +6,7 @@ import { useAuth } from '../../../shared/auth/hooks/useAuth';
 import { useDepartmentId } from '../../../shared/auth/hooks/useDepartmentId';
 import { useInstructorsUnified } from '../../../shared/instructor-management/hooks/useInstructorsUnified';
 import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
-import { AdminInstructorFields, InstructorCard } from '../../../shared/instructor-management/components';
+import { AdminInstructorFields, InstructorCard } from '@/features/shared/instructor-management';
 import {
   Button,
   ConfirmModal,

@@ -32,11 +32,7 @@ export function useManageInstructors() {
     error,
   } = useQuery<Instructor[]>({
     queryKey,
-    queryFn: () =>
-      fetchInstructors({
-        role: user?.role || '',
-        departmentId,
-      }),
+    queryFn: () => fetchInstructors(),
     enabled: !!user,
   });
 

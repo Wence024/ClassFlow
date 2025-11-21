@@ -4,7 +4,7 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { approveResource as approveResourceService } from '@/lib/services/resourceRequestService';
+import { approveRequest as approveResourceService } from '@/lib/services/resourceRequestService';
 
 export type UseApproveRequestResult = {
   approveRequest: (requestId: string, reviewerId: string) => Promise<boolean>;

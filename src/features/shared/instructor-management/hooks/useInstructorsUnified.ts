@@ -1,7 +1,7 @@
 import { useAuth } from '../../../shared/auth/hooks/useAuth';
 import { useInstructors } from './useInstructors';
 import { useAllInstructors } from './useAllInstructors';
-import type { InstructorInsert, InstructorUpdate } from '../../../../program-head/manage-components/types/instructor';
+import type { InstructorInsert, InstructorUpdate } from '@/types/instructor';
 
 /**
  * Unified hook for instructor data that adapts based on user role.

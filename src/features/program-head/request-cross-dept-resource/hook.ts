@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { checkCrossDepartmentResource as checkCrossDepartmentResourceService } from '@/lib/services/classSessionService';
+import { isCrossDepartmentInstructor, isCrossDepartmentClassroom } from '@/lib/services/classSessionService';
 import type { CrossDeptCheckResult, CrossDeptRequestPayload } from './types';
 
 /**
@@ -30,8 +30,38 @@ export function useRequestCrossDeptResource() {
   ): Promise<CrossDeptCheckResult> => {
     setIsChecking(true);
     try {
-      const result = await checkCrossDepartmentResourceService(programId, instructorId, classroomId);
-      return result;
+      // Check instructor first if provided
+      if (instructorId) {
+        const isInstructorCrossDept = await isCrossDepartmentInstructor(programId, instructorId);
+        if (isInstructorCrossDept) {
+          return {
+            isCrossDept: true,
+            resourceType: 'instructor',
+            resourceId: instructorId,
+            departmentId: null, // Would need additional query to get dept ID
+          };
+        }
+      }
+      
+      // Check classroom if provided
+      if (classroomId) {
+        const isClassroomCrossDept = await isCrossDepartmentClassroom(programId, classroomId);
+        if (isClassroomCrossDept) {
+          return {
+            isCrossDept: true,
+            resourceType: 'classroom',
+            resourceId: classroomId,
+            departmentId: null, // Would need additional query to get dept ID
+          };
+        }
+      }
+      
+      return {
+        isCrossDept: false,
+        resourceType: null,
+        resourceId: null,
+        departmentId: null,
+      };
     } catch (error) {
       console.error('Error checking cross-department resource:', error);
       toast.error('Failed to check resource availability');

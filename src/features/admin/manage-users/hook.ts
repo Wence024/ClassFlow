@@ -5,8 +5,8 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
-  getAllUsers as fetchAllUsers,
-  removeUser as removeUserService,
+  getUsers as fetchAllUsers,
+  deleteUser as removeUserService,
   updateUserProfile as updateUserProfileService,
 } from '@/lib/services/userService';
 import type { UserProfile, Role } from '@/types/user';

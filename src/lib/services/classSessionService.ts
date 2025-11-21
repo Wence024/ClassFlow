@@ -24,13 +24,13 @@ const SELECT_COLUMNS = `
  */
 function mapToClassSession(row: Record<string, unknown>): ClassSession {
   return {
-    id: row.id,
-    course: row.course,
-    group: row.group,
-    instructor: row.instructor || null,
-    classroom: row.classroom || null,
-    period_count: row.period_count,
-    program_id: row.program_id,
+    id: row.id as string,
+    course: row.course as ClassSession['course'],
+    group: row.group as ClassSession['group'],
+    instructor: (row.instructor as ClassSession['instructor']) || null,
+    classroom: (row.classroom as ClassSession['classroom']) || null,
+    period_count: row.period_count as number,
+    program_id: (row.program_id as string) || null,
   };
 }
 

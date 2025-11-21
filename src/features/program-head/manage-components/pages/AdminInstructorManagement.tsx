@@ -6,8 +6,7 @@ import { useAuth } from '../../../shared/auth/hooks/useAuth';
 import { useDepartmentId } from '../../../shared/auth/hooks/useDepartmentId';
 import { useInstructors } from '../../../shared/instructor-management/hooks/useInstructors';
 import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
-import { InstructorCard } from '../../../shared/instructor-management/components';
-import { AdminInstructorFields } from '../../../shared/instructor-management/components';
+import { InstructorCard, AdminInstructorFields } from '@/features/shared/instructor-management';
 import {
   Button,
   ConfirmModal,

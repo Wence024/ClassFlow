@@ -8,8 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useManageInstructors } from './hook';
 import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
-import { InstructorCard } from '@/features/shared/instructor-management/components';
-import { AdminInstructorFields } from '@/features/shared/instructor-management/components';
+import { InstructorCard, AdminInstructorFields } from '@/features/shared/instructor-management';
 import {
   Button,
   ConfirmModal,

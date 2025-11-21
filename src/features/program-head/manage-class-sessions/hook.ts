@@ -90,7 +90,41 @@ export function useManageClassSessions() {
     if (!user?.program_id) return null;
     if (!instructorId && !classroomId) return null;
     try {
-      return await classSessionService.checkCrossDepartmentResources(instructorId, classroomId);
+      // Check instructor
+      if (instructorId) {
+        const isCrossDept = await classSessionService.isCrossDepartmentInstructor(
+          user.program_id,
+          instructorId
+        );
+        if (isCrossDept) {
+          const deptId = await classSessionService.getResourceDepartmentId(instructorId);
+          return {
+            resourceType: 'instructor',
+            resourceId: instructorId,
+            departmentId: deptId,
+            resourceName: '', // Name would need to be fetched separately if needed
+          };
+        }
+      }
+      
+      // Check classroom
+      if (classroomId) {
+        const isCrossDept = await classSessionService.isCrossDepartmentClassroom(
+          user.program_id,
+          classroomId
+        );
+        if (isCrossDept) {
+          const deptId = await classSessionService.getResourceDepartmentId(undefined, classroomId);
+          return {
+            resourceType: 'classroom',
+            resourceId: classroomId,
+            departmentId: deptId,
+            resourceName: '', // Name would need to be fetched separately if needed
+          };
+        }
+      }
+      
+      return null;
     } catch (error) {
       console.error('Error checking cross-department resources:', error);
       return null;

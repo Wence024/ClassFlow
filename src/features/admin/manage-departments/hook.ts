@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import {
-  getDepartments as fetchDepartments,
+  listDepartments as fetchDepartments,
   createDepartment as createNewDepartment,
   updateDepartment as updateDepartmentData,
   deleteDepartment as removeDepartment,
