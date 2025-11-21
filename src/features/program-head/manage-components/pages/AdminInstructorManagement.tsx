@@ -1,49 +1,46 @@
-/**
- * UI component for managing instructors (Department Head/Admin).
- */
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { toast } from 'sonner';
-import { useManageInstructors } from './hook';
+import { z } from 'zod';
+import { useAuth } from '../../../shared/auth/hooks/useAuth';
+import { useDepartmentId } from '../../../shared/auth/hooks/useDepartmentId';
+import { useInstructors } from '../hooks';
 import { useClassSessions } from '@/features/program-head/manage-class-sessions/hooks/useClassSessions';
-import { InstructorCard } from '@/features/program-head/manage-components/pages/components/instructor';
-import { AdminInstructorFields } from '@/features/program-head/manage-components/pages/components/instructor/AdminInstructorFields';
+import { InstructorCard } from './components/instructor';
+import { AdminInstructorFields } from './components/instructor/AdminInstructorFields';
 import {
   Button,
   ConfirmModal,
   ErrorMessage,
   FormField,
   LoadingSpinner,
-} from '@/components/ui';
+} from '../../../../components/ui';
 import { componentSchemas } from '@/types/validation/components';
-import type { Instructor, InstructorInsert } from '@/types/instructor';
-import type { InstructorFormData } from './types';
-import { getRandomPresetColor } from '@/lib/colorUtils';
+import type { Instructor, InstructorInsert } from '@/features/program-head/manage-components/types/instructor';
+import { toast } from 'sonner';
+import { getRandomPresetColor } from '../../../../lib/colorUtils';
+
+type InstructorFormData = z.infer<typeof componentSchemas.instructor>;
 
 /**
- * Component for managing instructors with full CRUD operations.
- * Supports both admin (cross-department) and department head (scoped) views.
+ * Enhanced instructor management for admins and department heads.
+ * Allows admins to reassign instructors to different departments.
  *
- * @returns The ManageInstructorsView component.
+ * @returns The AdminInstructorManagement component.
  */
-export const ManageInstructorsView: React.FC = () => {
+const AdminInstructorManagement: React.FC = () => {
+  const { user, isAdmin } = useAuth();
+  const departmentId = useDepartmentId();
   const {
     instructors,
+    addInstructor,
+    updateInstructor,
+    removeInstructor,
     isLoading,
     isSubmitting,
     isRemoving,
     error,
-    addInstructor,
-    updateInstructor,
-    removeInstructor,
-    canDeleteInstructor,
-    user,
-    isAdmin,
-    departmentId,
-  } = useManageInstructors();
-
+  } = useInstructors();
   const { classSessions } = useClassSessions();
 
   const [editingInstructor, setEditingInstructor] = useState<Instructor | null>(null);
@@ -66,7 +63,6 @@ export const ManageInstructorsView: React.FC = () => {
     },
   });
 
-  // Reset form when editing instructor changes
   useEffect(() => {
     if (editingInstructor) {
       formMethods.reset({
@@ -79,7 +75,6 @@ export const ManageInstructorsView: React.FC = () => {
     }
   }, [editingInstructor, formMethods]);
 
-  // Filter instructors by search term
   const filteredInstructors = useMemo(() => {
     if (!searchTerm) return instructors;
     return instructors.filter(
@@ -90,23 +85,18 @@ export const ManageInstructorsView: React.FC = () => {
     );
   }, [instructors, searchTerm]);
 
-  /**
-   * Handles adding a new instructor.
-   *
-   * @param data The instructor data to be added.
-   * @returns A promise that resolves when the instructor is added.
-   */
   const handleAdd = async (data: InstructorFormData) => {
     if (!user) return;
 
-    // Validate department assignment for department heads
-    if (!isAdmin && !departmentId) {
+    // For department heads, validate they have a department assigned
+    if (!isAdmin() && !departmentId) {
       toast.error(
         'You must be assigned to a department before creating instructors. Please contact an administrator.'
       );
       return;
     }
 
+    // Explicitly construct instructor data
     const instructorData: InstructorInsert = {
       first_name: data.first_name,
       last_name: data.last_name,
@@ -117,72 +107,62 @@ export const ManageInstructorsView: React.FC = () => {
       email: data.email || null,
       phone: data.phone || null,
       color: data.color || null,
-      department_id: !isAdmin && departmentId ? departmentId : data.department_id || null,
+      // For department heads: use their department_id
+      // For admins: use the department_id from the form
+      department_id: !isAdmin() && departmentId ? departmentId : data.department_id || null,
     };
 
     await addInstructor(instructorData);
+    formMethods.reset();
+    toast.success('Instructor added successfully!');
     setRandomPresetColor(getRandomPresetColor());
   };
 
-  /**
-   * Handles updating an existing instructor.
-   *
-   * @param data The updated instructor data.
-   * @returns A promise that resolves when the instructor is updated.
-   */
   const handleSave = async (data: InstructorFormData) => {
     if (!editingInstructor) return;
 
+    // Check if department was changed (for admins)
+    const currentDeptId = editingInstructor.department_id;
+    const newDeptId = data.department_id;
+    const departmentChanged = isAdmin() && currentDeptId !== newDeptId;
+
     await updateInstructor(editingInstructor.id, data);
     setEditingInstructor(null);
+
+    if (departmentChanged) {
+      toast.success('Instructor updated and reassigned to new department!');
+    } else {
+      toast.success('Instructor updated successfully!');
+    }
+
     setRandomPresetColor(getRandomPresetColor());
   };
 
-  /**
-   * Cancels editing mode.
-   *
-   * @returns
-   */
   const handleCancel = () => {
     setEditingInstructor(null);
     setRandomPresetColor(getRandomPresetColor());
   };
 
-  /**
-   * Initiates edit mode for an instructor.
-   *
-   * @param instructor The instructor to edit.
-   * @returns
-   */
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
 
-  /**
-   * Initiates delete confirmation for an instructor.
-   *
-   * @param id
-   */
   const handleDeleteRequest = (id: string) =>
     setInstructorToDelete(instructors.find((i) => i.id === id) || null);
 
-  /**
-   * Confirms and executes instructor deletion.
-   */
   const handleConfirmDelete = async () => {
     if (!instructorToDelete) return;
-
-    // Check if instructor is in use
-    if (!canDeleteInstructor(instructorToDelete.id, classSessions)) {
+    const isUsed = classSessions.some(
+      (session) => session.instructor?.id === instructorToDelete.id
+    );
+    if (isUsed) {
       toast.error(
         `Cannot delete "${instructorToDelete.first_name} ${instructorToDelete.last_name}". They are assigned to one or more classes.`
       );
       setInstructorToDelete(null);
       return;
     }
-
     await removeInstructor(instructorToDelete.id);
+    toast.success('Instructor removed successfully.');
     setInstructorToDelete(null);
-
-    // Clear edit mode if deleting the currently edited instructor
     if (editingInstructor?.id === instructorToDelete.id) {
       setEditingInstructor(null);
     }
@@ -191,7 +171,6 @@ export const ManageInstructorsView: React.FC = () => {
   return (
     <>
       <div className="flex flex-col md:flex-row-reverse gap-8">
-        {/* Form Section */}
         <div className="w-full md:w-96">
           <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
             <h2 className="text-xl font-semibold mb-4 text-center">
@@ -222,10 +201,9 @@ export const ManageInstructorsView: React.FC = () => {
           </div>
         </div>
 
-        {/* List Section */}
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-semibold mb-4">
-            Instructors {isAdmin && '(All Departments)'}
+            Instructors {isAdmin() && '(All Departments)'}
           </h2>
 
           <div className="mb-4">
@@ -278,3 +256,5 @@ export const ManageInstructorsView: React.FC = () => {
     </>
   );
 };
+
+export default AdminInstructorManagement;
