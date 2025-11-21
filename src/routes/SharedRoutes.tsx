@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import UserProfilePage from '@/features/shared/auth/pages/UserProfilePage';
-import InstructorReportsPage from '@/features/reports/pages/InstructorReportsPage';
+import InstructorReportsPage from '@/features/shared/view-reports/pages/InstructorReportsPage';
 
 /**
  * Routes shared across all roles.

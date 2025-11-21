@@ -314,15 +314,78 @@ src/
   - ✅ `cypress/e2e/05-timetabling/cross-dept-confirmation.cy.ts` (created)
   - ✅ `cypress/e2e/05-timetabling/unassigned-sessions-drawer.cy.ts` (created)
 
-## 🚧 Current Phase: Phase 8 - Cleanup and Documentation
+## 🚧 Current Phase: Phase 9 - Systematic Folder Reorganization
 
-### Phase 8.1: Remove Old Directories ❌ BLOCKED
-**Status:** Cannot proceed - Active imports and service duplication detected
+### Phase 9.1: Migrate Reports to Shared ✅ COMPLETED
+**Status:** Successfully migrated `src/features/reports/` to `src/features/shared/view-reports/`
+**Completed:** 2025-01-XX
 
-**Import Analysis Results:**
-- `src/features/classSessionComponents/` - ❌ **21 imports** in 9 files (CANNOT REMOVE)
-- `src/features/resourceRequests/` - ❌ **1 import** in test file (CANNOT REMOVE)
-- `src/features/departments/` - ❌ **5 imports** in 5 files (CANNOT REMOVE)
+**Migration Details:**
+- ✅ Created new folder structure at `src/features/shared/view-reports/`
+- ✅ Moved all pages, hooks, components, services, and types
+- ✅ Updated import in `src/routes/SharedRoutes.tsx` (line 3)
+- ✅ Verified build passes with new import paths
+- ✅ Deleted old `src/features/reports/` folder
+
+**New Structure:**
+```
+src/features/shared/view-reports/
+├── components/
+│   ├── DayGroupTable.tsx
+│   ├── InstructorSchedulePreview.tsx
+│   └── LoadSummaryWidget.tsx
+├── hooks/
+│   ├── useInstructorReport.ts
+│   └── useReportExport.ts
+├── pages/
+│   ├── InstructorReportsPage.tsx
+│   └── index.ts
+├── services/
+│   ├── excelExportService.ts
+│   ├── instructorReportService.ts
+│   ├── loadCalculationService.ts
+│   └── pdfExportService.ts
+├── types/
+│   └── instructorReport.ts
+└── index.ts
+```
+
+**Verification:**
+- ✅ TypeScript compilation: PASSED
+- ✅ Import paths updated: 1 file
+- ✅ No remaining references to old path
+- ✅ Application builds successfully
+
+### Phase 9.2: Migrate Class Sessions ⏳ NEXT
+**Target:** Move `src/features/classSessions/` → `src/features/program-head/manage-class-sessions/`
+**Estimated Time:** 2-3 hours
+**Imports to Update:** 5 files
+
+### Phase 9.3: Migrate Class Session Components ⏳ PENDING
+**Target:** Move `src/features/classSessionComponents/` → `src/features/program-head/manage-components/`
+**Estimated Time:** 3-4 hours
+**Imports to Update:** 11 files
+
+### Phase 9.4: Migrate Timetabling ⏳ PENDING
+**Target:** Move `src/features/timetabling/` → `src/features/program-head/schedule-class-session/`
+**Estimated Time:** 2-3 hours
+**Imports to Update:** 3 files
+
+### Phase 9.5: Migrate Resource Requests ⏳ PENDING
+**Target:** Move `src/features/resourceRequests/` → `src/features/shared/resource-management/`
+**Estimated Time:** 2-3 hours
+**Imports to Update:** 2 files
+
+## Previous Phase: Phase 8 - Cleanup and Documentation
+
+### Phase 8.1: Remove Old Directories ❌ DEFERRED
+**Status:** Deferred until Phase 9 systematic reorganization is complete
+
+**Import Analysis Results (Before Phase 9):**
+- `src/features/classSessionComponents/` - ❌ **21 imports** in 9 files
+- `src/features/resourceRequests/` - ❌ **1 import** in test file
+- `src/features/departments/` - ❌ **5 imports** in 5 files
+- `src/features/reports/` - ✅ **MIGRATED** (Phase 9.1)
 - `src/features/users/` - ❌ **2 imports** in 2 files (CANNOT REMOVE)
 - `src/features/classSessions/` - Still used by timetabling (CANNOT REMOVE)
 - `src/features/timetabling/` - Active implementation (CANNOT REMOVE)
