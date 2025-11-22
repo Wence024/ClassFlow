@@ -89,3 +89,18 @@ export interface ResourceReassignmentMetadata {
   fromId: string;
   toId: string;
 }
+
+/**
+ * Metadata about resource changes during drag-and-drop reassignment.
+ * Used for confirmation dialogs and mutation logic.
+ */
+export interface ResourceChangeMetadata {
+  /** Whether a resource is being changed (vs. initially assigned) */
+  isChanging: boolean;
+  /** ID of the current resource being replaced */
+  fromId: string;
+  /** ID of the new resource being assigned */
+  toId: string;
+  /** Type of resource being changed */
+  resourceType: 'instructor' | 'classroom';
+}

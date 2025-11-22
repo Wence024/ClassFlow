@@ -236,67 +236,6 @@ const TimetablePage: React.FC = () => {
     setConfirmDialogConfig(null);
   };
 
-  // Helper function to get instructor names for confirmation
-  const getInstructorNames = async (fromId: string, toId: string) => {
-    const [fromInstructor, toInstructor] = await Promise.all([
-      supabase.from('instructors').select('first_name, last_name').eq('id', fromId).single(),
-      supabase.from('instructors').select('first_name, last_name').eq('id', toId).single(),
-    ]);
-
-    const fromName = fromInstructor.data
-      ? `${fromInstructor.data.first_name} ${fromInstructor.data.last_name}`
-      : fromId;
-    const toName = toInstructor.data
-      ? `${toInstructor.data.first_name} ${toInstructor.data.last_name}`
-      : toId;
-
-    return { fromName, toName };
-  };
-
-  // Helper function to get classroom names for confirmation
-  const getClassroomNames = async (fromId: string, toId: string) => {
-    const [fromClassroom, toClassroom] = await Promise.all([
-      supabase.from('classrooms').select('name').eq('id', fromId).single(),
-      supabase.from('classrooms').select('name').eq('id', toId).single(),
-    ]);
-
-    const fromName = fromClassroom.data?.name || fromId;
-    const toName = toClassroom.data?.name || toId;
-
-    return { fromName, toName };
-  };
-
-  // Define the metadata type
-  type ResourceChangeMetadata = {
-    isChanging: boolean;
-    fromId: string;
-    toId: string;
-    resourceType: 'instructor' | 'classroom';
-  };
-
-  // Handle resource reassignment confirmation
-  const handleResourceReassignment = async (callback: () => void, metadata: ResourceChangeMetadata) => {
-    let fromName = '';
-    let toName = '';
-
-    if (metadata.resourceType === 'instructor') {
-      const names = await getInstructorNames(metadata.fromId, metadata.toId);
-      fromName = names.fromName;
-      toName = names.toName;
-    } else {
-      const names = await getClassroomNames(metadata.fromId, metadata.toId);
-      fromName = names.fromName;
-      toName = names.toName;
-    }
-
-    const resourceType = metadata.resourceType === 'instructor' ? 'Instructor' : 'Classroom';
-    handleConfirmAction(
-      callback,
-      `Reassign ${resourceType}`,
-      `You are changing the ${resourceType.toLowerCase()} from "${fromName}" to "${toName}". Continue?`
-    );
-  };
-
   // Handle confirmation for cross-department operations
   const handleCrossDepartment = (callback: () => void) => {
     handleConfirmAction(

@@ -211,6 +211,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
     },
   });
 
@@ -249,6 +250,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     onSettled: () => {
       // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
     },
   });
 
@@ -329,6 +331,7 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     onSettled: () => {
       // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
     },
   });
 
