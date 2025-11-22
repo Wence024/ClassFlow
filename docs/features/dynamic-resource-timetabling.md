@@ -266,7 +266,7 @@ moveSessionWithResourceChange(
 - [x] Add reassignSessionResource function
 - [x] Add moveSessionWithResourceChange function
 
-### ✅ Phase 4: Dynamic Resource Reassignment (COMPLETED - with bug fix)
+### ✅ Phase 4: Dynamic Resource Reassignment (COMPLETED v1.2)
 - [x] Remove resource mismatch blocking for instructor/classroom views
 - [x] Add getResourceChangeInfo helper function
 - [x] Update needsConfirmation to detect resource changes
@@ -276,7 +276,10 @@ moveSessionWithResourceChange(
 - [x] Add confirmation dialog logic for resource reassignment
 - [x] Update DropZone with visual indicator differentiation
 - [x] Add pre-assigned resource highlighting (vibrant vs subtle)
-- [x] **FIX: Wire moveSessionWithResourceChange through useTimetable with proper semester_id and cache invalidation**
+- [x] **FIX (v1.1): Wire moveSessionWithResourceChange through useTimetable with proper semester_id and cache invalidation**
+- [x] **FIX (v1.2): Same-period resource reassignment now properly detects resource changes**
+- [x] **FIX (v1.2): Drawer-to-timetable allows reassignment to any available resource row**
+- [x] Add diagnostic logging for debugging drag-and-drop operations
 
 ### 🔄 Phase 5: Form Component Updates (NOT STARTED)
 - [ ] Update form validation schema to make resources optional
@@ -318,6 +321,68 @@ moveSessionWithResourceChange(
 - [x] Technical architecture details
 - [x] User guide for resource reassignment
 - [x] Implementation status tracking
+- [x] Bug fix documentation (v1.2)
+
+---
+
+## Known Issues & Fixes
+
+### Fixed Issues (Version 1.2 - 2025-01-XX)
+
+#### Issue #1: Same-Period Resource Reassignment Not Working
+**Problem**: Moving a session to a different classroom/instructor row at the same period would fail silently without updating the resource.
+
+**Root Cause**: The `isSameCell` check in `executeDropMutation` was comparing `source.class_group_id === dbTargetGroupId` which evaluated to `true` when the period was the same, even though the resource row (classroom/instructor) was different. This caused the function to return early without processing the resource change.
+
+**Fix**: Updated the `isSameCell` logic to include `!resourceChangeMetadata?.isChanging` check for resource views, allowing same-period drops when the resource is changing.
+
+```typescript
+const isSameCell =
+  viewMode === 'class-group'
+    ? source.class_group_id === dbTargetGroupId && source.period_index === targetPeriodIndex
+    : source.class_group_id === dbTargetGroupId && 
+      source.period_index === targetPeriodIndex &&
+      !resourceChangeMetadata?.isChanging; // Now allows resource change at same period
+```
+
+**Testing**: 
+- ✅ Can now drag session to different classroom row at same period
+- ✅ Confirmation dialog appears for resource reassignment
+- ✅ classroom_id/instructor_id updates correctly in database
+
+---
+
+#### Issue #2: Drawer-to-Timetable Restricted to Pre-Assigned Resource
+**Problem**: Sessions with a pre-assigned classroom/instructor could only be dropped into their originally assigned resource's row. Dropping into a different resource row showed no availability indicators.
+
+**Root Cause**: The `isViewModeCompliant` function for `classroom` and `instructor` cases was checking if the target row matched the session's current resource:
+```typescript
+case 'classroom':
+  if (!draggedSession.classroom) return true;
+  return draggedSession.classroom.id === targetGroupId; // Only allowed original classroom
+```
+
+**Fix**: Changed the logic to always return `true` for resource views when dropping from the drawer, relying on conflict checking and confirmation flows to handle reassignment:
+```typescript
+case 'classroom':
+case 'instructor':
+  // Always allow drops from drawer (conflicts checked separately)
+  // Resource assignment/reassignment will trigger confirmation when needed
+  return true;
+```
+
+**Testing**:
+- ✅ Green availability indicators now show for ALL available resource rows
+- ✅ Can drop session with pre-assigned classroom into any classroom row
+- ✅ Confirmation dialog appears for resource reassignment
+- ✅ Resource assignment works correctly from drawer to any available row
+
+---
+
+### Additional Improvements (v1.2)
+- Added diagnostic `console.debug` logging throughout drag-and-drop flow
+- Enhanced error messages for debugging
+- Improved code comments explaining resource vs class-group ID semantics
 
 ---
 

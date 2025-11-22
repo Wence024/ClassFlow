@@ -18,6 +18,16 @@ This index provides quick access to all documented changes in the ClassFlow proj
 
 ### January 2025
 
+- **[Dynamic Resource Timetabling v1.2](./dynamic-resource-timetabling-v1.2.md)** - 2025-01-XX
+  - Fixed same-period resource reassignment not working
+  - Fixed drawer-to-timetable restricted to pre-assigned resources
+  - Added comprehensive diagnostic logging for drag-and-drop operations
+  - Enhanced debugging capabilities
+
+- **[Dynamic Resource Timetabling v1.1](./dynamic-resource-timetabling-v1.1.md)** - 2025-01-XX
+  - Fixed disappearing sessions in classroom view
+  - Added automatic resource assignment during timetable drop operations
+
 - **[Dynamic Resource Timetabling](./dynamic-resource-timetabling.md)** - 2025-01-18
   - Made classroom assignment optional in class sessions
   - Enabled classroom and instructor reassignment during timetabling
@@ -211,8 +221,8 @@ Resolution of defects or unexpected behavior.
 - **Major Features**: 4
 - **Refactoring**: 1
 - **Infrastructure**: 1
-- **Bug Fixes**: 1
-- **Total**: 7
+- **Bug Fixes**: 3
+- **Total**: 9
 
 ### Coverage Period
 - **Start Date**: October 2025

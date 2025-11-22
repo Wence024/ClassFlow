@@ -51,23 +51,27 @@ const getResourceChangeInfo = (
   if (viewMode === 'classroom') {
     // Only treat as "changing" if there's an EXISTING classroom being replaced
     if (session.classroom && session.classroom.id !== targetId) {
-      return {
+      const result = {
         isChanging: true,
         fromId: session.classroom.id,
         toId: targetId,
-        resourceType: 'classroom'
+        resourceType: 'classroom' as const
       };
+      console.debug('[DND] Resource change detected', result);
+      return result;
     }
     // If classroom is null, this is ASSIGNMENT, not reassignment - no confirmation needed
   } else if (viewMode === 'instructor') {
     // Only treat as "changing" if there's an EXISTING instructor being replaced
     if (session.instructor && session.instructor.id !== targetId) {
-      return {
+      const result = {
         isChanging: true,
         fromId: session.instructor.id,
         toId: targetId,
-        resourceType: 'instructor'
+        resourceType: 'instructor' as const
       };
+      console.debug('[DND] Resource change detected', result);
+      return result;
     }
     // If instructor is null, this is ASSIGNMENT, not reassignment - no confirmation needed
   }
@@ -167,6 +171,10 @@ const needsConfirmation = (
 ): { type: 'cross-department' | 'resource-reassignment' | null; metadata?: ResourceChangeMetadata } => {
   // Check for resource reassignment
   if (resourceChangeInfo && resourceChangeInfo.isChanging) {
+    console.debug('[DND] Confirmation check - resource reassignment needed', {
+      hasResourceChange: true,
+      resourceType: resourceChangeInfo.resourceType
+    });
     return { type: 'resource-reassignment', metadata: resourceChangeInfo };
   }
 
@@ -191,9 +199,11 @@ const needsConfirmation = (
   );
 
   if (hasCrossDeptResource && isCurrentlyConfirmed) {
+    console.debug('[DND] Confirmation check - cross-department reapproval needed');
     return { type: 'cross-department' };
   }
 
+  console.debug('[DND] Confirmation check - no confirmation needed');
   return { type: null };
 };
 
@@ -303,13 +313,10 @@ export const useTimetableDnd = (
         case 'class-group':
           return draggedSession.group.id === targetGroupId;
         case 'classroom':
-          // If classroom is unassigned (null), allow placement in any classroom row
-          if (!draggedSession.classroom) return true;
-          return draggedSession.classroom.id === targetGroupId;
         case 'instructor':
-          // If instructor is unassigned (null), allow placement in any instructor row
-          if (!draggedSession.instructor) return true;
-          return draggedSession.instructor.id === targetGroupId;
+          // In resource views, always allow drops from drawer (conflicts checked separately)
+          // Resource assignment/reassignment will trigger confirmation when needed
+          return true;
       }
     }
     return false;
@@ -362,15 +369,33 @@ export const useTimetableDnd = (
       if (source.from === 'drawer') {
         return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
       } else if (source.from === 'timetable') {
+        // Check if this is the same cell (no action needed)
         const isSameCell =
           viewMode === 'class-group'
             ? source.class_group_id === dbTargetGroupId && source.period_index === targetPeriodIndex
-            : source.period_index === targetPeriodIndex;
+            : source.class_group_id === dbTargetGroupId && 
+              source.period_index === targetPeriodIndex &&
+              !resourceChangeMetadata?.isChanging; // Allow resource change even at same period
+
+        console.debug('[DND] executeDropMutation - isSameCell check', {
+          viewMode,
+          isSameCell,
+          sourceGroupId: source.class_group_id,
+          dbTargetGroupId,
+          sourcePeriod: source.period_index,
+          targetPeriod: targetPeriodIndex,
+          isResourceChanging: resourceChangeMetadata?.isChanging
+        });
 
         if (isSameCell) return '';
 
         // Use resource reassignment wrapper if resource is changing
         if (resourceChangeMetadata?.isChanging) {
+          console.debug('[DND] executeDropMutation - Using resource reassignment', {
+            resourceType: resourceChangeMetadata.resourceType,
+            fromId: resourceChangeMetadata.fromId,
+            toId: resourceChangeMetadata.toId
+          });
           await moveSessionWithResourceChange(
             {
               class_group_id: source.class_group_id,
