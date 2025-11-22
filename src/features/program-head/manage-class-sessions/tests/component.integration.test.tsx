@@ -15,6 +15,10 @@ import type { User, AuthContextType } from '../../../shared/auth/types/auth';
 // --- Mocks ---
 vi.mock('../hook');
 vi.mock('../../../shared/components/hooks');
+vi.mock('../../manage-components/hooks');
+vi.mock('../../../admin/manage-programs/hooks/usePrograms');
+vi.mock('../../../admin/manage-departments/hooks/useDepartments');
+vi.mock('../../../shared/auth/hooks/useAuth');
 
 // --- Mock Data ---
 const mockUser: User = {
@@ -49,27 +53,17 @@ const queryClient = new QueryClient({
  * @param classSessions
  * @param isLoading
  * @param error
+ * @param deleteSessionMock - Optional mock for deleteSession function
  */
 const setupComponent = async (
   classSessions = [mockClassSession],
   isLoading = false,
-  error: string | null = null
+  error: string | null = null,
+  deleteSessionMock?: any
 ) => {
-  const mockUseManageClassSessions = vi.mocked(await import('../hook')).useManageClassSessions;
-  mockUseManageClassSessions.mockReturnValue({
-    sessions: classSessions,
-    isLoading,
-    isCreating: false,
-    isUpdating: false,
-    isDeleting: false,
-    error,
-    createSession: vi.fn(),
-    updateSession: vi.fn(),
-    deleteSession: vi.fn(),
-    checkCrossDepartment: vi.fn(),
-  });
-
-  const mockAuthContext: AuthContextType = {
+  // Mock the useAuth hook used by the component
+  const { useAuth } = await import('../../../shared/auth/hooks/useAuth');
+  vi.mocked(useAuth).mockReturnValue({
     user: mockUser,
     loading: false,
     error: null,
@@ -87,15 +81,67 @@ const setupComponent = async (
     canReviewRequestsForDepartment: () => false,
     canManageInstructorRow: () => false,
     canManageAssignmentsForProgram: () => true,
-  };
+  });
+
+  // Mock all hooks used by the component
+  const mockUseManageClassSessions = vi.mocked(await import('../hook')).useManageClassSessions;
+  mockUseManageClassSessions.mockReturnValue({
+    sessions: classSessions,
+    isLoading,
+    isCreating: false,
+    isUpdating: false,
+    isDeleting: false,
+    error,
+    createSession: vi.fn(),
+    updateSession: vi.fn(),
+    deleteSession: deleteSessionMock || vi.fn(),
+    checkCrossDepartment: vi.fn(),
+  });
+
+  // Mock the manage-components hooks
+  const { useAllCourses, useClassGroups, useAllClassrooms, useAllInstructors } = await import('../../manage-components/hooks');
+  vi.mocked(useAllCourses).mockReturnValue({
+    courses: [{ id: 'course1', name: 'Mathematics 101', code: 'MATH101' }],
+    isLoading: false,
+  });
+
+  vi.mocked(useClassGroups).mockReturnValue({
+    classGroups: [{ id: 'group1', name: 'CS-1A', code: 'CS1A' }],
+    isLoading: false,
+  });
+
+  vi.mocked(useAllClassrooms).mockReturnValue({
+    classrooms: [{ id: 'classroom1', name: 'Room 101' }],
+    isLoading: false,
+  });
+
+  vi.mocked(useAllInstructors).mockReturnValue({
+    instructors: [{ id: 'instructor1', first_name: 'John', last_name: 'Doe' }],
+    isLoading: false,
+  });
+
+  // Mock the programs and departments hooks
+  const { usePrograms } = await import('../../../admin/manage-programs/hooks/usePrograms');
+  vi.mocked(usePrograms).mockReturnValue({
+    listQuery: {
+      data: [{ id: 'p1', name: 'Program 1', department_id: 'd1' }],
+      isLoading: false
+    },
+  });
+
+  const { useDepartments } = await import('../../../admin/manage-departments/hooks/useDepartments');
+  vi.mocked(useDepartments).mockReturnValue({
+    listQuery: {
+      data: [{ id: 'd1', name: 'Department 1' }],
+      isLoading: false
+    },
+  });
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={mockAuthContext}>
-        <MemoryRouter>
-          <ManageClassSessionsPage />
-        </MemoryRouter>
-      </AuthContext.Provider>
+      <MemoryRouter>
+        <ManageClassSessionsPage />
+      </MemoryRouter>
     </QueryClientProvider>
   );
 };
@@ -139,40 +185,52 @@ describe('ManageClassSessions Component', () => {
     });
   });
 
-  it('should open add session dialog', async () => {
+  it('should show add session form', async () => {
     const user = userEvent.setup();
     await setupComponent();
 
-    const addButton = screen.getByRole('button', { name: /add.*session/i });
-    await user.click(addButton);
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    // The component always shows the form, so we just need to verify the form elements exist
+    expect(screen.getByLabelText(/course/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/class group/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /add class session/i })).toBeInTheDocument();
   });
 
   it('should handle session deletion', async () => {
     const mockRemove = vi.fn();
-    const mockUseManageClassSessions = vi.mocked(await import('../hook')).useManageClassSessions;
-    mockUseManageClassSessions.mockReturnValue({
-      sessions: [mockClassSession],
-      isLoading: false,
-      isCreating: false,
-      isUpdating: false,
-      isDeleting: false,
-      error: null,
-      createSession: vi.fn(),
-      updateSession: vi.fn(),
-      deleteSession: mockRemove,
-      checkCrossDepartment: vi.fn(),
-    });
 
     const user = userEvent.setup();
-    await setupComponent();
+    await setupComponent([mockClassSession], false, null, mockRemove);
 
-    const deleteButton = screen.getByRole('button', { name: /delete.*session1/i });
-    await user.click(deleteButton);
-
+    // Wait for the session to render and then attempt to find and click the delete button
     await waitFor(() => {
-      expect(mockRemove).toHaveBeenCalledWith('session1');
+      expect(screen.getByText('MATH101')).toBeInTheDocument();
     });
+
+    // Find a button that might be the delete button - likely has trash or delete icon
+    const allButtons = screen.getAllByRole('button');
+    // Try to find the delete button by text or aria-label containing delete
+    let deleteButton;
+    for (const button of allButtons) {
+      if (button.textContent?.toLowerCase().includes('delete') ||
+          button.textContent?.toLowerCase().includes('remove') ||
+          button.textContent?.toLowerCase().includes('trash')) {
+        deleteButton = button;
+        break;
+      }
+    }
+
+    if (deleteButton) {
+      await user.click(deleteButton);
+      await waitFor(() => {
+        expect(mockRemove).toHaveBeenCalledWith('session1');
+      });
+    } else {
+      // If we can't find a specific delete button, try clicking the last button which might be an action button
+      const lastButton = allButtons[allButtons.length - 1];
+      await user.click(lastButton);
+      await waitFor(() => {
+        expect(mockRemove).toHaveBeenCalledWith('session1');
+      });
+    }
   });
 });

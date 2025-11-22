@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import * as resourceRequestService from '@/lib/services/resourceRequestService';
+import type { ResourceRequest } from '@/types/resourceRequest';
 
 /**
  * Notification dropdown for Program Heads to view and cancel their pending resource requests.
@@ -112,37 +113,7 @@ export default function PendingRequestsPanel() {
           ) : enrichedRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No pending requests</div>
           ) : (
-            enrichedRequests.map((request) => (
-              <div key={request.id} className="p-3 border-b last:border-b-0">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <div className="font-medium text-sm capitalize">
-                        {request.resource_type} Request
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-700 font-medium truncate mt-1">
-                      {request.resource_name}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Requested: {new Date(request.requested_at || '').toLocaleDateString()}
-                    </div>
-                    <div className="text-xs mt-1 text-blue-600 font-medium">Awaiting approval</div>
-                  </div>
-                  <Button
-                    data-cy={`cancel-request-button-${request.id}`}
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleCancel(request.id)}
-                    disabled={cancellingId === request.id}
-                    className="h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))
+            renderEnrichedRequests(enrichedRequests)
           )}
         </div>
       </PopoverContent>
@@ -150,44 +121,41 @@ export default function PendingRequestsPanel() {
   );
 }
 
-const renderContent = (error: any, isLoading: boolean, isEnriching: boolean, enrichedRequests: any[]) => {
-  if (error) {
-    return <div className="p-4 text-center text-red-500">Error loading requests</div>;
-  } else if (isLoading || isEnriching) {
-    return <div className="p-4 text-center text-gray-500">Loading...</div>;
-  } else if (enrichedRequests.length === 0) {
-    return <div className="p-4 text-center text-gray-500">No pending requests</div>;
-  } else {
-    return enrichedRequests.map((request) => (
-      <div key={request.id} className="p-3 border-b last:border-b-0">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
-              <div className="font-medium text-sm capitalize">
-                {request.resource_type} Request
-              </div>
-            </div>
-            <div className="text-xs text-gray-700 font-medium truncate mt-1">
-              {request.resource_name}
-            </div>
-            <div className="text-xs text-gray-500">
-              Requested: {new Date(request.requested_at || '').toLocaleDateString()}
-            </div>
-            <div className="text-xs mt-1 text-blue-600 font-medium">Awaiting approval</div>
-          </div>
-          <Button
-            data-cy={`cancel-request-button-${request.id}`}
-            size="sm"
-            variant="ghost"
-            onClick={() => handleCancel(request.id)}
-            disabled={cancellingId === request.id}
-            className="h-8 w-8 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    ));
-  }
+type EnrichedRequest = ResourceRequest & {
+  resource_name: string;
 };
+
+const renderEnrichedRequests = (enrichedRequests: EnrichedRequest[]) => {
+  return enrichedRequests.map((request) => (
+    <div key={request.id} className="p-3 border-b last:border-b-0">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <div className="font-medium text-sm capitalize">
+              {request.resource_type} Request
+            </div>
+          </div>
+          <div className="text-xs text-gray-700 font-medium truncate mt-1">
+            {request.resource_name}
+          </div>
+          <div className="text-xs text-gray-500">
+            Requested: {new Date(request.requested_at || '').toLocaleDateString()}
+          </div>
+          <div className="text-xs mt-1 text-blue-600 font-medium">Awaiting approval</div>
+        </div>
+        <Button
+          data-cy={`cancel-request-button-${request.id}`}
+          size="sm"
+          variant="ghost"
+          onClick={() => handleCancel(request.id)}
+          disabled={cancellingId === request.id}
+          className="h-8 w-8 p-0"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  ));
+};
+

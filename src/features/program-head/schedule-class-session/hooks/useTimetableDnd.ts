@@ -152,7 +152,7 @@ const needsConfirmation = (
   assignments: HydratedTimetableAssignment[] | undefined,
   userDepartmentId: string | null,
   resourceChangeInfo: ReturnType<typeof getResourceChangeInfo>
-): { type: 'cross-department' | 'resource-reassignment' | null; metadata?: any } => {
+): { type: 'cross-department' | 'resource-reassignment' | null; metadata?: ResourceChangeMetadata } => {
   // Check for resource reassignment
   if (resourceChangeInfo && resourceChangeInfo.isChanging) {
     return { type: 'resource-reassignment', metadata: resourceChangeInfo };
@@ -274,13 +274,12 @@ export const useTimetableDnd = (
     targetGroupId: string
   ): boolean => {
     if (source.from === 'timetable') {
-      switch (viewMode) {
-        case 'class-group':
-          return draggedSession.group.id === targetGroupId;
-        case 'classroom':
-          return draggedSession.classroom?.id === targetGroupId;
-        case 'instructor':
-          return draggedSession.instructor?.id === targetGroupId;
+      if (viewMode === 'class-group') {
+        // In class-group view, can only move within same group
+        return draggedSession.group.id === targetGroupId;
+      } else if (viewMode === 'classroom' || viewMode === 'instructor') {
+        // In resource views, allow moving to ANY row (resource will be reassigned via confirmation)
+        return true;
       }
     } else if (source.from === 'drawer') {
       switch (viewMode) {
@@ -507,7 +506,7 @@ export const useTimetableDnd = (
       onConfirmMove?: (
         callback: () => void,
         confirmationType: 'cross-department' | 'resource-reassignment',
-        metadata?: any
+        metadata?: ResourceChangeMetadata
       ) => void
     ) => {
       e.preventDefault();

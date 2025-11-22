@@ -41,22 +41,29 @@ describe('Timetable: Resource Reassignment', () => {
       // Perform drag operation (same as above)
       cy.get('[data-cy="timetable-view-selector"]').click();
       cy.get('[data-cy="view-mode-instructor"]').click();
-      
+
       cy.get('[data-testid^="session-card-"]').first().as('session');
+
+      // Extract the session ID first
       cy.get('@session').invoke('attr', 'data-testid').then((sessionId) => {
-        cy.get('table tbody tr').eq(1).as('targetRow');
-        
-        cy.get('@session').trigger('dragstart');
-        cy.get('@targetRow').trigger('dragover');
-        cy.get('@targetRow').trigger('drop');
-        
-        // Confirm the change
-        cy.get('[data-cy="confirm-button"]').click();
-        
-        // Should show success toast
-        cy.contains(/instructor assigned|updated/i).should('be.visible');
-        
-        // Session should now appear in the new instructor's row
+        // Store in an alias
+        cy.wrap(sessionId).as('savedSessionId');
+      });
+
+      // Then perform the drag operation
+      cy.get('@session').trigger('dragstart');
+      cy.get('table tbody tr').eq(1).as('targetRow');
+      cy.get('@targetRow').trigger('dragover');
+      cy.get('@targetRow').trigger('drop');
+
+      // Confirm the change
+      cy.get('[data-cy="confirm-button"]').click();
+
+      // Should show success toast
+      cy.contains(/instructor assigned|updated/i).should('be.visible');
+
+      // Session should now appear in the new instructor's row
+      cy.get('@savedSessionId').then((sessionId) => {
         cy.get('@targetRow').within(() => {
           cy.get(`[data-testid="${sessionId}"]`).should('exist');
         });

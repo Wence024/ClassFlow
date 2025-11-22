@@ -80,9 +80,9 @@ describe('Manage Class Sessions Service', () => {
     it('should delete a class session', async () => {
       mockedInfra.removeClassSession.mockResolvedValue(undefined);
 
-      await service.deleteClassSession('session1');
+      await service.deleteClassSession('session1', 'user1');
 
-      expect(mockedInfra.removeClassSession).toHaveBeenCalledWith('session1', '');
+      expect(mockedInfra.removeClassSession).toHaveBeenCalledWith('session1', 'user1');
     });
   });
 });

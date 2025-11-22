@@ -1,5 +1,5 @@
 /**
- * @vitest-environment jsdom
+ * Vitest environment: jsdom
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -48,16 +48,14 @@ describe('SyncIndicator Integration Tests', () => {
   describe('Visibility States', () => {
     it('should show indicator when timetable queries are fetching', () => {
       // Mock the hook to return different values for different query keys
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Simulate hydratedTimetable query is fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0; // timetable_assignments query is not fetching
-          }
-          return 0;
-        });
+      const mockUseIsFetching = vi.fn().mockImplementation(({ queryKey }) => {
+        if (queryKey && queryKey[0] === 'hydratedTimetable') {
+          return 1; // Simulate hydratedTimetable query is fetching
+        } else if (queryKey && queryKey[0] === 'timetable_assignments') {
+          return 0; // timetable_assignments query is not fetching
+        }
+        return 0;
+      });
 
       vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
 
@@ -68,17 +66,7 @@ describe('SyncIndicator Integration Tests', () => {
     });
 
     it('should hide indicator when no queries are fetching', () => {
-      // Mock the hook to return 0 for both timetable queries
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && (queryKey[0] === 'hydratedTimetable' || queryKey[0] === 'timetable_assignments')) {
-            return 0; // Both timetable queries are not fetching
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
+      vi.mocked(useIsFetching).mockReturnValue(0);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -86,17 +74,7 @@ describe('SyncIndicator Integration Tests', () => {
     });
 
     it('should show indicator when multiple queries are fetching', () => {
-      // Mock both queries to be fetching
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && (queryKey[0] === 'hydratedTimetable' || queryKey[0] === 'timetable_assignments')) {
-            return 1; // Both are fetching
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
+      vi.mocked(useIsFetching).mockReturnValue(1);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -106,18 +84,7 @@ describe('SyncIndicator Integration Tests', () => {
 
   describe('Visual States', () => {
     it('should display loading spinner when fetching', () => {
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Simulate hydratedTimetable query is fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
+      vi.mocked(useIsFetching).mockReturnValue(1);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -127,18 +94,7 @@ describe('SyncIndicator Integration Tests', () => {
     });
 
     it('should display sync text', () => {
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Simulate hydratedTimetable query is fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
+      vi.mocked(useIsFetching).mockReturnValue(1);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -148,15 +104,7 @@ describe('SyncIndicator Integration Tests', () => {
 
   describe('Query Filter Integration', () => {
     it('should only respond to timetable-related queries', () => {
-      vi.mocked(useIsFetching)
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // hydratedTimetable query is fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0; // timetable_assignments query is not fetching
-          }
-          return 0;
-        });
+      vi.mocked(useIsFetching).mockReturnValue(1);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -164,14 +112,7 @@ describe('SyncIndicator Integration Tests', () => {
     });
 
     it('should not show for non-timetable queries', () => {
-      // Mock the hook to return 0 for both timetable queries
-      vi.mocked(useIsFetching)
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && (queryKey[0] === 'hydratedTimetable' || queryKey[0] === 'timetable_assignments')) {
-            return 0; // Both timetable queries are not fetching
-          }
-          return 0;
-        });
+      vi.mocked(useIsFetching).mockReturnValue(0);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -180,37 +121,17 @@ describe('SyncIndicator Integration Tests', () => {
   });
 
   describe('Transition Behavior', () => {
-    it('should transition from hidden to visible', () => {
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 0; // Initially not fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
+    it('should transition from hidden to visible', async () => {
+      // Initially not fetching
+      const mockIsFetching = vi.fn(() => 0);
+      vi.mocked(useIsFetching).mockImplementation(mockIsFetching);
 
       const { rerender } = renderWithQuery(<SyncIndicator />);
 
       expect(screen.queryByTestId('sync-indicator')).not.toBeInTheDocument();
 
-      // Change to simulate query starting
-      const updatedMockUseIsFetching = vi.fn();
-      updatedMockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Now fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(updatedMockUseIsFetching);
+      // Change the mock return value for the rerender
+      mockIsFetching.mockReturnValue(1);
 
       rerender(
         <QueryClientProvider client={queryClient}>
@@ -223,37 +144,17 @@ describe('SyncIndicator Integration Tests', () => {
       expect(screen.getByTestId('sync-indicator')).toBeInTheDocument();
     });
 
-    it('should transition from visible to hidden', () => {
-      const mockUseIsFetching = vi.fn();
-      mockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Initially fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(mockUseIsFetching);
+    it('should transition from visible to hidden', async () => {
+      // Initially fetching
+      const mockIsFetching = vi.fn(() => 1);
+      vi.mocked(useIsFetching).mockImplementation(mockIsFetching);
 
       const { rerender } = renderWithQuery(<SyncIndicator />);
 
       expect(screen.getByTestId('sync-indicator')).toBeInTheDocument();
 
       // Change to simulate query finishing
-      const updatedMockUseIsFetching = vi.fn();
-      updatedMockUseIsFetching
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 0; // Now not fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
-
-      vi.mocked(useIsFetching).mockImplementation(updatedMockUseIsFetching);
+      mockIsFetching.mockReturnValue(0);
 
       rerender(
         <QueryClientProvider client={queryClient}>
@@ -269,15 +170,7 @@ describe('SyncIndicator Integration Tests', () => {
 
   describe('Multiple Concurrent Fetches', () => {
     it('should show single indicator for multiple fetches', () => {
-      vi.mocked(useIsFetching)
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 3; // Simulate 3 hydratedTimetable queries fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 2; // Simulate 2 timetable_assignments queries fetching
-          }
-          return 0;
-        });
+      vi.mocked(useIsFetching).mockReturnValue(5); // Mock multiple concurrent fetches
 
       renderWithQuery(<SyncIndicator />);
 
@@ -291,15 +184,7 @@ describe('SyncIndicator Integration Tests', () => {
 
   describe('Accessibility', () => {
     it('should have proper ARIA label', () => {
-      vi.mocked(useIsFetching)
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Simulate hydratedTimetable query is fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
+      vi.mocked(useIsFetching).mockReturnValue(1);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -308,15 +193,7 @@ describe('SyncIndicator Integration Tests', () => {
     });
 
     it('should have proper role for screen readers', () => {
-      vi.mocked(useIsFetching)
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 1; // Simulate hydratedTimetable query is fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
+      vi.mocked(useIsFetching).mockReturnValue(1);
 
       renderWithQuery(<SyncIndicator />);
 
@@ -327,15 +204,7 @@ describe('SyncIndicator Integration Tests', () => {
 
   describe('Performance', () => {
     it('should not cause unnecessary re-renders', () => {
-      vi.mocked(useIsFetching)
-        .mockImplementation(({ queryKey }) => {
-          if (queryKey && queryKey[0] === 'hydratedTimetable') {
-            return 0; // No queries fetching
-          } else if (queryKey && queryKey[0] === 'timetable_assignments') {
-            return 0;
-          }
-          return 0;
-        });
+      vi.mocked(useIsFetching).mockReturnValue(0);
 
       const { rerender } = renderWithQuery(<SyncIndicator />);
 
