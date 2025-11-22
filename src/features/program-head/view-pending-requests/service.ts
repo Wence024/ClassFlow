@@ -4,8 +4,8 @@
 
 import {
   getMyRequests as infraGetMyRequests,
-  cancelRequest as infraCancelRequest,
   updateRequest as infraUpdateRequest,
+  cancelRequest as infraCancelRequest,
 } from '@/lib/services/resourceRequestService';
 import type { ResourceRequest } from '@/types/resourceRequest';
 

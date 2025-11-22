@@ -17,6 +17,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 /**
  * Creates a Supabase client for cleanup operations.
+ *
+ * @returns A Supabase client instance.
  */
 function getSupabaseClient() {
   return createClient<Database>(supabaseUrl, supabaseKey);
@@ -54,10 +56,10 @@ export async function cleanupTestData() {
 /**
  * Helper function to delete a single record.
  *
- * @param supabase
- * @param record
- * @param record.table
- * @param record.id
+ * @param supabase - Supabase client instance for database operations.
+ * @param record - Record object containing table name and ID.
+ * @param record.table - Name of the table where the record exists.
+ * @param record.id - ID of the record to delete.
  */
 async function deleteRecord(supabase: SupabaseClient<Database>, record: {table: string, id: string}) {
   try {

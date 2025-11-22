@@ -3,7 +3,7 @@
  */
 
 import {
-  getAllInstructors as infraGetAllInstructors,
+  getInstructors as infraGetInstructors,
   addInstructor as infraAddInstructor,
   updateInstructor as infraUpdateInstructor,
   removeInstructor as infraRemoveInstructor,
@@ -11,15 +11,15 @@ import {
 import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/instructor';
 
 /**
- * Fetches all instructors.
+ * Fetches instructors based on filters.
  */
 export async function fetchInstructors(filters: { role?: string; departmentId?: string | null }): Promise<Instructor[]> {
-  // The function may need to filter based on department ID for department heads
-  const allInstructors = await infraGetAllInstructors();
-  if (filters.departmentId) {
-    return allInstructors.filter(inst => inst.department_id === filters.departmentId);
-  }
-  return allInstructors;
+  // Convert camelCase to snake_case for the infrastructure function
+  const infraFilters: any = {};
+  if (filters.role !== undefined) infraFilters.role = filters.role;
+  if (filters.departmentId !== undefined) infraFilters.department_id = filters.departmentId;
+
+  return infraGetInstructors(infraFilters);
 }
 
 /**

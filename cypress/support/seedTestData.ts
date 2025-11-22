@@ -17,6 +17,8 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 /**
  * Creates a Supabase client for test data operations.
+ *
+ * @returns A Supabase client instance.
  */
 function getSupabaseClient() {
   return createClient<Database>(supabaseUrl, supabaseKey);
@@ -25,7 +27,8 @@ function getSupabaseClient() {
 /**
  * Generates a unique test identifier with timestamp.
  *
- * @param prefix
+ * @param prefix - The prefix to use for the unique ID.
+ * @returns A unique identifier string.
  */
 function getUniqueId(prefix: string): string {
   // Use a predictable but unique ID for tests to avoid pseudo-random warning
@@ -35,8 +38,8 @@ function getUniqueId(prefix: string): string {
 /**
  * Tracks a created test record for cleanup.
  *
- * @param table
- * @param id
+ * @param table - The table name where the record was created.
+ * @param id - The ID of the created record.
  */
 function trackCreatedRecord(table: string, id: string) {
   const records = Cypress.env('testDataRecords') || [];
@@ -47,9 +50,10 @@ function trackCreatedRecord(table: string, id: string) {
 /**
  * Seeds a test department.
  *
- * @param data
- * @param data.name
- * @param data.code
+ * @param data - Optional department data to use for creation.
+ * @param data.name - Optional name for the department.
+ * @param data.code - Optional code for the department.
+ * @returns The created department object with id, name, and code.
  */
 export async function seedTestDepartment(data?: {
   name?: string;
@@ -79,10 +83,11 @@ export async function seedTestDepartment(data?: {
 /**
  * Seeds a test program.
  *
- * @param data
- * @param data.departmentId
- * @param data.name
- * @param data.shortCode
+ * @param data - Program data to use for creation.
+ * @param data.departmentId - Department ID to associate the program with.
+ * @param data.name - Optional name for the program.
+ * @param data.shortCode - Optional short code for the program.
+ * @returns The created program object.
  */
 export async function seedTestProgram(data: {
   departmentId: string;
@@ -114,13 +119,14 @@ export async function seedTestProgram(data: {
 /**
  * Seeds a test user using the create_test_user database function.
  *
- * @param data
- * @param data.email
- * @param data.password
- * @param data.fullName
- * @param data.role
- * @param data.departmentId
- * @param data.programId
+ * @param data - User data to use for creation.
+ * @param data.email - Email address for the user.
+ * @param data.password - Password for the user.
+ * @param data.fullName - Full name of the user.
+ * @param data.role - Role of the user (admin, department_head, or program_head).
+ * @param data.departmentId - Optional department ID to associate with the user.
+ * @param data.programId - Optional program ID to associate with the user.
+ * @returns The created user object.
  */
 export async function seedTestUser(data: {
   email: string;
@@ -152,12 +158,13 @@ export async function seedTestUser(data: {
 /**
  * Seeds a test classroom.
  *
- * @param data
- * @param data.name
- * @param data.code
- * @param data.capacity
- * @param data.location
- * @param data.preferredDepartmentId
+ * @param data - Optional classroom data to use for creation.
+ * @param data.name - Optional name for the classroom.
+ * @param data.code - Optional code for the classroom.
+ * @param data.capacity - Optional capacity for the classroom.
+ * @param data.location - Optional location for the classroom.
+ * @param data.preferredDepartmentId - Optional preferred department ID for the classroom.
+ * @returns The created classroom object.
  */
 export async function seedTestClassroom(data?: {
   name?: string;
@@ -193,11 +200,12 @@ export async function seedTestClassroom(data?: {
 /**
  * Seeds a test instructor.
  *
- * @param data
- * @param data.departmentId
- * @param data.firstName
- * @param data.lastName
- * @param data.email
+ * @param data - Instructor data to use for creation.
+ * @param data.departmentId - Department ID to associate the instructor with.
+ * @param data.firstName - Optional first name for the instructor.
+ * @param data.lastName - Optional last name for the instructor.
+ * @param data.email - Optional email for the instructor.
+ * @returns The created instructor object.
  */
 export async function seedTestInstructor(data: {
   departmentId: string;
@@ -231,12 +239,13 @@ export async function seedTestInstructor(data: {
 /**
  * Seeds a test course.
  *
- * @param data
- * @param data.programId
- * @param data.createdBy
- * @param data.name
- * @param data.code
- * @param data.units
+ * @param data - Course data to use for creation.
+ * @param data.programId - Program ID to associate the course with.
+ * @param data.createdBy - ID of the user creating the course.
+ * @param data.name - Optional name for the course.
+ * @param data.code - Optional code for the course.
+ * @param data.units - Optional unit count for the course.
+ * @returns The created course object.
  */
 export async function seedTestCourse(data: {
   programId: string;
@@ -272,12 +281,13 @@ export async function seedTestCourse(data: {
 /**
  * Seeds a test class group.
  *
- * @param data
- * @param data.programId
- * @param data.userId
- * @param data.name
- * @param data.code
- * @param data.studentCount
+ * @param data - Class group data to use for creation.
+ * @param data.programId - Program ID to associate the class group with.
+ * @param data.userId - User ID to associate the class group with.
+ * @param data.name - Optional name for the class group.
+ * @param data.code - Optional code for the class group.
+ * @param data.studentCount - Optional student count for the class group.
+ * @returns The created class group object.
  */
 export async function seedTestClassGroup(data: {
   programId: string;
@@ -313,14 +323,15 @@ export async function seedTestClassGroup(data: {
 /**
  * Seeds a test class session.
  *
- * @param data
- * @param data.programId
- * @param data.userId
- * @param data.courseId
- * @param data.classGroupId
- * @param data.instructorId
- * @param data.classroomId
- * @param data.periodCount
+ * @param data - Class session data to use for creation.
+ * @param data.programId - Program ID to associate the class session with.
+ * @param data.userId - User ID to associate the class session with.
+ * @param data.courseId - Course ID for the session.
+ * @param data.classGroupId - Class group ID for the session.
+ * @param data.instructorId - Instructor ID for the session.
+ * @param data.classroomId - Optional classroom ID for the session.
+ * @param data.periodCount - Optional period count for the session.
+ * @returns The created class session object.
  */
 export async function seedTestClassSession(data: {
   programId: string;
@@ -360,10 +371,11 @@ export async function seedTestClassSession(data: {
 /**
  * Seeds a complete test environment with department, program, and user.
  *
- * @param data
- * @param data.role
- * @param data.email
- * @param data.password
+ * @param data - Environment data to use for creation.
+ * @param data.role - Role for the test user.
+ * @param data.email - Optional email for the test user.
+ * @param data.password - Optional password for the test user.
+ * @returns The created department, program, and user objects.
  */
 export async function seedTestEnvironment(data: {
   role: 'admin' | 'department_head' | 'program_head';

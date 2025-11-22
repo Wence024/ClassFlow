@@ -38,7 +38,7 @@ export async function checkCrossDepartmentResource(
 ): Promise<CrossDeptCheckResult> {
   // Check instructor first if provided
   if (instructorId) {
-    const isInstructorCrossDept = await checkCrossDepartmentInstructor(programId, instructorId);
+    const isInstructorCrossDept = await infraIsCrossDepartmentInstructor(programId, instructorId);
     if (isInstructorCrossDept) {
       return {
         isCrossDept: true,
@@ -51,7 +51,7 @@ export async function checkCrossDepartmentResource(
 
   // Check classroom if provided
   if (classroomId) {
-    const isClassroomCrossDept = await checkCrossDepartmentClassroom(programId, classroomId);
+    const isClassroomCrossDept = await infraIsCrossDepartmentClassroom(programId, classroomId);
     if (isClassroomCrossDept) {
       return {
         isCrossDept: true,
