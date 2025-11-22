@@ -170,6 +170,14 @@ function checkViewSpecificResourceMismatch(
   viewMode: TimetableViewMode,
   allowResourceChanges = false
 ): string | null {
+  console.log('🔍 Resource mismatch check:', {
+    viewMode,
+    targetResourceId,
+    allowResourceChanges,
+    sessionClassroom: sessionToCheck.classroom?.name,
+    sessionClassroomId: sessionToCheck.classroom?.id
+  });
+  
   switch (viewMode) {
     case 'class-group':
       // Class group changes NEVER allowed
@@ -180,7 +188,10 @@ function checkViewSpecificResourceMismatch(
       if (!sessionToCheck.classroom) return null;
       
       // If allowResourceChanges is true, permit classroom changes (confirmation will be shown)
-      if (allowResourceChanges) return null;
+      if (allowResourceChanges) {
+        console.log('✅ Allowing classroom change (allowResourceChanges=true)');
+        return null;
+      }
       
       // Otherwise, enforce same-classroom restriction
       if (sessionToCheck.classroom.id !== targetResourceId) {

@@ -347,6 +347,17 @@ export const useTimetableDnd = (
         isMovingSession && 
         (viewMode === 'classroom' || viewMode === 'instructor');
       
+      console.log('🔍 isSlotAvailable check:', {
+        groupId,
+        periodIndex,
+        viewMode,
+        isMovingSession,
+        allowResourceChanges,
+        sessionClassroom: activeDraggedSession.classroom?.name,
+        sessionInstructor: activeDraggedSession.instructor ? 
+          `${activeDraggedSession.instructor.first_name} ${activeDraggedSession.instructor.last_name}` : null
+      });
+      
       const conflictMessage = checkTimetableConflicts(
         timetable,
         activeDraggedSession,
@@ -358,6 +369,8 @@ export const useTimetableDnd = (
         isMovingSession,
         allowResourceChanges
       );
+      
+      console.log('✅ Conflict result:', conflictMessage || 'AVAILABLE');
 
       return conflictMessage === '';
     },
