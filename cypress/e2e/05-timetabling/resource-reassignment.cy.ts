@@ -1,13 +1,13 @@
 /// <reference types="cypress" />
 
 /**
- * E2E Test Suite: Resource Reassignment Workflow
- * 
+ * E2E Test Suite: Resource Reassignment Workflow.
+ *
  * Tests:
- * - Dragging sessions between instructor rows
- * - Confirmation dialogs for instructor changes
- * - Conflict detection and warnings
- * - Incomplete session handling
+ * - Dragging sessions between instructor rows.
+ * - Confirmation dialogs for instructor changes.
+ * - Conflict detection and warnings.
+ * - Incomplete session handling.
  */
 
 describe('Timetable: Resource Reassignment', () => {
@@ -64,9 +64,7 @@ describe('Timetable: Resource Reassignment', () => {
 
       // Session should now appear in the new instructor's row
       cy.get('@savedSessionId').then((sessionId) => {
-        cy.get('@targetRow').within(() => {
-          cy.get(`[data-testid="${sessionId}"]`).should('exist');
-        });
+        cy.get('@targetRow').find(`[data-testid="${sessionId}"]`).should('exist');
       });
     });
 

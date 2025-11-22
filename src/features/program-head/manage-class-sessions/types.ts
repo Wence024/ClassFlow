@@ -2,9 +2,11 @@
  * Types for managing class sessions (create, read, update, delete).
  */
 
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '@/types/classSession';
+import type { ClassSession, ClassSessionInsert } from '@/types/classSession';
+import type { Database } from '@/lib/supabase.types';
 
-export type { ClassSession, ClassSessionInsert, ClassSessionUpdate };
+export type { ClassSession, ClassSessionInsert };
+export type ClassSessionUpdate = Database['public']['Tables']['class_sessions']['Update'];
 
 /**
  * Filters for browsing class sessions.

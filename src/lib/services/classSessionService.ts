@@ -4,7 +4,9 @@
  */
 
 import { supabase } from '../supabase';
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate } from '../../types/classSession';
+import type { ClassSession, ClassSessionInsert } from '../../types/classSession';
+import type { Database } from '../supabase.types';
+type ClassSessionUpdate = Database['public']['Tables']['class_sessions']['Update'];
 
 const TABLE = 'class_sessions';
 
@@ -79,11 +81,11 @@ export async function getClassSession(id: string): Promise<ClassSession> {
  */
 export async function addClassSession(classSession: ClassSessionInsert): Promise<ClassSession> {
   // Convert undefined to null for database insertion
-  const insertData = {
+  const insertData: Database['public']['Tables']['class_sessions']['Insert'] = {
     ...classSession,
     instructor_id: classSession.instructor_id ?? null,
     classroom_id: classSession.classroom_id ?? null,
-  } as any; // Type assertion needed due to Supabase type strictness
+  };
   
   const { data, error } = await supabase
     .from(TABLE)
@@ -164,11 +166,11 @@ export async function createIncompleteClassSession(
     classroom_id?: string | null;
   }
 ): Promise<ClassSession> {
-  const insertData = {
+  const insertData: Database['public']['Tables']['class_sessions']['Insert'] = {
     ...data,
     instructor_id: data.instructor_id ?? null,
     classroom_id: data.classroom_id ?? null,
-  } as any; // Type assertion needed due to Supabase type strictness
+  };
   
   const { data: newSession, error } = await supabase
     .from(TABLE)

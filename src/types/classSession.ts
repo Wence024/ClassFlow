@@ -20,8 +20,6 @@ export type ClassSessionInsert = Omit<BaseClassSessionInsert, 'instructor_id' | 
   classroom_id?: string | null;
 };
 
-// Update type already allows optional fields
-export type ClassSessionUpdate = BaseClassSessionUpdate;
 
 // --- Hydrated/Composite Types for Frontend ---
 /**

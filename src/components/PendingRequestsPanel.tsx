@@ -55,7 +55,7 @@ export default function PendingRequestsPanel() {
 
   const handleCancel = async (requestId: string) => {
     if (!user?.id) return;
-    
+
     setCancellingId(requestId);
     try {
       await resourceRequestService.cancelRequest(requestId, user.id);
@@ -106,15 +106,7 @@ export default function PendingRequestsPanel() {
           </p>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {error ? (
-            <div className="p-4 text-center text-red-500">Error loading requests</div>
-          ) : isLoading || isEnriching ? (
-            <div className="p-4 text-center text-gray-500">Loading...</div>
-          ) : enrichedRequests.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">No pending requests</div>
-          ) : (
-            renderEnrichedRequests(enrichedRequests)
-          )}
+          {renderContent(error, isLoading, isEnriching, enrichedRequests)}
         </div>
       </PopoverContent>
     </Popover>
@@ -157,5 +149,22 @@ const renderEnrichedRequests = (enrichedRequests: EnrichedRequest[]) => {
       </div>
     </div>
   ));
+};
+
+const renderContent = (
+  error: unknown,
+  isLoading: boolean,
+  isEnriching: boolean,
+  enrichedRequests: EnrichedRequest[]
+) => {
+  if (error) {
+    return <div className="p-4 text-center text-red-500">Error loading requests</div>;
+  } else if (isLoading || isEnriching) {
+    return <div className="p-4 text-center text-gray-500">Loading...</div>;
+  } else if (enrichedRequests.length === 0) {
+    return <div className="p-4 text-center text-gray-500">No pending requests</div>;
+  } else {
+    return renderEnrichedRequests(enrichedRequests);
+  }
 };
 

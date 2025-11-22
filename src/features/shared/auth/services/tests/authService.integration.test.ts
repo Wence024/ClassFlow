@@ -2,6 +2,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { getStoredUser } from '../authService';
 import { supabase } from '@/lib/supabase';
 import type { Session } from '@supabase/supabase-js';
+import type { Database } from '@/lib/supabase.types';
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
@@ -69,8 +70,8 @@ describe('authService.getStoredUser - profile hydration', () => {
 
     // Mock the supabase.from calls: first for 'profiles', then for 'user_roles'
     mockedSupabase.from
-      .mockReturnValueOnce(profilesFromMock as any)
-      .mockReturnValueOnce(userRolesFromMock as any);
+      .mockReturnValueOnce(profilesFromMock as unknown as ReturnType<typeof supabase.from>)
+      .mockReturnValueOnce(userRolesFromMock as unknown as ReturnType<typeof supabase.from>);
 
     const user = await getStoredUser();
 
@@ -121,8 +122,8 @@ describe('authService.getStoredUser - profile hydration', () => {
 
     // Mock the supabase.from calls: first for 'profiles', then for 'user_roles'
     mockedSupabase.from
-      .mockReturnValueOnce(profilesFromMock as any)
-      .mockReturnValueOnce(userRolesFromMock as any);
+      .mockReturnValueOnce(profilesFromMock as unknown as ReturnType<typeof supabase.from>)
+      .mockReturnValueOnce(userRolesFromMock as unknown as ReturnType<typeof supabase.from>);
 
     const user = await getStoredUser();
 

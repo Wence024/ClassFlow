@@ -236,6 +236,76 @@ const TimetablePage: React.FC = () => {
     setConfirmDialogConfig(null);
   };
 
+  // Helper function to get instructor names for confirmation
+  const getInstructorNames = async (fromId: string, toId: string) => {
+    const [fromInstructor, toInstructor] = await Promise.all([
+      supabase.from('instructors').select('first_name, last_name').eq('id', fromId).single(),
+      supabase.from('instructors').select('first_name, last_name').eq('id', toId).single(),
+    ]);
+
+    const fromName = fromInstructor.data
+      ? `${fromInstructor.data.first_name} ${fromInstructor.data.last_name}`
+      : fromId;
+    const toName = toInstructor.data
+      ? `${toInstructor.data.first_name} ${toInstructor.data.last_name}`
+      : toId;
+
+    return { fromName, toName };
+  };
+
+  // Helper function to get classroom names for confirmation
+  const getClassroomNames = async (fromId: string, toId: string) => {
+    const [fromClassroom, toClassroom] = await Promise.all([
+      supabase.from('classrooms').select('name').eq('id', fromId).single(),
+      supabase.from('classrooms').select('name').eq('id', toId).single(),
+    ]);
+
+    const fromName = fromClassroom.data?.name || fromId;
+    const toName = toClassroom.data?.name || toId;
+
+    return { fromName, toName };
+  };
+
+  // Define the metadata type
+  type ResourceChangeMetadata = {
+    isChanging: boolean;
+    fromId: string;
+    toId: string;
+    resourceType: 'instructor' | 'classroom';
+  };
+
+  // Handle resource reassignment confirmation
+  const handleResourceReassignment = async (callback: () => void, metadata: ResourceChangeMetadata) => {
+    let fromName = '';
+    let toName = '';
+
+    if (metadata.resourceType === 'instructor') {
+      const names = await getInstructorNames(metadata.fromId, metadata.toId);
+      fromName = names.fromName;
+      toName = names.toName;
+    } else {
+      const names = await getClassroomNames(metadata.fromId, metadata.toId);
+      fromName = names.fromName;
+      toName = names.toName;
+    }
+
+    const resourceType = metadata.resourceType === 'instructor' ? 'Instructor' : 'Classroom';
+    handleConfirmAction(
+      callback,
+      `Reassign ${resourceType}`,
+      `You are changing the ${resourceType.toLowerCase()} from "${fromName}" to "${toName}". Continue?`
+    );
+  };
+
+  // Handle confirmation for cross-department operations
+  const handleCrossDepartment = (callback: () => void) => {
+    handleConfirmAction(
+      callback,
+      'Move Confirmed Session',
+      'This session uses cross-department resources and is currently confirmed. Moving it will require department head approval again. Continue?'
+    );
+  };
+
   // Wrap DnD handlers with confirmation logic
   const handleDropToGridWithConfirm: typeof dnd.handleDropToGrid = async (
     e,
@@ -248,59 +318,9 @@ const TimetablePage: React.FC = () => {
       targetPeriodIndex,
       async (callback, confirmationType, metadata) => {
         if (confirmationType === 'cross-department') {
-          handleConfirmAction(
-            callback,
-            'Move Confirmed Session',
-            'This session uses cross-department resources and is currently confirmed. Moving it will require department head approval again. Continue?'
-          );
+          handleCrossDepartment(callback);
         } else if (confirmationType === 'resource-reassignment') {
-          // Resolve resource names for confirmation dialog
-          let fromName = '';
-          let toName = '';
-
-          if (metadata.resourceType === 'instructor') {
-            // Find instructor names
-            const fromInstructor = await supabase
-              .from('instructors')
-              .select('first_name, last_name')
-              .eq('id', metadata.fromId)
-              .single();
-            const toInstructor = await supabase
-              .from('instructors')
-              .select('first_name, last_name')
-              .eq('id', metadata.toId)
-              .single();
-
-            fromName = fromInstructor.data
-              ? `${fromInstructor.data.first_name} ${fromInstructor.data.last_name}`
-              : metadata.fromId;
-            toName = toInstructor.data
-              ? `${toInstructor.data.first_name} ${toInstructor.data.last_name}`
-              : metadata.toId;
-          } else {
-            // Find classroom names
-            const fromClassroom = await supabase
-              .from('classrooms')
-              .select('name')
-              .eq('id', metadata.fromId)
-              .single();
-            const toClassroom = await supabase
-              .from('classrooms')
-              .select('name')
-              .eq('id', metadata.toId)
-              .single();
-
-            fromName = fromClassroom.data?.name || metadata.fromId;
-            toName = toClassroom.data?.name || metadata.toId;
-          }
-
-          const resourceType =
-            metadata.resourceType === 'instructor' ? 'Instructor' : 'Classroom';
-          handleConfirmAction(
-            callback,
-            `Reassign ${resourceType}`,
-            `You are changing the ${resourceType.toLowerCase()} from "${fromName}" to "${toName}". Continue?`
-          );
+          handleResourceReassignment(callback, metadata);
         }
       }
     );

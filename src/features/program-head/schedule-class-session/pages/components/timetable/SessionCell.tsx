@@ -12,6 +12,8 @@ import { AlertTriangle, Users, Clock } from 'lucide-react';
 import { useMemo } from 'react';
 import { checkCellSoftConflicts } from '../../../utils/checkConflicts';
 
+type TimetableViewMode = 'class-group' | 'classroom' | 'instructor';
+
 // --- PROPS ---
 
 interface SessionCellProps {
@@ -20,7 +22,7 @@ interface SessionCellProps {
   periodIndex: number;
   isLastInDay: boolean;
   isNotLastInTable: boolean;
-  viewMode: 'class-group' | 'classroom' | 'instructor';
+  viewMode: TimetableViewMode;
 }
 
 interface DropZoneProps {
@@ -52,7 +54,7 @@ interface VisibleBlockProps {
  */
 const buildTooltipContent = (
   sessions: ClassSession[],
-  viewMode: 'class-group' | 'classroom' | 'instructor'
+  viewMode: TimetableViewMode
 ): React.ReactElement => {
   const primary = sessions[0];
 
@@ -282,7 +284,7 @@ interface DropZoneProps {
   groupId: string;
   periodIndex: number;
   sessionsInCell: ClassSession[];
-  viewMode: 'class-group' | 'classroom' | 'instructor';
+  viewMode: TimetableViewMode;
 }
 
 const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCell, viewMode }) => {
