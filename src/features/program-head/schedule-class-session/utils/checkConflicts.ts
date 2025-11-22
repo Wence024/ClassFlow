@@ -672,9 +672,18 @@ class ConflictChecker {
   }
 
   private checkResourceMismatch(): string | null {
-    if (this.isMoving) {
+    if (!this.isMoving) {
+      return null;
+    }
+
+    // In dynamic resource timetabling, Instructor/Classroom views are where
+    // reassignment happens, so we don't enforce "same row" there.
+    if (this.viewMode === 'class-group') {
       return checkViewSpecificResourceMismatch(this.session, this.targetGroupId, this.viewMode);
     }
+
+    // For 'classroom' and 'instructor' views, row-mismatch is allowed here.
+    // Conflicts are still enforced via row conflicts and shared resource checks.
     return null;
   }
 

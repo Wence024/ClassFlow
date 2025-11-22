@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTimetableContext } from './useTimetableContext';
+import type { TimetableViewMode } from '../../../types';
 
 interface EmptyCellProps {
   groupId: string;
   periodIndex: number;
   isLastInDay: boolean;
   isNotLastInTable: boolean;
+  viewMode: TimetableViewMode;
 }
 
 /**
@@ -25,6 +27,7 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
   periodIndex,
   isLastInDay,
   isNotLastInTable,
+  viewMode,
 }) => {
   const {
     dragOverCell,
@@ -37,6 +40,22 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
     highlightPeriod,
     highlightGroup,
   } = useTimetableContext();
+
+  // Check if this row is the pre-assigned resource for better visual feedback
+  const isPreassignedResource = useMemo(() => {
+    if (!activeDraggedSession) return false;
+
+    if (viewMode === 'instructor') {
+      // If no instructor assigned, no row is "pre-assigned" (all are equal)
+      if (!activeDraggedSession.instructor) return false;
+      return activeDraggedSession.instructor.id === groupId;
+    } else if (viewMode === 'classroom') {
+      // If no classroom assigned, no row is "pre-assigned" (all are equal)
+      if (!activeDraggedSession.classroom) return false;
+      return activeDraggedSession.classroom.id === groupId;
+    }
+    return false;
+  }, [activeDraggedSession, groupId, viewMode]);
 
   const isDragOver = dragOverCell?.groupId === groupId && dragOverCell?.periodIndex === periodIndex;
   const isDragging = activeDraggedSession !== null;
@@ -71,7 +90,11 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
           ></div>
         )}
         {isDragging && isAvailable && !isDragOver && (
-          <div className="w-2 h-2 bg-green-500 rounded-full opacity-60 pointer-events-none"></div>
+          <div
+            className={`w-2 h-2 bg-green-500 rounded-full pointer-events-none ${
+              isPreassignedResource ? 'opacity-80' : 'opacity-40'
+            }`}
+          />
         )}
       </div>
     </td>

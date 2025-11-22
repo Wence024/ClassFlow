@@ -107,28 +107,31 @@ const renderSessionCell = (
 /**
  * Renders an empty cell for the given parameters.
  *
- * @param group - The class group.
+ * @param resource - The resource (group, classroom, or instructor).
  * @param periodIndex - The index of the period.
  * @param periodsPerDay - The number of periods per day.
  * @param totalPeriods - The total number of periods.
+ * @param viewMode - The current view mode.
  * @returns The JSX element for the empty cell.
  */
 const renderEmptyCell = (
-  group: ClassGroup,
+  resource: TimetableRowResource,
   periodIndex: number,
   periodsPerDay: number,
-  totalPeriods: number
+  totalPeriods: number,
+  viewMode: TimetableViewMode
 ): React.ReactElement => {
   const isLastInDay = periodIndex % periodsPerDay === periodsPerDay - 1;
   const isNotLastInTable = isNotLastDayOfTable(periodIndex, totalPeriods, periodsPerDay);
 
   return (
     <EmptyCell
-      key={`${group.id}-${periodIndex}`}
-      groupId={group.id}
+      key={`${resource.id}-${periodIndex}`}
+      groupId={resource.id}
       periodIndex={periodIndex}
       isLastInDay={isLastInDay}
       isNotLastInTable={isNotLastInTable}
+      viewMode={viewMode}
     />
   );
 };
@@ -226,7 +229,7 @@ const TimetableRow: React.FC<TimetableRowProps> = ({
         viewMode
       );
     } else {
-      return renderEmptyCell(resource as ClassGroup, periodIndex, periodsPerDay, totalPeriods);
+      return renderEmptyCell(resource, periodIndex, periodsPerDay, totalPeriods, viewMode);
     }
   };
 
