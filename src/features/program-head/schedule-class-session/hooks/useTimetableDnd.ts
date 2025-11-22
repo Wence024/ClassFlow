@@ -239,8 +239,13 @@ export const useTimetableDnd = (
 ) => {
   // --- Core Hooks ---
   const { user } = useAuth();
-  const { timetable, assignClassSession, removeClassSession, moveClassSession } =
-    useTimetable(viewMode);
+  const {
+    timetable,
+    assignClassSession,
+    removeClassSession,
+    moveClassSession,
+    moveSessionWithResourceChange, // NEW: Get resource reassignment wrapper
+  } = useTimetable(viewMode);
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
   const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
@@ -364,24 +369,18 @@ export const useTimetableDnd = (
 
         if (isSameCell) return '';
 
-        // Use resource reassignment service if resource is changing
+        // Use resource reassignment wrapper if resource is changing
         if (resourceChangeMetadata?.isChanging) {
-          const { moveSessionWithResourceChange } = await import('@/lib/services/timetableService');
-          const semesterId = timetable.get(Array.from(timetable.keys())[0])?.[0]?.[0]?.id || '';
-
           await moveSessionWithResourceChange(
             {
               class_group_id: source.class_group_id,
               period_index: source.period_index,
-              semester_id: semesterId,
             },
             {
               class_group_id: dbTargetGroupId,
               period_index: targetPeriodIndex,
-              semester_id: semesterId,
             },
             session.id,
-            user?.id || '',
             resourceChangeMetadata.resourceType,
             resourceChangeMetadata.toId
           );
@@ -396,7 +395,7 @@ export const useTimetableDnd = (
       }
       return 'Invalid drag source';
     },
-    [assignClassSession, moveClassSession, viewMode, timetable, user]
+    [assignClassSession, moveClassSession, moveSessionWithResourceChange, viewMode, user]
   );
 
   const handleDragStart = useCallback(

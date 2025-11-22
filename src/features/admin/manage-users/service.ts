@@ -8,7 +8,6 @@ import {
   updateUserProfile as infraUpdateUserProfile,
 } from '@/lib/services/userService';
 import type { UserProfile, Role } from '@/types/user';
-import type { UserFilters } from './types';
 
 /**
  * Fetches all users.
@@ -20,17 +19,17 @@ export async function fetchAllUsers(): Promise<UserProfile[]> {
 /**
  * Updates a user profile.
  */
-export async function updateUserProfileData(userId: string, data: { role?: Role; programId?: string | null; departmentId?: string | null }): Promise<UserProfile> {
-  return infraUpdateUserProfile(userId, data);
+export async function updateUserProfileData(userId: string, data: { role?: Role; programId?: string | null; departmentId?: string | null }): Promise<void> {
+  await infraUpdateUserProfile(userId, data);
 }
 
 /**
  * Updates a user's display name.
  */
-export async function updateUserDisplayName(userId: string, displayName: string): Promise<UserProfile> {
+export async function updateUserDisplayName(userId: string, displayName: string): Promise<void> {
   // This might be a separate function in the infrastructure or part of updateUserProfile
   // For now, we'll call the infrastructure function with just the display name
-  return infraUpdateUserProfile(userId, { full_name: displayName } as any);
+  await infraUpdateUserProfile(userId, { full_name: displayName } as any);
 }
 
 /**

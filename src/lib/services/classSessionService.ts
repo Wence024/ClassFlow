@@ -81,11 +81,12 @@ export async function getClassSession(id: string): Promise<ClassSession> {
  */
 export async function addClassSession(classSession: ClassSessionInsert): Promise<ClassSession> {
   // Convert undefined to null for database insertion
-  const insertData: Database['public']['Tables']['class_sessions']['Insert'] = {
+  const insertData = {
     ...classSession,
+    program_id: classSession.program_id ?? null,
     instructor_id: classSession.instructor_id ?? null,
     classroom_id: classSession.classroom_id ?? null,
-  };
+  } as Database['public']['Tables']['class_sessions']['Insert'];
   
   const { data, error } = await supabase
     .from(TABLE)
@@ -166,11 +167,12 @@ export async function createIncompleteClassSession(
     classroom_id?: string | null;
   }
 ): Promise<ClassSession> {
-  const insertData: Database['public']['Tables']['class_sessions']['Insert'] = {
+  const insertData = {
     ...data,
+    program_id: data.program_id ?? null,
     instructor_id: data.instructor_id ?? null,
     classroom_id: data.classroom_id ?? null,
-  };
+  } as Database['public']['Tables']['class_sessions']['Insert'];
   
   const { data: newSession, error } = await supabase
     .from(TABLE)

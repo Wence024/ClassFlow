@@ -266,7 +266,7 @@ moveSessionWithResourceChange(
 - [x] Add reassignSessionResource function
 - [x] Add moveSessionWithResourceChange function
 
-### ✅ Phase 4: Dynamic Resource Reassignment (COMPLETED)
+### ✅ Phase 4: Dynamic Resource Reassignment (COMPLETED - with bug fix)
 - [x] Remove resource mismatch blocking for instructor/classroom views
 - [x] Add getResourceChangeInfo helper function
 - [x] Update needsConfirmation to detect resource changes
@@ -276,6 +276,7 @@ moveSessionWithResourceChange(
 - [x] Add confirmation dialog logic for resource reassignment
 - [x] Update DropZone with visual indicator differentiation
 - [x] Add pre-assigned resource highlighting (vibrant vs subtle)
+- [x] **FIX: Wire moveSessionWithResourceChange through useTimetable with proper semester_id and cache invalidation**
 
 ### 🔄 Phase 5: Form Component Updates (NOT STARTED)
 - [ ] Update form validation schema to make resources optional
@@ -582,5 +583,59 @@ ALTER TABLE class_sessions
   ALTER COLUMN instructor_id SET NOT NULL,
   ALTER COLUMN classroom_id SET NOT NULL;
 ```
+
+---
+
+## Bug Fixes & Technical Notes
+
+### Fixed: Resource Reassignment Cache Invalidation (2025-01-22)
+
+**Problem**: After confirming classroom reassignment in Classroom View, the session remained visually in the original classroom row, even though the database was updated correctly.
+
+**Root Cause**: 
+1. The resource-change mutation path (`moveSessionWithResourceChange`) was bypassing React Query mutations entirely
+2. No cache invalidation occurred after resource reassignment
+3. The `semester_id` was being incorrectly derived from the timetable grid data instead of using the active semester
+
+**Solution**:
+- **Centralized Resource Reassignment**: Added `moveSessionWithResourceChange` wrapper function in `useTimetable.ts` that:
+  - Derives `semester_id` from `useActiveSemester()` hook (correct source)
+  - Handles `user.id` centrally
+  - Invalidates both `['hydratedTimetable']` and `['allClassSessions']` caches after mutation
+- **Updated DnD Hook**: Modified `useTimetableDnd.ts` to use the wrapper instead of directly importing the service
+- **Removed Brittle Logic**: Eliminated the incorrect "look into the grid to find semester" approach
+
+**Files Modified**:
+- `src/features/program-head/schedule-class-session/hooks/useTimetable.ts` - Added wrapper and exposed `activeSemesterId`
+- `src/features/program-head/schedule-class-session/hooks/useTimetableDnd.ts` - Use wrapper instead of direct service import
+
+**Verification**:
+```typescript
+// Before: Incorrect semester derivation
+const semesterId = timetable.get(Array.from(timetable.keys())[0])?.[0]?.[0]?.id || '';
+
+// After: Correct semester from hook
+const { activeSemesterId } = useTimetable(viewMode);
+```
+
+### Resource Reassignment Execution Path
+
+When a confirmed session is dragged to a different instructor/classroom row:
+
+1. **Conflict Checker** (`checkTimetableConflicts`) allows the move in resource views
+2. **getResourceChangeInfo** detects whether the resource is being changed vs. first-time assigned
+3. **needsConfirmation** chooses between:
+   - `cross-department` confirmation (for cross-dept resources)
+   - `resource-reassignment` confirmation (for changing existing resource)
+4. **TimetablePage** resolves human-readable resource names and shows the appropriate confirmation dialog
+5. After confirmation, **useTimetableDnd** calls `moveSessionWithResourceChange` wrapper from **useTimetable**, which:
+   - Calls `timetableService.moveSessionWithResourceChange` with correct `semester_id` and `user_id`
+   - Reassigns the resource on the `class_sessions` row via `reassignSessionResource`
+   - Moves the timetable assignment when needed
+   - Invalidates both `['hydratedTimetable', activeSemesterId]` and `['allClassSessions']` caches
+6. **React Query** refetches data and the UI updates immediately to show the new resource assignment
+
+**Key Insight**: By wiring resource reassignment through `useTimetable`, we ensure consistent `semester_id` handling and automatic cache invalidation, just like the regular move path.
+
 
 Then redeploy previous version of application code.

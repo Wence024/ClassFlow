@@ -10,12 +10,8 @@ import type { Classroom } from './classroom';
 export type ClassSessionRow = Database['public']['Tables']['class_sessions']['Row'];
 
 // --- Insert/Update Types for CRUD Operations ---
-// Base types from database
-type BaseClassSessionInsert = Database['public']['Tables']['class_sessions']['Insert'];
-type BaseClassSessionUpdate = Database['public']['Tables']['class_sessions']['Update'];
-
 // Custom insert type that allows optional resources for incomplete sessions
-export type ClassSessionInsert = Omit<BaseClassSessionInsert, 'instructor_id' | 'classroom_id'> & {
+export type ClassSessionInsert = Omit<Database['public']['Tables']['class_sessions']['Insert'], 'instructor_id' | 'classroom_id'> & {
   instructor_id?: string | null;
   classroom_id?: string | null;
 };

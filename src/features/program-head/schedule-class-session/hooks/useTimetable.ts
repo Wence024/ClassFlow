@@ -619,6 +619,40 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     return pending;
   }, [assignments]);
 
+  /**
+   * Wrapper for moveSessionWithResourceChange that handles semester_id and cache invalidation.
+   */
+  const moveSessionWithResourceChange = useCallback(
+    async (
+      from: { class_group_id: string; period_index: number },
+      to: { class_group_id: string; period_index: number },
+      sessionId: string,
+      resourceType: 'instructor' | 'classroom',
+      newResourceId: string,
+      status: 'pending' | 'confirmed' = 'confirmed'
+    ) => {
+      if (!activeSemester?.id) throw new Error('Active semester not loaded');
+      if (!user?.id) throw new Error('User not authenticated');
+
+      await timetableService.moveSessionWithResourceChange(
+        { ...from, semester_id: activeSemester.id },
+        { ...to, semester_id: activeSemester.id },
+        sessionId,
+        user.id,
+        resourceType,
+        newResourceId,
+        status
+      );
+
+      // Invalidate caches to refresh UI
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({ queryKey: ['allClassSessions'] }),
+      ]);
+    },
+    [activeSemester, user, queryClient, queryKey]
+  );
+
   return {
     groups: allClassGroups,
     resources, // Export current resources for multi-view support
@@ -627,6 +661,8 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
     assignClassSession,
     removeClassSession,
     moveClassSession,
+    moveSessionWithResourceChange, // NEW: Expose resource reassignment wrapper
+    activeSemesterId: activeSemester?.id ?? null, // NEW: Expose active semester ID
     loading,
     error: errorAssignments,
     pendingSessionIds,

@@ -113,7 +113,7 @@ export default function PendingRequestsPanel() {
           ) : enrichedRequests.length === 0 ? (
             <div className="p-4 text-center text-gray-500">No pending requests</div>
           ) : (
-            renderEnrichedRequests(enrichedRequests)
+            renderEnrichedRequests(enrichedRequests, handleCancel, cancellingId)
           )}
         </div>
       </PopoverContent>
@@ -163,20 +163,4 @@ const renderEnrichedRequests = (
   ));
 };
 
-const renderContent = (
-  error: unknown,
-  isLoading: boolean,
-  isEnriching: boolean,
-  enrichedRequests: EnrichedRequest[]
-) => {
-  if (error) {
-    return <div className="p-4 text-center text-red-500">Error loading requests</div>;
-  } else if (isLoading || isEnriching) {
-    return <div className="p-4 text-center text-gray-500">Loading...</div>;
-  } else if (enrichedRequests.length === 0) {
-    return <div className="p-4 text-center text-gray-500">No pending requests</div>;
-  } else {
-    return renderEnrichedRequests(enrichedRequests);
-  }
-};
 

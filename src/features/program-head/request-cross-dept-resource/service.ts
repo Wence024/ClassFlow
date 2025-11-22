@@ -6,7 +6,7 @@ import {
   isCrossDepartmentInstructor as infraIsCrossDepartmentInstructor,
   isCrossDepartmentClassroom as infraIsCrossDepartmentClassroom
 } from '@/lib/services/classSessionService';
-import type { CrossDeptCheckResult, CrossDeptRequestPayload } from './types';
+import type { CrossDeptCheckResult } from './types';
 
 /**
  * Checks if the given instructor is from a different department.
