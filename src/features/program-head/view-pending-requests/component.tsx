@@ -19,12 +19,11 @@ type RequestCardProps = {
 /**
  * Card displaying a single resource request with actions.
  *
- * @param root0
- * @param root0.request
- * @param root0.onDismiss
- * @param root0.onCancel
- * @param root0.isDismissing
- * @param root0.isCancelling
+ * @param request - The resource request to display.
+ * @param onDismiss - Function to call when dismissing the request.
+ * @param onCancel - Function to call when cancelling the request.
+ * @param isDismissing - Flag indicating if a request is being dismissed.
+ * @param isCancelling - Flag indicating if a request is being cancelled.
  */
 export function RequestCard({
   request,
@@ -138,12 +137,11 @@ type RequestsListProps = {
 /**
  * List of resource request cards.
  *
- * @param root0
- * @param root0.requests
- * @param root0.onDismiss
- * @param root0.onCancel
- * @param root0.isDismissing
- * @param root0.isCancelling
+ * @param requests - Array of resource requests to display.
+ * @param onDismiss - Function to call when dismissing a request.
+ * @param onCancel - Function to call when cancelling a request.
+ * @param isDismissing - Flag indicating if a request is being dismissed.
+ * @param isCancelling - Flag indicating if a request is being cancelled.
  */
 export function RequestsList({
   requests,

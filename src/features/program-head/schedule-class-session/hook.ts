@@ -23,7 +23,8 @@ import type { ClassSession } from '@/types/classSession';
 /**
  * Hook for managing timetable scheduling workflow.
  *
- * @param _viewMode
+ * @param _viewMode - The view mode for the timetable (default is 'class-group').
+ * @returns An object containing the state and functions for scheduling class sessions.
  */
 export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-group') {
   const { user } = useAuth();
@@ -130,6 +131,9 @@ export function useScheduleClassSession(_viewMode: TimetableViewMode = 'class-gr
 
   /**
    * Handles drag start event.
+   *
+   * @param session - The class session being dragged.
+   * @param source - The source location of the drag operation.
    */
   const handleDragStart = useCallback((session: ClassSession, source: TimetableDragState['dragSource']) => {
     setDragState({

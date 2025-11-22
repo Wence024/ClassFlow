@@ -15,13 +15,15 @@ describe('Approve Request Service', () => {
 
   describe('approveResourceRequest', () => {
     it('should call approveRequest with correct parameters', async () => {
-      vi.mocked(resourceRequestService.approveRequest).mockResolvedValue();
+      const mockUpdateData = { status: 'approved', approved_at: new Date().toISOString() };
+      vi.mocked(resourceRequestService.approveResourceRequest).mockResolvedValue();
 
-      await service.approveResourceRequest('request-1', 'reviewer-1');
+      await service.approveResourceRequest('request-1', 'reviewer-1', mockUpdateData);
 
-      expect(resourceRequestService.approveRequest).toHaveBeenCalledWith(
+      expect(resourceRequestService.approveResourceRequest).toHaveBeenCalledWith(
         'request-1',
-        'reviewer-1'
+        'reviewer-1',
+        mockUpdateData
       );
     });
 

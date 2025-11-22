@@ -30,10 +30,11 @@ type FormData = z.infer<typeof classSessionSchema>;
 /**
  * Gets resource name for cross-department requests.
  *
- * @param resourceType
- * @param resourceId
- * @param instructors
- * @param classrooms
+ * @param resourceType - The type of resource (instructor or classroom).
+ * @param resourceId - The ID of the resource.
+ * @param instructors - Array of available instructors.
+ * @param classrooms - Array of available classrooms.
+ * @returns The name of the resource, or 'Unknown' if not found.
  */
 const getResourceName = (
   resourceType: 'instructor' | 'classroom',
@@ -52,6 +53,8 @@ const getResourceName = (
 
 /**
  * Main page for managing class sessions.
+ *
+ * @returns The ManageClassSessionsPage component.
  */
 export function ManageClassSessionsPage() {
   const { user } = useAuth();

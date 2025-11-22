@@ -4,16 +4,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTimetable } from '../useTimetable';
 import * as timetableService from '@/lib/services/timetableService';
 import * as classGroupsService from '@/lib/services/classGroupService';
-import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
-import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
+import * as useActiveSemesterHook from '@/features/admin/schedule-config/hooks/useActiveSemester';
+import * as useScheduleConfigHook from '@/features/admin/schedule-config/hooks/useScheduleConfig';
 import { AuthContext } from '../../../shared/auth/contexts/AuthContext';
-import type { Semester as ActiveSemester } from '../../../scheduleConfig/types/semesters';
-import type { ScheduleConfig as ScheduleConfigSettings } from '../../../scheduleConfig/types/scheduleConfig';
-import type { TimetableAssignment, HydratedTimetableAssignment } from '../../types/timetable';
-import type { ClassSession } from '../../../classSessions/types/classSession';
-import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
+import type { Semester as ActiveSemester } from '@/types/semester';
+import type { ScheduleConfig as ScheduleConfigSettings } from '@/types/scheduleConfig';
+import type { TimetableAssignment, HydratedTimetableAssignment } from '@/types/timetable';
+import type { ClassSession } from '@/types/classSession';
+import type { ClassGroup } from '@/types/classGroup';
 import type { User } from '../../../shared/auth/types/auth';
-import type { Course, Instructor, Classroom } from '../../../classSessionComponents/types';
+import type { Course, Instructor, Classroom } from '@/types';
 
 // 1. MOCK THE SERVICE MODULES
 vi.mock('@/lib/services/timetableService');

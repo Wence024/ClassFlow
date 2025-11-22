@@ -9,7 +9,9 @@ import { isCrossDepartmentInstructor, isCrossDepartmentClassroom } from '@/lib/s
 import type { CrossDeptCheckResult, CrossDeptRequestPayload } from './types';
 
 /**
+ * Hook for managing cross-department resource request workflow.
  *
+ * @returns An object containing the state and functions for handling cross-department resource requests.
  */
 export function useRequestCrossDeptResource() {
   const navigate = useNavigate();
@@ -19,9 +21,10 @@ export function useRequestCrossDeptResource() {
   /**
    * Checks if the given resources require cross-department approval.
    *
-   * @param programId
-   * @param instructorId
-   * @param classroomId
+   * @param programId - The ID of the program.
+   * @param instructorId - Optional instructor ID to check.
+   * @param classroomId - Optional classroom ID to check.
+   * @returns A promise that resolves to the cross-department check result.
    */
   const checkResources = async (
     programId: string,
@@ -79,7 +82,7 @@ export function useRequestCrossDeptResource() {
   /**
    * Initiates the cross-department request workflow.
    *
-   * @param payload
+   * @param payload - The payload containing the cross-department request information.
    */
   const initiateCrossDeptRequest = (payload: CrossDeptRequestPayload) => {
     setPendingRequest(payload);

@@ -14,6 +14,8 @@ export type UseApproveRequestResult = {
 
 /**
  * Hook for approving cross-department resource requests.
+ *
+ * @returns An object containing the approveRequest function, approval status, and error state.
  */
 export function useApproveRequest(): UseApproveRequestResult {
   const [isApproving, setIsApproving] = useState(false);

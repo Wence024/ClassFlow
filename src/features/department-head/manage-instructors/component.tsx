@@ -140,7 +140,7 @@ export const ManageInstructorsView: React.FC = () => {
   /**
    * Cancels editing mode.
    *
-   * @returns
+   * @returns void
    */
   const handleCancel = () => {
     setEditingInstructor(null);
@@ -150,15 +150,16 @@ export const ManageInstructorsView: React.FC = () => {
   /**
    * Initiates edit mode for an instructor.
    *
-   * @param instructor The instructor to edit.
-   * @returns
+   * @param instructor - The instructor to edit.
+   * @returns void
    */
   const handleEdit = (instructor: Instructor) => setEditingInstructor(instructor);
 
   /**
    * Initiates delete confirmation for an instructor.
    *
-   * @param id
+   * @param id - The ID of the instructor to delete.
+   * @returns void
    */
   const handleDeleteRequest = (id: string) =>
     setInstructorToDelete(instructors.find((i) => i.id === id) || null);

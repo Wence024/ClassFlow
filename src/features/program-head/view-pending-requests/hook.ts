@@ -12,8 +12,10 @@ import {
 import type { ResourceRequest } from '@/types/resourceRequest';
 
 /**
+ * Hook for managing pending resource requests view.
  *
- * @param userId
+ * @param userId - The ID of the user whose requests to view.
+ * @returns An object containing the state and functions for viewing pending requests.
  */
 export function useViewPendingRequests(userId?: string) {
   const queryClient = useQueryClient();

@@ -26,6 +26,8 @@ export type UseManageUsersResult = {
 
 /**
  * Hook for managing users.
+ *
+ * @returns An object containing the state and functions for managing users.
  */
 export function useManageUsers(): UseManageUsersResult {
   const [users, setUsers] = useState<UserProfile[]>([]);

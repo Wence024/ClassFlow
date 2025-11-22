@@ -13,7 +13,8 @@ import type {
 /**
  * Fetch all timetable assignments for a semester with full class session data.
  *
- * @param semester_id
+ * @param semester_id - The ID of the semester to fetch assignments for.
+ * @returns A promise that resolves to an array of hydrated timetable assignments.
  */
 export async function getTimetableAssignments(
   semester_id: string
@@ -48,8 +49,9 @@ export async function getTimetableAssignments(
 /**
  * Assign a class session to a group/period (insert or upsert).
  *
- * @param assignment
- * @param status
+ * @param assignment - The assignment data to insert or upsert.
+ * @param status - The status of the assignment (pending or confirmed).
+ * @returns A promise that resolves to the assigned timetable assignment.
  */
 export async function assignClassSessionToTimetable(
   assignment: TimetableAssignmentInsert,
@@ -70,9 +72,9 @@ export async function assignClassSessionToTimetable(
 /**
  * Remove a class session from a group/period.
  *
- * @param class_group_id
- * @param period_index
- * @param semester_id
+ * @param class_group_id - The ID of the class group.
+ * @param period_index - The index of the period.
+ * @param semester_id - The ID of the semester.
  */
 export async function removeClassSessionFromTimetable(
   class_group_id: string,
@@ -91,17 +93,17 @@ export async function removeClassSessionFromTimetable(
 /**
  * Move a class session from one cell to another (upsert new, then delete old).
  *
- * @param from
- * @param from.class_group_id
- * @param from.period_index
- * @param from.semester_id
- * @param to
- * @param to.class_group_id
- * @param to.period_index
- * @param to.semester_id
- * @param class_session_id
- * @param user_id
- * @param status
+ * @param from - The source location of the class session.
+ * @param from.class_group_id - The class group ID of the source location.
+ * @param from.period_index - The period index of the source location.
+ * @param from.semester_id - The semester ID of the source location.
+ * @param to - The destination location of the class session.
+ * @param to.class_group_id - The class group ID of the destination location.
+ * @param to.period_index - The period index of the destination location.
+ * @param to.semester_id - The semester ID of the destination location.
+ * @param class_session_id - The ID of the class session to move.
+ * @param user_id - The ID of the user performing the move.
+ * @param status - The status of the moved assignment.
  */
 export async function moveClassSession(
   from: { class_group_id: string; period_index: number; semester_id: string },
@@ -129,12 +131,13 @@ export async function moveClassSession(
 /**
  * Handle cross-department session move using database function.
  *
- * @param class_session_id
- * @param old_period_index
- * @param old_class_group_id
- * @param new_period_index
- * @param new_class_group_id
- * @param semester_id
+ * @param class_session_id - The ID of the class session to move.
+ * @param old_period_index - The old period index.
+ * @param old_class_group_id - The old class group ID.
+ * @param new_period_index - The new period index.
+ * @param new_class_group_id - The new class group ID.
+ * @param semester_id - The ID of the semester.
+ * @returns A promise that resolves to an object with the result of the cross-department session move.
  */
 export async function handleCrossDeptSessionMove(
   class_session_id: string,
@@ -167,8 +170,8 @@ export async function handleCrossDeptSessionMove(
 /**
  * Delete a timetable assignment by class session ID.
  *
- * @param class_session_id
- * @param semester_id
+ * @param class_session_id - The ID of the class session.
+ * @param semester_id - The ID of the semester.
  */
 export async function deleteAssignmentBySession(
   class_session_id: string,
@@ -185,9 +188,9 @@ export async function deleteAssignmentBySession(
 /**
  * Update assignment status (pending/confirmed).
  *
- * @param class_session_id
- * @param semester_id
- * @param status
+ * @param class_session_id - The ID of the class session.
+ * @param semester_id - The ID of the semester.
+ * @param status - The new status of the assignment.
  */
 export async function updateAssignmentStatus(
   class_session_id: string,
@@ -206,19 +209,19 @@ export async function updateAssignmentStatus(
  * Move session with resource reassignment.
  * Used when dragging to different instructor/classroom row.
  *
- * @param from
- * @param from.class_group_id
- * @param from.period_index
- * @param from.semester_id
- * @param to
- * @param to.class_group_id
- * @param to.period_index
- * @param to.semester_id
- * @param class_session_id
- * @param user_id
- * @param resourceType
- * @param newResourceId
- * @param status
+ * @param from - The source location of the class session.
+ * @param from.class_group_id - The class group ID of the source location.
+ * @param from.period_index - The period index of the source location.
+ * @param from.semester_id - The semester ID of the source location.
+ * @param to - The destination location of the class session.
+ * @param to.class_group_id - The class group ID of the destination location.
+ * @param to.period_index - The period index of the destination location.
+ * @param to.semester_id - The semester ID of the destination location.
+ * @param class_session_id - The ID of the class session to move.
+ * @param user_id - The ID of the user performing the move.
+ * @param resourceType - The type of resource being changed (instructor or classroom).
+ * @param newResourceId - The ID of the new resource.
+ * @param status - The status of the moved assignment.
  */
 export async function moveSessionWithResourceChange(
   from: { class_group_id: string; period_index: number; semester_id: string },
@@ -250,8 +253,9 @@ export async function moveSessionWithResourceChange(
 /**
  * Get timetable assignments by class session ID.
  *
- * @param class_session_id
- * @param semester_id
+ * @param class_session_id - The ID of the class session.
+ * @param semester_id - The ID of the semester.
+ * @returns A promise that resolves to an array of timetable assignments.
  */
 export async function getAssignmentsBySession(
   class_session_id: string,

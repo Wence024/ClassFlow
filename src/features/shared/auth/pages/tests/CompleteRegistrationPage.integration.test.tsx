@@ -4,9 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import CompleteRegistrationPage from '../CompleteRegistrationPage';
-import { supabase } from '@lib/supabase';
+import { supabase } from '@/lib/supabase';
 
-vi.mock('@/integrations/supabase/client', () => ({
+vi.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
       updateUser: vi.fn(),

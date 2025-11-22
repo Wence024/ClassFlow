@@ -10,6 +10,8 @@ import type { ClassSessionInsert, ClassSessionUpdate, CrossDepartmentInfo } from
 
 /**
  * Hook providing class session management capabilities.
+ *
+ * @returns An object containing the state and functions for managing class sessions.
  */
 export function useManageClassSessions() {
   const { user } = useAuth();
@@ -84,8 +86,9 @@ export function useManageClassSessions() {
   /**
    * Checks if selected resources require cross-department approval.
    *
-   * @param instructorId
-   * @param classroomId
+   * @param instructorId - Optional instructor ID to check.
+   * @param classroomId - Optional classroom ID to check.
+   * @returns A promise that resolves to cross-department information or null.
    */
   const checkCrossDepartment = async (
     instructorId?: string,

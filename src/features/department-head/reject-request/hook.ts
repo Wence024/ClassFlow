@@ -14,6 +14,8 @@ export type UseRejectRequestResult = {
 
 /**
  * Hook for rejecting cross-department resource requests.
+ *
+ * @returns An object containing the rejectRequest function, rejection status, and error state.
  */
 export function useRejectRequest(): UseRejectRequestResult {
   const [isRejecting, setIsRejecting] = useState(false);

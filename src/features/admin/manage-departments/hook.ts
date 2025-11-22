@@ -24,6 +24,8 @@ export type UseManageDepartmentsResult = {
 
 /**
  * Hook for managing departments.
+ *
+ * @returns Object containing departments data, loading state, error state, and CRUD operations.
  */
 export function useManageDepartments(): UseManageDepartmentsResult {
   const [departments, setDepartments] = useState<Department[]>([]);

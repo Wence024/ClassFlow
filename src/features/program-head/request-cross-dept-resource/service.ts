@@ -10,6 +10,10 @@ import type { CrossDeptCheckResult } from './types';
 
 /**
  * Checks if the given instructor is from a different department.
+ *
+ * @param programId - The ID of the program.
+ * @param instructorId - The ID of the instructor to check.
+ * @returns A promise that resolves to a boolean indicating if the instructor is from a different department.
  */
 export async function checkCrossDepartmentInstructor(
   programId: string,
@@ -20,6 +24,10 @@ export async function checkCrossDepartmentInstructor(
 
 /**
  * Checks if the given classroom is from a different department.
+ *
+ * @param programId - The ID of the program.
+ * @param classroomId - The ID of the classroom to check.
+ * @returns A promise that resolves to a boolean indicating if the classroom is from a different department.
  */
 export async function checkCrossDepartmentClassroom(
   programId: string,
@@ -30,6 +38,11 @@ export async function checkCrossDepartmentClassroom(
 
 /**
  * Checks if the given resources require cross-department approval.
+ *
+ * @param programId - The ID of the program.
+ * @param instructorId - Optional instructor ID to check.
+ * @param classroomId - Optional classroom ID to check.
+ * @returns A promise that resolves to the cross-department check result.
  */
 export async function checkCrossDepartmentResource(
   programId: string,

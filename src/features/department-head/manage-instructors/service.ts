@@ -12,6 +12,11 @@ import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/ins
 
 /**
  * Fetches instructors based on filters.
+ *
+ * @param filters - The filters to apply when fetching instructors.
+ * @param filters.role - The role to filter by.
+ * @param filters.departmentId - The department ID to filter by.
+ * @returns A promise that resolves to an array of instructors.
  */
 export async function fetchInstructors(filters: { role?: string; departmentId?: string | null }): Promise<Instructor[]> {
   // Convert camelCase to snake_case for the infrastructure function
@@ -24,6 +29,9 @@ export async function fetchInstructors(filters: { role?: string; departmentId?: 
 
 /**
  * Creates a new instructor.
+ *
+ * @param data - The data for the new instructor.
+ * @returns A promise that resolves to the created instructor.
  */
 export async function createInstructor(data: InstructorInsert): Promise<Instructor> {
   return infraAddInstructor(data);
@@ -31,6 +39,10 @@ export async function createInstructor(data: InstructorInsert): Promise<Instruct
 
 /**
  * Updates an existing instructor.
+ *
+ * @param id - The ID of the instructor to update.
+ * @param data - The update data for the instructor.
+ * @returns A promise that resolves to the updated instructor.
  */
 export async function modifyInstructor(id: string, data: InstructorUpdate): Promise<Instructor> {
   return infraUpdateInstructor(id, data);
@@ -38,6 +50,8 @@ export async function modifyInstructor(id: string, data: InstructorUpdate): Prom
 
 /**
  * Deletes an instructor.
+ *
+ * @param id - The ID of the instructor to delete.
  */
 export async function deleteInstructor(id: string): Promise<void> {
   return infraRemoveInstructor(id);

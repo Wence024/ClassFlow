@@ -10,7 +10,8 @@ import type { ClassSession, ClassSessionInsert, ClassSessionUpdate, CrossDepartm
 /**
  * Fetches all class sessions for a user.
  *
- * @param userId
+ * @param userId - The ID of the user whose class sessions to fetch.
+ * @returns A promise resolving to an array of class sessions.
  */
 export async function getClassSessions(userId: string): Promise<ClassSession[]> {
   return classSessionService.getClassSessions(userId);
@@ -19,7 +20,8 @@ export async function getClassSessions(userId: string): Promise<ClassSession[]> 
 /**
  * Alternative function name for fetchSessions.
  *
- * @param userId
+ * @param userId - The ID of the user whose class sessions to fetch.
+ * @returns A promise resolving to an array of class sessions.
  */
 export async function fetchSessions(userId: string): Promise<ClassSession[]> {
   return getClassSessions(userId);
@@ -28,7 +30,8 @@ export async function fetchSessions(userId: string): Promise<ClassSession[]> {
 /**
  * Fetches class sessions for a program.
  *
- * @param programId
+ * @param programId - The ID of the program whose class sessions to fetch.
+ * @returns A promise resolving to an array of class sessions.
  */
 export async function getClassSessionsForProgram(programId: string): Promise<ClassSession[]> {
   return classSessionService.getClassSessionsByProgram(programId);

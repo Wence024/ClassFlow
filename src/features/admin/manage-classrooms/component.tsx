@@ -25,6 +25,8 @@ import { getRandomPresetColor } from '@/lib/colorUtils';
 /**
  * Component for managing classrooms with full CRUD operations.
  * Admin-only functionality.
+ *
+ * @returns The ManageClassroomsView component JSX.
  */
 export const ManageClassroomsView: React.FC = () => {
   const {
@@ -127,16 +129,16 @@ export const ManageClassroomsView: React.FC = () => {
   /**
    * Initiates edit mode for a classroom.
    *
-   * @param classroom The classroom to edit.
-   * @returns
+   * @param classroom - The classroom to edit.
+   * @returns void
    */
   const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
 
   /**
    * Initiates delete confirmation for a classroom.
    *
-   * @param id The ID of the classroom to delete.
-   * @returns
+   * @param id - The ID of the classroom to delete.
+   * @returns void
    */
   const handleDeleteRequest = (id: string) =>
     setClassroomToDelete(classrooms.find((c) => c.id === id) || null);
