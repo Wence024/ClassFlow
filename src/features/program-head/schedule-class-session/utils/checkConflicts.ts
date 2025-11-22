@@ -161,25 +161,42 @@ function checkGroupMismatch(sessionToCheck: ClassSession, targetGroupId: string)
  * @param sessionToCheck - The session being validated.
  * @param targetResourceId - The ID of the target row resource (group, classroom, or instructor).
  * @param viewMode - The current view mode determining which resource to validate.
+ * @param allowResourceChanges - If true, allows resource changes in classroom/instructor views (confirmation will be required).
  * @returns A string error message if there's a resource mismatch, or null if valid.
  */
 function checkViewSpecificResourceMismatch(
   sessionToCheck: ClassSession,
   targetResourceId: string,
-  viewMode: TimetableViewMode
+  viewMode: TimetableViewMode,
+  allowResourceChanges = false
 ): string | null {
   switch (viewMode) {
     case 'class-group':
+      // Class group changes NEVER allowed
       return checkGroupMismatch(sessionToCheck, targetResourceId);
 
     case 'classroom':
-      if (sessionToCheck.classroom && sessionToCheck.classroom.id !== targetResourceId) {
+      // If no classroom assigned, allow drops anywhere
+      if (!sessionToCheck.classroom) return null;
+      
+      // If allowResourceChanges is true, permit classroom changes (confirmation will be shown)
+      if (allowResourceChanges) return null;
+      
+      // Otherwise, enforce same-classroom restriction
+      if (sessionToCheck.classroom.id !== targetResourceId) {
         return `Classroom mismatch: Cannot move session using classroom '${sessionToCheck.classroom.name}' to a row for classroom '${targetResourceId}'. Sessions can only be moved within their own classroom row.`;
       }
       return null;
 
     case 'instructor':
-      if (sessionToCheck.instructor && sessionToCheck.instructor.id !== targetResourceId) {
+      // If no instructor assigned, allow drops anywhere
+      if (!sessionToCheck.instructor) return null;
+      
+      // If allowResourceChanges is true, permit instructor changes (confirmation will be shown)
+      if (allowResourceChanges) return null;
+      
+      // Otherwise, enforce same-instructor restriction
+      if (sessionToCheck.instructor.id !== targetResourceId) {
         const instructorName = `${sessionToCheck.instructor.first_name} ${sessionToCheck.instructor.last_name}`;
         return `Instructor mismatch: Cannot move session taught by '${instructorName}' to a row for instructor '${targetResourceId}'. Sessions can only be moved within their own instructor row.`;
       }
@@ -628,6 +645,7 @@ class ConflictChecker {
   private programs: Program[];
   private viewMode: TimetableViewMode;
   private isMoving: boolean;
+  private allowResourceChanges: boolean;
   private periodCount: number;
 
   constructor(
@@ -638,7 +656,8 @@ class ConflictChecker {
     targetPeriodIndex: number,
     programs: Program[],
     viewMode: TimetableViewMode,
-    isMoving: boolean
+    isMoving: boolean,
+    allowResourceChanges: boolean
   ) {
     this.timetable = timetable;
     this.session = session;
@@ -648,6 +667,7 @@ class ConflictChecker {
     this.programs = programs;
     this.viewMode = viewMode;
     this.isMoving = isMoving;
+    this.allowResourceChanges = allowResourceChanges;
     this.periodCount = session.period_count || 1;
   }
 
@@ -676,15 +696,12 @@ class ConflictChecker {
       return null;
     }
 
-    // In dynamic resource timetabling, Instructor/Classroom views are where
-    // reassignment happens, so we don't enforce "same row" there.
-    if (this.viewMode === 'class-group') {
-      return checkViewSpecificResourceMismatch(this.session, this.targetGroupId, this.viewMode);
-    }
-
-    // For 'classroom' and 'instructor' views, row-mismatch is allowed here.
-    // Conflicts are still enforced via row conflicts and shared resource checks.
-    return null;
+    return checkViewSpecificResourceMismatch(
+      this.session,
+      this.targetGroupId,
+      this.viewMode,
+      this.allowResourceChanges
+    );
   }
 
   private checkRow(): string | null {
@@ -725,6 +742,7 @@ class ConflictChecker {
  * @param programs - An array of all programs, used for resolving program names in conflict messages.
  * @param viewMode - Optional view mode for view-specific validation (defaults to 'class-group').
  * @param isMovingSession - Whether this is a move operation (true) or assign operation (false). Resource mismatch checks only apply to moves.
+ * @param allowResourceChanges - If true, allows resource changes in classroom/instructor views (confirmation will be required).
  * @returns A string message describing the first detected conflict (boundary, group, or resource), or an empty string if the placement is valid.
  */
 export default function checkTimetableConflicts(
@@ -735,7 +753,8 @@ export default function checkTimetableConflicts(
   targetPeriodIndex: number,
   programs: Program[],
   viewMode: TimetableViewMode = 'class-group',
-  isMovingSession = false
+  isMovingSession = false,
+  allowResourceChanges = false
 ): string {
   const checker = new ConflictChecker(
     timetable,
@@ -745,7 +764,8 @@ export default function checkTimetableConflicts(
     targetPeriodIndex,
     programs,
     viewMode,
-    isMovingSession
+    isMovingSession,
+    allowResourceChanges
   );
   return checker.run();
 }

@@ -644,11 +644,14 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         status
       );
 
-      // Invalidate caches to refresh UI
+      // Invalidate caches and wait for refetch to ensure fresh data
       await Promise.all([
         queryClient.invalidateQueries({ queryKey }),
         queryClient.invalidateQueries({ queryKey: ['allClassSessions'] }),
       ]);
+      
+      // Wait for data to be refetched before continuing
+      await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
     },
     [activeSemester, user, queryClient, queryKey]
   );

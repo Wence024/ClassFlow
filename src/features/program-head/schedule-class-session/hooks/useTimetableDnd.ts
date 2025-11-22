@@ -340,6 +340,13 @@ export const useTimetableDnd = (
       }
 
       const isMovingSession = activeDragSource.from === 'timetable';
+      
+      // Allow resource changes for classroom/instructor views when moving sessions
+      // This enables green indicators to show on all available resource rows
+      const allowResourceChanges = 
+        isMovingSession && 
+        (viewMode === 'classroom' || viewMode === 'instructor');
+      
       const conflictMessage = checkTimetableConflicts(
         timetable,
         activeDraggedSession,
@@ -348,7 +355,8 @@ export const useTimetableDnd = (
         periodIndex,
         programs,
         viewMode,
-        isMovingSession
+        isMovingSession,
+        allowResourceChanges
       );
 
       return conflictMessage === '';

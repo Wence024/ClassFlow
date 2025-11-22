@@ -280,6 +280,9 @@ moveSessionWithResourceChange(
 - [x] **FIX (v1.2): Same-period resource reassignment now properly detects resource changes**
 - [x] **FIX (v1.2): Drawer-to-timetable allows reassignment to any available resource row**
 - [x] Add diagnostic logging for debugging drag-and-drop operations
+- [x] **FIX (v1.3): Implement `allowResourceChanges` parameter for proper conflict loosening**
+- [x] **FIX (v1.3): Enhanced visual distinction for green indicators (same vs different resource)**
+- [x] **FIX (v1.3): Improved cache synchronization for resource changes**
 
 ### 🔄 Phase 5: Form Component Updates (NOT STARTED)
 - [ ] Update form validation schema to make resources optional
@@ -326,6 +329,51 @@ moveSessionWithResourceChange(
 ---
 
 ## Known Issues & Fixes
+
+### Fixed Issues (Version 1.3 - 2025-01-23)
+
+#### Issue #3: Green Indicators Not Showing for Resource Changes
+**Problem**: When dragging a session with an assigned classroom/instructor in resource views, green availability indicators didn't appear on other resource rows, even though drops to those rows would be valid after confirmation.
+
+**Root Cause**: The `allowResourceChanges` parameter was planned but never fully implemented in the conflict checking system. The `checkTimetableConflicts` function still enforced resource mismatch restrictions for classroom/instructor views, preventing green indicators from showing on different resource rows.
+
+**Fix**: 
+1. Added `allowResourceChanges` parameter to `checkTimetableConflicts` function (9th parameter)
+2. Updated `checkViewSpecificResourceMismatch` to accept `allowResourceChanges` and return `null` when `true` for classroom/instructor views
+3. Updated `ConflictChecker` class to store and use `allowResourceChanges` in resource mismatch checks
+4. Modified `isSlotAvailable` in `useTimetableDnd.ts` to set `allowResourceChanges=true` for resource views when moving sessions
+5. Enhanced visual distinction: same-resource rows show brighter green (60% opacity), different-resource rows show dimmer green (30% opacity)
+
+**Files Modified**:
+- `src/features/program-head/schedule-class-session/utils/checkConflicts.ts` - Added parameter throughout conflict checking chain
+- `src/features/program-head/schedule-class-session/hooks/useTimetableDnd.ts` - Pass `allowResourceChanges` based on view mode
+- `src/features/program-head/schedule-class-session/pages/components/timetable/EmptyCell.tsx` - Changed from `isPreassignedResource` to `isResourceChange` with updated opacity values
+
+**Testing**:
+- ✅ Green indicators now appear on ALL available resource rows when dragging
+- ✅ Brighter green (60%) for same-resource rows (pre-assigned)
+- ✅ Dimmer green (30%) for different-resource rows (requires confirmation)
+- ✅ Confirmation dialog still appears when changing resources
+- ✅ Class-group view remains unchanged (no resource changes allowed)
+
+#### Issue #4: Cache Synchronization After Resource Changes
+**Problem**: After moving a session to a different classroom/instructor, immediately dragging the same session again showed inconsistent green indicators based on stale timetable data.
+
+**Root Cause**: Cache invalidation was asynchronous, creating a timing window where the user could start dragging before the refetch completed. The `timetable` grid used by `isSlotAvailable` contained outdated data.
+
+**Fix**: 
+1. Added `await queryClient.refetchQueries()` after cache invalidation to ensure data is fresh before function returns
+2. This guarantees subsequent drag operations use current data with correct resource assignments
+
+**Files Modified**:
+- `src/features/program-head/schedule-class-session/hooks/useTimetable.ts` - Added explicit refetch after invalidation
+
+**Testing**:
+- ✅ Green indicators reflect correct state immediately after resource change
+- ✅ No flickering or stale data during subsequent drags
+- ✅ Consistent behavior across rapid drag-drop-drag sequences
+
+---
 
 ### Fixed Issues (Version 1.2 - 2025-01-XX)
 

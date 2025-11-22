@@ -41,19 +41,22 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
     highlightGroup,
   } = useTimetableContext();
 
-  // Check if this row is the pre-assigned resource for better visual feedback
-  const isPreassignedResource = useMemo(() => {
+  // Check if this is a resource change (different resource from pre-assigned)
+  const isResourceChange = useMemo(() => {
     if (!activeDraggedSession) return false;
-
-    if (viewMode === 'instructor') {
-      // If no instructor assigned, no row is "pre-assigned" (all are equal)
-      if (!activeDraggedSession.instructor) return false;
-      return activeDraggedSession.instructor.id === groupId;
-    } else if (viewMode === 'classroom') {
-      // If no classroom assigned, no row is "pre-assigned" (all are equal)
+    
+    if (viewMode === 'classroom') {
+      // No classroom assigned = no distinction (not a change)
       if (!activeDraggedSession.classroom) return false;
-      return activeDraggedSession.classroom.id === groupId;
+      // Different classroom = resource change
+      return activeDraggedSession.classroom.id !== groupId;
+    } else if (viewMode === 'instructor') {
+      // No instructor assigned = no distinction (not a change)
+      if (!activeDraggedSession.instructor) return false;
+      // Different instructor = resource change
+      return activeDraggedSession.instructor.id !== groupId;
     }
+    
     return false;
   }, [activeDraggedSession, groupId, viewMode]);
 
@@ -92,8 +95,9 @@ const EmptyCell: React.FC<EmptyCellProps> = ({
         {isDragging && isAvailable && !isDragOver && (
           <div
             className={`w-2 h-2 bg-green-500 rounded-full pointer-events-none ${
-              isPreassignedResource ? 'opacity-80' : 'opacity-40'
+              isResourceChange ? 'opacity-30' : 'opacity-60'
             }`}
+            title={isResourceChange ? 'Available (resource will change)' : 'Available'}
           />
         )}
       </div>
