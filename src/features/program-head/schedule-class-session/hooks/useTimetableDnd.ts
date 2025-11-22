@@ -9,6 +9,7 @@ import { usePrograms } from '@/features/admin/manage-programs/hooks/usePrograms'
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { TimetableViewMode, HydratedTimetableAssignment } from '../types';
 import { User } from '@/features/shared/auth/types/auth';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DRAG_DATA_KEY = 'application/json';
 
@@ -259,6 +260,7 @@ export const useTimetableDnd = (
   const { settings } = useScheduleConfig();
   const { listQuery } = usePrograms();
   const programs = useMemo(() => listQuery.data || [], [listQuery.data]);
+  const queryClient = useQueryClient();
 
   // --- D&D State ---
   const [activeDragSource, setActiveDragSource] = useState<DragSource | null>(null);
@@ -385,9 +387,46 @@ export const useTimetableDnd = (
       session: ClassSession,
       dbTargetGroupId: string,
       targetPeriodIndex: number,
+      targetResourceId: string, // NEW: UI row ID (resource ID in resource views)
       resourceChangeMetadata?: ResourceChangeMetadata
     ) => {
       if (source.from === 'drawer') {
+        // Handle resource assignment/reassignment for drawer drops in resource views
+        if (viewMode === 'classroom' || viewMode === 'instructor') {
+          const resourceType = viewMode === 'classroom' ? 'classroom' : 'instructor';
+          const currentResourceId = viewMode === 'classroom' 
+            ? session.classroom?.id 
+            : session.instructor?.id;
+          
+          // Use targetResourceId (UI row ID) as the actual resource ID
+          // NOT dbTargetGroupId (which is always the session's class_group_id)
+          if (currentResourceId !== targetResourceId) {
+            console.debug('[DND] Drawer drop - assigning/reassigning resource', {
+              resourceType,
+              fromId: currentResourceId || 'null',
+              toId: targetResourceId,
+              sessionId: session.id,
+              note: 'Using targetResourceId (UI row ID), NOT dbTargetGroupId (class_group_id)'
+            });
+            
+            try {
+              // Reassign the resource BEFORE creating timetable assignment
+              const { reassignSessionResource } = await import('@/lib/services/classSessionService');
+              await reassignSessionResource(session.id, resourceType, targetResourceId);
+              
+              // Invalidate class sessions cache
+              await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+            } catch (err) {
+              console.error('[DND] Failed to reassign resource:', err);
+              const errorMsg = err instanceof Error ? err.message : 'Failed to update resource';
+              toast.error(`Could not assign ${resourceType}: ${errorMsg}`);
+              cleanupDragState();
+              return errorMsg;
+            }
+          }
+        }
+        
+        // Now create the timetable assignment using the CORRECT class_group_id
         return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
       } else if (source.from === 'timetable') {
         // Check if this is the same cell (no action needed)
@@ -516,6 +555,7 @@ export const useTimetableDnd = (
       classSessionToDrop: ClassSession,
       dbTargetGroupId: string,
       targetPeriodIndex: number,
+      targetResourceId: string, // NEW: Pass UI row ID
       onConfirmMove: (
         callback: () => void,
         confirmationType: 'cross-department' | 'resource-reassignment',
@@ -532,6 +572,7 @@ export const useTimetableDnd = (
               classSessionToDrop,
               dbTargetGroupId,
               targetPeriodIndex,
+              targetResourceId, // Pass UI row ID
               metadata
             );
             if (error) {
@@ -599,6 +640,7 @@ export const useTimetableDnd = (
           classSessionToDrop,
           dbTargetGroupId,
           targetPeriodIndex,
+          targetClassGroupId, // Pass UI row ID (resource ID in resource views)
           onConfirmMove,
           confirmationCheck.type,
           confirmationCheck.metadata
@@ -614,6 +656,7 @@ export const useTimetableDnd = (
           classSessionToDrop,
           dbTargetGroupId,
           targetPeriodIndex,
+          targetClassGroupId, // Pass UI row ID (resource ID in resource views)
           resourceChangeInfo || undefined
         );
         if (error) {

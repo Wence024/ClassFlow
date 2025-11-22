@@ -266,7 +266,7 @@ moveSessionWithResourceChange(
 - [x] Add reassignSessionResource function
 - [x] Add moveSessionWithResourceChange function
 
-### ✅ Phase 4: Dynamic Resource Reassignment (COMPLETED v1.2)
+### ✅ Phase 4: Dynamic Resource Reassignment (COMPLETED v1.4)
 - [x] Remove resource mismatch blocking for instructor/classroom views
 - [x] Add getResourceChangeInfo helper function
 - [x] Update needsConfirmation to detect resource changes
@@ -283,6 +283,7 @@ moveSessionWithResourceChange(
 - [x] **FIX (v1.3): Implement `allowResourceChanges` parameter for proper conflict loosening**
 - [x] **FIX (v1.3): Enhanced visual distinction for green indicators (same vs different resource)**
 - [x] **FIX (v1.3): Improved cache synchronization for resource changes**
+- [x] **FIX (v1.4): Drawer-to-timetable resource assignment now uses correct resource ID (targetResourceId vs dbTargetGroupId)**
 
 ### 🔄 Phase 5: Form Component Updates (NOT STARTED)
 - [ ] Update form validation schema to make resources optional
@@ -306,13 +307,20 @@ moveSessionWithResourceChange(
 - [x] Update tooltips with resource status
 - [x] Add vibrant/subtle green indicators for pre-assigned resources
 
-### ⏳ Phase 8: Testing (NOT STARTED)
+### ⏳ Phase 8: Testing (PARTIAL - v1.4)
 - [ ] Unit tests for type guards
 - [ ] Service layer tests for incomplete sessions
 - [ ] Form component integration tests
 - [ ] DnD logic tests for incomplete sessions
 - [ ] E2E tests for complete workflow
 - [ ] Tests for resource reassignment workflows
+
+#### Drawer-to-Timetable Resource Assignment (v1.4)
+- [x] Manual test: Drag session with no classroom from drawer to classroom row
+- [x] Manual test: Drag session with pre-assigned classroom from drawer to different classroom row
+- [x] Manual test: Verify session appears in timetable with correct classroom_id
+- [x] Manual test: Same tests for instructor view
+- [x] Manual test: Verify error handling when resource assignment fails
 
 ### ⏳ Phase 9: Department Head Updates (NOT STARTED)
 - [ ] Add incomplete session indicators in approval view
@@ -329,6 +337,90 @@ moveSessionWithResourceChange(
 ---
 
 ## Known Issues & Fixes
+
+### Fixed Issues (Version 1.4 - 2025-01-XX)
+
+#### Issue #5: Drawer-to-Timetable Resource Assignment Bug (409 Error)
+
+**Problem**: When dragging a session from drawer to a resource view (classroom/instructor), attempting to drop the session triggered a 409 Conflict error from Supabase with a vague user feedback message. The session would fail to be assigned to the target resource row.
+
+**Error Details**:
+```
+Request: PATCH /rest/v1/class_sessions
+Request Body: {"classroom_id":"fcfa75e3-6ba4-49ba-91a1-2cd32ffc7e77"}
+Response (409): {
+  "code":"23503",
+  "details":"Key is not present in table \"classrooms\".",
+  "message":"insert or update on table \"class_sessions\" violates foreign key constraint \"class_sessions_classroom_id_fkey\""
+}
+```
+
+**Root Cause**: The implementation incorrectly used `dbTargetGroupId` (which is always the session's `class_group_id`) as the resource ID when reassigning classroom/instructor. This caused the code to try to set `classroom_id` to a `class_group` UUID, violating the foreign key constraint.
+
+**Variable Confusion**:
+- `targetClassGroupId` (parameter) = UI row ID = actual resource ID in resource views
+- `dbTargetGroupId` (computed) = `class_group_id` for database operations (always)
+
+**Example of the Bug**:
+```typescript
+// Drop session in Classroom View, "B206" row (classroom_id = 'acf21768...')
+// Code calculated: dbTargetGroupId = session.group.id = 'fcfa75e3...' (BSCS 2nd Year)
+// Code tried: UPDATE class_sessions SET classroom_id = 'fcfa75e3...' ❌
+// Should have: UPDATE class_sessions SET classroom_id = 'acf21768...' ✅
+```
+
+**Fix**: Modified `executeDropMutation` to accept `targetResourceId` parameter (the UI row ID) and use it for resource assignment instead of `dbTargetGroupId`:
+
+```typescript
+const executeDropMutation = useCallback(
+  async (
+    source: DragSource,
+    session: ClassSession,
+    dbTargetGroupId: string,  // Always class_group_id for DB operations
+    targetPeriodIndex: number,
+    targetResourceId: string,  // NEW: UI row ID (resource ID in resource views)
+    resourceChangeMetadata?: ResourceChangeMetadata
+  ) => {
+    if (source.from === 'drawer') {
+      // Handle resource assignment/reassignment for drawer drops in resource views
+      if (viewMode === 'classroom' || viewMode === 'instructor') {
+        const resourceType = viewMode === 'classroom' ? 'classroom' : 'instructor';
+        const currentResourceId = viewMode === 'classroom' 
+          ? session.classroom?.id 
+          : session.instructor?.id;
+        
+        // Use targetResourceId (UI row ID), NOT dbTargetGroupId
+        if (currentResourceId !== targetResourceId) {
+          await reassignSessionResource(session.id, resourceType, targetResourceId);
+          await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+        }
+      }
+      
+      // Create timetable assignment with correct class_group_id
+      return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
+    }
+    // ... rest of logic
+  }
+);
+```
+
+**Additional Improvements**:
+- Added try-catch error handling around `reassignSessionResource` for better user feedback
+- Added specific error messages for resource assignment failures: `"Could not assign classroom: [error details]"`
+- Added debug logging showing the distinction between `targetResourceId` (UI row ID) and `dbTargetGroupId` (class_group_id)
+- Updated `handleConfirmation` and `handleDropToGrid` to pass `targetClassGroupId` as `targetResourceId` parameter
+
+**Files Modified**:
+- `src/features/program-head/schedule-class-session/hooks/useTimetableDnd.ts` - Fixed resource ID mapping
+
+**Testing**:
+- ✅ Drag session from drawer to different classroom row → no 409 error
+- ✅ Verify `class_sessions.classroom_id` updates correctly in database
+- ✅ Clear error message if resource assignment fails
+- ✅ Same tests for instructor view
+- ✅ Session appears in timetable at correct location with correct resource
+
+---
 
 ### Fixed Issues (Version 1.3 - 2025-01-23)
 
