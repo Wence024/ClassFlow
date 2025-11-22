@@ -12,6 +12,14 @@ import { User } from '@/features/shared/auth/types/auth';
 
 const DRAG_DATA_KEY = 'application/json';
 
+// Define a type for resource change metadata
+type ResourceChangeMetadata = {
+  isChanging: boolean;
+  fromId: string;
+  toId: string;
+  resourceType: 'instructor' | 'classroom';
+};
+
 const parseDragData = (e: React.DragEvent): DragSource | null => {
   const rawData = e.dataTransfer.getData(DRAG_DATA_KEY);
   if (!rawData) {
@@ -41,6 +49,7 @@ const getResourceChangeInfo = (
   targetId: string
 ): { isChanging: boolean; fromId: string; toId: string; resourceType: 'instructor' | 'classroom' } | null => {
   if (viewMode === 'classroom') {
+    // Only treat as "changing" if there's an EXISTING classroom being replaced
     if (session.classroom && session.classroom.id !== targetId) {
       return {
         isChanging: true,
@@ -49,7 +58,9 @@ const getResourceChangeInfo = (
         resourceType: 'classroom'
       };
     }
+    // If classroom is null, this is ASSIGNMENT, not reassignment - no confirmation needed
   } else if (viewMode === 'instructor') {
+    // Only treat as "changing" if there's an EXISTING instructor being replaced
     if (session.instructor && session.instructor.id !== targetId) {
       return {
         isChanging: true,
@@ -58,6 +69,7 @@ const getResourceChangeInfo = (
         resourceType: 'instructor'
       };
     }
+    // If instructor is null, this is ASSIGNMENT, not reassignment - no confirmation needed
   }
   return null;
 };
@@ -286,9 +298,13 @@ export const useTimetableDnd = (
         case 'class-group':
           return draggedSession.group.id === targetGroupId;
         case 'classroom':
-          return draggedSession.classroom?.id === targetGroupId;
+          // If classroom is unassigned (null), allow placement in any classroom row
+          if (!draggedSession.classroom) return true;
+          return draggedSession.classroom.id === targetGroupId;
         case 'instructor':
-          return draggedSession.instructor?.id === targetGroupId;
+          // If instructor is unassigned (null), allow placement in any instructor row
+          if (!draggedSession.instructor) return true;
+          return draggedSession.instructor.id === targetGroupId;
       }
     }
     return false;
@@ -448,14 +464,6 @@ export const useTimetableDnd = (
     },
     [user, pendingPlacementInfo]
   );
-
-  // Define a type for resource change metadata
-  type ResourceChangeMetadata = {
-    isChanging: boolean;
-    fromId: string;
-    toId: string;
-    resourceType: 'instructor' | 'classroom';
-  };
 
   const handleConfirmation = useCallback(
     (

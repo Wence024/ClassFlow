@@ -106,7 +106,15 @@ export default function PendingRequestsPanel() {
           </p>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          {renderContent(error, isLoading, isEnriching, enrichedRequests)}
+          {error ? (
+            <div className="p-4 text-center text-red-500">Error loading requests</div>
+          ) : isLoading || isEnriching ? (
+            <div className="p-4 text-center text-gray-500">Loading...</div>
+          ) : enrichedRequests.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">No pending requests</div>
+          ) : (
+            renderEnrichedRequests(enrichedRequests)
+          )}
         </div>
       </PopoverContent>
     </Popover>
@@ -117,7 +125,11 @@ type EnrichedRequest = ResourceRequest & {
   resource_name: string;
 };
 
-const renderEnrichedRequests = (enrichedRequests: EnrichedRequest[]) => {
+const renderEnrichedRequests = (
+  enrichedRequests: EnrichedRequest[],
+  handleCancel: (requestId: string) => Promise<void>,
+  cancellingId: string | null
+) => {
   return enrichedRequests.map((request) => (
     <div key={request.id} className="p-3 border-b last:border-b-0">
       <div className="flex items-start justify-between gap-2">

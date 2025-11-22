@@ -309,9 +309,13 @@ const DropZone: React.FC<DropZoneProps> = ({ groupId, periodIndex, sessionsInCel
     if (!activeDraggedSession) return false;
 
     if (viewMode === 'instructor') {
-      return activeDraggedSession.instructor?.id === groupId;
+      // If no instructor assigned, no row is "pre-assigned" (all are equal)
+      if (!activeDraggedSession.instructor) return false;
+      return activeDraggedSession.instructor.id === groupId;
     } else if (viewMode === 'classroom') {
-      return activeDraggedSession.classroom?.id === groupId;
+      // If no classroom assigned, no row is "pre-assigned" (all are equal)
+      if (!activeDraggedSession.classroom) return false;
+      return activeDraggedSession.classroom.id === groupId;
     }
     return false;
   }, [activeDraggedSession, groupId, viewMode]);

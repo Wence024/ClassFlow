@@ -5,7 +5,7 @@
 import * as classSessionService from '@/lib/services/classSessionService';
 import * as instructorService from '@/lib/services/instructorService';
 import * as classroomService from '@/lib/services/classroomService';
-import type { ClassSession, ClassSessionInsert, ClassSessionUpdate, ClassSessionUpsert, CrossDepartmentInfo } from './types';
+import type { ClassSession, ClassSessionInsert, ClassSessionUpdate, CrossDepartmentInfo } from './types';
 
 /**
  * Fetches all class sessions for a user.
@@ -41,7 +41,7 @@ export async function getClassSessionsForProgram(programId: string): Promise<Cla
  * @param programId
  * @param userId
  */
-export async function createClassSession(data: ClassSessionUpsert, programId: string, userId: string): Promise<ClassSession> {
+export async function createClassSession(data: ClassSessionInsert, programId: string, userId: string): Promise<ClassSession> {
   return classSessionService.addClassSession({ ...data, program_id: programId, user_id: userId });
 }
 

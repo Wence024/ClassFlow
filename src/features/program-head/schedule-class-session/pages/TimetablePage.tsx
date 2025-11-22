@@ -320,7 +320,58 @@ const TimetablePage: React.FC = () => {
         if (confirmationType === 'cross-department') {
           handleCrossDepartment(callback);
         } else if (confirmationType === 'resource-reassignment') {
-          handleResourceReassignment(callback, metadata);
+          // Resolve resource names for confirmation dialog
+          if (!metadata) {
+            console.error('Resource reassignment requires metadata');
+            return;
+          }
+
+          let fromName = '';
+          let toName = '';
+
+          if (metadata.resourceType === 'instructor') {
+            // Find instructor names
+            const fromInstructor = await supabase
+              .from('instructors')
+              .select('first_name, last_name')
+              .eq('id', metadata.fromId)
+              .single();
+            const toInstructor = await supabase
+              .from('instructors')
+              .select('first_name, last_name')
+              .eq('id', metadata.toId)
+              .single();
+
+            fromName = fromInstructor.data
+              ? `${fromInstructor.data.first_name} ${fromInstructor.data.last_name}`
+              : metadata.fromId;
+            toName = toInstructor.data
+              ? `${toInstructor.data.first_name} ${toInstructor.data.last_name}`
+              : metadata.toId;
+          } else {
+            // Find classroom names
+            const fromClassroom = await supabase
+              .from('classrooms')
+              .select('name')
+              .eq('id', metadata.fromId)
+              .single();
+            const toClassroom = await supabase
+              .from('classrooms')
+              .select('name')
+              .eq('id', metadata.toId)
+              .single();
+
+            fromName = fromClassroom.data?.name || metadata.fromId;
+            toName = toClassroom.data?.name || metadata.toId;
+          }
+
+          const resourceType =
+            metadata.resourceType === 'instructor' ? 'Instructor' : 'Classroom';
+          handleConfirmAction(
+            callback,
+            `Reassign ${resourceType}`,
+            `You are changing the ${resourceType.toLowerCase()} from "${fromName}" to "${toName}". Continue?`
+          );
         }
       }
     );
