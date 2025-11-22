@@ -18,6 +18,10 @@ This index provides quick access to all documented changes in the ClassFlow proj
 
 ### January 2025
 
+- **[Dynamic Resource Timetabling v1.2.1](./dynamic-resource-timetabling-v1.2.1.md)** - 2025-01-22
+  - **HOTFIX**: Fixed critical bug where same-period resource changes moved sessions back to drawer
+  - Added time slot change detection in `moveSessionWithResourceChange`
+  
 - **[Dynamic Resource Timetabling v1.2](./dynamic-resource-timetabling-v1.2.md)** - 2025-01-XX
   - Fixed same-period resource reassignment not working
   - Fixed drawer-to-timetable restricted to pre-assigned resources

@@ -235,8 +235,16 @@ export async function moveSessionWithResourceChange(
   // First, reassign the resource
   await reassignSessionResource(class_session_id, resourceType, newResourceId);
 
-  // Then, move the session to new time slot
-  await moveClassSession(from, to, class_session_id, user_id, status);
+  // Only move the timetable assignment if the time slot is actually changing
+  const isSameSlot = 
+    from.class_group_id === to.class_group_id && 
+    from.period_index === to.period_index &&
+    from.semester_id === to.semester_id;
+
+  if (!isSameSlot) {
+    // Move the session to new time slot
+    await moveClassSession(from, to, class_session_id, user_id, status);
+  }
 }
 
 /**

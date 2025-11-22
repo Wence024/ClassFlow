@@ -345,10 +345,13 @@ const isSameCell =
       !resourceChangeMetadata?.isChanging; // Now allows resource change at same period
 ```
 
+**Additional Fix (v1.2.1)**: Fixed critical bug in `moveSessionWithResourceChange` where same-period resource changes would cause the session to disappear back to drawer. The function was calling `moveClassSession` with identical source and destination, causing the assignment to be deleted. Added check to skip move when slot isn't changing.
+
 **Testing**: 
 - ✅ Can now drag session to different classroom row at same period
 - ✅ Confirmation dialog appears for resource reassignment
 - ✅ classroom_id/instructor_id updates correctly in database
+- ✅ Session stays in timetable after resource reassignment (v1.2.1 fix)
 
 ---
 
