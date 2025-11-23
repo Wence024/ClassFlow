@@ -209,9 +209,16 @@ export function useTimetable(viewMode: TimetableViewMode = 'class-group') {
         status
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
-      queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+    onSuccess: async () => {
+      // Invalidate and wait for both queries to settle
+      await queryClient.invalidateQueries({ queryKey });
+      await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+
+      // Refetch both to ensure UI consistency
+      await queryClient.refetchQueries({ queryKey });
+      await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
+
+      console.debug('[Timetable] Assignment mutation complete, caches refreshed');
     },
   });
 

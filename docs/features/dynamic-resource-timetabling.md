@@ -422,6 +422,27 @@ const executeDropMutation = useCallback(
 
 ---
 
+### Cache Synchronization Strategy
+
+When reassigning resources during drawer-to-timetable drops, the system uses a strict cache synchronization strategy to prevent race conditions:
+
+1. **Resource Update**: Update `class_sessions` table with new resource ID
+2. **Cache Invalidation**: Mark `allClassSessions` cache as stale
+3. **Explicit Refetch**: Wait for refetch to complete
+4. **Fresh Data Retrieval**: Get updated session from cache
+5. **Assignment Creation**: Create timetable assignment with fresh session data
+6. **Dual Invalidation**: Mutation's `onSuccess` invalidates both caches
+7. **Dual Refetch**: Wait for both queries to settle before UI updates
+
+This ensures atomic consistency between the sessions cache and assignments cache, preventing the "disappearing session" bug where sessions briefly reappear in the drawer after being placed.
+
+**Technical Details:**
+- The drawer filter depends on reading the assignments cache to determine which sessions are already assigned
+- If assignments cache updates before allClassSessions cache, the drawer will briefly show assigned sessions
+- By waiting for both queries to complete their refetch cycle, we prevent this UI inconsistency
+
+---
+
 ### Fixed Issues (Version 1.3 - 2025-01-23)
 
 #### Issue #3: Green Indicators Not Showing for Resource Changes

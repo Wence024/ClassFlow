@@ -391,6 +391,8 @@ export const useTimetableDnd = (
       resourceChangeMetadata?: ResourceChangeMetadata
     ) => {
       if (source.from === 'drawer') {
+        let sessionToAssign = session; // Default to original session
+
         // Handle resource assignment/reassignment for drawer drops in resource views
         if (viewMode === 'classroom' || viewMode === 'instructor') {
           const resourceType = viewMode === 'classroom' ? 'classroom' : 'instructor';
@@ -401,21 +403,38 @@ export const useTimetableDnd = (
           // Use targetResourceId (UI row ID) as the actual resource ID
           // NOT dbTargetGroupId (which is always the session's class_group_id)
           if (currentResourceId !== targetResourceId) {
-            console.debug('[DND] Drawer drop - assigning/reassigning resource', {
+            console.debug('[DND] Drawer drop - reassigning resource', {
+              sessionId: session.id,
               resourceType,
               fromId: currentResourceId || 'null',
-              toId: targetResourceId,
-              sessionId: session.id,
-              note: 'Using targetResourceId (UI row ID), NOT dbTargetGroupId (class_group_id)'
+              toId: targetResourceId
             });
             
             try {
-              // Reassign the resource BEFORE creating timetable assignment
+              // Step 1: Update the database
               const { reassignSessionResource } = await import('@/lib/services/classSessionService');
               await reassignSessionResource(session.id, resourceType, targetResourceId);
               
-              // Invalidate class sessions cache
+              // Step 2: Invalidate and WAIT for complete refetch
               await queryClient.invalidateQueries({ queryKey: ['allClassSessions'] });
+              await queryClient.refetchQueries({ queryKey: ['allClassSessions'] });
+
+              // Step 3: Get the FRESH session from cache with updated resource
+              const freshSessions = queryClient.getQueryData<ClassSession[]>(['allClassSessions']);
+              const freshSession = freshSessions?.find(cs => cs.id === session.id);
+
+              if (freshSession) {
+                sessionToAssign = freshSession;
+                console.debug('[DND] Using fresh session with updated resource', {
+                  sessionId: freshSession.id,
+                  newClassroom: freshSession.classroom?.name,
+                  newInstructor: freshSession.instructor 
+                    ? `${freshSession.instructor.first_name} ${freshSession.instructor.last_name}`
+                    : null
+                });
+              } else {
+                console.warn('[DND] Fresh session not found in cache, using original');
+              }
             } catch (err) {
               console.error('[DND] Failed to reassign resource:', err);
               const errorMsg = err instanceof Error ? err.message : 'Failed to update resource';
@@ -426,8 +445,8 @@ export const useTimetableDnd = (
           }
         }
         
-        // Now create the timetable assignment using the CORRECT class_group_id
-        return assignClassSession(dbTargetGroupId, targetPeriodIndex, session);
+        // ✅ FIX: Now uses fresh session with correct resource data
+        return assignClassSession(dbTargetGroupId, targetPeriodIndex, sessionToAssign);
       } else if (source.from === 'timetable') {
         // Check if this is the same cell (no action needed)
         const isSameCell =
