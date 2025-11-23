@@ -640,10 +640,12 @@ function checkResourceConflicts(
   
   if (allowResourceChanges && viewMode) {
     if (viewMode === 'classroom') {
-      // In classroom view, targetGroupId is the classroom ID
+      // In classroom view, when dragging to a different classroom row,
+      // targetGroupId IS the target classroom ID (the row being dropped on)
       targetClassroomId = targetGroupId;
     } else if (viewMode === 'instructor') {
-      // In instructor view, targetGroupId is the instructor ID
+      // In instructor view, when dragging to a different instructor row,
+      // targetGroupId IS the target instructor ID (the row being dropped on)
       targetInstructorId = targetGroupId;
     }
   }
@@ -652,14 +654,14 @@ function checkResourceConflicts(
     checkInstructorConflicts(
       timetable,
       sessionToCheck,
-      targetGroupId,
+      sessionToCheck.group.id, // Always use session's group ID for conflict detection
       targetPeriodIndex,
       programs,
       targetInstructorId
     ) || checkClassroomConflicts(
       timetable, 
       sessionToCheck, 
-      targetGroupId, 
+      sessionToCheck.group.id, // Always use session's group ID for conflict detection
       targetPeriodIndex,
       targetClassroomId
     )
