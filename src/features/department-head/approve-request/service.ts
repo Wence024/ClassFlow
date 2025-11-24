@@ -2,7 +2,7 @@
  * Service layer for approving resource requests.
  */
 
-import { approveResourceRequest as infraApproveResourceRequest } from '@/lib/services/resourceRequestService';
+import { approveRequest as infraApproveResourceRequest } from '@/lib/services/resourceRequestService';
 import type { ResourceRequestUpdate } from '@/types/resourceRequest';
 
 /**
@@ -10,9 +10,9 @@ import type { ResourceRequestUpdate } from '@/types/resourceRequest';
  *
  * @param id - The ID of the resource request to approve.
  * @param approverId - The ID of the user approving the request.
- * @param updateData - The update data for the resource request.
+ * @param updateData - The update data for the resource request (currently unused as approval applies fixed updates).
  * @returns A promise that resolves when the request is approved.
  */
-export async function approveResourceRequest(id: string, approverId: string, updateData: ResourceRequestUpdate): Promise<void> {
-  return infraApproveResourceRequest(id, approverId, updateData);
+export async function approveResourceRequest(id: string, approverId: string, updateData?: ResourceRequestUpdate): Promise<void> {
+  await infraApproveResourceRequest(id, approverId);
 }

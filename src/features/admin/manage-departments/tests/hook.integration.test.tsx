@@ -6,12 +6,17 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useManageDepartments } from '../hook';
-import * as service from '../service';
+import * as departmentService from '@/lib/services/departmentService';
 import type { Department } from '@/types/department';
 
-vi.mock('../service');
+vi.mock('@/lib/services/departmentService');
 
-const mockedService = vi.mocked(service);
+const mockedService = {
+  listDepartments: vi.mocked(departmentService.listDepartments),
+  createDepartment: vi.mocked(departmentService.createDepartment),
+  updateDepartment: vi.mocked(departmentService.updateDepartment),
+  deleteDepartment: vi.mocked(departmentService.deleteDepartment),
+};
 
 const mockDepartments: Department[] = [
   {
@@ -34,7 +39,7 @@ describe('useManageDepartments Hook', () => {
   });
 
   it('should fetch all departments on mount', async () => {
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
 
     const { result } = renderHook(() => useManageDepartments());
 
@@ -45,7 +50,7 @@ describe('useManageDepartments Hook', () => {
     });
 
     expect(result.current.departments).toEqual(mockDepartments);
-    expect(mockedService.fetchDepartments).toHaveBeenCalled();
+    expect(mockedService.listDepartments).toHaveBeenCalled();
   });
 
   it('should create a new department', async () => {
@@ -54,8 +59,8 @@ describe('useManageDepartments Hook', () => {
       code: 'ENG',
     };
 
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
-    mockedService.createNewDepartment.mockResolvedValue({
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
+    mockedService.createDepartment.mockResolvedValue({
       id: 'd3',
       ...newDepartment,
       created_at: '2024-01-03',
@@ -73,7 +78,7 @@ describe('useManageDepartments Hook', () => {
     });
 
     expect(success).toBe(true);
-    expect(mockedService.createNewDepartment).toHaveBeenCalledWith(newDepartment);
+    expect(mockedService.createDepartment).toHaveBeenCalledWith(newDepartment);
   });
 
   it('should update an existing department', async () => {
@@ -81,8 +86,8 @@ describe('useManageDepartments Hook', () => {
       name: 'Computer Science & Engineering',
     };
 
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
-    mockedService.updateDepartmentData.mockResolvedValue({
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
+    mockedService.updateDepartment.mockResolvedValue({
       ...mockDepartments[0],
       ...updates,
     });
@@ -99,12 +104,12 @@ describe('useManageDepartments Hook', () => {
     });
 
     expect(success).toBe(true);
-    expect(mockedService.updateDepartmentData).toHaveBeenCalledWith('d1', updates);
+    expect(mockedService.updateDepartment).toHaveBeenCalledWith('d1', updates);
   });
 
   it('should delete a department', async () => {
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
-    mockedService.removeDepartment.mockResolvedValue(undefined);
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
+    mockedService.deleteDepartment.mockResolvedValue();
 
     const { result } = renderHook(() => useManageDepartments());
 
@@ -118,13 +123,13 @@ describe('useManageDepartments Hook', () => {
     });
 
     expect(success).toBe(true);
-    expect(mockedService.removeDepartment).toHaveBeenCalledWith('d1');
+    expect(mockedService.deleteDepartment).toHaveBeenCalledWith('d1');
   });
 
   it('should handle errors during creation', async () => {
     const error = new Error('Code already exists');
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
-    mockedService.createNewDepartment.mockRejectedValue(error);
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
+    mockedService.createDepartment.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageDepartments());
 
@@ -145,8 +150,8 @@ describe('useManageDepartments Hook', () => {
 
   it('should handle errors during update', async () => {
     const error = new Error('Department not found');
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
-    mockedService.updateDepartmentData.mockRejectedValue(error);
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
+    mockedService.updateDepartment.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageDepartments());
 
@@ -164,8 +169,8 @@ describe('useManageDepartments Hook', () => {
 
   it('should handle errors during deletion', async () => {
     const error = new Error('Cannot delete department with programs');
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
-    mockedService.removeDepartment.mockRejectedValue(error);
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
+    mockedService.deleteDepartment.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageDepartments());
 
@@ -182,7 +187,7 @@ describe('useManageDepartments Hook', () => {
   });
 
   it('should refetch data manually', async () => {
-    mockedService.fetchDepartments.mockResolvedValue(mockDepartments);
+    mockedService.listDepartments.mockResolvedValue(mockDepartments);
 
     const { result } = renderHook(() => useManageDepartments());
 
@@ -190,12 +195,12 @@ describe('useManageDepartments Hook', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(mockedService.fetchDepartments).toHaveBeenCalledTimes(1);
+    expect(mockedService.listDepartments).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.refetch();
     });
 
-    expect(mockedService.fetchDepartments).toHaveBeenCalledTimes(2);
+    expect(mockedService.listDepartments).toHaveBeenCalledTimes(2);
   });
 });

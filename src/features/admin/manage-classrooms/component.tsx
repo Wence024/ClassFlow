@@ -130,7 +130,7 @@ export const ManageClassroomsView: React.FC = () => {
    * Initiates edit mode for a classroom.
    *
    * @param classroom - The classroom to edit.
-   * @returns void
+   * @returns Void.
    */
   const handleEdit = (classroom: Classroom) => setEditingClassroom(classroom);
 
@@ -138,7 +138,7 @@ export const ManageClassroomsView: React.FC = () => {
    * Initiates delete confirmation for a classroom.
    *
    * @param id - The ID of the classroom to delete.
-   * @returns void
+   * @returns Void.
    */
   const handleDeleteRequest = (id: string) =>
     setClassroomToDelete(classrooms.find((c) => c.id === id) || null);

@@ -2,7 +2,7 @@
 
 - [x] User Profile (Sir M.): Make it visible in every page.
 - [x] Error message(Sir D.): Put it in the center.
-- [ ] If subject/classroom is button is clicked, present a list/sumamary of vacant classrooms.
+- [ ] If course/classroom is button is clicked, present a list/sumamary of vacant classrooms.
 - [x] Freeze Panes (Sir M.): Freeze panes for title rows when scrolled.
 - [ ] Dynamic Classroom Assignment (Ma'am D, Sir D./M.): Don't assign classrooms initially; remove classroom in create class session.
   - If subject is dragged, that's the time when they can add the classroom.

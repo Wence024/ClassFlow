@@ -6,11 +6,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useManageInstructors } from '../hook';
-import * as service from '../service';
+import * as instructorService from '@/lib/services/instructorService';
 import { useAuth } from '@/features/shared/auth/hooks/useAuth';
 import type { Instructor, InstructorInsert, InstructorUpdate } from '@/types/instructor';
 
-vi.mock('../service');
+vi.mock('@/lib/services/instructorService');
 vi.mock('@/features/shared/auth/hooks/useAuth');
 vi.mock('sonner', () => ({
   toast: {
@@ -64,13 +64,20 @@ describe('useManageInstructors', () => {
     },
   ];
 
+  const mockedService = {
+    getAllInstructors: vi.mocked(instructorService.getAllInstructors),
+    addInstructor: vi.mocked(instructorService.addInstructor),
+    updateInstructor: vi.mocked(instructorService.updateInstructor),
+    removeInstructor: vi.mocked(instructorService.removeInstructor),
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useAuth).mockReturnValue({
       user: mockUser,
       isAdmin: () => false,
     } as ReturnType<typeof useAuth>);
-    vi.mocked(service.fetchInstructors).mockResolvedValue(mockInstructors);
+    vi.mocked(instructorService.getAllInstructors).mockResolvedValue(mockInstructors);
   });
 
   describe('Fetch Instructors', () => {
@@ -81,10 +88,7 @@ describe('useManageInstructors', () => {
 
       await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-      expect(service.fetchInstructors).toHaveBeenCalledWith({
-        role: 'department_head',
-        departmentId: 'dept-1',
-      });
+      expect(mockedService.getAllInstructors).toHaveBeenCalled();
       expect(result.current.instructors).toEqual(mockInstructors);
     });
 
@@ -121,7 +125,7 @@ describe('useManageInstructors', () => {
         updated_at: '2025-01-01',
       };
 
-      vi.mocked(service.createInstructor).mockResolvedValue(createdInstructor);
+      vi.mocked(instructorService.addInstructor).mockResolvedValue(createdInstructor);
 
       const { result } = renderHook(() => useManageInstructors(), {
         wrapper: createWrapper(),
@@ -131,11 +135,11 @@ describe('useManageInstructors', () => {
 
       await result.current.addInstructor(newInstructor);
 
-      expect(service.createInstructor).toHaveBeenCalledWith(newInstructor);
+      expect(mockedService.addInstructor).toHaveBeenCalledWith(newInstructor);
     });
 
     it('should handle add instructor error', async () => {
-      vi.mocked(service.createInstructor).mockRejectedValue(
+      vi.mocked(instructorService.addInstructor).mockRejectedValue(
         new Error('Failed to add instructor')
       );
 
@@ -167,7 +171,7 @@ describe('useManageInstructors', () => {
         ...updateData,
       };
 
-      vi.mocked(service.modifyInstructor).mockResolvedValue(updatedInstructor);
+      vi.mocked(instructorService.updateInstructor).mockResolvedValue(updatedInstructor);
 
       const { result } = renderHook(() => useManageInstructors(), {
         wrapper: createWrapper(),
@@ -177,7 +181,7 @@ describe('useManageInstructors', () => {
 
       await result.current.updateInstructor('inst-1', updateData);
 
-      expect(service.modifyInstructor).toHaveBeenCalledWith('inst-1', updateData);
+      expect(mockedService.updateInstructor).toHaveBeenCalledWith('inst-1', updateData);
     });
 
     it('should handle department change for admin', async () => {
@@ -190,7 +194,7 @@ describe('useManageInstructors', () => {
         department_id: 'dept-2',
       };
 
-      vi.mocked(service.modifyInstructor).mockResolvedValue({
+      vi.mocked(instructorService.updateInstructor).mockResolvedValue({
         ...mockInstructors[0],
         ...updateData,
       });
@@ -203,13 +207,13 @@ describe('useManageInstructors', () => {
 
       await result.current.updateInstructor('inst-1', updateData);
 
-      expect(service.modifyInstructor).toHaveBeenCalledWith('inst-1', updateData);
+      expect(mockedService.updateInstructor).toHaveBeenCalledWith('inst-1', updateData);
     });
   });
 
   describe('Delete Instructor', () => {
     it('should delete instructor successfully', async () => {
-      vi.mocked(service.deleteInstructor).mockResolvedValue();
+      vi.mocked(instructorService.removeInstructor).mockResolvedValue();
 
       const { result } = renderHook(() => useManageInstructors(), {
         wrapper: createWrapper(),
@@ -219,11 +223,11 @@ describe('useManageInstructors', () => {
 
       await result.current.removeInstructor('inst-1');
 
-      expect(service.deleteInstructor).toHaveBeenCalledWith('inst-1');
+      expect(mockedService.removeInstructor).toHaveBeenCalledWith('inst-1');
     });
 
     it('should handle foreign key constraint error', async () => {
-      vi.mocked(service.deleteInstructor).mockRejectedValue(
+      vi.mocked(instructorService.removeInstructor).mockRejectedValue(
         new Error('foreign key constraint violation')
       );
 

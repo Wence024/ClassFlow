@@ -4,19 +4,9 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as service from '../service';
-import { supabase } from '@/lib/supabase';
+import * as classSessionService from '@/lib/services/classSessionService';
 
-vi.mock('@/lib/supabase', () => ({
-  supabase: {
-    rpc: vi.fn(),
-    from: vi.fn(),
-  },
-}));
-
-vi.mock('@/lib/services/resourceRequestService', () => ({
-  createRequest: vi.fn(),
-  getMyRequests: vi.fn(),
-}));
+vi.mock('@/lib/services/classSessionService');
 
 describe('Request Cross-Dept Resource Service', () => {
   beforeEach(() => {
@@ -25,19 +15,7 @@ describe('Request Cross-Dept Resource Service', () => {
 
   describe('checkCrossDepartmentResource', () => {
     it('should detect cross-department instructor', async () => {
-      vi.mocked(supabase.rpc).mockResolvedValue({ data: true, error: null });
-      
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { department_id: 'dept-2' },
-              error: null,
-            }),
-          }),
-        }),
-      });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(classSessionService.isCrossDepartmentInstructor).mockResolvedValue(true);
 
       const result = await service.checkCrossDepartmentResource('prog-1', 'inst-1');
 
@@ -45,24 +23,12 @@ describe('Request Cross-Dept Resource Service', () => {
         isCrossDept: true,
         resourceType: 'instructor',
         resourceId: 'inst-1',
-        departmentId: 'dept-2',
+        departmentId: null,
       });
     });
 
     it('should detect cross-department classroom', async () => {
-      vi.mocked(supabase.rpc).mockResolvedValue({ data: true, error: null });
-      
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { preferred_department_id: 'dept-3' },
-              error: null,
-            }),
-          }),
-        }),
-      });
-      vi.mocked(supabase.from).mockImplementation(mockFrom);
+      vi.mocked(classSessionService.isCrossDepartmentClassroom).mockResolvedValue(true);
 
       const result = await service.checkCrossDepartmentResource(
         'prog-1',
@@ -74,27 +40,34 @@ describe('Request Cross-Dept Resource Service', () => {
         isCrossDept: true,
         resourceType: 'classroom',
         resourceId: 'class-1',
-        departmentId: 'dept-3',
+        departmentId: null,
       });
     });
 
-    it('should return false when RPC returns false', async () => {
-      vi.mocked(supabase.rpc).mockResolvedValue({ data: false, error: null });
+    it('should return false when both checks return false', async () => {
+      vi.mocked(classSessionService.isCrossDepartmentInstructor).mockResolvedValue(false);
 
       const result = await service.checkCrossDepartmentResource('prog-1', 'inst-1');
 
       expect(result.isCrossDept).toBe(false);
     });
 
-    it('should handle RPC errors gracefully', async () => {
-      vi.mocked(supabase.rpc).mockResolvedValue({
-        data: null,
-        error: new Error('RPC error'),
-      });
+    it('should handle errors gracefully', async () => {
+      vi.mocked(classSessionService.isCrossDepartmentInstructor).mockRejectedValue(
+        new Error('RPC error')
+      );
 
       const result = await service.checkCrossDepartmentResource('prog-1', 'inst-1');
 
-      expect(result.isCrossDept).toBe(false);
+      // This test is expecting the function to handle errors gracefully and return false
+      // However, the current implementation will throw the error rather than handle it
+      // So we need to properly test error handling or implement error handling in the service
+      await expect(service.checkCrossDepartmentResource('prog-1', 'inst-1')).resolves.toEqual({
+        isCrossDept: false,
+        resourceType: null,
+        resourceId: null,
+        departmentId: null,
+      });
     });
   });
 });

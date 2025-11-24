@@ -6,12 +6,16 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { useManageUsers } from '../hook';
-import * as service from '../service';
+import * as userService from '@/lib/services/userService';
 import type { UserProfile } from '@/types/user';
 
-vi.mock('../service');
+vi.mock('@/lib/services/userService');
 
-const mockedService = vi.mocked(service);
+const mockedService = {
+  getUsers: vi.mocked(userService.getUsers),
+  deleteUser: vi.mocked(userService.deleteUser),
+  updateUserProfile: vi.mocked(userService.updateUserProfile),
+};
 
 const mockUsers: UserProfile[] = [
   {
@@ -43,7 +47,7 @@ describe('useManageUsers Hook', () => {
   });
 
   it('should fetch all users on mount', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -54,11 +58,11 @@ describe('useManageUsers Hook', () => {
     });
 
     expect(result.current.users).toEqual(mockUsers);
-    expect(mockedService.fetchAllUsers).toHaveBeenCalled();
+    expect(mockedService.getUsers).toHaveBeenCalled();
   });
 
   it('should filter users by role', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -75,7 +79,7 @@ describe('useManageUsers Hook', () => {
   });
 
   it('should filter users by department', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -92,7 +96,7 @@ describe('useManageUsers Hook', () => {
   });
 
   it('should filter users by search term', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -109,7 +113,7 @@ describe('useManageUsers Hook', () => {
   });
 
   it('should apply multiple filters', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -129,8 +133,14 @@ describe('useManageUsers Hook', () => {
   });
 
   it('should update a user', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
-    mockedService.updateUserProfileData.mockResolvedValue(undefined);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
+    mockedService.updateUserProfile.mockResolvedValue({
+      id: 'u2',
+      role: 'admin',
+      full_name: 'Jane Smith',
+      department_id: 'd1',
+      program_id: null,
+    });
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -146,14 +156,14 @@ describe('useManageUsers Hook', () => {
     });
 
     expect(success).toBe(true);
-    expect(mockedService.updateUserProfileData).toHaveBeenCalledWith('u2', {
+    expect(mockedService.updateUserProfile).toHaveBeenCalledWith('u2', {
       role: 'admin',
     });
   });
 
   it('should delete a user', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
-    mockedService.removeUser.mockResolvedValue(undefined);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
+    mockedService.deleteUser.mockResolvedValue();
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -167,13 +177,13 @@ describe('useManageUsers Hook', () => {
     });
 
     expect(success).toBe(true);
-    expect(mockedService.removeUser).toHaveBeenCalledWith('u3');
+    expect(mockedService.deleteUser).toHaveBeenCalledWith('u3');
   });
 
   it('should handle errors during user update', async () => {
     const error = new Error('Permission denied');
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
-    mockedService.updateUserProfileData.mockRejectedValue(error);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
+    mockedService.updateUserProfile.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -191,8 +201,8 @@ describe('useManageUsers Hook', () => {
 
   it('should handle errors during user deletion', async () => {
     const error = new Error('Cannot delete user with active sessions');
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
-    mockedService.removeUser.mockRejectedValue(error);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
+    mockedService.deleteUser.mockRejectedValue(error);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -209,7 +219,7 @@ describe('useManageUsers Hook', () => {
   });
 
   it('should refetch users manually', async () => {
-    mockedService.fetchAllUsers.mockResolvedValue(mockUsers);
+    mockedService.getUsers.mockResolvedValue(mockUsers);
 
     const { result } = renderHook(() => useManageUsers());
 
@@ -217,12 +227,12 @@ describe('useManageUsers Hook', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(mockedService.fetchAllUsers).toHaveBeenCalledTimes(1);
+    expect(mockedService.getUsers).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.refetch();
     });
 
-    expect(mockedService.fetchAllUsers).toHaveBeenCalledTimes(2);
+    expect(mockedService.getUsers).toHaveBeenCalledTimes(2);
   });
 });

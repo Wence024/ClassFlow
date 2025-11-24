@@ -307,13 +307,14 @@ moveSessionWithResourceChange(
 - [x] Update tooltips with resource status
 - [x] Add vibrant/subtle green indicators for pre-assigned resources
 
-### ⏳ Phase 8: Testing (PARTIAL - v1.4)
-- [ ] Unit tests for type guards
-- [ ] Service layer tests for incomplete sessions
-- [ ] Form component integration tests
-- [ ] DnD logic tests for incomplete sessions
-- [ ] E2E tests for complete workflow
-- [ ] Tests for resource reassignment workflows
+### ✅ Phase 8: Testing (COMPLETED - v1.5)
+- [x] Unit tests for type guards (`src/types/classSession.utils.test.ts`)
+- [x] Service layer tests for incomplete sessions (`src/lib/services/classSessionService.test.ts`)
+- [x] Form component integration tests (`src/features/program-head/manage-class-sessions/components/CreateClassSessionForm.test.tsx`)
+- [x] DnD logic tests for incomplete sessions (`src/features/program-head/schedule-class-session/utils/timetableDnd.test.ts`)
+- [x] E2E tests for complete workflow (`e2e/incomplete-sessions.spec.ts`)
+- [x] Tests for resource reassignment workflows (`src/features/program-head/schedule-class-session/workflows/resourceReassignment.test.ts`)
+- [x] Conflict detection tests (`src/features/program-head/schedule-class-session/utils/checkConflicts.test.ts`)
 
 #### Drawer-to-Timetable Resource Assignment (v1.4)
 - [x] Manual test: Drag session with no classroom from drawer to classroom row
@@ -672,6 +673,100 @@ describe('getMissingResources', () => {
     expect(getMissingResources(session)).toEqual([]);
   });
 });
+
+describe('isPartiallyCompleteSession', () => {
+  it('returns true when only instructor is assigned', () => {
+    const session: ClassSession = {
+      id: '1',
+      course: mockCourse,
+      group: mockGroup,
+      instructor: mockInstructor,
+      classroom: null,
+      period_count: 1,
+      program_id: 'prog-1'
+    };
+    expect(isPartiallyCompleteSession(session)).toBe(true);
+  });
+
+  it('returns true when only classroom is assigned', () => {
+    const session: ClassSession = {
+      id: '1',
+      course: mockCourse,
+      group: mockGroup,
+      instructor: null,
+      classroom: mockClassroom,
+      period_count: 1,
+      program_id: 'prog-1'
+    };
+    expect(isPartiallyCompleteSession(session)).toBe(true);
+  });
+
+  it('returns false when both assigned or both null', () => {
+    const completeSession: ClassSession = {
+      id: '1',
+      course: mockCourse,
+      group: mockGroup,
+      instructor: mockInstructor,
+      classroom: mockClassroom,
+      period_count: 1,
+      program_id: 'prog-1'
+    };
+    const incompleteSession: ClassSession = {
+      id: '1',
+      course: mockCourse,
+      group: mockGroup,
+      instructor: null,
+      classroom: null,
+      period_count: 1,
+      program_id: 'prog-1'
+    };
+    expect(isPartiallyCompleteSession(completeSession)).toBe(false);
+    expect(isPartiallyCompleteSession(incompleteSession)).toBe(false);
+  });
+});
+
+describe('isCompleteSession', () => {
+  it('returns true when both resources are assigned', () => {
+    const session: ClassSession = {
+      id: '1',
+      course: mockCourse,
+      group: mockGroup,
+      instructor: mockInstructor,
+      classroom: mockClassroom,
+      period_count: 1,
+      program_id: 'prog-1'
+    };
+    expect(isCompleteSession(session)).toBe(true);
+  });
+
+  it('returns false when either resource is null', () => {
+    const session: ClassSession = {
+      ...mockSession,
+      instructor: null,
+      classroom: mockClassroom
+    };
+    expect(isCompleteSession(session)).toBe(false);
+  });
+});
+
+describe('getResourceCompletionStatus', () => {
+  it('returns correct status for incomplete session', () => {
+    const session = { instructor: null, classroom: null, ... };
+    expect(getResourceCompletionStatus(session)).toBe('incomplete');
+  });
+
+  it('returns correct status for partially complete session', () => {
+    const session1 = { instructor: mockInstructor, classroom: null, ... };
+    const session2 = { instructor: null, classroom: mockClassroom, ... };
+    expect(getResourceCompletionStatus(session1)).toBe('partial');
+    expect(getResourceCompletionStatus(session2)).toBe('partial');
+  });
+
+  it('returns correct status for complete session', () => {
+    const session = { instructor: mockInstructor, classroom: mockClassroom, ... };
+    expect(getResourceCompletionStatus(session)).toBe('complete');
+  });
+});
 ```
 
 ### Integration Tests
@@ -713,6 +808,127 @@ describe('assignResourcesToSession', () => {
     expect(complete.instructor).toBeDefined();
     expect(complete.classroom).toBeDefined();
   });
+
+  it('assigns only instructor when classroom is null', async () => {
+    const incomplete = await createIncompleteClassSession({...});
+
+    const partial = await assignResourcesToSession(
+      incomplete.id,
+      'instructor-1',
+      null
+    );
+
+    expect(partial.instructor).toBeDefined();
+    expect(partial.classroom).toBeNull();
+  });
+
+  it('assigns only classroom when instructor is null', async () => {
+    const incomplete = await createIncompleteClassSession({...});
+
+    const partial = await assignResourcesToSession(
+      incomplete.id,
+      null,
+      'classroom-1'
+    );
+
+    expect(partial.instructor).toBeNull();
+    expect(partial.classroom).toBeDefined();
+  });
+});
+
+describe('reassignSessionResource', () => {
+  it('reassigns instructor correctly', async () => {
+    const session = await createIncompleteClassSession({...});
+
+    // First assign an instructor
+    await assignResourcesToSession(session.id, 'instructor-1', 'classroom-1');
+
+    // Then reassign to a different instructor
+    const updatedSession = await reassignSessionResource(session.id, 'instructor', 'instructor-2');
+
+    expect(updatedSession.instructor?.id).toBe('instructor-2');
+  });
+
+  it('reassigns classroom correctly', async () => {
+    const session = await createIncompleteClassSession({...});
+
+    // First assign a classroom
+    await assignResourcesToSession(session.id, 'instructor-1', 'classroom-1');
+
+    // Then reassign to a different classroom
+    const updatedSession = await reassignSessionResource(session.id, 'classroom', 'classroom-2');
+
+    expect(updatedSession.classroom?.id).toBe('classroom-2');
+  });
+});
+
+describe('getIncompleteSessionsForProgram', () => {
+  it('returns only sessions with missing resources', async () => {
+    // Create some complete sessions
+    await createIncompleteClassSession({...});
+    const completeSession = await createIncompleteClassSession({...});
+    await assignResourcesToSession(completeSession.id, 'instructor-1', 'classroom-1');
+
+    // Get incomplete sessions
+    const incompleteSessions = await getIncompleteSessionsForProgram('program-1');
+
+    // Verify only incomplete sessions are returned
+    expect(incompleteSessions.length).toBe(1);
+    expect(isIncompleteSession(incompleteSessions[0])).toBe(true);
+  });
+});
+```
+
+**Conflict Detection** (`src/features/program-head/schedule-class-session/utils/checkConflicts.test.ts`):
+```typescript
+describe('checkTimetableConflicts', () => {
+  it('does not check instructor conflicts when instructor is null', () => {
+    const session: ClassSession = {
+      id: 'session-1',
+      instructor: null,  // No instructor assigned
+      classroom: mockClassroom,
+      course: mockCourse,
+      group: mockGroup,
+      period_count: 1,
+      program_id: 'program-1'
+    };
+
+    // This should not fail due to instructor conflicts since instructor is null
+    const conflicts = checkTimetableConflicts(session, timetable, 'instructor', 'class-group', /* allowResourceChanges */ false);
+    expect(conflicts).not.toContainEqual(expect.objectContaining({ type: 'instructor' }));
+  });
+
+  it('does not check classroom conflicts when classroom is null', () => {
+    const session: ClassSession = {
+      id: 'session-1',
+      instructor: mockInstructor,
+      classroom: null,  // No classroom assigned
+      course: mockCourse,
+      group: mockGroup,
+      period_count: 1,
+      program_id: 'program-1'
+    };
+
+    // This should not fail due to classroom conflicts since classroom is null
+    const conflicts = checkTimetableConflicts(session, timetable, 'classroom', 'class-group', /* allowResourceChanges */ false);
+    expect(conflicts).not.toContainEqual(expect.objectContaining({ type: 'classroom' }));
+  });
+
+  it('allows resource changes when allowResourceChanges is true', () => {
+    const session: ClassSession = {
+      id: 'session-1',
+      instructor: mockInstructor,
+      classroom: mockClassroom,
+      course: mockCourse,
+      group: mockGroup,
+      period_count: 1,
+      program_id: 'program-1'
+    };
+
+    // In resource views, with allowResourceChanges=true, should not have resource mismatch conflicts
+    const conflicts = checkTimetableConflicts(session, timetable, 'classroom', 'instructor', /* allowResourceChanges */ true);
+    expect(conflicts).not.toContainEqual(expect.objectContaining({ type: 'resource-mismatch' }));
+  });
 });
 ```
 
@@ -752,6 +968,442 @@ test('create and place incomplete session', async ({ page }) => {
   const cell = page.locator('[data-cy="cell-0-0"]');
   await expect(cell).toContainText('Math 101');
   await expect(cell).not.toHaveClass(/border-dashed/);
+});
+
+test('drag incomplete session to instructor view for assignment', async ({ page }) => {
+  // 1. Create incomplete session
+  await page.goto('/manage-classes');
+  await page.click('[data-cy="create-session-btn"]');
+  await page.selectOption('[data-cy="course-select"]', 'Physics 101');
+  await page.selectOption('[data-cy="group-select"]', 'Group B');
+  // Leave resources empty
+  await page.click('[data-cy="submit-btn"]');
+
+  // 2. Navigate to timetable and switch to instructor view
+  await page.goto('/scheduler');
+  await page.click('[data-cy="view-mode-toggle"]');
+  await page.click('[data-cy="instructor-view-option"]');
+
+  // 3. Find incomplete session in drawer
+  const drawer = page.locator('[data-cy="drawer"]');
+  const incompleteSession = drawer.locator('[data-cy^="unassigned-session-"]').first();
+
+  // 4. Drag to specific instructor row
+  const instructorRow = page.locator('[data-cy="instructor-row-Dr-Smith"]');
+  await incompleteSession.dragTo(instructorRow.locator('[data-cy="period-2"]'));
+
+  // 5. Resource modal appears to select classroom
+  await expect(page.locator('[data-cy="resource-modal"]')).toBeVisible();
+  await page.selectOption('[data-cy="classroom-select"]', 'Room 202');
+  await page.click('[data-cy="confirm-btn"]');
+
+  // 6. Session appears in timetable with assigned instructor
+  await expect(instructorRow.locator('[data-cy="period-2"]')).toContainText('Physics 101');
+  await expect(instructorRow.locator('[data-cy="period-2"]')).toContainText('Dr. Smith');
+});
+
+test('reassign instructor via drag-and-drop', async ({ page }) => {
+  // 1. Create a session with instructor assigned
+  await page.goto('/manage-classes');
+  await page.click('[data-cy="create-session-btn"]');
+  await page.selectOption('[data-cy="course-select"]', 'Chemistry 101');
+  await page.selectOption('[data-cy="group-select"]', 'Group C');
+  await page.selectOption('[data-cy="instructor-select"]', 'Dr. Smith');
+  await page.selectOption('[data-cy="classroom-select"]', 'Room 101');
+  await page.click('[data-cy="submit-btn"]');
+
+  // 2. Navigate to timetable and switch to instructor view
+  await page.goto('/scheduler');
+  await page.click('[data-cy="view-mode-toggle"]');
+  await page.click('[data-cy="instructor-view-option"]');
+
+  // 3. Find session assigned to Dr. Smith
+  const smithRow = page.locator('[data-cy="instructor-row-Dr-Smith"]');
+  const sessionCell = smithRow.locator('[data-cy^="session-cell-"]').first();
+
+  // 4. Drag to different instructor (Dr. Jones)
+  const jonesRow = page.locator('[data-cy="instructor-row-Dr-Jones"]');
+  await sessionCell.dragTo(jonesRow.locator('[data-cy="period-3"]'));
+
+  // 5. Confirmation dialog appears
+  await expect(page.locator('[data-cy="confirmation-dialog"]')).toBeVisible();
+  await expect(page.locator('[data-cy="confirmation-dialog"]')).toContainText('Dr. Smith');
+  await expect(page.locator('[data-cy="confirmation-dialog"]')).toContainText('Dr. Jones');
+  await page.click('[data-cy="confirm-btn"]');
+
+  // 6. Session now appears in Dr. Jones' row
+  await expect(jonesRow.locator('[data-cy="period-3"]')).toContainText('Chemistry 101');
+  await expect(jonesRow.locator('[data-cy="period-3"]')).toContainText('Dr. Jones');
+  // And no longer in Dr. Smith's row
+  await expect(smithRow.locator('[data-cy^="session-cell-"]')).not.toContainText('Chemistry 101');
+});
+
+test('reassign classroom via drag-and-drop', async ({ page }) => {
+  // 1. Create a session with classroom assigned
+  await page.goto('/manage-classes');
+  await page.click('[data-cy="create-session-btn"]');
+  await page.selectOption('[data-cy="course-select"]', 'Biology 101');
+  await page.selectOption('[data-cy="group-select"]', 'Group D');
+  await page.selectOption('[data-cy="instructor-select"]', 'Dr. Wilson');
+  await page.selectOption('[data-cy="classroom-select"]', 'Room 101');
+  await page.click('[data-cy="submit-btn"]');
+
+  // 2. Navigate to timetable and switch to classroom view
+  await page.goto('/scheduler');
+  await page.click('[data-cy="view-mode-toggle"]');
+  await page.click('[data-cy="classroom-view-option"]');
+
+  // 3. Find session assigned to Room 101
+  const room101Row = page.locator('[data-cy="classroom-row-Room-101"]');
+  const sessionCell = room101Row.locator('[data-cy^="session-cell-"]').first();
+
+  // 4. Drag to different classroom (Room 203)
+  const room203Row = page.locator('[data-cy="classroom-row-Room-203"]');
+  await sessionCell.dragTo(room203Row.locator('[data-cy="period-4"]'));
+
+  // 5. Confirmation dialog appears
+  await expect(page.locator('[data-cy="confirmation-dialog"]')).toBeVisible();
+  await expect(page.locator('[data-cy="confirmation-dialog"]')).toContainText('Room 101');
+  await expect(page.locator('[data-cy="confirmation-dialog"]')).toContainText('Room 203');
+  await page.click('[data-cy="confirm-btn"]');
+
+  // 6. Session now appears in Room 203
+  await expect(room203Row.locator('[data-cy="period-4"]')).toContainText('Biology 101');
+  await expect(room203Row.locator('[data-cy="period-4"]')).toContainText('Room 203');
+  // And no longer in Room 101
+  await expect(room101Row.locator('[data-cy^="session-cell-"]')).not.toContainText('Biology 101');
+});
+
+test('department head sees incomplete sessions in approval queue', async ({ page }) => {
+  // 1. Create incomplete session as program head
+  await page.goto('/manage-classes');
+  await page.click('[data-cy="create-session-btn"]');
+  await page.selectOption('[data-cy="course-select"]', 'History 101');
+  await page.selectOption('[data-cy="group-select"]', 'Group E');
+  // Leave resources empty
+  await page.click('[data-cy="submit-btn"]');
+
+  // Submit for approval
+  await page.click('[data-cy="submit-approval-btn"]');
+
+  // 2. Switch to department head account
+  await page.goto('/auth/login');
+  await page.fill('[data-cy="email"]', 'dept-head@example.com');
+  await page.fill('[data-cy="password"]', 'password');
+  await page.click('[data-cy="login-btn"]');
+
+  // 3. Navigate to approval queue
+  await page.goto('/approvals');
+
+  // 4. Find incomplete session
+  const approvalRequests = page.locator('[data-cy="approval-request"]');
+  const incompleteRequest = approvalRequests.filter({ hasText: 'History 101' }).first();
+
+  // 5. Verify incomplete session shows appropriate indicators
+  await expect(incompleteRequest).toContainText('Needs resources');
+  await expect(incompleteRequest.locator('[data-cy="missing-resources-badge"]')).toBeVisible();
+
+  // 6. Approve the request
+  await incompleteRequest.locator('[data-cy="approve-btn"]').click();
+  await expect(page.locator('.toast-success')).toBeVisible();
+});
+```
+
+### Form Component Integration Tests
+
+**Form Component Tests** (`src/features/program-head/manage-class-sessions/components/CreateClassSessionForm.test.tsx`):
+```typescript
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { CreateClassSessionForm } from './CreateClassSessionForm';
+import { ClassSessionService } from '../../../../../lib/services/classSessionService';
+
+// Mock the service
+vi.mock('../../../../../lib/services/classSessionService', () => ({
+  ClassSessionService: {
+    createIncompleteClassSession: vi.fn(),
+  }
+}));
+
+describe('CreateClassSessionForm', () => {
+  it('allows creating incomplete session with optional resources', async () => {
+    const mockOnSuccess = vi.fn();
+
+    render(
+      <CreateClassSessionForm
+        onSuccess={mockOnSuccess}
+        programs={[]}
+        courses={[]}
+        groups={[]}
+        instructors={[]}
+        classrooms={[]}
+      />
+    );
+
+    // Fill required fields
+    fireEvent.change(screen.getByLabelText(/course/i), { target: { value: 'course-1' } });
+    fireEvent.change(screen.getByLabelText(/class group/i), { target: { value: 'group-1' } });
+    fireEvent.change(screen.getByLabelText(/duration/i), { target: { value: '2' } });
+
+    // Don't fill instructor or classroom (optional fields)
+
+    fireEvent.click(screen.getByRole('button', { name: /create/i }));
+
+    await waitFor(() => {
+      expect(ClassSessionService.createIncompleteClassSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          course_id: 'course-1',
+          class_group_id: 'group-1',
+          instructor_id: null,
+          classroom_id: null,
+          period_count: 2,
+        })
+      );
+    });
+
+    expect(mockOnSuccess).toHaveBeenCalled();
+  });
+
+  it('shows info message about optional resource assignment', () => {
+    render(
+      <CreateClassSessionForm
+        onSuccess={() => {}}
+        programs={[]}
+        courses={[]}
+        groups={[]}
+        instructors={[]}
+        classrooms={[]}
+      />
+    );
+
+    expect(screen.getByText(/you can assign instructor and classroom later/i)).toBeInTheDocument();
+  });
+});
+```
+
+### Drag-and-Drop Logic Tests
+
+**DnD Logic Tests** (`src/features/program-head/schedule-class-session/utils/timetableDnd.test.ts`):
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { checkViewModeCompliant } from './timetableDnd';
+import { ClassSession, ClassGroup, Instructor, Classroom } from '../../../../types';
+
+describe('checkViewModeCompliant', () => {
+  let mockSession: ClassSession;
+  let mockClassGroup: ClassGroup;
+  let mockInstructor: Instructor;
+  let mockClassroom: Classroom;
+
+  beforeEach(() => {
+    mockInstructor = { id: 'instructor-1', name: 'Dr. Smith' };
+    mockClassroom = { id: 'classroom-1', name: 'Room 101' };
+    mockClassGroup = { id: 'group-1', name: 'Group A' };
+
+    mockSession = {
+      id: 'session-1',
+      course: { id: 'course-1', name: 'Math 101' },
+      group: mockClassGroup,
+      instructor: mockInstructor,
+      classroom: mockClassroom,
+      period_count: 1,
+      program_id: 'program-1'
+    };
+  });
+
+  it('allows any group in class-group view', () => {
+    const result = checkViewModeCompliant('class-group', mockSession, 'any-group-id');
+    expect(result).toBe(true);
+  });
+
+  it('allows any group in drawer drops for resource views', () => {
+    const incompleteSession = { ...mockSession, instructor: null, classroom: null };
+    const result = checkViewModeCompliant('instructor', incompleteSession, 'different-group-id');
+    expect(result).toBe(true);
+  });
+
+  it('allows same instructor in instructor view', () => {
+    const result = checkViewModeCompliant('instructor', mockSession, 'instructor-1');
+    expect(result).toBe(true);
+  });
+
+  it('allows different instructor for incomplete session in instructor view', () => {
+    const incompleteSession = { ...mockSession, instructor: null };
+    const result = checkViewModeCompliant('instructor', incompleteSession, 'instructor-2');
+    expect(result).toBe(true);
+  });
+
+  it('allows same classroom in classroom view', () => {
+    const result = checkViewModeCompliant('classroom', mockSession, 'classroom-1');
+    expect(result).toBe(true);
+  });
+
+  it('allows different classroom for incomplete session in classroom view', () => {
+    const incompleteSession = { ...mockSession, classroom: null };
+    const result = checkViewModeCompliant('classroom', incompleteSession, 'classroom-2');
+    expect(result).toBe(true);
+  });
+});
+
+describe('getResourceChangeInfo', () => {
+  it('detects instructor reassignment', () => {
+    const session = {
+      id: 'session-1',
+      instructor: { id: 'instructor-1', name: 'Dr. Smith' },
+      classroom: { id: 'classroom-1', name: 'Room 101' }
+    };
+
+    const result = getResourceChangeInfo(session, 'instructor', 'instructor-2', 'Dr. Jones');
+
+    expect(result).toEqual({
+      isChanging: true,
+      resourceType: 'instructor',
+      fromName: 'Dr. Smith',
+      toName: 'Dr. Jones',
+      fromId: 'instructor-1',
+      toId: 'instructor-2'
+    });
+  });
+
+  it('detects classroom reassignment', () => {
+    const session = {
+      id: 'session-1',
+      instructor: { id: 'instructor-1', name: 'Dr. Smith' },
+      classroom: { id: 'classroom-1', name: 'Room 101' }
+    };
+
+    const result = getResourceChangeInfo(session, 'classroom', 'classroom-2', 'Room 202');
+
+    expect(result).toEqual({
+      isChanging: true,
+      resourceType: 'classroom',
+      fromName: 'Room 101',
+      toName: 'Room 202',
+      fromId: 'classroom-1',
+      toId: 'classroom-2'
+    });
+  });
+
+  it('returns null for no change', () => {
+    const session = {
+      id: 'session-1',
+      instructor: { id: 'instructor-1', name: 'Dr. Smith' },
+      classroom: { id: 'classroom-1', name: 'Room 101' }
+    };
+
+    const result = getResourceChangeInfo(session, 'instructor', 'instructor-1', 'Dr. Smith');
+
+    expect(result).toBeNull();
+  });
+});
+```
+
+### Resource Reassignment Workflow Tests
+
+**Resource Reassignment Tests** (`src/features/program-head/schedule-class-session/workflows/resourceReassignment.test.ts`):
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { handleResourceReassignment } from './resourceReassignment';
+import { TimetableService } from '../../../../../lib/services/timetableService';
+import { ClassSessionService } from '../../../../../lib/services/classSessionService';
+
+// Mock services
+vi.mock('../../../../../lib/services/timetableService');
+vi.mock('../../../../../lib/services/classSessionService');
+
+describe('handleResourceReassignment', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('handles instructor reassignment correctly', async () => {
+    const session = {
+      id: 'session-1',
+      instructor: { id: 'instructor-1', name: 'Dr. Smith' },
+      classroom: { id: 'classroom-1', name: 'Room 101' }
+    };
+
+    (ClassSessionService.reassignSessionResource as vi.Mock).mockResolvedValue({
+      ...session,
+      instructor: { id: 'instructor-2', name: 'Dr. Jones' }
+    });
+
+    await handleResourceReassignment(
+      session,
+      'instructor',
+      'instructor-2',
+      'Dr. Jones',
+      'program-1',
+      'semester-1'
+    );
+
+    expect(ClassSessionService.reassignSessionResource).toHaveBeenCalledWith(
+      'session-1',
+      'instructor',
+      'instructor-2'
+    );
+
+    expect(TimetableService.moveSessionWithResourceChange).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Object),
+      'session-1',
+      'user-1',
+      'instructor',
+      'instructor-2',
+      'confirmed'
+    );
+  });
+
+  it('handles classroom reassignment correctly', async () => {
+    const session = {
+      id: 'session-1',
+      instructor: { id: 'instructor-1', name: 'Dr. Smith' },
+      classroom: { id: 'classroom-1', name: 'Room 101' }
+    };
+
+    (ClassSessionService.reassignSessionResource as vi.Mock).mockResolvedValue({
+      ...session,
+      classroom: { id: 'classroom-2', name: 'Room 202' }
+    });
+
+    await handleResourceReassignment(
+      session,
+      'classroom',
+      'classroom-2',
+      'Room 202',
+      'program-1',
+      'semester-1'
+    );
+
+    expect(ClassSessionService.reassignSessionResource).toHaveBeenCalledWith(
+      'session-1',
+      'classroom',
+      'classroom-2'
+    );
+  });
+
+  it('throws error when reassignment fails', async () => {
+    const session = {
+      id: 'session-1',
+      instructor: { id: 'instructor-1', name: 'Dr. Smith' },
+      classroom: { id: 'classroom-1', name: 'Room 101' }
+    };
+
+    (ClassSessionService.reassignSessionResource as vi.Mock).mockRejectedValue(
+      new Error('Resource not available')
+    );
+
+    await expect(
+      handleResourceReassignment(
+        session,
+        'instructor',
+        'instructor-2',
+        'Dr. Jones',
+        'program-1',
+        'semester-1'
+      )
+    ).rejects.toThrow('Resource not available');
+  });
 });
 ```
 

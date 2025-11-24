@@ -13,8 +13,8 @@ import type {
 /**
  * Type guard to check if a session is incomplete (no resources assigned).
  *
- * @param session - The class session to check
- * @returns True if both instructor and classroom are null
+ * @param session - The class session to check.
+ * @returns True if both instructor and classroom are null.
  */
 export function isIncompleteSession(
   session: ClassSession
@@ -25,8 +25,8 @@ export function isIncompleteSession(
 /**
  * Type guard to check if a session is partially complete (one resource assigned).
  *
- * @param session - The class session to check
- * @returns True if exactly one of instructor or classroom is assigned
+ * @param session - The class session to check.
+ * @returns True if exactly one of instructor or classroom is assigned.
  */
 export function isPartiallyComplete(
   session: ClassSession
@@ -37,8 +37,8 @@ export function isPartiallyComplete(
 /**
  * Type guard to check if a session is complete (both resources assigned).
  *
- * @param session - The class session to check
- * @returns True if both instructor and classroom are assigned
+ * @param session - The class session to check.
+ * @returns True if both instructor and classroom are assigned.
  */
 export function isCompleteSession(
   session: ClassSession
@@ -49,8 +49,8 @@ export function isCompleteSession(
 /**
  * Gets a list of missing resources for a session.
  *
- * @param session - The class session to check
- * @returns Array of missing resource types
+ * @param session - The class session to check.
+ * @returns Array of missing resource types.
  */
 export function getMissingResources(
   session: ClassSession
@@ -64,8 +64,8 @@ export function getMissingResources(
 /**
  * Checks if a session has any resources assigned.
  *
- * @param session - The class session to check
- * @returns True if at least one resource is assigned
+ * @param session - The class session to check.
+ * @returns True if at least one resource is assigned.
  */
 export function hasAnyResources(session: ClassSession): boolean {
   return session.instructor !== null || session.classroom !== null;
@@ -74,8 +74,8 @@ export function hasAnyResources(session: ClassSession): boolean {
 /**
  * Gets a display label for a session's resource completion status.
  *
- * @param session - The class session to check
- * @returns A human-readable status label
+ * @param session - The class session to check.
+ * @returns A human-readable status label.
  */
 export function getResourceCompletionStatus(session: ClassSession): string {
   if (isCompleteSession(session)) return 'Complete';

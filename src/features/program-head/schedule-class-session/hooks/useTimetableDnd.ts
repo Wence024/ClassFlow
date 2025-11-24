@@ -39,10 +39,10 @@ const parseDragData = (e: React.DragEvent): DragSource | null => {
  * Gets information about resource changes during drag operations.
  * Returns null if no resource change is occurring.
  *
- * @param viewMode Current view mode
- * @param session Session being dragged
- * @param targetId Target row ID (resource ID)
- * @returns Resource change information or null if no change
+ * @param viewMode Current view mode.
+ * @param session Session being dragged.
+ * @param targetId Target row ID (resource ID).
+ * @returns Resource change information or null if no change.
  */
 const getResourceChangeInfo = (
   viewMode: TimetableViewMode,
@@ -82,11 +82,11 @@ const getResourceChangeInfo = (
 /**
  * Gets the resource mismatch error message if any.
  *
- * @param viewMode Current view mode
- * @param session Class session being dragged
- * @param source The drag source
- * @param targetId The target ID
- * @returns Error message if there is a mismatch, otherwise empty string
+ * @param viewMode Current view mode.
+ * @param session Class session being dragged.
+ * @param source The drag source.
+ * @param targetId The target ID.
+ * @returns Error message if there is a mismatch, otherwise empty string.
  */
 const getResourceMismatchError = (
   viewMode: TimetableViewMode,
@@ -109,12 +109,12 @@ const getResourceMismatchError = (
 /**
  * Validates a drop operation.
  *
- * @param source The drag source
- * @param allClassSessions All class sessions visible to the user
- * @param user The currently logged in user
- * @param viewMode The current view mode
- * @param targetClassGroupId The target class group ID
- * @returns A tuple containing the source and session if valid, or [null, null] if invalid
+ * @param source The drag source.
+ * @param allClassSessions All class sessions visible to the user.
+ * @param user The currently logged in user.
+ * @param viewMode The current view mode.
+ * @param targetClassGroupId The target class group ID.
+ * @returns A tuple containing the source and session if valid, or [null, null] if invalid.
  */
 const validateDrop = (
   source: DragSource | null,
@@ -156,12 +156,12 @@ const validateDrop = (
 /**
  * Determines what type of confirmation is needed for a drop operation.
  *
- * @param source The drag source
- * @param classSessionToDrop The class session being dropped
- * @param assignments Current timetable assignments for checking confirmation status
- * @param userDepartmentId The user's department ID for cross-department validation
- * @param resourceChangeInfo Information about resource changes during drag operations
- * @returns The type of confirmation needed and associated metadata
+ * @param source The drag source.
+ * @param classSessionToDrop The class session being dropped.
+ * @param assignments Current timetable assignments for checking confirmation status.
+ * @param userDepartmentId The user's department ID for cross-department validation.
+ * @param resourceChangeInfo Information about resource changes during drag operations.
+ * @returns The type of confirmation needed and associated metadata.
  */
 const needsConfirmation = (
   source: DragSource,
@@ -218,6 +218,11 @@ const needsConfirmation = (
  * @param userDepartmentId The user's department ID for cross-department validation.
  * @param assignments Current timetable assignments for checking confirmation status.
  * @param pendingPlacementInfo Optional info about a session awaiting cross-dept placement.
+ * @param [pendingPlacementInfo.pendingSessionId] Pending session ID for placement.
+ * @param [pendingPlacementInfo.resourceType] Resource type for pending placement ('instructor' | 'classroom').
+ * @param [pendingPlacementInfo.resourceId] ID of resource that is pending placement.
+ * @param [pendingPlacementInfo.departmentId] Target department ID for the resource.
+ * @param [pendingPlacementInfo.onClearPending] Callback to clear pending placement state.
  * @returns An object containing all necessary state and handlers for D&D functionality.
  */
 export const useTimetableDnd = (
