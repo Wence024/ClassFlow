@@ -75,10 +75,11 @@ const queryClient = new QueryClient({
 /**
  * Sets up the component with necessary providers and mocked data.
  *
- * @param classSessions
- * @param isLoading
- * @param error
- * @param deleteSessionMock - Optional mock for deleteSession function
+ * @param classSessions - Mocked class sessions data.
+ * @param isLoading - Whether the loading state should be simulated.
+ * @param error - Optional error to simulate.
+ * @param deleteSessionMock - Optional mock for deleteSession function.
+ * @returns A promise that resolves when the component is set up.
  */
 const setupComponent = async (
   classSessions = [mockClassSession],

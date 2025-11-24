@@ -56,6 +56,7 @@ export async function getTimetableAssignments(semesterId: string): Promise<Timet
  * @param params.user_id - The ID of the user performing the assignment.
  * @param params.semester_id - The ID of the semester.
  * @param status - The status of the assignment.
+ * @returns A promise that resolves when the session is assigned.
  */
 export async function assignSession(
   params: AssignSessionParams,
@@ -74,6 +75,7 @@ export async function assignSession(
  * @param params.toPeriodIndex - The period index to move to.
  * @param params.classSessionId - The ID of the class session to move.
  * @param params.userId - The ID of the user performing the move.
+ * @returns A promise that resolves when the session is moved.
  */
 export async function moveSession(params: MoveSessionParams): Promise<void> {
   // Note: This implementation has an issue where semester_id is incorrectly derived from period index
@@ -100,6 +102,7 @@ export async function moveSession(params: MoveSessionParams): Promise<void> {
  * @param params.classGroupId - The class group ID to remove from.
  * @param params.periodIndex - The period index to remove from.
  * @param params.semesterId - The ID of the semester.
+ * @returns A promise that resolves when the session is removed.
  */
 export async function removeSession(params: RemoveSessionParams): Promise<void> {
   return infraRemoveClassSessionFromTimetable(params.classGroupId, params.periodIndex, params.semesterId);

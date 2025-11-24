@@ -9,12 +9,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useTimetable } from '../useTimetable';
 import { getTimetableAssignments } from '@/lib/services/timetableService';
 import * as classGroupsService from '@/lib/services/classGroupService';
-import * as useScheduleConfigHook from '../../../scheduleConfig/hooks/useScheduleConfig';
-import * as useActiveSemesterHook from '../../../scheduleConfig/hooks/useActiveSemester';
+import * as useScheduleConfigHook from '../../../schedule-config/hooks/useScheduleConfig';
+import * as useActiveSemesterHook from '../../../schedule-config/hooks/useActiveSemester';
 import * as useAuthHook from '../../../shared/auth/hooks/useAuth';
 import type { ClassGroup } from '../../../classSessionComponents/types/classGroup';
-import type { ScheduleConfig } from '../../../scheduleConfig/types/scheduleConfig';
-import type { Semester } from '../../../scheduleConfig/types/semesters';
+import type { ScheduleConfig } from '../../../schedule-config/types/scheduleConfig';
+import type { Semester } from '../../../schedule-config/types/semester';
 import type { User } from '../../../shared/auth/types/auth';
 
 vi.mock('@/lib/services/timetableService', () => ({
@@ -33,7 +33,7 @@ vi.mock('../../../../lib/supabase', () => ({
   },
 }));
 vi.mock('../../../auth/hooks/useAuth');
-vi.mock('../../../scheduleConfig/hooks/useActiveSemester');
+vi.mock('../../../schedule-config/hooks/useActiveSemester');
 vi.mock('../../../classSessionComponents/hooks/useClassGroups');
 
 const createWrapper = () => {

@@ -52,6 +52,7 @@ export async function modifyInstructor(id: string, data: InstructorUpdate): Prom
  * Deletes an instructor.
  *
  * @param id - The ID of the instructor to delete.
+ * @returns A promise that resolves when the instructor is deleted.
  */
 export async function deleteInstructor(id: string): Promise<void> {
   return infraRemoveInstructor(id);

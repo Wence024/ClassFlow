@@ -19,6 +19,8 @@ const TABS = [
 
 /**
  * Main page for managing class session components.
+ *
+ * @returns The ManageComponentsPage component.
  */
 export function ManageComponentsPage() {
   const [activeTab, setActiveTab] = useState<ComponentType>('course');

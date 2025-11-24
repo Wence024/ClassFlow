@@ -15,11 +15,12 @@ interface EmptyCellProps {
  * These cells represent available time slots where a class session can be placed.
  * Shows visual feedback during drag operations with green indicators for available slots.
  *
- * @param ec The props for the component.
- * @param ec.groupId The ID of the group row this cell belongs to.
- * @param ec.periodIndex The period index of this cell within the timetable.
- * @param ec.isLastInDay Whether this cell is the last in a day's block.
- * @param ec.isNotLastInTable Whether this cell is not the last in the entire timetable row.
+ * @param props - The component props.
+ * @param props.groupId - The ID of the group row this cell belongs to.
+ * @param props.periodIndex - The period index of this cell within the timetable.
+ * @param props.isLastInDay - Whether this cell is the last in a day's block.
+ * @param props.isNotLastInTable - Whether this cell is not the last in the entire timetable row.
+ * @param props.viewMode - The view mode for the timetable.
  * @returns The rendered empty cell component.
  */
 const EmptyCell: React.FC<EmptyCellProps> = ({

@@ -10,8 +10,8 @@ import { MemoryRouter } from 'react-router-dom';
 import UserProfilePage from '../UserProfilePage';
 import { AuthContext } from '../../contexts/AuthContext';
 import type { AuthContextType } from '../../types/auth';
-import * as programHooks from '../../../../programs/hooks/usePrograms';
-import * as departmentHooks from '../../../../departments/hooks/useDepartments';
+import * as programHooks from '../../../../../admin/manage-programs/hooks/usePrograms';
+import * as departmentHooks from '../../../../admin/manage-departments/hooks/useDepartments';
 import { Program, ProgramInsert, ProgramUpdate } from '../../../programs/types/program';
 import {
   Department,

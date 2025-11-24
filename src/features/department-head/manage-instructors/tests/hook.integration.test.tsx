@@ -21,6 +21,8 @@ vi.mock('sonner', () => ({
 
 /**
  * Test wrapper with QueryClient provider.
+ *
+ * @returns A React component that provides QueryClient context.
  */
 const createWrapper = () => {
   const queryClient = new QueryClient({

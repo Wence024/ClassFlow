@@ -17,13 +17,14 @@ type CrossDeptRequestModalProps = {
 /**
  * Modal for confirming a cross-department resource request.
  *
- * @param root0
- * @param root0.isOpen
- * @param root0.requestPayload
- * @param root0.departmentName
- * @param root0.isLoading
- * @param root0.onConfirm
- * @param root0.onCancel
+ * @param props - The component props.
+ * @param props.isOpen - Whether the modal is open.
+ * @param props.requestPayload - The payload containing the request information.
+ * @param props.departmentName - The name of the department to request from.
+ * @param props.isLoading - Whether the modal is in a loading state.
+ * @param props.onConfirm - Function to call when the request is confirmed.
+ * @param props.onCancel - Function to call when the request is cancelled.
+ * @returns The CrossDeptRequestModal component.
  */
 export function CrossDeptRequestModal({
   isOpen,

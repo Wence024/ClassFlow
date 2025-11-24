@@ -45,6 +45,7 @@ export async function updateClassSession(id: string, data: ClassSessionUpdate): 
  * Removes a class session.
  *
  * @param id - The ID of the class session to remove.
+ * @returns A promise that resolves when the class session is removed.
  */
 export async function removeClassSession(id: string): Promise<void> {
   return infraRemoveClassSession(id);

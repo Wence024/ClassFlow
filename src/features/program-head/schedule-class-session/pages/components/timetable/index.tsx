@@ -26,12 +26,11 @@ interface TimetableProps {
  * It consumes interaction logic from the `TimetableContext` and structures the table
  * to map over the appropriate resources for the current view.
  *
- * @param t - The props for the component.
- * @param t.viewMode - The current view mode (class-group, classroom, or instructor).
- * @param t.groups - An array of all class groups (used for class-group view).
- * @param t.resources - An array of resources for the current view (groups, classrooms, or instructors).
- * @param t.timetable - A Map where keys are resource IDs and values are arrays of sessions or nulls.
- * @param t.isLoading - A boolean indicating if the timetable data is currently being synced or re-fetched.
+ * @param props - The component props.
+ * @param props.viewMode - The current view mode (class-group, classroom, or instructor).
+ * @param props.groups - An array of all class groups (used for class-group view).
+ * @param props.resources - An array of resources for the current view (groups, classrooms, or instructors).
+ * @param props.timetable - A Map where keys are resource IDs and values are arrays of sessions or nulls.
  * @returns The rendered timetable grid component.
  */
 const Timetable: React.FC<TimetableProps> = ({

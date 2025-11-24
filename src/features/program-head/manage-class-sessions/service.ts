@@ -40,9 +40,10 @@ export async function getClassSessionsForProgram(programId: string): Promise<Cla
 /**
  * Creates a new class session.
  *
- * @param data
- * @param programId
- * @param userId
+ * @param data - The data for creating the class session.
+ * @param programId - The ID of the program for the session.
+ * @param userId - The ID of the user creating the session.
+ * @returns A promise resolving to the created class session.
  */
 export async function createClassSession(data: ClassSessionInsert, programId: string, userId: string): Promise<ClassSession> {
   return classSessionService.addClassSession({ ...data, program_id: programId, user_id: userId });
@@ -51,8 +52,9 @@ export async function createClassSession(data: ClassSessionInsert, programId: st
 /**
  * Updates an existing class session.
  *
- * @param sessionId
- * @param data
+ * @param sessionId - The ID of the session to update.
+ * @param data - The update data for the class session.
+ * @returns A promise resolving to the updated class session.
  */
 export async function updateClassSession(sessionId: string, data: ClassSessionUpdate): Promise<ClassSession> {
   return classSessionService.updateClassSession(sessionId, data);
@@ -61,8 +63,9 @@ export async function updateClassSession(sessionId: string, data: ClassSessionUp
 /**
  * Deletes a class session.
  *
- * @param sessionId
- * @param userId
+ * @param sessionId - The ID of the session to delete.
+ * @param userId - The ID of the user deleting the session.
+ * @returns A promise that resolves when the session is deleted.
  */
 export async function deleteClassSession(sessionId: string, userId: string): Promise<void> {
   return classSessionService.removeClassSession(sessionId, userId);
@@ -71,8 +74,9 @@ export async function deleteClassSession(sessionId: string, userId: string): Pro
 /**
  * Alternative function name for deleteClassSession (for test compatibility).
  *
- * @param sessionId
- * @param userId
+ * @param sessionId - The ID of the session to remove.
+ * @param userId - The ID of the user removing the session.
+ * @returns A promise that resolves when the session is removed.
  */
 export async function removeClassSession(sessionId: string, userId: string): Promise<void> {
   return deleteClassSession(sessionId, userId);
@@ -81,7 +85,8 @@ export async function removeClassSession(sessionId: string, userId: string): Pro
 /**
  * Creates a new class session (alternative function name).
  *
- * @param data
+ * @param data - The data for creating the class session.
+ * @returns A promise resolving to the created class session.
  */
 export async function createSession(data: ClassSessionInsert): Promise<ClassSession> {
   return classSessionService.addClassSession(data);
@@ -90,8 +95,9 @@ export async function createSession(data: ClassSessionInsert): Promise<ClassSess
 /**
  * Updates an existing class session (alternative function name).
  *
- * @param sessionId
- * @param data
+ * @param sessionId - The ID of the session to update.
+ * @param data - The update data for the class session.
+ * @returns A promise resolving to the updated class session.
  */
 export async function updateSession(
   sessionId: string,
@@ -103,8 +109,9 @@ export async function updateSession(
 /**
  * Deletes a class session (alternative function name).
  *
- * @param sessionId
- * @param userId
+ * @param sessionId - The ID of the session to delete.
+ * @param userId - The ID of the user deleting the session.
+ * @returns A promise that resolves when the session is deleted.
  */
 export async function deleteSession(sessionId: string, userId: string): Promise<void> {
   return classSessionService.removeClassSession(sessionId, userId);
@@ -113,8 +120,9 @@ export async function deleteSession(sessionId: string, userId: string): Promise<
 /**
  * Checks if resources belong to a different department (cross-department).
  *
- * @param instructorId
- * @param classroomId
+ * @param instructorId - Optional instructor ID to check.
+ * @param classroomId - Optional classroom ID to check.
+ * @returns A promise resolving to cross-department info or null.
  */
 export async function checkCrossDepartmentResources(
   instructorId?: string,

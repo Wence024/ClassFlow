@@ -3,8 +3,8 @@
  */
 
 import {
-  isCrossDepartmentInstructor as infraIsCrossDepartmentInstructor,
-  isCrossDepartmentClassroom as infraIsCrossDepartmentClassroom
+  isCrossDepartmentInstructor,
+  isCrossDepartmentClassroom
 } from '@/lib/services/classSessionService';
 import type { CrossDeptCheckResult } from './types';
 
@@ -19,7 +19,7 @@ export async function checkCrossDepartmentInstructor(
   programId: string,
   instructorId: string
 ): Promise<boolean> {
-  return infraIsCrossDepartmentInstructor(programId, instructorId);
+  return isCrossDepartmentInstructor(programId, instructorId);
 }
 
 /**
@@ -33,7 +33,7 @@ export async function checkCrossDepartmentClassroom(
   programId: string,
   classroomId: string
 ): Promise<boolean> {
-  return infraIsCrossDepartmentClassroom(programId, classroomId);
+  return isCrossDepartmentClassroom(programId, classroomId);
 }
 
 /**
@@ -51,7 +51,7 @@ export async function checkCrossDepartmentResource(
 ): Promise<CrossDeptCheckResult> {
   // Check instructor first if provided
   if (instructorId) {
-    const isInstructorCrossDept = await infraIsCrossDepartmentInstructor(programId, instructorId);
+    const isInstructorCrossDept = await isCrossDepartmentInstructor(programId, instructorId);
     if (isInstructorCrossDept) {
       return {
         isCrossDept: true,
@@ -64,7 +64,7 @@ export async function checkCrossDepartmentResource(
 
   // Check classroom if provided
   if (classroomId) {
-    const isClassroomCrossDept = await infraIsCrossDepartmentClassroom(programId, classroomId);
+    const isClassroomCrossDept = await isCrossDepartmentClassroom(programId, classroomId);
     if (isClassroomCrossDept) {
       return {
         isCrossDept: true,
