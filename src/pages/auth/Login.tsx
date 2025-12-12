@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { useAuth } from "@/contexts/AuthContext";
 import { loginSchema, LoginFormData } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
+import { DevAuthSwitcher } from "@/components/DevAuthSwitcher";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,10 +32,16 @@ export default function Login() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  const handleDevSelect = (email: string, password: string) => {
+    setValue("email", email);
+    setValue("password", password);
+  };
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
@@ -144,11 +151,16 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
+          <div className="mt-4 text-center text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link to="/register" className="font-medium text-primary hover:underline">
               Create account
             </Link>
+          </div>
+
+          {/* Dev-only quick auth switcher */}
+          <div className="mt-4 border-t border-border/50 pt-4">
+            <DevAuthSwitcher onSelect={handleDevSelect} />
           </div>
         </CardContent>
       </Card>
