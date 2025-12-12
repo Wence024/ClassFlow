@@ -1,13 +1,16 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Spinner } from "@/components/ui/spinner";
+import type { AppRole } from "@/types/roles";
+import { hasRouteAccess } from "@/types/roles";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  allowedRoles?: AppRole[];
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
+  const { user, role, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -23,6 +26,18 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If specific roles are required, check them
+  if (allowedRoles && allowedRoles.length > 0) {
+    if (!role || !allowedRoles.includes(role)) {
+      return <Navigate to="/dashboard" state={{ from: location }} replace />;
+    }
+  }
+
+  // Check route-based access using role permissions
+  if (role && !hasRouteAccess(role, location.pathname)) {
+    return <Navigate to="/dashboard" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

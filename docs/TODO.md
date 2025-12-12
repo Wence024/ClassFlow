@@ -23,7 +23,7 @@
 
 - [x] Database setup
   - `user_roles` table with RLS policies
-  - `app_role` enum (admin, doctor, nurse, pharmacist, lab_tech, receptionist, staff, patient)
+  - `app_role` enum (admin, doctor, nurse, pharmacist, lab_tech, billing_clerk, receptionist, staff, patient)
   - `has_role()` security definer function
   - `get_user_role()` helper function
   - Auto-create patient role trigger for new users
@@ -35,7 +35,8 @@
   - Update Password page (`/update-password`)
 - [x] Auth infrastructure
   - AuthContext provider with session management
-  - ProtectedRoute component for route guards
+  - Role fetching integrated into AuthContext
+  - ProtectedRoute component with role checking
   - Zod validation schemas for all auth forms
 - [x] UI/UX
   - Glassmorphism design matching app theme
@@ -44,26 +45,43 @@
   - Loading states and toast notifications
   - Form validation with error messages
 
+### Phase 4: Role-Based Access Control
+
+- [x] Role types and permissions (src/types/roles.ts)
+  - AppRole type matching database enum
+  - ROLE_PERMISSIONS mapping routes to roles
+  - ROLE_DISPLAY_NAMES for UI
+  - hasRouteAccess() helper function
+- [x] RoleGuard component for conditional rendering
+- [x] useUserRole hook for role access
+- [x] Role-filtered sidebar navigation
+- [x] User role displayed in sidebar footer
+- [x] Access matrix documented (docs/User-Stories.md)
+
 ## 🔄 In Progress
 
-- [ ] Role-based access (Admin, Staff, Doctor/Nurse, Patient)
+- [ ] Dashboard widgets based on user role
+- [ ] Patient management module
 
 ## 📋 Upcoming
 
-- [ ] Patient management module
 - [ ] Appointment scheduling
 - [ ] Medical records
+- [ ] Prescription management
+- [ ] Lab requests/results
+- [ ] Pharmacy inventory
 - [ ] Billing system
-- [ ] Lab/Pharmacy integration
+- [ ] Staff management
 - [ ] Reports & Analytics
 
 ### Backlogs
 
 - [ ] Username/password autocomplete attribute warning
+- [ ] RLS policies for remaining tables (attendance, billing, etc.)
 
 ## 🗄️ Database Tables (from Supabase)
 
-- user_roles (NEW - for role-based access)
+- user_roles (role-based access control)
 - patients
 - appointments
 - medical_records
@@ -83,4 +101,5 @@
 - New users automatically get 'patient' role via database trigger
 - RLS policies use `has_role()` function to avoid recursive checks
 - Email verification required before accessing protected routes
-
+- Role permissions defined in `src/types/roles.ts`
+- Access matrix documented in `docs/User-Stories.md`
