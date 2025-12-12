@@ -117,6 +117,7 @@ export function PatientForm({ patient, onSubmit, isLoading }: PatientFormProps) 
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
+                        captionLayout="dropdown"
                         selected={field.value ? new Date(field.value) : undefined}
                         onSelect={(date) =>
                           field.onChange(date ? format(date, "yyyy-MM-dd") : "")
@@ -124,6 +125,8 @@ export function PatientForm({ patient, onSubmit, isLoading }: PatientFormProps) 
                         disabled={(date) =>
                           date > new Date() || date < new Date("1900-01-01")
                         }
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
                         initialFocus
                         className="p-3 pointer-events-auto"
                       />

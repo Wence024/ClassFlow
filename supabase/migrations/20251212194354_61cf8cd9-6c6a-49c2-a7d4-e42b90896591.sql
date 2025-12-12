@@ -1,0 +1,8 @@
+-- Insert 5 sample patients for testing
+INSERT INTO public.patients (first_name, last_name, date_of_birth, gender, email, phone, address, emergency_contact_name, emergency_contact_phone, insurance_provider, insurance_policy_number, allergies, medical_history, is_active)
+VALUES
+  ('Maria', 'Santos', '1985-03-15', 'female', 'maria.santos@email.com', '+63 917 123 4567', '123 Rizal Street, Makati City', 'Juan Santos', '+63 918 765 4321', 'PhilHealth', 'PH-2024-001234', 'Penicillin', 'Hypertension (controlled)', true),
+  ('Jose', 'Reyes', '1978-07-22', 'male', 'jose.reyes@email.com', '+63 927 234 5678', '456 Bonifacio Ave, Quezon City', 'Ana Reyes', '+63 928 876 5432', 'Maxicare', 'MAX-567890', 'None known', 'Type 2 Diabetes, managed with medication', true),
+  ('Elena', 'Cruz', '1992-11-08', 'female', 'elena.cruz@email.com', '+63 937 345 6789', '789 Mabini St, Pasig City', 'Pedro Cruz', '+63 938 987 6543', 'Intellicare', 'INT-112233', 'Sulfa drugs, Shellfish', 'Asthma (mild)', true),
+  ('Ramon', 'Garcia', '1965-01-30', 'male', 'ramon.garcia@email.com', '+63 947 456 7890', '321 Aguinaldo Blvd, Cavite', 'Carmen Garcia', '+63 948 098 7654', 'PhilHealth', 'PH-2024-005678', 'Aspirin', 'Coronary artery disease, Previous MI 2020', true),
+  ('Sofia', 'Mendoza', '2010-05-12', 'female', 'guardian.mendoza@email.com', '+63 957 567 8901', '654 Luna St, Manila', 'Roberto Mendoza', '+63 958 109 8765', 'Pacific Cross', 'PC-998877', 'Peanuts, Latex', 'Childhood asthma, up-to-date vaccinations', true);
