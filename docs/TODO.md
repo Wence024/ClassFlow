@@ -3,6 +3,7 @@
 ## ✅ Completed
 
 ### Phase 1: Foundation
+
 - [x] Design system setup (index.css, tailwind.config.ts)
   - Sofia Sans font family
   - Healthcare-themed color palette (indigo/blue)
@@ -13,11 +14,13 @@
 - [x] ThemeProvider integration with next-themes
 
 ### Phase 2: Layout & Navigation
+
 - [x] Dashboard layout with sidebar
 - [x] Responsive sidebar (collapsible)
 - [x] Placeholder dashboard page
 
 ### Phase 3: Authentication
+
 - [x] Database setup
   - `user_roles` table with RLS policies
   - `app_role` enum (admin, doctor, nurse, pharmacist, lab_tech, receptionist, staff, patient)
@@ -42,9 +45,11 @@
   - Form validation with error messages
 
 ## 🔄 In Progress
+
 - [ ] Role-based access (Admin, Staff, Doctor/Nurse, Patient)
 
 ## 📋 Upcoming
+
 - [ ] Patient management module
 - [ ] Appointment scheduling
 - [ ] Medical records
@@ -53,6 +58,7 @@
 - [ ] Reports & Analytics
 
 ## 🗄️ Database Tables (from Supabase)
+
 - user_roles (NEW - for role-based access)
 - patients
 - appointments
@@ -67,6 +73,7 @@
 - attendance
 
 ## 🔐 Authentication Notes
+
 - User metadata (name) stored in Supabase `auth.users.raw_user_meta_data`
 - Roles stored in separate `user_roles` table (security best practice)
 - New users automatically get 'patient' role via database trigger
