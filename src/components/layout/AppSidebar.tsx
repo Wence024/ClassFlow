@@ -11,6 +11,8 @@ import {
   Users,
   UserCog,
   Building2,
+  LogOut,
+  ChevronUp,
   LucideIcon,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
@@ -27,6 +29,13 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { getRoleDisplayName, hasRouteAccess, type AppRole } from "@/types/roles";
 
@@ -57,23 +66,28 @@ const adminItems: NavItem[] = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
-function filterItemsByRole(items: NavItem[], role: AppRole | null): NavItem[] {
-  if (!role) return [];
+function filterItemsByRole(items: NavItem[], role: AppRole | null, loading: boolean): NavItem[] {
+  // While loading, show all items to avoid empty sidebar flash
+  if (loading || !role) return items;
   return items.filter((item) => hasRouteAccess(role, item.url));
 }
 
 export function AppSidebar() {
   const { state } = useSidebar();
-  const { user, role } = useAuth();
+  const { user, role, loading, signOut } = useAuth();
   const isCollapsed = state === "collapsed";
 
-  const filteredMainItems = filterItemsByRole(mainNavItems, role);
-  const filteredClinicalItems = filterItemsByRole(clinicalItems, role);
-  const filteredAdminItems = filterItemsByRole(adminItems, role);
+  const filteredMainItems = filterItemsByRole(mainNavItems, role, loading);
+  const filteredClinicalItems = filterItemsByRole(clinicalItems, role, loading);
+  const filteredAdminItems = filterItemsByRole(adminItems, role, loading);
 
   const userName = user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
   const userEmail = user?.email || "";
-  const roleDisplay = role ? getRoleDisplayName(role) : "Loading...";
+  const roleDisplay = loading ? "Loading..." : (role ? getRoleDisplayName(role) : "Guest");
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -165,20 +179,52 @@ export function AppSidebar() {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-sm font-medium text-primary">
-              {userName.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          {!isCollapsed && (
-            <div className="flex flex-col overflow-hidden">
-              <span className="text-sm font-medium truncate">{userName}</span>
-              <span className="text-xs text-muted-foreground truncate">{roleDisplay}</span>
-            </div>
-          )}
-        </div>
+      <SidebarFooter className="border-t border-sidebar-border p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="w-full cursor-pointer hover:bg-sidebar-accent/50"
+                >
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-medium text-primary">
+                      {userName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  {!isCollapsed && (
+                    <>
+                      <div className="flex flex-col overflow-hidden text-left flex-1">
+                        <span className="text-sm font-medium truncate">{userName}</span>
+                        <span className="text-xs text-muted-foreground truncate">{roleDisplay}</span>
+                      </div>
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                    </>
+                  )}
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="start"
+                className="w-56 bg-popover border border-border shadow-lg z-50"
+              >
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium">{userName}</p>
+                  <p className="text-xs text-muted-foreground">{userEmail}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
