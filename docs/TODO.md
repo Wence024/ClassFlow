@@ -77,9 +77,32 @@
   - Empty/loading states with appropriate messaging
   - Personalized greeting with time-based message
 
+### Phase 6: Patient Management Module
+
+- [x] Patient types and validation schemas
+  - `src/types/patient.ts` - Patient type definitions
+  - `src/lib/validations/patient.ts` - Zod form validation
+- [x] Patient service layer (`src/services/patientService.ts`)
+  - CRUD operations with pagination
+  - Search and filter support
+  - Soft delete (is_active flag)
+- [x] React Query hooks (`src/hooks/usePatients.ts`)
+  - usePatients, usePatient, useCreatePatient, useUpdatePatient, useDeletePatient
+- [x] Patient UI components (`src/components/patients/`)
+  - PatientFilters - Search and status filter
+  - PatientTable - Data table with actions
+  - PatientForm - Multi-section form with validation
+  - PatientFormDialog - Add/Edit modal
+  - DeletePatientDialog - Deactivate confirmation
+- [x] Patients page (`src/pages/Patients.tsx`)
+  - List view with pagination
+  - Add/Edit/View/Deactivate actions
+  - Responsive design with loading states
+- [x] Route and navigation configured (`/patients`)
+
 ## 🔄 In Progress
 
-- [ ] Patient management module
+(None)
 
 ## 📋 Upcoming
 
