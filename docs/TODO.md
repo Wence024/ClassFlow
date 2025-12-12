@@ -35,7 +35,7 @@
   - Update Password page (`/update-password`)
 - [x] Auth infrastructure
   - AuthContext provider with session management
-  - Role fetching integrated into AuthContext
+  - Role fetching via `get_user_role()` RPC
   - ProtectedRoute component with role checking
   - Zod validation schemas for all auth forms
 - [x] UI/UX
@@ -57,6 +57,7 @@
 - [x] Role-filtered sidebar navigation
 - [x] User role displayed in sidebar footer
 - [x] Access matrix documented (docs/User-Stories.md)
+- [x] RLS policies secured with `has_role()` function (appointments, medical_records, patients)
 
 ## 🔄 In Progress
 
