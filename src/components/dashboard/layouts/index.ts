@@ -1,0 +1,9 @@
+export { AdminDashboard } from "./AdminDashboard";
+export { DoctorDashboard } from "./DoctorDashboard";
+export { NurseDashboard } from "./NurseDashboard";
+export { PharmacistDashboard } from "./PharmacistDashboard";
+export { LabTechDashboard } from "./LabTechDashboard";
+export { BillingClerkDashboard } from "./BillingClerkDashboard";
+export { ReceptionistDashboard } from "./ReceptionistDashboard";
+export { StaffDashboard } from "./StaffDashboard";
+export { PatientDashboard } from "./PatientDashboard";
