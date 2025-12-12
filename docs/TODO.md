@@ -57,6 +57,10 @@
 - [ ] Lab/Pharmacy integration
 - [ ] Reports & Analytics
 
+### Backlogs
+
+- [ ] Username/password autocomplete attribute warning
+
 ## 🗄️ Database Tables (from Supabase)
 
 - user_roles (NEW - for role-based access)
@@ -79,3 +83,4 @@
 - New users automatically get 'patient' role via database trigger
 - RLS policies use `has_role()` function to avoid recursive checks
 - Email verification required before accessing protected routes
+
