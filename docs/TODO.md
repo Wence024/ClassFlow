@@ -17,11 +17,34 @@
 - [x] Responsive sidebar (collapsible)
 - [x] Placeholder dashboard page
 
+### Phase 3: Authentication
+- [x] Database setup
+  - `user_roles` table with RLS policies
+  - `app_role` enum (admin, doctor, nurse, pharmacist, lab_tech, receptionist, staff, patient)
+  - `has_role()` security definer function
+  - `get_user_role()` helper function
+  - Auto-create patient role trigger for new users
+- [x] Authentication pages
+  - Login page (`/login`) with email/password
+  - Register page (`/register`) with name, email, password
+  - Verify Email page (`/verify-email`) with resend functionality
+  - Forgot Password page (`/forgot-password`)
+  - Update Password page (`/update-password`)
+- [x] Auth infrastructure
+  - AuthContext provider with session management
+  - ProtectedRoute component for route guards
+  - Zod validation schemas for all auth forms
+- [x] UI/UX
+  - Glassmorphism design matching app theme
+  - Healthcare icons (Hospital, Shield, Lock, Mail)
+  - Light/dark mode support
+  - Loading states and toast notifications
+  - Form validation with error messages
+
 ## 🔄 In Progress
-- [ ] Authentication pages (Login, Register)
+- [ ] Role-based access (Admin, Staff, Doctor/Nurse, Patient)
 
 ## 📋 Upcoming
-- [ ] Role-based access (Admin, Staff, Doctor/Nurse, Patient)
 - [ ] Patient management module
 - [ ] Appointment scheduling
 - [ ] Medical records
@@ -30,6 +53,7 @@
 - [ ] Reports & Analytics
 
 ## 🗄️ Database Tables (from Supabase)
+- user_roles (NEW - for role-based access)
 - patients
 - appointments
 - medical_records
@@ -41,3 +65,10 @@
 - medical_staff
 - patient_queue
 - attendance
+
+## 🔐 Authentication Notes
+- User metadata (name) stored in Supabase `auth.users.raw_user_meta_data`
+- Roles stored in separate `user_roles` table (security best practice)
+- New users automatically get 'patient' role via database trigger
+- RLS policies use `has_role()` function to avoid recursive checks
+- Email verification required before accessing protected routes
