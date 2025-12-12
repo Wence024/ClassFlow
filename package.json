@@ -14,7 +14,7 @@
     "pcm": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
 
     "migrate-repository": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-overwrite-to-new-git-repo.ps1",
-    "migrate-repository:safe": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-safe-to-new-git-repo.ps1",
+    "migrate-repository:safe": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-safe-to-new-git-repo.ps1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
