@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Activity,
   Calendar,
@@ -77,6 +78,7 @@ const Index = () => {
               <a href="#about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
                 About
               </a>
+              <ThemeToggle />
               <Link to="/login">
                 <Button variant="outline" size="sm">
                   Sign In
@@ -88,6 +90,7 @@ const Index = () => {
             </nav>
             {/* Mobile menu button */}
             <div className="flex items-center gap-2 md:hidden">
+              <ThemeToggle />
               <Link to="/login">
                 <Button variant="outline" size="sm">Sign In</Button>
               </Link>
