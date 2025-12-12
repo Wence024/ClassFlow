@@ -6,6 +6,9 @@ import { LoadingWidget, LoadingStatCard } from "../LoadingWidget";
 import { DashboardHeader } from "../DashboardHeader";
 import { useReceptionistDashboard } from "@/hooks/dashboard/useStaffDashboard";
 
+/**
+ *
+ */
 export function ReceptionistDashboard() {
   const { stats, todayAppointments, isLoading, loadingAppointments } = useReceptionistDashboard();
 
@@ -63,7 +66,7 @@ export function ReceptionistDashboard() {
               />
             ) : (
               <div className="space-y-4">
-                {todayAppointments.map((apt: any) => (
+                {todayAppointments.map((apt) => (
                   <div
                     key={apt.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"

@@ -6,6 +6,9 @@ import { LoadingWidget, LoadingStatCard } from "../LoadingWidget";
 import { DashboardHeader } from "../DashboardHeader";
 import { usePharmacistDashboard } from "@/hooks/dashboard/useStaffDashboard";
 
+/**
+ *
+ */
 export function PharmacistDashboard() {
   const { stats, lowStockItems, isLoading, loadingInventory } = usePharmacistDashboard();
 
@@ -69,7 +72,7 @@ export function PharmacistDashboard() {
               />
             ) : (
               <div className="space-y-4">
-                {lowStockItems.map((item: any) => (
+                {lowStockItems.map((item) => (
                   <div
                     key={item.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"

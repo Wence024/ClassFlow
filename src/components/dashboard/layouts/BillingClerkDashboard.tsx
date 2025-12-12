@@ -14,6 +14,9 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+/**
+ *
+ */
 export function BillingClerkDashboard() {
   const { stats, pendingBills, isLoading, loadingBills } = useBillingClerkDashboard();
 
@@ -71,7 +74,7 @@ export function BillingClerkDashboard() {
               />
             ) : (
               <div className="space-y-4">
-                {pendingBills.map((bill: any) => (
+                {pendingBills.map((bill) => (
                   <div
                     key={bill.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"

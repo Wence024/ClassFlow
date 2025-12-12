@@ -7,6 +7,9 @@ import { DashboardHeader } from "../DashboardHeader";
 import { useLabTechDashboard } from "@/hooks/dashboard/useStaffDashboard";
 import { format } from "date-fns";
 
+/**
+ *
+ */
 export function LabTechDashboard() {
   const { stats, pendingRequests, isLoading, loadingRequests } = useLabTechDashboard();
 
@@ -64,7 +67,7 @@ export function LabTechDashboard() {
               />
             ) : (
               <div className="space-y-4">
-                {pendingRequests.map((req: any) => (
+                {pendingRequests.map((req) => (
                   <div
                     key={req.id}
                     className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
