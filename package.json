@@ -10,9 +10,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-
     "pcm": "powershell -ExecutionPolicy Bypass -File ./scripts/prepare-commit-msg.ps1 && exit",
-
     "migrate-repository": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-overwrite-to-new-git-repo.ps1",
     "migrate-repository:safe": "powershell -ExecutionPolicy Bypass -File ./scripts/migrate-safe-to-new-git-repo.ps1"
   },
@@ -77,8 +75,10 @@
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.32.0",
+    "eslint-plugin-jsdoc": "^61.5.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint-plugin-sonarjs": "^3.0.5",
     "globals": "^15.15.0",
     "lovable-tagger": "^1.1.13",
     "postcss": "^8.5.6",
