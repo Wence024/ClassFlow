@@ -59,9 +59,26 @@
 - [x] Access matrix documented (docs/User-Stories.md)
 - [x] RLS policies secured with `has_role()` function (appointments, medical_records, patients)
 
+### Phase 5: Dashboard Widgets
+
+- [x] Dashboard widgets based on user role
+  - Reusable widget components (StatCard, WidgetCard, LoadingWidget, EmptyWidget)
+  - Role-specific dashboard layouts:
+    - Admin: System overview, departments, staff, recent patients
+    - Doctor: Today's appointments, medical records, pending lab requests
+    - Nurse: Patient queue, vitals recording, appointments
+    - Pharmacist: Pending prescriptions, low stock alerts, inventory
+    - Lab Tech: Pending/urgent requests, completed tests
+    - Billing Clerk: Pending bills, collections, payment summary
+    - Receptionist: Today's appointments, queue, registrations
+    - Staff: Tasks, activity overview
+    - Patient: Upcoming appointments, prescriptions, bills
+  - Data hooks for each role (useAdminDashboard, useDoctorDashboard, etc.)
+  - Empty/loading states with appropriate messaging
+  - Personalized greeting with time-based message
+
 ## 🔄 In Progress
 
-- [ ] Dashboard widgets based on user role
 - [ ] Patient management module
 
 ## 📋 Upcoming
