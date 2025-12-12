@@ -13,6 +13,11 @@ function getGreeting(): string {
   return "Good evening";
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.role
+ */
 export function DashboardHeader({ role }: DashboardHeaderProps) {
   const { user } = useAuth();
   const greeting = getGreeting();

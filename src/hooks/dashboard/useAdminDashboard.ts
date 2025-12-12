@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ *
+ */
 export function useAdminDashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["admin-dashboard-stats"],

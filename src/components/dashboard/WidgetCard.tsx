@@ -12,6 +12,17 @@ interface WidgetCardProps {
   headerAction?: React.ReactNode;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.title
+ * @param root0.description
+ * @param root0.icon
+ * @param root0.iconColor
+ * @param root0.children
+ * @param root0.className
+ * @param root0.headerAction
+ */
 export function WidgetCard({
   title,
   description,

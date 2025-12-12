@@ -2,6 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
+/**
+ *
+ */
 export function useNurseDashboard() {
   const today = format(new Date(), "yyyy-MM-dd");
 
@@ -53,6 +56,9 @@ export function useNurseDashboard() {
   };
 }
 
+/**
+ *
+ */
 export function usePharmacistDashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["pharmacist-dashboard-stats"],
@@ -101,6 +107,9 @@ export function usePharmacistDashboard() {
   };
 }
 
+/**
+ *
+ */
 export function useLabTechDashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["lab-tech-dashboard-stats"],
@@ -157,6 +166,9 @@ export function useLabTechDashboard() {
   };
 }
 
+/**
+ *
+ */
 export function useBillingClerkDashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["billing-clerk-dashboard-stats"],
@@ -217,6 +229,9 @@ export function useBillingClerkDashboard() {
   };
 }
 
+/**
+ *
+ */
 export function useReceptionistDashboard() {
   const today = format(new Date(), "yyyy-MM-dd");
 

@@ -3,6 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { format } from "date-fns";
 
+/**
+ *
+ */
 export function useDoctorDashboard() {
   const { user } = useAuth();
   const today = format(new Date(), "yyyy-MM-dd");

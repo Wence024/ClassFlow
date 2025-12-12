@@ -9,6 +9,11 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ */
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <SidebarProvider>

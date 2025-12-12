@@ -12,6 +12,9 @@ import { loginSchema, LoginFormData } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 import { DevAuthSwitcher } from "@/components/DevAuthSwitcher";
 
+/**
+ *
+ */
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

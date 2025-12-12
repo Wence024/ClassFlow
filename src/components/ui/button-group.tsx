@@ -21,6 +21,12 @@ const buttonGroupVariants = cva(
   },
 );
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.orientation
+ */
 function ButtonGroup({
   className,
   orientation,
@@ -37,6 +43,12 @@ function ButtonGroup({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.asChild
+ */
 function ButtonGroupText({
   className,
   asChild = false,
@@ -57,6 +69,12 @@ function ButtonGroupText({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.orientation
+ */
 function ButtonGroupSeparator({
   className,
   orientation = "vertical",

@@ -9,6 +9,15 @@ interface EmptyWidgetProps {
   className?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.icon
+ * @param root0.title
+ * @param root0.description
+ * @param root0.action
+ * @param root0.className
+ */
 export function EmptyWidget({
   icon: Icon = Inbox,
   title,

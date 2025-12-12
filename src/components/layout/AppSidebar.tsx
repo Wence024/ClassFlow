@@ -72,6 +72,9 @@ function filterItemsByRole(items: NavItem[], role: AppRole | null, loading: bool
   return items.filter((item) => hasRouteAccess(role, item.url));
 }
 
+/**
+ *
+ */
 export function AppSidebar() {
   const { state } = useSidebar();
   const { user, role, loading, signOut } = useAuth();

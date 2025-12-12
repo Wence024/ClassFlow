@@ -5,12 +5,22 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div role="list" data-slot="item-group" className={cn("group/item-group flex flex-col", className)} {...props} />
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemSeparator({ className, ...props }: React.ComponentProps<typeof Separator>) {
   return <Separator data-slot="item-separator" orientation="horizontal" className={cn("my-0", className)} {...props} />;
 }
@@ -36,6 +46,14 @@ const itemVariants = cva(
   },
 );
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.variant
+ * @param root0.size
+ * @param root0.asChild
+ */
 function Item({
   className,
   variant = "default",
@@ -71,6 +89,12 @@ const itemMediaVariants = cva(
   },
 );
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.variant
+ */
 function ItemMedia({
   className,
   variant = "default",
@@ -86,6 +110,11 @@ function ItemMedia({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -96,6 +125,11 @@ function ItemContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -106,6 +140,11 @@ function ItemTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -120,10 +159,20 @@ function ItemDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemActions({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="item-actions" className={cn("flex items-center gap-2", className)} {...props} />;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -134,6 +183,11 @@ function ItemHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function ItemFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

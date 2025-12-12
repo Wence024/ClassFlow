@@ -11,6 +11,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { forgotPasswordSchema, ForgotPasswordFormData } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ *
+ */
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);

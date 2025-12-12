@@ -7,6 +7,9 @@ import { DashboardHeader } from "../DashboardHeader";
 import { useAdminDashboard } from "@/hooks/dashboard/useAdminDashboard";
 import { formatDistanceToNow } from "date-fns";
 
+/**
+ *
+ */
 export function AdminDashboard() {
   const { stats, recentPatients, isLoading, loadingPatients } = useAdminDashboard();
 

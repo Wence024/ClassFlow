@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -52,6 +57,12 @@ const inputGroupAddonVariants = cva(
   },
 );
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.align
+ */
 function InputGroupAddon({
   className,
   align = "inline-start",
@@ -88,6 +99,14 @@ const inputGroupButtonVariants = cva("flex items-center gap-2 text-sm shadow-non
   },
 });
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.type
+ * @param root0.variant
+ * @param root0.size
+ */
 function InputGroupButton({
   className,
   type = "button",
@@ -106,6 +125,11 @@ function InputGroupButton({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -118,6 +142,11 @@ function InputGroupText({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function InputGroupInput({ className, ...props }: React.ComponentProps<"input">) {
   return (
     <Input
@@ -131,6 +160,11 @@ function InputGroupInput({ className, ...props }: React.ComponentProps<"input">)
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function InputGroupTextarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <Textarea

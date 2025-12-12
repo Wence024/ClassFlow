@@ -34,6 +34,11 @@ interface DevAuthSwitcherProps {
   onSelect: (email: string, password: string) => void;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.onSelect
+ */
 export function DevAuthSwitcher({ onSelect }: DevAuthSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
 

@@ -55,6 +55,9 @@ const benefits = [
   "HIPAA compliant infrastructure",
 ];
 
+/**
+ *
+ */
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">

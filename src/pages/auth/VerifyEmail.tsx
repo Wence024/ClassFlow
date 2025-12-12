@@ -6,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ *
+ */
 export default function VerifyEmail() {
   const [isResending, setIsResending] = useState(false);
   const navigate = useNavigate();

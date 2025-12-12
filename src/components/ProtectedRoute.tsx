@@ -9,6 +9,12 @@ interface ProtectedRouteProps {
   allowedRoles?: AppRole[];
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ * @param root0.allowedRoles
+ */
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, role, loading } = useAuth();
   const location = useLocation();

@@ -68,12 +68,21 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   ],
 };
 
+/**
+ *
+ * @param role
+ * @param route
+ */
 export function hasRouteAccess(role: AppRole | null, route: string): boolean {
   if (!role) return false;
   const permissions = ROLE_PERMISSIONS[role];
   return permissions.some((p) => route.startsWith(p));
 }
 
+/**
+ *
+ * @param role
+ */
 export function getRoleDisplayName(role: AppRole): string {
   return ROLE_DISPLAY_NAMES[role] || role;
 }

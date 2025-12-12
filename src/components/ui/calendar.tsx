@@ -5,6 +5,17 @@ import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.classNames
+ * @param root0.showOutsideDays
+ * @param root0.captionLayout
+ * @param root0.buttonVariant
+ * @param root0.formatters
+ * @param root0.components
+ */
 function Calendar({
   className,
   classNames,
@@ -123,6 +134,13 @@ function Calendar({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.day
+ * @param root0.modifiers
+ */
 function CalendarDayButton({ className, day, modifiers, ...props }: React.ComponentProps<typeof DayButton>) {
   const defaultClassNames = getDefaultClassNames();
 

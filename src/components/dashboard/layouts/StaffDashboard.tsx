@@ -4,6 +4,9 @@ import { WidgetCard } from "../WidgetCard";
 import { EmptyWidget } from "../EmptyWidget";
 import { DashboardHeader } from "../DashboardHeader";
 
+/**
+ *
+ */
 export function StaffDashboard() {
   return (
     <div className="space-y-6">

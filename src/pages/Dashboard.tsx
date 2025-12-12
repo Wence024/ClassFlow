@@ -58,6 +58,9 @@ function RoleDashboard({ role }: { role: string | null }) {
   }
 }
 
+/**
+ *
+ */
 export default function Dashboard() {
   const { role, isLoading } = useUserRole();
 

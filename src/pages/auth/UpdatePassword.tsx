@@ -12,6 +12,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { updatePasswordSchema, UpdatePasswordFormData } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ *
+ */
 export default function UpdatePassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

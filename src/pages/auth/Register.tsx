@@ -11,6 +11,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { registerSchema, RegisterFormData } from "@/lib/validations/auth";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ *
+ */
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

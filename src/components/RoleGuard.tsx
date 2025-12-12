@@ -11,6 +11,14 @@ interface RoleGuardProps {
   redirectTo?: string;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ * @param root0.allowedRoles
+ * @param root0.fallback
+ * @param root0.redirectTo
+ */
 export function RoleGuard({
   children,
   allowedRoles,
@@ -45,6 +53,13 @@ interface RoleContentProps {
   fallback?: ReactNode;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ * @param root0.allowedRoles
+ * @param root0.fallback
+ */
 export function RoleContent({
   children,
   allowedRoles,

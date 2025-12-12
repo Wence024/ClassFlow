@@ -3,6 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { AppRole } from "@/types/roles";
 
+/**
+ *
+ */
 export function useUserRole() {
   const { user } = useAuth();
 

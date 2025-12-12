@@ -6,6 +6,12 @@ interface LoadingWidgetProps {
   showHeader?: boolean;
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.rows
+ * @param root0.showHeader
+ */
 export function LoadingWidget({ rows = 4, showHeader = true }: LoadingWidgetProps) {
   return (
     <Card className="glass-card">
@@ -30,6 +36,9 @@ export function LoadingWidget({ rows = 4, showHeader = true }: LoadingWidgetProp
   );
 }
 
+/**
+ *
+ */
 export function LoadingStatCard() {
   return (
     <Card className="glass-card">

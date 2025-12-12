@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
     <fieldset
@@ -19,6 +24,12 @@ function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.variant
+ */
 function FieldLegend({
   className,
   variant = "legend",
@@ -34,6 +45,11 @@ function FieldLegend({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function FieldGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -68,6 +84,12 @@ const fieldVariants = cva("group/field data-[invalid=true]:text-destructive flex
   },
 });
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.orientation
+ */
 function Field({
   className,
   orientation = "vertical",
@@ -84,6 +106,11 @@ function Field({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -94,6 +121,11 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>) {
   return (
     <Label
@@ -109,6 +141,11 @@ function FieldLabel({ className, ...props }: React.ComponentProps<typeof Label>)
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -122,6 +159,11 @@ function FieldTitle({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ */
 function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   return (
     <p
@@ -137,6 +179,12 @@ function FieldDescription({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.children
+ * @param root0.className
+ */
 function FieldSeparator({
   children,
   className,
@@ -164,6 +212,13 @@ function FieldSeparator({
   );
 }
 
+/**
+ *
+ * @param root0
+ * @param root0.className
+ * @param root0.children
+ * @param root0.errors
+ */
 function FieldError({
   className,
   children,
