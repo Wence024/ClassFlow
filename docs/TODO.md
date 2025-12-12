@@ -79,6 +79,7 @@
 
 - [ ] Username/password autocomplete attribute warning
 - [ ] RLS policies for remaining tables (attendance, billing, etc.)
+- [ ] Unimplemented light text colors for destructive variants in dark mode: located in "logout" text
 
 ## 🗄️ Database Tables (from Supabase)
 
