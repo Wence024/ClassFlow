@@ -30,9 +30,9 @@ export function useUserRole() {
     return role === targetRole;
   };
 
-  const hasAnyRole = (roles: AppRole[]): boolean => {
+  const hasAnyRole = (targetRoles: AppRole[]): boolean => {
     if (!role) return false;
-    return roles.includes(role);
+    return targetRoles.includes(role);
   };
 
   return {
