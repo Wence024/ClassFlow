@@ -108,13 +108,45 @@
 - [x] Route and navigation configured (`/patients`, `/patients/:id`)
 - [x] Seed data: 5 sample patients
 
+### Phase 7: Appointments Module
+
+- [x] Appointment types and validation schemas
+  - `src/types/appointment.ts` - Type definitions
+  - `src/lib/validations/appointment.ts` - Zod form validation
+- [x] Appointment service layer (`src/services/appointmentService.ts`)
+  - CRUD operations with pagination
+  - Filters (date range, status, patient, doctor)
+  - Today's appointments, upcoming appointments queries
+  - Booked time slots query for scheduling
+- [x] React Query hooks (`src/hooks/useAppointments.ts`)
+  - useAppointments, useAppointment, usePatientAppointments
+  - useTodaysAppointments, useUpcomingAppointments
+  - useBookedTimeSlots for availability
+  - Create/Update/Cancel mutations
+- [x] Appointment UI components (`src/components/appointments/`)
+  - AppointmentStatusBadge - Color-coded status display
+  - TimeSlotPicker - 30-min interval time grid
+  - AppointmentFilters - Status/date range filters
+  - AppointmentCard - Compact appointment display
+  - AppointmentForm - Full booking form with patient select
+  - AppointmentFormDialog - Add/Edit modal
+  - AppointmentTable - Data table with actions
+  - CancelAppointmentDialog - Cancel confirmation
+- [x] Appointments page (`src/pages/Appointments.tsx`)
+  - Tabs: All / Today / Upcoming
+  - Filters and pagination
+  - New appointment button
+- [x] Patient Detail integration
+  - Appointments tab shows patient's appointments
+  - New appointment button pre-fills patient
+- [x] Route configured (`/appointments`)
+
 ## 🔄 In Progress
 
 (None)
 
 ## 📋 Upcoming
 
-- [ ] Appointment scheduling
 - [ ] Medical records
 - [ ] Prescription management
 - [ ] Lab requests/results
