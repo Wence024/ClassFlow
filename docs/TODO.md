@@ -91,14 +91,22 @@
 - [x] Patient UI components (`src/components/patients/`)
   - PatientFilters - Search and status filter
   - PatientTable - Data table with actions
-  - PatientForm - Multi-section form with validation
+  - PatientForm - Multi-section form with validation (year/month dropdown date picker)
   - PatientFormDialog - Add/Edit modal
   - DeletePatientDialog - Deactivate confirmation
+  - PatientSelect - Searchable patient combobox for other modules
+  - PatientCard - Compact card for lists/queues
+  - PatientQuickView - HoverCard showing patient summary
 - [x] Patients page (`src/pages/Patients.tsx`)
   - List view with pagination
   - Add/Edit/View/Deactivate actions
   - Responsive design with loading states
-- [x] Route and navigation configured (`/patients`)
+- [x] Patient Detail page (`src/pages/PatientDetail.tsx`)
+  - Profile card with demographics, contact, insurance
+  - Tabbed interface: Overview, Appointments, Records, Prescriptions, Lab, Billing
+  - Empty states for future module integration
+- [x] Route and navigation configured (`/patients`, `/patients/:id`)
+- [x] Seed data: 5 sample patients
 
 ## 🔄 In Progress
 

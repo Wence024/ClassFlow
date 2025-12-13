@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { MoreHorizontal, Pencil, Trash2, Eye, Mail, Phone } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Eye, Mail, Phone, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,7 @@ interface PatientTableProps {
 }
 
 export function PatientTable({ patients, isLoading }: PatientTableProps) {
+  const navigate = useNavigate();
   const [editingPatient, setEditingPatient] = useState<Patient | undefined>();
   const [deletingPatient, setDeletingPatient] = useState<Patient | null>(null);
   const [viewingPatient, setViewingPatient] = useState<Patient | null>(null);
@@ -144,10 +146,14 @@ export function PatientTable({ patients, isLoading }: PatientTableProps) {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="bg-popover">
+                      <DropdownMenuItem onClick={() => navigate(`/patients/${patient.id}`)}>
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Open Profile
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setViewingPatient(patient)}>
                         <Eye className="mr-2 h-4 w-4" />
-                        View Details
+                        Quick View
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setEditingPatient(patient)}>
                         <Pencil className="mr-2 h-4 w-4" />
