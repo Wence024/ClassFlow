@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import PatientDetail from "./pages/PatientDetail";
+import Appointments from "./pages/Appointments";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import VerifyEmail from "./pages/auth/VerifyEmail";
@@ -55,6 +56,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <PatientDetail />
+                  </ProtectedRoute>
+                }
+                />
+              <Route
+                path="/appointments"
+                element={
+                  <ProtectedRoute>
+                    <Appointments />
                   </ProtectedRoute>
                 }
               />

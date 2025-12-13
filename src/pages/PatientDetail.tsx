@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format, differenceInYears } from "date-fns";
 import {
@@ -7,7 +8,6 @@ import {
   Pill,
   FlaskConical,
   Receipt,
-  User,
   Phone,
   Mail,
   MapPin,
@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   UserCheck,
   Pencil,
+  Plus,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -26,14 +27,17 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyWidget } from "@/components/dashboard/EmptyWidget";
 import { PatientFormDialog } from "@/components/patients/PatientFormDialog";
+import { AppointmentCard, AppointmentFormDialog } from "@/components/appointments";
 import { usePatient } from "@/hooks/usePatients";
-import { useState } from "react";
+import { usePatientAppointments } from "@/hooks/useAppointments";
 
 export default function PatientDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: patient, isLoading, error } = usePatient(id);
+  const { data: appointments = [], isLoading: appointmentsLoading } = usePatientAppointments(id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [appointmentDialogOpen, setAppointmentDialogOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -234,12 +238,32 @@ export default function PatientDetail() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="appointments" className="mt-0">
-                  <EmptyWidget
-                    icon={Calendar}
-                    title="No Appointments"
-                    description="Appointments will appear here once the module is implemented."
-                  />
+                <TabsContent value="appointments" className="mt-0 space-y-4">
+                  <div className="flex justify-end">
+                    <Button size="sm" onClick={() => setAppointmentDialogOpen(true)}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      New Appointment
+                    </Button>
+                  </div>
+                  {appointmentsLoading ? (
+                    <div className="space-y-3">
+                      {[...Array(3)].map((_, i) => (
+                        <Skeleton key={i} className="h-20 w-full" />
+                      ))}
+                    </div>
+                  ) : appointments.length > 0 ? (
+                    <div className="space-y-3">
+                      {appointments.map((appt) => (
+                        <AppointmentCard key={appt.id} appointment={appt} />
+                      ))}
+                    </div>
+                  ) : (
+                    <EmptyWidget
+                      icon={Calendar}
+                      title="No Appointments"
+                      description="Schedule an appointment for this patient."
+                    />
+                  )}
                 </TabsContent>
 
                 <TabsContent value="records" className="mt-0">
@@ -284,6 +308,13 @@ export default function PatientDetail() {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         patient={patient}
+      />
+
+      {/* Appointment Dialog */}
+      <AppointmentFormDialog
+        open={appointmentDialogOpen}
+        onOpenChange={setAppointmentDialogOpen}
+        defaultPatientId={id}
       />
     </DashboardLayout>
   );
