@@ -1,6 +1,3 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Activity,
   Calendar,
@@ -14,6 +11,10 @@ import {
   ArrowRight,
   CheckCircle2,
 } from "lucide-react";
+import { Link } from "react-router-dom";
+
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
 const features = [
   {

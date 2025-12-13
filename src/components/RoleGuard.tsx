@@ -1,7 +1,11 @@
 import { ReactNode } from "react";
+
 import { Navigate, useLocation } from "react-router-dom";
+
 import { useUserRole } from "@/hooks/useUserRole";
+
 import { Spinner } from "@/components/ui/spinner";
+
 import type { AppRole } from "@/types/roles";
 
 interface RoleGuardProps {

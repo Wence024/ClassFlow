@@ -1,8 +1,9 @@
 import { Users, Calendar, Clock, Activity } from "lucide-react";
+
+import { DashboardHeader } from "../DashboardHeader";
+import { EmptyWidget } from "../EmptyWidget";
 import { StatCard } from "../StatCard";
 import { WidgetCard } from "../WidgetCard";
-import { EmptyWidget } from "../EmptyWidget";
-import { DashboardHeader } from "../DashboardHeader";
 
 /**
  *

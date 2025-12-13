@@ -5,15 +5,24 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import jsdoc from "eslint-plugin-jsdoc";
 import sonarjs from "eslint-plugin-sonarjs";
+import importPlugin from "eslint-plugin-import";
 
 export default tseslint.config(
   { ignores: ["dist"] },
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript
+    ],
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        project: ["./tsconfig.app.json"],
+      }
     },
     plugins: {
       "react-hooks": reactHooks,
@@ -21,10 +30,95 @@ export default tseslint.config(
       jsdoc,
       sonarjs,
     },
+    settings: {
+      "import/resolver": {
+        node: {
+          paths: ["src"],
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
+        typescript: {
+          alwaysTryTypes: true,
+          project: ["./tsconfig.json", "./tsconfig.app.json"],
+        },
+      },
+      "import/parsers": {
+        "@typescript-eslint/parser": [".ts", ".tsx"],
+      },
+    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+
+      // Import rules for scalable architecture
+      "import/order": [
+        "error",
+        {
+          "groups": [
+            "builtin",
+            "external",
+            "internal",
+            "parent",
+            "sibling",
+            "index"
+          ],
+          "newlines-between": "always",
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          },
+          "pathGroups": [
+            {
+              "pattern": "react",
+              "group": "external",
+              "position": "before"
+            },
+            {
+              "pattern": "@/integrations/**",
+              "group": "external",
+              "position": "after"
+            },
+            {
+              "pattern": "@/hooks/**",
+              "group": "internal",
+              "position": "after"
+            },
+            {
+              "pattern": "@/contexts/**",
+              "group": "internal",
+              "position": "after"
+            },
+            {
+              "pattern": "@/components/**",
+              "group": "internal",
+              "position": "after"
+            },
+            {
+              "pattern": "@/lib/**",
+              "group": "internal",
+              "position": "after"
+            },
+            {
+              "pattern": "@/services/**",
+              "group": "internal",
+              "position": "after"
+            },
+            {
+              "pattern": "@/utils/**",
+              "group": "internal",
+              "position": "after"
+            },
+            {
+              "pattern": "@/types/**",
+              "group": "internal",
+              "position": "after"
+            }
+          ],
+          "pathGroupsExcludedImportTypes": ["react"]
+        }
+      ],
+      "import/no-cycle": "error",
+      "import/no-self-import": "error",
 
       // SonarJS rules for readable and maintainable code
       "sonarjs/cognitive-complexity": ["warn", 15], // Functions should not be overly complex

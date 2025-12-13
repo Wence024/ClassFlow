@@ -1,11 +1,14 @@
+import { format } from "date-fns";
 import { Receipt, DollarSign, AlertTriangle, Clock } from "lucide-react";
-import { StatCard } from "../StatCard";
-import { WidgetCard } from "../WidgetCard";
+
+import { useBillingClerkDashboard } from "@/hooks/dashboard/useStaffDashboard";
+
+import { DashboardHeader } from "../DashboardHeader";
 import { EmptyWidget } from "../EmptyWidget";
 import { LoadingWidget, LoadingStatCard } from "../LoadingWidget";
-import { DashboardHeader } from "../DashboardHeader";
-import { useBillingClerkDashboard } from "@/hooks/dashboard/useStaffDashboard";
-import { format } from "date-fns";
+import { StatCard } from "../StatCard";
+import { WidgetCard } from "../WidgetCard";
+
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-US", {

@@ -1,6 +1,9 @@
 import { Navigate, useLocation } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
+
 import { Spinner } from "@/components/ui/spinner";
+
 import type { AppRole } from "@/types/roles";
 import { hasRouteAccess } from "@/types/roles";
 

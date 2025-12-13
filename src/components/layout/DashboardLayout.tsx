@@ -1,9 +1,11 @@
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Bell, Search } from "lucide-react";
+
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+
+import { AppSidebar } from "./AppSidebar";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;

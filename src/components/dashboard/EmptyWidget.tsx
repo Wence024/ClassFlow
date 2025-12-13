@@ -1,4 +1,5 @@
 import { LucideIcon, Inbox } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface EmptyWidgetProps {

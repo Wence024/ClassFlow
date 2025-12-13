@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Hospital, UserPlus } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+
+import { useToast } from "@/hooks/use-toast";
+
+import { useAuth } from "@/contexts/AuthContext";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { registerSchema, RegisterFormData } from "@/lib/validations/auth";
-import { useToast } from "@/hooks/use-toast";
+
 
 /**
  *

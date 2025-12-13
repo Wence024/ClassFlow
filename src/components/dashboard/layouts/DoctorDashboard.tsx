@@ -1,10 +1,13 @@
 import { Calendar, FileText, FlaskConical, Clock } from "lucide-react";
-import { StatCard } from "../StatCard";
-import { WidgetCard } from "../WidgetCard";
+
+import { useDoctorDashboard } from "@/hooks/dashboard/useDoctorDashboard";
+
+import { DashboardHeader } from "../DashboardHeader";
 import { EmptyWidget } from "../EmptyWidget";
 import { LoadingWidget, LoadingStatCard } from "../LoadingWidget";
-import { DashboardHeader } from "../DashboardHeader";
-import { useDoctorDashboard } from "@/hooks/dashboard/useDoctorDashboard";
+import { StatCard } from "../StatCard";
+import { WidgetCard } from "../WidgetCard";
+
 
 /**
  *

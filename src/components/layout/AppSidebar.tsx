@@ -15,7 +15,17 @@ import {
   ChevronUp,
   LucideIcon,
 } from "lucide-react";
+
+import { useAuth } from "@/contexts/AuthContext";
+
 import { NavLink } from "@/components/NavLink";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -29,14 +39,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { getRoleDisplayName, hasRouteAccess, type AppRole } from "@/types/roles";
 
 interface NavItem {

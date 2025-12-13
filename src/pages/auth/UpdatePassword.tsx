@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Lock, CheckCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+
+import { supabase } from "@/integrations/supabase/client";
+
+import { useToast } from "@/hooks/use-toast";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { supabase } from "@/integrations/supabase/client";
+
 import { updatePasswordSchema, UpdatePasswordFormData } from "@/lib/validations/auth";
-import { useToast } from "@/hooks/use-toast";
+
 
 /**
  *

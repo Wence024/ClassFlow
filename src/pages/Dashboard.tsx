@@ -1,6 +1,5 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useUserRole } from "@/hooks/useUserRole";
-import { Skeleton } from "@/components/ui/skeleton";
+
 import {
   AdminDashboard,
   DoctorDashboard,
@@ -12,6 +11,8 @@ import {
   StaffDashboard,
   PatientDashboard,
 } from "@/components/dashboard/layouts";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function DashboardSkeleton() {
   return (

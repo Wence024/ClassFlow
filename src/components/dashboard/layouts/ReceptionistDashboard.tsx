@@ -1,10 +1,13 @@
 import { Calendar, Users, UserPlus, Clock } from "lucide-react";
-import { StatCard } from "../StatCard";
-import { WidgetCard } from "../WidgetCard";
+
+import { useReceptionistDashboard } from "@/hooks/dashboard/useStaffDashboard";
+
+import { DashboardHeader } from "../DashboardHeader";
 import { EmptyWidget } from "../EmptyWidget";
 import { LoadingWidget, LoadingStatCard } from "../LoadingWidget";
-import { DashboardHeader } from "../DashboardHeader";
-import { useReceptionistDashboard } from "@/hooks/dashboard/useStaffDashboard";
+import { StatCard } from "../StatCard";
+import { WidgetCard } from "../WidgetCard";
+
 
 /**
  *
